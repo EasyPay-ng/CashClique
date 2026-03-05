@@ -5,11 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>CashClique — Where Content Meets Cash</title>
 
+<!-- Favicon -->
 <link rel="icon" type="image/png" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
 
+<!-- Google Font -->
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-<meta name="description" content="CashClique — Where Content Meets Cash. Create powerful content, grow your audience, and monetize value.">
+<meta name="description" content="CashClique — Where Content Meets Cash. Create, share, and monetize valuable ideas.">
 
 <style>
 *{
@@ -20,17 +22,9 @@
 }
 
 body{
-  background: linear-gradient(-45deg, #0f172a, #111827, #0f2027, #1e293b);
-  background-size:400% 400%;
-  animation: gradientBG 12s ease infinite;
-  color:white;
+  background: #fff8f0;
+  color:#1a1a1a;
   overflow-x:hidden;
-}
-
-@keyframes gradientBG{
-  0%{background-position:0% 50%;}
-  50%{background-position:100% 50%;}
-  100%{background-position:0% 50%;}
 }
 
 header{
@@ -38,8 +32,8 @@ header{
   justify-content:space-between;
   align-items:center;
   padding:20px 8%;
-  backdrop-filter:blur(15px);
-  background:rgba(255,255,255,0.05);
+  background:#fff;
+  box-shadow:0 5px 15px rgba(0,0,0,0.05);
   position:sticky;
   top:0;
   z-index:100;
@@ -64,9 +58,7 @@ header{
 .logo h1{
   font-size:22px;
   font-weight:700;
-  background:linear-gradient(90deg,#38bdf8,#6366f1);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
+  color:#ff7f50;
 }
 
 .auth-buttons a{
@@ -85,30 +77,31 @@ header{
 
 .login-btn{
   background:transparent;
-  border:1px solid #38bdf8;
-  color:#38bdf8;
+  border:2px solid #ff7f50;
+  color:#ff7f50;
 }
 
 .login-btn:hover{
-  background:#38bdf8;
-  color:#0f172a;
-  box-shadow:0 0 15px #38bdf8;
+  background:#ff7f50;
+  color:white;
+  box-shadow:0 0 15px #ff7f50;
 }
 
 .register-btn{
-  background:#38bdf8;
-  color:#0f172a;
+  background:#ff7f50;
+  color:white;
 }
 
 .register-btn:hover{
   transform:translateY(-3px);
-  box-shadow:0 0 20px #38bdf8;
+  box-shadow:0 0 20px #ff7f50;
 }
 
 .hero{
   text-align:center;
   padding:120px 20px 100px;
   animation: fadeIn 1.5s ease;
+  background: #fffaf0;
 }
 
 @keyframes fadeIn{
@@ -120,11 +113,12 @@ header{
   font-size:52px;
   font-weight:800;
   margin-bottom:20px;
+  color:#ff7f50;
 }
 
 .hero p{
   font-size:20px;
-  color:#cbd5e1;
+  color:#333;
   margin-bottom:40px;
   max-width:700px;
   margin-left:auto;
@@ -133,66 +127,71 @@ header{
 
 .hero .cta{
   padding:14px 28px;
-  background:linear-gradient(90deg,#38bdf8,#6366f1);
+  background:#ff7f50;
   border:none;
   border-radius:10px;
   font-weight:700;
   cursor:pointer;
+  color:white;
   transition:0.3s ease;
 }
 
 .hero .cta:hover{
   transform:translateY(-4px) scale(1.05);
-  box-shadow:0 10px 25px rgba(56,189,248,0.5);
+  box-shadow:0 10px 25px rgba(255,127,80,0.5);
 }
 
 .features{
   padding:100px 8%;
   text-align:center;
+  background:#fffaf0;
 }
 
 .features h3{
   font-size:32px;
   margin-bottom:20px;
+  color:#ff7f50;
 }
 
 .features p.section-desc{
-  max-width:700px;
+  max-width:800px;
   margin:0 auto 60px;
-  color:#cbd5e1;
+  color:#555;
   font-size:17px;
+  line-height:1.7;
 }
 
 .feature-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
   gap:35px;
 }
 
 .feature-card{
-  background:rgba(255,255,255,0.05);
-  backdrop-filter:blur(15px);
+  background:white;
   padding:35px;
   border-radius:16px;
   transition:0.4s ease;
-  border:1px solid rgba(255,255,255,0.1);
+  border:2px solid #ffe5d6;
+  box-shadow:0 5px 20px rgba(0,0,0,0.08);
 }
 
 .feature-card:hover{
   transform:translateY(-10px);
-  box-shadow:0 15px 40px rgba(0,0,0,0.4);
-  border:1px solid #38bdf8;
+  box-shadow:0 15px 40px rgba(0,0,0,0.2);
+  border:2px solid #ff7f50;
 }
 
 .feature-card h4{
   margin-bottom:15px;
   font-size:20px;
-  color:#38bdf8;
+  color:#ff7f50;
 }
 
 .feature-card p{
   font-size:15px;
-  color:#cbd5e1;
+  color:#555;
+  line-height:1.6;
 }
 
 footer{
@@ -200,8 +199,8 @@ footer{
   padding:30px;
   margin-top:60px;
   font-size:14px;
-  color:#94a3b8;
-  border-top:1px solid rgba(255,255,255,0.08);
+  color:#777;
+  border-top:1px solid #ffe5d6;
 }
 </style>
 </head>
@@ -223,8 +222,9 @@ footer{
 <section class="hero">
   <h2>Where Content Meets Cash</h2>
   <p>
-    CashClique is the next-generation social platform built for creators who understand value.
-    Share insights. Build influence. Monetize your ideas. Turn attention into income.
+    CashClique is the ultimate platform for creators who want to turn influence into income.
+    Share financial insights, side hustles, business tips, and content that provides real value.
+    Connect with an audience that rewards your creativity and effort.
   </p>
   <button class="cta">Start Creating</button>
 </section>
@@ -232,31 +232,46 @@ footer{
 <section class="features">
   <h3>Why CashClique?</h3>
   <p class="section-desc">
-    CashClique isn’t just another social platform. It’s a digital economy for creators.
-    We focus on valuable content, financial growth, and opportunity-driven conversations.
-    Every post has potential. Every idea can generate income.
+    CashClique is more than a social platform. It is a thriving ecosystem for creators who value both content and cash.
+    Our goal is to empower individuals to share knowledge, build a following, and generate real income. Every post is an opportunity.
+    Every connection can lead to financial growth. Our features are designed to maximize exposure, engagement, and monetization.
   </p>
 
   <div class="feature-grid">
 
     <div class="feature-card">
       <h4>Create High-Value Content</h4>
-      <p>Share business insights, side hustles, investment ideas, and real opportunities that change lives.</p>
+      <p>
+        Share business strategies, investment insights, money-making ideas, and financial tips.
+        Our platform encourages meaningful contributions that help creators stand out.
+        The more value you provide, the more your audience grows.
+      </p>
     </div>
 
     <div class="feature-card">
       <h4>Build a Financial Audience</h4>
-      <p>Connect with ambitious individuals who care about growth, money, and smart opportunities.</p>
+      <p>
+        Reach followers who are interested in wealth creation, side hustles, and smart financial decisions.
+        Engage with like-minded creators and learners who truly appreciate valuable content.
+        Grow your influence with an audience that’s ready to act on your insights.
+      </p>
     </div>
 
     <div class="feature-card">
       <h4>Monetization First</h4>
-      <p>Unlike traditional platforms, CashClique is built around value creation and income potential.</p>
+      <p>
+        CashClique is designed to reward creators. Your content can directly lead to opportunities, partnerships, and income.
+        Unlike traditional social media, we prioritize value-based engagement, helping creators turn their time and knowledge into cash.
+      </p>
     </div>
 
     <div class="feature-card">
       <h4>Opportunity Discovery</h4>
-      <p>Find trending side hustles, remote work leads, startup ideas, and wealth-building strategies.</p>
+      <p>
+        Discover trending side hustles, freelance projects, investment leads, and startup ideas.
+        CashClique connects you to actionable opportunities while keeping your content front and center.
+        It’s a network where creators and opportunities meet seamlessly.
+      </p>
     </div>
 
   </div>
