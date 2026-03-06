@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Register — CashClique</title>
+
+<link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+background:#fffaf5;
+display:flex;
+align-items:center;
+justify-content:center;
+height:100vh;
+}
+
+.container{
+background:white;
+padding:35px;
+border-radius:12px;
+width:100%;
+max-width:420px;
+box-shadow:0 10px 25px rgba(0,0,0,0.08);
+}
+
+.logo{
+text-align:center;
+margin-bottom:20px;
+}
+
+.logo img{
+height:60px;
+border-radius:10px;
+}
+
+.logo h2{
+color:#ff7a18;
+margin-top:8px;
+}
+
+form{
+display:flex;
+flex-direction:column;
+gap:12px;
+}
+
+input{
+padding:12px;
+border-radius:8px;
+border:1px solid #ddd;
+font-size:14px;
+}
+
+input:focus{
+outline:none;
+border-color:#ff7a18;
+}
+
+.checkbox{
+font-size:13px;
+display:flex;
+align-items:center;
+gap:8px;
+}
+
+button{
+background:#ff7a18;
+color:white;
+border:none;
+padding:13px;
+border-radius:8px;
+font-weight:600;
+cursor:pointer;
+}
+
+button:hover{
+opacity:0.9;
+}
+
+.spinner{
+display:none;
+margin:auto;
+border:4px solid #eee;
+border-top:4px solid #ff7a18;
+border-radius:50%;
+width:30px;
+height:30px;
+animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+0%{transform:rotate(0deg);}
+100%{transform:rotate(360deg);}
+}
+
+.error{
+color:red;
+font-size:13px;
+text-align:center;
+}
+
+.login-link{
+text-align:center;
+margin-top:15px;
+font-size:14px;
+}
+
+.login-link a{
+color:#ff7a18;
+text-decoration:none;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="logo">
+<img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
+<h2>CashClique</h2>
+</div>
+
+<form id="registerForm">
+
+<input type="text" id="username" placeholder="Username" required>
+
+<input type="email" id="email" placeholder="Email" required>
+
+<input type="password" id="password" placeholder="Password" required>
+
+<input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+
+<input type="text" id="inviteCode" placeholder="Invite Code (optional)">
+
+<label class="checkbox">
+<input type="checkbox" id="terms">
+I accept the Terms & Conditions
+</label>
+
+<button type="submit">Register</button>
+
+<div class="spinner" id="spinner"></div>
+
+<p class="error" id="error"></p>
+
+</form>
+
+<div class="login-link">
+Already have an account? <a href="login.html">Login</a>
+</div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+import { getFirestore, collection, query, where, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+const firebaseConfig = {
+apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
+authDomain: "cashclique-31718.firebaseapp.com",
+projectId: "cashclique-31718",
+storageBucket: "cashclique-31718.firebasestorage.app",
+messagingSenderId: "1064282591269",
+appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const form = document.getElementById("registerForm");
+const spinner = document.getElementById("spinner");
+const error = document.getElementById("error");
+
+form.addEventListener("submit", async (e)=>{
+
+e.preventDefault();
+
+error.textContent="";
+
+const username = document.getElementById("username").value.trim();
+const email = document.getElementById("email").value.trim();
+const password = document.getElementById("password").value;
+const confirmPassword = document.getElementById("confirmPassword").value;
+const inviteCode = document.getElementById("inviteCode").value.trim();
+const terms = document.getElementById("terms").checked;
+
+if(password !== confirmPassword){
+error.textContent="Passwords do not match";
+return;
+}
+
+if(!terms){
+error.textContent="You must accept the terms";
+return;
+}
+
+spinner.style.display="block";
+
+try{
+
+/* CHECK INVITE CODE IF PROVIDED */
+
+if(inviteCode){
+
+const q = query(collection(db,"users"),where("inviteCode","==",inviteCode));
+const snap = await getDocs(q);
+
+if(snap.empty){
+spinner.style.display="none";
+error.textContent="Invalid invite code";
+return;
+}
+
+}
+
+/* CREATE ACCOUNT */
+
+const userCredential = await createUserWithEmailAndPassword(auth,email,password);
+
+const uid = userCredential.user.uid;
+
+const myInviteCode = uid.substring(0,6);
+
+/* SAVE USER */
+
+await setDoc(doc(db,"users",uid),{
+
+username:username,
+email:email,
+uid:uid,
+inviteCode:myInviteCode,
+usedInvite:inviteCode || null,
+createdAt:Date.now()
+
+});
+
+spinner.style.display="none";
+
+alert("Account created successfully");
+
+window.location.href="login.html";
+
+}catch(err){
+
+spinner.style.display="none";
+error.textContent=err.message;
+
+}
+
+});
+
+</script>
+
+</body>
+</html>
