@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 
 <meta charset="UTF-8">
@@ -26,7 +25,8 @@ background:#fffaf5;
 display:flex;
 align-items:center;
 justify-content:center;
-height:100vh;
+min-height:100vh;
+padding:20px;
 }
 
 .container{
@@ -64,6 +64,7 @@ padding:12px;
 border-radius:8px;
 border:1px solid #ddd;
 font-size:14px;
+width:100%;
 }
 
 input:focus{
@@ -71,11 +72,30 @@ outline:none;
 border-color:#ff7a18;
 }
 
+.password-wrapper{
+position:relative;
+}
+
+.eye{
+position:absolute;
+right:12px;
+top:50%;
+transform:translateY(-50%);
+cursor:pointer;
+font-size:14px;
+color:#666;
+}
+
 .checkbox{
 font-size:13px;
 display:flex;
 align-items:center;
 gap:8px;
+}
+
+.checkbox a{
+color:#ff7a18;
+text-decoration:none;
 }
 
 button{
@@ -86,21 +106,25 @@ padding:13px;
 border-radius:8px;
 font-weight:600;
 cursor:pointer;
+display:flex;
+align-items:center;
+justify-content:center;
+gap:8px;
 }
 
-button:hover{
-opacity:0.9;
+button:disabled{
+opacity:0.7;
+cursor:not-allowed;
 }
 
 .spinner{
-display:none;
-margin:auto;
-border:4px solid #eee;
-border-top:4px solid #ff7a18;
+width:16px;
+height:16px;
+border:2px solid rgba(255,255,255,0.4);
+border-top:2px solid white;
 border-radius:50%;
-width:30px;
-height:30px;
-animation:spin 1s linear infinite;
+animation:spin 0.8s linear infinite;
+display:none;
 }
 
 @keyframes spin{
@@ -144,20 +168,30 @@ text-decoration:none;
 
 <input type="email" id="email" placeholder="Email" required>
 
+<div class="password-wrapper">
 <input type="password" id="password" placeholder="Password" required>
+<span class="eye" onclick="togglePassword('password')">👁</span>
+</div>
 
+<div class="password-wrapper">
 <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+<span class="eye" onclick="togglePassword('confirmPassword')">👁</span>
+</div>
 
 <input type="text" id="inviteCode" placeholder="Invite Code (optional)">
 
 <label class="checkbox">
 <input type="checkbox" id="terms">
-I accept the Terms & Conditions
+I accept the <a href="terms.html" target="_blank">Terms & Conditions</a>
 </label>
 
-<button type="submit">Register</button>
+<button type="submit" id="registerBtn">
+
+<span id="btnText">Register</span>
 
 <div class="spinner" id="spinner"></div>
+
+</button>
 
 <p class="error" id="error"></p>
 
@@ -190,6 +224,8 @@ const db = getFirestore(app);
 
 const form = document.getElementById("registerForm");
 const spinner = document.getElementById("spinner");
+const btnText = document.getElementById("btnText");
+const registerBtn = document.getElementById("registerBtn");
 const error = document.getElementById("error");
 
 form.addEventListener("submit", async (e)=>{
@@ -215,26 +251,26 @@ error.textContent="You must accept the terms";
 return;
 }
 
-spinner.style.display="block";
+spinner.style.display="inline-block";
+btnText.textContent="Registering...";
+registerBtn.disabled=true;
 
 try{
 
-/* CHECK INVITE CODE IF PROVIDED */
-
 if(inviteCode){
 
-const q = query(collection(db,"users"),where("inviteCode","==",inviteCode));
-const snap = await getDocs(q);
+const q=query(collection(db,"users"),where("inviteCode","==",inviteCode));
+const snap=await getDocs(q);
 
 if(snap.empty){
 spinner.style.display="none";
+btnText.textContent="Register";
+registerBtn.disabled=false;
 error.textContent="Invalid invite code";
 return;
 }
 
 }
-
-/* CREATE ACCOUNT */
 
 const userCredential = await createUserWithEmailAndPassword(auth,email,password);
 
@@ -242,20 +278,16 @@ const uid = userCredential.user.uid;
 
 const myInviteCode = uid.substring(0,6);
 
-/* SAVE USER */
-
 await setDoc(doc(db,"users",uid),{
 
-username:username,
-email:email,
-uid:uid,
+username,
+email,
+uid,
 inviteCode:myInviteCode,
 usedInvite:inviteCode || null,
 createdAt:Date.now()
 
 });
-
-spinner.style.display="none";
 
 alert("Account created successfully");
 
@@ -264,11 +296,22 @@ window.location.href="login.html";
 }catch(err){
 
 spinner.style.display="none";
+btnText.textContent="Register";
+registerBtn.disabled=false;
+
 error.textContent=err.message;
 
 }
 
 });
+
+window.togglePassword=function(id){
+
+const field=document.getElementById(id);
+
+field.type= field.type === "password" ? "text" : "password";
+
+}
 
 </script>
 
