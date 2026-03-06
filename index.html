@@ -1,284 +1,414 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>CashClique — Where Content Meets Cash</title>
 
-<!-- Favicon -->
 <link rel="icon" type="image/png" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
 
-<!-- Google Font -->
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
 <meta name="description" content="CashClique — Where Content Meets Cash. Create, share, and monetize valuable ideas.">
 
 <style>
+
 *{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:'Poppins',sans-serif;
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
 }
 
 body{
-  background: #fff8f0;
-  color:#1a1a1a;
-  overflow-x:hidden;
+background:#fffaf5;
+color:#1a1a1a;
+overflow-x:hidden;
 }
 
+/* HEADER */
+
 header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:20px 8%;
-  background:#fff;
-  box-shadow:0 5px 15px rgba(0,0,0,0.05);
-  position:sticky;
-  top:0;
-  z-index:100;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:18px 7%;
+background:white;
+box-shadow:0 4px 12px rgba(0,0,0,0.05);
+position:sticky;
+top:0;
+z-index:100;
 }
 
 .logo{
-  display:flex;
-  align-items:center;
-  gap:12px;
+display:flex;
+align-items:center;
+gap:10px;
 }
 
 .logo img{
-  height:45px;
-  border-radius:10px;
-  transition:0.3s ease;
-}
-
-.logo img:hover{
-  transform:rotate(5deg) scale(1.1);
+height:40px;
+border-radius:8px;
 }
 
 .logo h1{
-  font-size:22px;
-  font-weight:700;
-  color:#ff7f50;
+font-size:20px;
+font-weight:700;
+color:#ff7a18;
 }
 
-.auth-buttons a{
-  text-decoration:none;
+/* NAV */
+
+nav{
+display:flex;
+align-items:center;
+gap:28px;
 }
 
-.auth-buttons button{
-  margin-left:12px;
-  padding:10px 20px;
-  border-radius:8px;
-  border:none;
-  cursor:pointer;
-  font-weight:600;
-  transition:0.3s ease;
+nav a{
+text-decoration:none;
+font-weight:500;
+color:#333;
+transition:0.3s;
 }
 
-.login-btn{
-  background:transparent;
-  border:2px solid #ff7f50;
-  color:#ff7f50;
+nav a:hover{
+color:#ff7a18;
 }
 
-.login-btn:hover{
-  background:#ff7f50;
-  color:white;
-  box-shadow:0 0 15px #ff7f50;
-}
-
-.register-btn{
-  background:#ff7f50;
-  color:white;
-}
-
-.register-btn:hover{
-  transform:translateY(-3px);
-  box-shadow:0 0 20px #ff7f50;
-}
+/* HERO */
 
 .hero{
-  text-align:center;
-  padding:120px 20px 100px;
-  animation: fadeIn 1.5s ease;
-  background: #fffaf0;
-}
-
-@keyframes fadeIn{
-  from{opacity:0; transform:translateY(20px);}
-  to{opacity:1; transform:translateY(0);}
+text-align:center;
+padding:120px 20px 90px;
+background:linear-gradient(180deg,#fffaf5,#fff);
 }
 
 .hero h2{
-  font-size:52px;
-  font-weight:800;
-  margin-bottom:20px;
-  color:#ff7f50;
+font-size:52px;
+font-weight:800;
+color:#ff7a18;
+margin-bottom:20px;
 }
 
 .hero p{
-  font-size:20px;
-  color:#333;
-  margin-bottom:40px;
-  max-width:700px;
-  margin-left:auto;
-  margin-right:auto;
+max-width:700px;
+margin:auto;
+font-size:19px;
+color:#555;
+line-height:1.7;
+margin-bottom:40px;
 }
 
-.hero .cta{
-  padding:14px 28px;
-  background:#ff7f50;
-  border:none;
-  border-radius:10px;
-  font-weight:700;
-  cursor:pointer;
-  color:white;
-  transition:0.3s ease;
+.hero button{
+padding:16px 34px;
+border:none;
+background:#ff7a18;
+color:white;
+font-weight:700;
+border-radius:10px;
+cursor:pointer;
+font-size:16px;
+transition:.3s;
 }
 
-.hero .cta:hover{
-  transform:translateY(-4px) scale(1.05);
-  box-shadow:0 10px 25px rgba(255,127,80,0.5);
+.hero button:hover{
+transform:translateY(-3px);
+box-shadow:0 10px 25px rgba(255,122,24,0.4);
 }
+
+/* FEATURES */
 
 .features{
-  padding:100px 8%;
-  text-align:center;
-  background:#fffaf0;
+padding:100px 7%;
+text-align:center;
 }
 
 .features h3{
-  font-size:32px;
-  margin-bottom:20px;
-  color:#ff7f50;
+font-size:32px;
+margin-bottom:15px;
+color:#ff7a18;
 }
 
-.features p.section-desc{
-  max-width:800px;
-  margin:0 auto 60px;
-  color:#555;
-  font-size:17px;
-  line-height:1.7;
+.section-desc{
+max-width:760px;
+margin:auto;
+margin-bottom:60px;
+color:#555;
+font-size:17px;
+line-height:1.7;
 }
 
 .feature-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-  gap:35px;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:35px;
 }
 
 .feature-card{
-  background:white;
-  padding:35px;
-  border-radius:16px;
-  transition:0.4s ease;
-  border:2px solid #ffe5d6;
-  box-shadow:0 5px 20px rgba(0,0,0,0.08);
+background:white;
+padding:35px;
+border-radius:14px;
+box-shadow:0 6px 20px rgba(0,0,0,0.07);
+transition:.3s;
+border:1px solid #ffe2d0;
 }
 
 .feature-card:hover{
-  transform:translateY(-10px);
-  box-shadow:0 15px 40px rgba(0,0,0,0.2);
-  border:2px solid #ff7f50;
+transform:translateY(-6px);
+box-shadow:0 15px 35px rgba(0,0,0,0.15);
+border:1px solid #ff7a18;
 }
 
 .feature-card h4{
-  margin-bottom:15px;
-  font-size:20px;
-  color:#ff7f50;
+color:#ff7a18;
+margin-bottom:12px;
 }
 
 .feature-card p{
-  font-size:15px;
-  color:#555;
-  line-height:1.6;
+color:#555;
+font-size:15px;
+line-height:1.6;
 }
 
-footer{
-  text-align:center;
-  padding:30px;
-  margin-top:60px;
-  font-size:14px;
-  color:#777;
-  border-top:1px solid #ffe5d6;
+/* HOW IT WORKS */
+
+.how{
+padding:100px 7%;
+background:#fff5ee;
+text-align:center;
 }
+
+.steps{
+margin-top:60px;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:40px;
+}
+
+.step{
+padding:30px;
+}
+
+.step-number{
+font-size:36px;
+font-weight:800;
+color:#ff7a18;
+margin-bottom:10px;
+}
+
+.step h4{
+margin-bottom:10px;
+}
+
+/* CTA */
+
+.cta-section{
+padding:100px 20px;
+text-align:center;
+background:#ff7a18;
+color:white;
+}
+
+.cta-section h3{
+font-size:36px;
+margin-bottom:15px;
+}
+
+.cta-buttons{
+margin-top:30px;
+}
+
+.cta-buttons a{
+text-decoration:none;
+}
+
+.cta-buttons button{
+margin:10px;
+padding:14px 28px;
+border-radius:10px;
+border:none;
+font-weight:600;
+cursor:pointer;
+}
+
+.register{
+background:white;
+color:#ff7a18;
+}
+
+.login{
+background:transparent;
+border:2px solid white;
+color:white;
+}
+
+/* FOOTER */
+
+footer{
+text-align:center;
+padding:30px;
+background:white;
+margin-top:60px;
+color:#777;
+font-size:14px;
+border-top:1px solid #eee;
+}
+
+/* MOBILE */
+
+@media(max-width:768px){
+
+.hero h2{
+font-size:36px;
+}
+
+.hero p{
+font-size:17px;
+}
+
+}
+
 </style>
 </head>
 
 <body>
 
 <header>
-  <div class="logo">
-    <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
-    <h1>CashClique</h1>
-  </div>
 
-  <div class="auth-buttons">
-    <a href="login.html"><button class="login-btn">Login</button></a>
-    <a href="register.html"><button class="register-btn">Register</button></a>
-  </div>
+<div class="logo">
+<img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
+<h1>CashClique</h1>
+</div>
+
+<nav>
+<a href="#">Home</a>
+<a href="#">Features</a>
+<a href="#">How it Works</a>
+</nav>
+
 </header>
 
 <section class="hero">
-  <h2>Where Content Meets Cash</h2>
-  <p>
-    CashClique is the ultimate platform for creators who want to turn influence into income.
-    Share financial insights, side hustles, business tips, and content that provides real value.
-    Connect with an audience that rewards your creativity and effort.
-  </p>
-  <button class="cta">Start Creating</button>
+
+<h2>Where Content Meets Cash</h2>
+
+<p>
+CashClique is the platform where creators turn valuable ideas into real income.
+Share insights, business strategies, side hustles, and opportunities while building
+an audience that rewards your knowledge.
+</p>
+
+<button onclick="location.href='register.html'">
+Start Creating
+</button>
+
 </section>
 
 <section class="features">
-  <h3>Why CashClique?</h3>
-  <p class="section-desc">
-    CashClique is more than a social platform. It is a thriving ecosystem for creators who value both content and cash.
-    Our goal is to empower individuals to share knowledge, build a following, and generate real income. Every post is an opportunity.
-    Every connection can lead to financial growth. Our features are designed to maximize exposure, engagement, and monetization.
-  </p>
 
-  <div class="feature-grid">
+<h3>Why CashClique?</h3>
 
-    <div class="feature-card">
-      <h4>Create High-Value Content</h4>
-      <p>
-        Share business strategies, investment insights, money-making ideas, and financial tips.
-        Our platform encourages meaningful contributions that help creators stand out.
-        The more value you provide, the more your audience grows.
-      </p>
-    </div>
+<p class="section-desc">
+CashClique is designed for creators who want more than likes and views.
+Our platform helps you turn valuable content into opportunities, influence,
+and income while connecting you with an audience focused on financial growth.
+</p>
 
-    <div class="feature-card">
-      <h4>Build a Financial Audience</h4>
-      <p>
-        Reach followers who are interested in wealth creation, side hustles, and smart financial decisions.
-        Engage with like-minded creators and learners who truly appreciate valuable content.
-        Grow your influence with an audience that’s ready to act on your insights.
-      </p>
-    </div>
+<div class="feature-grid">
 
-    <div class="feature-card">
-      <h4>Monetization First</h4>
-      <p>
-        CashClique is designed to reward creators. Your content can directly lead to opportunities, partnerships, and income.
-        Unlike traditional social media, we prioritize value-based engagement, helping creators turn their time and knowledge into cash.
-      </p>
-    </div>
+<div class="feature-card">
+<h4>Create High-Value Content</h4>
+<p>
+Share insights on finance, side hustles, investments and online opportunities.
+Build credibility while helping others learn smarter ways to grow wealth.
+</p>
+</div>
 
-    <div class="feature-card">
-      <h4>Opportunity Discovery</h4>
-      <p>
-        Discover trending side hustles, freelance projects, investment leads, and startup ideas.
-        CashClique connects you to actionable opportunities while keeping your content front and center.
-        It’s a network where creators and opportunities meet seamlessly.
-      </p>
-    </div>
+<div class="feature-card">
+<h4>Grow Your Audience</h4>
+<p>
+Reach people who are actively searching for money-making ideas,
+financial knowledge, and smart strategies.
+</p>
+</div>
 
-  </div>
+<div class="feature-card">
+<h4>Monetization Focus</h4>
+<p>
+CashClique prioritizes creators. Your valuable content can lead to
+income opportunities and meaningful partnerships.
+</p>
+</div>
+
+<div class="feature-card">
+<h4>Discover Opportunities</h4>
+<p>
+Find trending side hustles, investment ideas, and valuable connections
+inside a community focused on financial growth.
+</p>
+</div>
+
+</div>
+
+</section>
+
+<section class="how">
+
+<h3>How CashClique Works</h3>
+
+<p class="section-desc">
+Getting started is simple. Join the community, share valuable content,
+and grow an audience that values your insights.
+</p>
+
+<div class="steps">
+
+<div class="step">
+<div class="step-number">1</div>
+<h4>Create an Account</h4>
+<p>Sign up and set up your creator profile in minutes.</p>
+</div>
+
+<div class="step">
+<div class="step-number">2</div>
+<h4>Share Valuable Content</h4>
+<p>Post insights, business ideas, and money strategies.</p>
+</div>
+
+<div class="step">
+<div class="step-number">3</div>
+<h4>Grow & Earn</h4>
+<p>Build influence and unlock monetization opportunities.</p>
+</div>
+
+</div>
+
+</section>
+
+<section class="cta-section">
+
+<h3>Ready to Turn Content Into Cash?</h3>
+
+<p>Join CashClique today and start sharing valuable ideas.</p>
+
+<div class="cta-buttons">
+
+<a href="register.html">
+<button class="register">Create Account</button>
+</a>
+
+<a href="login.html">
+<button class="login">Login</button>
+</a>
+
+</div>
+
 </section>
 
 <footer>
-  © 2026 CashClique. All Rights Reserved.
+© 2026 CashClique. All Rights Reserved.
 </footer>
 
 <script type="module" src="./js/firebase.js"></script>
