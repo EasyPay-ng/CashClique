@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Register — CashClique</title>
+<title>Register • CashClique</title>
 
 <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
 
@@ -17,63 +16,61 @@
 margin:0;
 padding:0;
 box-sizing:border-box;
-font-family:'Poppins',sans-serif;
+font-family:Poppins,sans-serif;
 }
 
 body{
-background:#fffaf5;
+background:#fff;
 display:flex;
-align-items:center;
 justify-content:center;
+align-items:center;
 min-height:100vh;
 padding:20px;
 }
 
 .container{
-background:white;
-padding:35px;
-border-radius:12px;
 width:100%;
 max-width:420px;
-box-shadow:0 10px 25px rgba(0,0,0,0.08);
+background:#fff;
+border-radius:14px;
+padding:35px 25px;
+box-shadow:0 10px 35px rgba(0,0,0,0.1);
+text-align:center;
 }
 
 .logo{
-text-align:center;
-margin-bottom:20px;
+width:70px;
+margin-bottom:10px;
 }
 
-.logo img{
-height:60px;
-border-radius:10px;
+h2{
+color:#ff7a00;
+margin-bottom:5px;
 }
 
-.logo h2{
-color:#ff7a18;
-margin-top:8px;
+.tag{
+font-size:13px;
+color:#666;
+margin-bottom:25px;
 }
 
-form{
-display:flex;
-flex-direction:column;
-gap:12px;
+.input-group{
+position:relative;
+margin-bottom:18px;
 }
 
-input{
-padding:12px;
+.input-group input{
+width:100%;
+padding:12px 40px 12px 12px;
 border-radius:8px;
 border:1px solid #ddd;
 font-size:14px;
-width:100%;
-}
-
-input:focus{
 outline:none;
-border-color:#ff7a18;
+transition:.2s;
 }
 
-.password-wrapper{
-position:relative;
+.input-group input:focus{
+border-color:#ff7a00;
 }
 
 .eye{
@@ -83,38 +80,55 @@ top:50%;
 transform:translateY(-50%);
 cursor:pointer;
 font-size:14px;
-color:#666;
+color:#999;
 }
 
-.checkbox{
-font-size:13px;
+.strength{
+font-size:12px;
+text-align:left;
+margin-top:4px;
+}
+
+.weak{color:red}
+.medium{color:orange}
+.strong{color:green}
+
+.terms-box{
+margin:15px 0;
+text-align:left;
+}
+
+.terms-label{
 display:flex;
-align-items:center;
-gap:8px;
+gap:10px;
+align-items:flex-start;
+font-size:13px;
 }
 
-.checkbox a{
-color:#ff7a18;
+.terms-label a{
+color:#ff7a00;
+font-weight:500;
 text-decoration:none;
 }
 
 button{
-background:#ff7a18;
+width:100%;
+background:#ff7a00;
 color:white;
 border:none;
-padding:13px;
+padding:12px;
 border-radius:8px;
-font-weight:600;
+font-size:15px;
 cursor:pointer;
 display:flex;
-align-items:center;
 justify-content:center;
-gap:8px;
+align-items:center;
+gap:10px;
+transition:.3s;
 }
 
-button:disabled{
-opacity:0.7;
-cursor:not-allowed;
+button:hover{
+background:#e96c00;
 }
 
 .spinner{
@@ -123,79 +137,88 @@ height:16px;
 border:2px solid rgba(255,255,255,0.4);
 border-top:2px solid white;
 border-radius:50%;
-animation:spin 0.8s linear infinite;
+animation:spin 1s linear infinite;
 display:none;
 }
 
 @keyframes spin{
-0%{transform:rotate(0deg);}
-100%{transform:rotate(360deg);}
+to{transform:rotate(360deg);}
+}
+
+.login-link{
+margin-top:15px;
+font-size:13px;
+}
+
+.login-link a{
+color:#ff7a00;
+text-decoration:none;
+font-weight:500;
 }
 
 .error{
 color:red;
 font-size:13px;
-text-align:center;
+margin-bottom:10px;
+display:none;
 }
 
-.login-link{
-text-align:center;
-margin-top:15px;
-font-size:14px;
-}
-
-.login-link a{
-color:#ff7a18;
-text-decoration:none;
+.success{
+color:green;
+font-size:13px;
+margin-bottom:10px;
+display:none;
 }
 
 </style>
-
 </head>
 
 <body>
 
 <div class="container">
 
-<div class="logo">
-<img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
-<h2>CashClique</h2>
+<img class="logo" src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
+
+<h2>Create Account</h2>
+<p class="tag">Where Content Meets Cash</p>
+
+<div class="error" id="error"></div>
+<div class="success" id="success"></div>
+
+<div class="input-group">
+<input type="text" id="username" placeholder="Username">
 </div>
 
-<form id="registerForm">
+<div class="input-group">
+<input type="email" id="email" placeholder="Email address">
+</div>
 
-<input type="text" id="username" placeholder="Username" required>
-
-<input type="email" id="email" placeholder="Email" required>
-
-<div class="password-wrapper">
-<input type="password" id="password" placeholder="Password" required>
+<div class="input-group">
+<input type="password" id="password" placeholder="Password">
 <span class="eye" onclick="togglePassword('password')">👁</span>
+<div id="strength" class="strength"></div>
 </div>
 
-<div class="password-wrapper">
-<input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+<div class="input-group">
+<input type="password" id="confirmPassword" placeholder="Confirm Password">
 <span class="eye" onclick="togglePassword('confirmPassword')">👁</span>
 </div>
 
+<div class="input-group">
 <input type="text" id="inviteCode" placeholder="Invite Code (optional)">
+</div>
 
-<label class="checkbox">
+<div class="terms-box">
+<label class="terms-label">
 <input type="checkbox" id="terms">
-I accept the <a href="terms.html" target="_blank">Terms & Conditions</a>
+<span>I accept the <a href="terms.html">Terms and Conditions</a></span>
 </label>
+</div>
 
-<button type="submit" id="registerBtn">
-
+<button id="registerBtn">
 <span id="btnText">Register</span>
-
 <div class="spinner" id="spinner"></div>
-
 </button>
-
-<p class="error" id="error"></p>
-
-</form>
 
 <div class="login-link">
 Already have an account? <a href="login.html">Login</a>
@@ -203,115 +226,166 @@ Already have an account? <a href="login.html">Login</a>
 
 </div>
 
+
+<!-- Firebase -->
+
 <script type="module">
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-import { getFirestore, collection, query, where, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 
 const firebaseConfig = {
-apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
-authDomain: "cashclique-31718.firebaseapp.com",
-projectId: "cashclique-31718",
-storageBucket: "cashclique-31718.firebasestorage.app",
-messagingSenderId: "1064282591269",
-appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc"
+apiKey:"YOUR_API_KEY",
+authDomain:"YOUR_DOMAIN",
+projectId:"YOUR_PROJECT_ID",
+storageBucket:"YOUR_BUCKET",
+messagingSenderId:"YOUR_ID",
+appId:"YOUR_APP_ID"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const form = document.getElementById("registerForm");
+
+const btn = document.getElementById("registerBtn");
 const spinner = document.getElementById("spinner");
-const btnText = document.getElementById("btnText");
-const registerBtn = document.getElementById("registerBtn");
 const error = document.getElementById("error");
+const success = document.getElementById("success");
 
-form.addEventListener("submit", async (e)=>{
 
-e.preventDefault();
+btn.onclick = async () => {
 
-error.textContent="";
+error.style.display="none";
 
-const username = document.getElementById("username").value.trim();
-const email = document.getElementById("email").value.trim();
-const password = document.getElementById("password").value;
-const confirmPassword = document.getElementById("confirmPassword").value;
-const inviteCode = document.getElementById("inviteCode").value.trim();
-const terms = document.getElementById("terms").checked;
+const username=document.getElementById("username").value.trim();
+const email=document.getElementById("email").value.trim();
+const password=document.getElementById("password").value;
+const confirmPassword=document.getElementById("confirmPassword").value;
+const invite=document.getElementById("inviteCode").value.trim();
+const terms=document.getElementById("terms").checked;
+
+if(!username || !email || !password || !confirmPassword){
+
+error.innerText="Please fill all required fields";
+error.style.display="block";
+return;
+
+}
 
 if(password !== confirmPassword){
-error.textContent="Passwords do not match";
+
+error.innerText="Passwords do not match";
+error.style.display="block";
 return;
+
 }
 
 if(!terms){
-error.textContent="You must accept the terms";
+
+error.innerText="You must accept the terms";
+error.style.display="block";
 return;
+
 }
 
 spinner.style.display="inline-block";
-btnText.textContent="Registering...";
-registerBtn.disabled=true;
 
 try{
 
-if(inviteCode){
+let inviter=null;
 
-const q=query(collection(db,"users"),where("inviteCode","==",inviteCode));
-const snap=await getDocs(q);
+if(invite){
 
-if(snap.empty){
+const users=await getDocs(collection(db,"users"));
+
+users.forEach(docu=>{
+if(docu.id.substring(0,6)===invite){
+inviter=docu.id;
+}
+});
+
+if(!inviter){
+
 spinner.style.display="none";
-btnText.textContent="Register";
-registerBtn.disabled=false;
-error.textContent="Invalid invite code";
+error.innerText="Invalid invite code";
+error.style.display="block";
 return;
+
 }
 
 }
 
 const userCredential = await createUserWithEmailAndPassword(auth,email,password);
+const user = userCredential.user;
 
-const uid = userCredential.user.uid;
+await setDoc(doc(db,"users",user.uid),{
 
-const myInviteCode = uid.substring(0,6);
-
-await setDoc(doc(db,"users",uid),{
-
-username,
-email,
-uid,
-inviteCode:myInviteCode,
-usedInvite:inviteCode || null,
+username:username,
+email:email,
+inviteUsed:invite || null,
 createdAt:Date.now()
 
 });
 
-alert("Account created successfully");
+spinner.style.display="none";
 
+success.innerText="Registration successful!";
+success.style.display="block";
+
+setTimeout(()=>{
 window.location.href="login.html";
+},2000);
 
-}catch(err){
+}
+catch(err){
 
 spinner.style.display="none";
-btnText.textContent="Register";
-registerBtn.disabled=false;
-
-error.textContent=err.message;
+error.innerText=err.message;
+error.style.display="block";
 
 }
 
-});
+};
 
-window.togglePassword=function(id){
+</script>
+
+
+<script>
+
+function togglePassword(id){
 
 const field=document.getElementById(id);
 
-field.type= field.type === "password" ? "text" : "password";
+if(field.type==="password"){
+field.type="text";
+}else{
+field.type="password";
+}
 
 }
+
+
+const passwordInput=document.getElementById("password");
+const strength=document.getElementById("strength");
+
+passwordInput.addEventListener("input",()=>{
+
+const val=passwordInput.value;
+
+if(val.length<6){
+strength.innerHTML="<span class='weak'>Weak password</span>";
+}
+else if(val.match(/[A-Z]/) && val.match(/[0-9]/)){
+strength.innerHTML="<span class='strong'>Strong password</span>";
+}
+else{
+strength.innerHTML="<span class='medium'>Medium password</span>";
+}
+
+});
 
 </script>
 
