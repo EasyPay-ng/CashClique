@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Login • CashClique</title>
+
+<link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Poppins,sans-serif;
+}
+
+body{
+background:#fff;
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+padding:20px;
+}
+
+.container{
+width:100%;
+max-width:400px;
+background:#fff;
+border-radius:14px;
+padding:35px 25px;
+box-shadow:0 10px 35px rgba(0,0,0,0.1);
+text-align:center;
+}
+
+.logo{
+width:70px;
+margin-bottom:10px;
+}
+
+h2{
+color:#ff7a00;
+margin-bottom:5px;
+}
+
+.tag{
+font-size:13px;
+color:#666;
+margin-bottom:25px;
+}
+
+.input-group{
+position:relative;
+margin-bottom:18px;
+}
+
+.input-group input{
+width:100%;
+padding:12px 40px 12px 12px;
+border-radius:8px;
+border:1px solid #ddd;
+font-size:14px;
+outline:none;
+transition:.2s;
+}
+
+.input-group input:focus{
+border-color:#ff7a00;
+}
+
+.eye{
+position:absolute;
+right:12px;
+top:50%;
+transform:translateY(-50%);
+cursor:pointer;
+font-size:14px;
+color:#999;
+}
+
+button{
+width:100%;
+background:#ff7a00;
+color:white;
+border:none;
+padding:12px;
+border-radius:8px;
+font-size:15px;
+cursor:pointer;
+display:flex;
+justify-content:center;
+align-items:center;
+gap:10px;
+transition:.3s;
+}
+
+button:hover{
+background:#e96c00;
+}
+
+.spinner{
+width:16px;
+height:16px;
+border:2px solid rgba(255,255,255,0.4);
+border-top:2px solid white;
+border-radius:50%;
+animation:spin 1s linear infinite;
+display:none;
+}
+
+@keyframes spin{
+to{transform:rotate(360deg);}
+}
+
+.error{
+color:red;
+font-size:13px;
+margin-bottom:10px;
+display:none;
+}
+
+.success{
+color:green;
+font-size:13px;
+margin-bottom:10px;
+display:none;
+}
+
+.links{
+margin-top:10px;
+font-size:13px;
+}
+
+.links a{
+color:#ff7a00;
+text-decoration:none;
+font-weight:500;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<img class="logo" src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
+
+<h2>Login</h2>
+<p class="tag">Where Content Meets Cash</p>
+
+<div class="error" id="error"></div>
+<div class="success" id="success"></div>
+
+<div class="input-group">
+<input type="email" id="email" placeholder="Email address">
+</div>
+
+<div class="input-group">
+<input type="password" id="password" placeholder="Password">
+<span class="eye" onclick="togglePassword('password')">👁</span>
+</div>
+
+<button id="loginBtn">
+<span id="btnText">Login</span>
+<div class="spinner" id="spinner"></div>
+</button>
+
+<div class="links">
+<a href="forgot-password.html">Forgot password?</a>
+</div>
+
+<div class="links">
+Don't have an account? <a href="register.html">Register</a>
+</div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+
+const firebaseConfig = {
+apiKey:"YOUR_API_KEY",
+authDomain:"YOUR_DOMAIN",
+projectId:"YOUR_PROJECT_ID",
+storageBucket:"YOUR_BUCKET",
+messagingSenderId:"YOUR_ID",
+appId:"YOUR_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+const loginBtn=document.getElementById("loginBtn");
+const spinner=document.getElementById("spinner");
+const btnText=document.getElementById("btnText");
+const error=document.getElementById("error");
+const success=document.getElementById("success");
+
+loginBtn.onclick=async()=>{
+
+error.style.display="none";
+
+const email=document.getElementById("email").value.trim();
+const password=document.getElementById("password").value;
+
+if(!email || !password){
+error.innerText="Please enter email and password";
+error.style.display="block";
+return;
+}
+
+spinner.style.display="inline-block";
+btnText.textContent="Logging in...";
+loginBtn.disabled=true;
+
+try{
+const userCredential = await signInWithEmailAndPassword(auth,email,password);
+
+spinner.style.display="none";
+btnText.textContent="Login";
+loginBtn.disabled=false;
+
+success.innerText="Login successful!";
+success.style.display="block";
+
+// Redirect to dashboard
+setTimeout(()=>{
+window.location.href="dashboard.html";
+},1500);
+
+}catch(err){
+spinner.style.display="none";
+btnText.textContent="Login";
+loginBtn.disabled=false;
+error.innerText=err.message;
+error.style.display="block";
+}
+
+};
+
+</script>
+
+<script>
+function togglePassword(id){
+const field=document.getElementById(id);
+field.type= field.type==="password"?"text":"password";
+}
+</script>
+
+</body>
+</html>
