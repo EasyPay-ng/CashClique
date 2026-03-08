@@ -14,9 +14,11 @@ body{background:#f5f5f5;display:flex;flex-direction:column;align-items:center;mi
 header{width:100%;display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;}
 header h1{font-size:22px;color:#ff6a00;}
 textarea{width:100%;max-width:600px;height:150px;padding:12px;font-size:16px;border-radius:8px;border:1px solid #ddd;resize:none;margin-bottom:20px;}
-button{background:#ff6a00;color:white;border:none;padding:10px 20px;font-size:16px;border-radius:8px;cursor:pointer;transition:0.3s;}
+input[type=file]{margin-bottom:15px;}
+button{background:#ff6a00;color:white;border:none;padding:10px 20px;font-size:16px;border-radius:8px;cursor:pointer;transition:0.3s;margin-right:10px;}
 button:hover{transform:scale(1.05);}
-.logout{background:#555;margin-left:10px;}
+.logout{background:#555;}
+.preview{max-width:600px;max-height:300px;margin-bottom:15px;border-radius:8px;}
 </style>
 </head>
 
@@ -24,10 +26,15 @@ button:hover{transform:scale(1.05);}
 
 <header>
 <h1>Create a New Post</h1>
-<button id="logout" class="logout">Logout</button>
+<div>
+  <button id="logout" class="logout">Logout</button>
+</div>
 </header>
 
 <textarea id="post-content" placeholder="Write your post here..."></textarea>
+<input type="file" id="post-image" accept="image/*">
+<img id="preview" class="preview" style="display:none;">
+<br>
 <button id="post-btn">Post</button>
 
 <script type="module">
@@ -50,31 +57,70 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 let currentUser = null;
+const postContent = document.getElementById("post-content");
+const postImage = document.getElementById("post-image");
+const preview = document.getElementById("preview");
 
 onAuthStateChanged(auth, user => {
   if(!user) window.location.href="login.html";
   else currentUser = user;
 });
 
-// Logout button
+// Image preview
+postImage.addEventListener("change", ()=>{
+  const file = postImage.files[0];
+  if(file){
+    const reader = new FileReader();
+    reader.onload = (e)=>{
+      preview.src = e.target.result;
+      preview.style.display = "block";
+    }
+    reader.readAsDataURL(file);
+  } else {
+    preview.style.display = "none";
+  }
+});
+
+// Logout
 document.getElementById("logout").addEventListener("click",()=>{
   signOut(auth).then(()=>{ window.location.href="login.html"; });
 });
 
 // Post button
 document.getElementById("post-btn").addEventListener("click", async ()=>{
-  const content = document.getElementById("post-content").value.trim();
-  if(!content) { alert("Post content cannot be empty!"); return; }
-  
+  const text = postContent.value.trim();
+  const file = postImage.files[0];
+
+  if(!text && !file){ alert("Please write something or select an image."); return; }
+
+  let imageURL = null;
+
+  if(file){
+    // Upload to Imgur
+    const form = new FormData();
+    form.append("image", file);
+    const res = await fetch("https://api.imgur.com/3/image",{
+      method:"POST",
+      headers:{
+        Authorization:"Client-ID fb5333db21a59486"
+      },
+      body:form
+    });
+    const data = await res.json();
+    if(data.success) imageURL = data.data.link;
+    else { alert("Image upload failed."); return; }
+  }
+
   await addDoc(collection(db,"posts"),{
     userId: currentUser.uid,
     username: currentUser.email,
-    content: content,
-    likes: 0,
+    content: text,
+    imageURL: imageURL,
+    likes:0,
     timestamp: serverTimestamp()
   });
-  
-  // Redirect to dashboard
+
+  // Redirect back to dashboard
   window.location.href="dashboard.html";
 });
 </script>
