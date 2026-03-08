@@ -11,7 +11,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-
 *{
 margin:0;
 padding:0;
@@ -193,29 +192,23 @@ transform:scale(1.1);
 /* MOBILE */
 
 @media(max-width:900px){
-
 .sidebar{
 transform:translateX(-100%);
 position:fixed;
 z-index:999;
 }
-
 .sidebar.active{
 transform:translateX(0);
 }
-
 .main{
 margin-left:0;
 }
-
 .menu-btn{
 display:block;
 font-size:22px;
 cursor:pointer;
 }
-
 }
-
 </style>
 </head>
 
@@ -312,125 +305,126 @@ const db = getFirestore(app);
 
 const feed = document.getElementById("feed");
 
-onAuthStateChanged(auth, async (user) => {
+onAuthStateChanged(auth, (user) => {
 
-if(!user){
-window.location.href="login.html";
-return;
+if (!user) {
+  window.location.href = "login.html";
+  return;
 }
 
-document.getElementById("username").innerText = user.email;
+// Display user email immediately
+document.getElementById("username").innerText = user.email || "User";
 
-// Real-time balance
-const userRef = doc(db,"users",user.uid);
-onSnapshot(userRef,(snap)=>{
-if(snap.exists()){
-document.getElementById("earnings").innerText = "$" + (snap.data().balance || 0);
-}
+// Realtime balance
+const userRef = doc(db, "users", user.uid);
+onSnapshot(userRef, (snap) => {
+  if (snap.exists()) {
+    document.getElementById("earnings").innerText = "$" + (snap.data().balance || 0);
+  }
 });
 
-// Real-time posts feed
-const postsQuery = query(collection(db,"posts"), orderBy("timestamp","desc"));
-onSnapshot(postsQuery,(snapshot)=>{
+// Realtime posts feed
+const postsQuery = query(collection(db, "posts"), orderBy("timestamp", "desc"));
+onSnapshot(postsQuery, (snapshot) => {
 
-feed.innerHTML="";
-document.getElementById("total-posts").innerText = snapshot.size;
+  feed.innerHTML = "";
+  document.getElementById("total-posts").innerText = snapshot.size;
 
-snapshot.forEach((postDoc)=>{
-const post = postDoc.data();
-const postId = postDoc.id;
+  snapshot.forEach((postDoc) => {
+    const post = postDoc.data();
+    const postId = postDoc.id;
 
-const postHTML = document.createElement("div");
-postHTML.className="post";
+    const postHTML = document.createElement("div");
+    postHTML.className = "post";
 
-postHTML.innerHTML = `
-<div class="post-header">
-<img src="https://i.pravatar.cc/150?u=${post.userId}">
-<strong>${post.username}</strong>
-</div>
+    postHTML.innerHTML = `
+      <div class="post-header">
+        <img src="https://i.pravatar.cc/150?u=${post.userId}">
+        <strong>${post.username}</strong>
+      </div>
 
-<p>${post.content}</p>
+      <p>${post.content}</p>
 
-<div class="post-actions">
-<span class="like-btn" data-id="${postId}">❤️ ${post.likes || 0}</span>
-<span onclick="toggleComments('${postId}')">💬 Comment</span>
-</div>
+      <div class="post-actions">
+        <span class="like-btn" data-id="${postId}">❤️ ${post.likes || 0}</span>
+        <span onclick="toggleComments('${postId}')">💬 Comment</span>
+      </div>
 
-<div class="comments" id="comments-${postId}" style="display:none">
-<div class="comment-list" id="comment-list-${postId}"></div>
-<input placeholder="Write a comment..." id="comment-input-${postId}" style="margin-top:10px;width:100%;padding:8px;border-radius:6px;border:1px solid #ddd"/>
-<button onclick="addComment('${postId}')" style="margin-top:5px;background:#ff6a00;color:white;border:none;padding:6px 12px;border-radius:6px">Post</button>
-</div>
-`;
+      <div class="comments" id="comments-${postId}" style="display:none">
+        <div class="comment-list" id="comment-list-${postId}"></div>
+        <input placeholder="Write a comment..." id="comment-input-${postId}" style="margin-top:10px;width:100%;padding:8px;border-radius:6px;border:1px solid #ddd"/>
+        <button onclick="addComment('${postId}')" style="margin-top:5px;background:#ff6a00;color:white;border:none;padding:6px 12px;border-radius:6px">Post</button>
+      </div>
+    `;
 
-feed.appendChild(postHTML);
+    feed.appendChild(postHTML);
 
-// Load comments
-const commentsRef = collection(db,"posts",postId,"comments");
-onSnapshot(commentsRef,(commentSnap)=>{
-const list = document.getElementById(`comment-list-${postId}`);
-if(!list) return;
-list.innerHTML="";
-commentSnap.forEach((c)=>{
-const data = c.data();
-const div = document.createElement("div");
-div.style.fontSize="13px";
-div.style.marginTop="6px";
-div.innerHTML = `<b>${data.username}</b>: ${data.text}`;
-list.appendChild(div);
-});
-});
+    // Load comments
+    const commentsRef = collection(db, "posts", postId, "comments");
+    onSnapshot(commentsRef, (commentSnap) => {
+      const list = document.getElementById(`comment-list-${postId}`);
+      if (!list) return;
+      list.innerHTML = "";
+      commentSnap.forEach((c) => {
+        const data = c.data();
+        const div = document.createElement("div");
+        div.style.fontSize = "13px";
+        div.style.marginTop = "6px";
+        div.innerHTML = `<b>${data.username}</b>: ${data.text}`;
+        list.appendChild(div);
+      });
+    });
+  });
 
-});
-
-attachLikeEvents();
-
+  attachLikeEvents();
 });
 
 // Likes system
-function attachLikeEvents(){
-document.querySelectorAll(".like-btn").forEach(btn=>{
-btn.onclick = async ()=>{
-const postId = btn.dataset.id;
-const ref = doc(db,"posts",postId);
-await updateDoc(ref,{likes: increment(1)});
-};
-});
+function attachLikeEvents() {
+  document.querySelectorAll(".like-btn").forEach(btn => {
+    btn.onclick = async () => {
+      const postId = btn.dataset.id;
+      const ref = doc(db, "posts", postId);
+      await updateDoc(ref, { likes: increment(1) });
+    };
+  });
 }
 
 // Comment toggle
-window.toggleComments = function(id){
-const box = document.getElementById("comments-"+id);
-box.style.display = box.style.display === "none" ? "block" : "none";
+window.toggleComments = function(id) {
+  const box = document.getElementById("comments-" + id);
+  box.style.display = box.style.display === "none" ? "block" : "none";
 }
 
 // Add comment
-window.addComment = async function(postId){
-const user = auth.currentUser;
-const input = document.getElementById(`comment-input-${postId}`);
-const text = input.value.trim();
-if(!text) return;
-await addDoc(collection(db,"posts",postId,"comments"),{
-userId:user.uid,
-username:user.email,
-text:text,
-timestamp:serverTimestamp()
-});
-input.value="";
+window.addComment = async function(postId) {
+  const user = auth.currentUser;
+  const input = document.getElementById(`comment-input-${postId}`);
+  const text = input.value.trim();
+  if (!text) return;
+
+  await addDoc(collection(db, "posts", postId, "comments"), {
+    userId: user.uid,
+    username: user.email,
+    text: text,
+    timestamp: serverTimestamp()
+  });
+
+  input.value = "";
 }
 
 // Logout
-document.getElementById("logout").addEventListener("click",()=>{
-signOut(auth).then(()=>{
-window.location.href="login.html";
-});
+document.getElementById("logout").addEventListener("click", () => {
+  signOut(auth).then(() => {
+    window.location.href = "login.html";
+  });
 });
 
 </script>
 
 <script>
-function toggleMenu(){
-document.getElementById("sidebar").classList.toggle("active")
+function toggleMenu() {
+  document.getElementById("sidebar").classList.toggle("active")
 }
 </script>
 
