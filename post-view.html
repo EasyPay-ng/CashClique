@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post View | CashClique</title>
+
+<link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{background:#f5f5f5;display:flex;justify-content:center;min-height:100vh;padding:20px;}
+.container{width:100%;max-width:700px;background:white;padding:25px;border-radius:20px;box-shadow:0 15px 30px rgba(0,0,0,0.08);}
+.post-header{display:flex;align-items:center;gap:10px;margin-bottom:15px;}
+.post-header img{width:50px;height:50px;border-radius:50%;cursor:pointer;}
+.post-content{margin-bottom:15px;}
+.post-image{width:100%;border-radius:12px;object-fit:cover;margin-bottom:15px;}
+.post-actions{display:flex;gap:20px;color:gray;font-size:16px;align-items:center;margin-bottom:15px;}
+.comments{margin-top:10px;padding-top:10px;border-top:1px solid #eee;}
+.comment-list div{margin-top:6px;font-size:14px;}
+textarea{width:100%;padding:12px;border-radius:8px;border:1px solid #ddd;margin-top:10px;resize:none;}
+button{margin-top:10px;background:#ff6a00;color:white;border:none;padding:10px 18px;border-radius:8px;cursor:pointer;transition:0.3s;display:flex;align-items:center;justify-content:center;}
+button:hover{transform:scale(1.05);}
+.spinner{border:3px solid rgba(255,255,255,0.3);border-top:3px solid white;border-radius:50%;width:18px;height:18px;animation:spin 1s linear infinite;margin-left:8px;}
+@keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <div class="post-header">
+    <img id="poster-pic" src="https://i.pravatar.cc/150?img=3">
+    <strong id="poster-name">Username</strong>
+  </div>
+
+  <div class="post-content" id="post-text"></div>
+  <img id="post-img" class="post-image" style="display:none;">
+
+  <div class="post-actions">
+    <span id="like-btn">❤️ 0</span>
+  </div>
+
+  <div class="comments" id="comments-section">
+    <div class="comment-list" id="comment-list"></div>
+    <textarea id="comment-input" placeholder="Write a comment..."></textarea>
+    <button id="comment-btn">Post Comment</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, collection, getDoc, onSnapshot, addDoc, updateDoc, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+apiKey:"AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
+authDomain:"cashclique-31718.firebaseapp.com",
+projectId:"cashclique-31718",
+storageBucket:"cashclique-31718.firebasestorage.app",
+messagingSenderId:"1064282591269",
+appId:"1:1064282591269:web:17fbaf9b683d5b0dfbafcc",
+measurementId:"G-V5WHJB6LS0"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const urlParams = new URLSearchParams(window.location.search);
+const postId = urlParams.get('postId');
+
+const posterPic = document.getElementById("poster-pic");
+const posterName = document.getElementById("poster-name");
+const postText = document.getElementById("post-text");
+const postImg = document.getElementById("post-img");
+const likeBtn = document.getElementById("like-btn");
+const commentList = document.getElementById("comment-list");
+const commentInput = document.getElementById("comment-input");
+const commentBtn = document.getElementById("comment-btn");
+
+let currentUser=null;
+let userLikes=0; // max 2 likes
+
+onAuthStateChanged(auth,user=>{
+  if(!user) window.location.href="login.html";
+  else currentUser=user;
+  loadPost();
+});
+
+// Load post data
+async function loadPost(){
+  const postRef = doc(db,"posts",postId);
+  const postSnap = await getDoc(postRef);
+  if(!postSnap.exists()){ alert("Post not found"); return; }
+  const post = postSnap.data();
+
+  posterName.innerText = post.username;
+  posterPic.src = post.imageBase64 || `https://i.pravatar.cc/150?u=${post.userId}`;
+  postText.innerText = post.content || '';
+  if(post.imageBase64){ postImg.src = post.imageBase64; postImg.style.display='block'; }
+
+  posterPic.onclick = ()=>{ window.location.href=`profile.html?uid=${post.userId}`; }
+
+  likeBtn.innerText = `❤️ ${post.likes||0}`;
+  attachLike(postRef);
+
+  // Load comments
+  const commentsRef = collection(db,"posts",postId,"comments");
+  onSnapshot(commentsRef,(snap)=>{
+    commentList.innerHTML="";
+    snap.forEach(c=>{
+      const data = c.data();
+      const div = document.createElement("div");
+      div.innerHTML=`<b>${data.username}</b>: ${data.text}`;
+      commentList.appendChild(div);
+    });
+  });
+}
+
+// Like with max 2 likes
+function attachLike(postRef){
+  likeBtn.onclick=async()=>{
+    if(userLikes>=2) return;
+    await updateDoc(postRef,{likes:increment(1)});
+    userLikes+=1;
+    likeBtn.innerText = `❤️ ${parseInt(likeBtn.innerText.split(' ')[1])+1}`;
+  };
+}
+
+// Add comment
+commentBtn.onclick=async()=>{
+  const text = commentInput.value.trim();
+  if(!text) return;
+  await addDoc(collection(db,"posts",postId,"comments"),{
+    userId: currentUser.uid,
+    username: currentUser.email,
+    text: text,
+    timestamp: serverTimestamp()
+  });
+  commentInput.value="";
+};
+</script>
+
+</body>
+</html>
