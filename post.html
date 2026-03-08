@@ -11,31 +11,38 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
 body{background:#f5f5f5;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:20px;}
-header{width:100%;display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;}
-header h1{font-size:22px;color:#ff6a00;}
-textarea{width:100%;max-width:600px;height:150px;padding:12px;font-size:16px;border-radius:8px;border:1px solid #ddd;resize:none;margin-bottom:20px;}
+header{width:100%;max-width:700px;display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;}
+header h1{font-size:26px;color:#ff6a00;}
+textarea{width:100%;height:150px;padding:15px;font-size:16px;border-radius:12px;border:1px solid #ddd;resize:none;margin-bottom:15px;box-shadow:0 5px 15px rgba(0,0,0,0.05);}
 input[type=file]{margin-bottom:15px;}
-button{background:#ff6a00;color:white;border:none;padding:10px 20px;font-size:16px;border-radius:8px;cursor:pointer;transition:0.3s;margin-right:10px;}
+button{background:#ff6a00;color:white;border:none;padding:12px 25px;font-size:16px;border-radius:12px;cursor:pointer;transition:0.3s;box-shadow:0 5px 15px rgba(0,0,0,0.1);}
 button:hover{transform:scale(1.05);}
 .logout{background:#555;}
-.preview{max-width:600px;max-height:300px;margin-bottom:15px;border-radius:8px;}
+.preview{max-width:700px;max-height:400px;margin-bottom:15px;border-radius:12px;object-fit:cover;display:none;}
+.container{width:100%;max-width:700px;background:white;padding:25px;border-radius:20px;box-shadow:0 10px 25px rgba(0,0,0,0.08);}
+label{font-weight:500;margin-bottom:8px;display:block;color:#333;}
+h1 small{font-size:16px;color:#555;font-weight:400;}
+@media(max-width:768px){body{padding:15px;}textarea{height:130px;}}
 </style>
 </head>
 
 <body>
 
+<div class="container">
 <header>
-<h1>Create a New Post</h1>
-<div>
-  <button id="logout" class="logout">Logout</button>
-</div>
+<h1>Create a New Post <small>Share your thoughts or images</small></h1>
+<button id="logout" class="logout">Logout</button>
 </header>
 
-<textarea id="post-content" placeholder="Write your post here..."></textarea>
+<label for="post-content">Post Text</label>
+<textarea id="post-content" placeholder="Write something amazing..."></textarea>
+
+<label for="post-image">Attach Image (optional)</label>
 <input type="file" id="post-image" accept="image/*">
-<img id="preview" class="preview" style="display:none;">
-<br>
+<img id="preview" class="preview">
+
 <button id="post-btn">Post</button>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -76,9 +83,7 @@ postImage.addEventListener("change", ()=>{
       preview.style.display = "block";
     }
     reader.readAsDataURL(file);
-  } else {
-    preview.style.display = "none";
-  }
+  } else preview.style.display = "none";
 });
 
 // Logout
@@ -96,32 +101,41 @@ document.getElementById("post-btn").addEventListener("click", async ()=>{
   let imageURL = null;
 
   if(file){
-    // Upload to Imgur
-    const form = new FormData();
-    form.append("image", file);
-    const res = await fetch("https://api.imgur.com/3/image",{
-      method:"POST",
-      headers:{
-        Authorization:"Client-ID fb5333db21a59486"
-      },
-      body:form
-    });
-    const data = await res.json();
-    if(data.success) imageURL = data.data.link;
-    else { alert("Image upload failed."); return; }
+    try{
+      const form = new FormData();
+      form.append("image", file);
+
+      const res = await fetch("https://api.imgur.com/3/image",{
+        method:"POST",
+        headers:{ Authorization:"Client-ID fb5333db21a59486" },
+        body: form
+      });
+
+      const data = await res.json();
+      if(data.success) imageURL = data.data.link;
+      else { alert("Image upload failed."); return; }
+    } catch(e){
+      console.error(e);
+      alert("Image upload error.");
+      return;
+    }
   }
 
-  await addDoc(collection(db,"posts"),{
-    userId: currentUser.uid,
-    username: currentUser.email,
-    content: text,
-    imageURL: imageURL,
-    likes:0,
-    timestamp: serverTimestamp()
-  });
-
-  // Redirect back to dashboard
-  window.location.href="dashboard.html";
+  try{
+    await addDoc(collection(db,"posts"),{
+      userId: currentUser.uid,
+      username: currentUser.email,
+      content: text,
+      imageURL: imageURL,
+      likes:0,
+      timestamp: serverTimestamp()
+    });
+    // Redirect back to dashboard
+    window.location.href="dashboard.html";
+  } catch(e){
+    console.error(e);
+    alert("Failed to post. Try again.");
+  }
 });
 </script>
 
