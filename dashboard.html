@@ -162,6 +162,12 @@ color:gray;
 font-size:14px;
 }
 
+.comments{
+margin-top:10px;
+padding-top:10px;
+border-top:1px solid #eee;
+}
+
 /* CREATE BUTTON */
 
 .create-btn{
@@ -254,12 +260,12 @@ CashClique
 
 <div class="card">
 <h3>Total Earnings</h3>
-<p>$0</p>
+<p id="earnings">$0</p>
 </div>
 
 <div class="card">
 <h3>Total Posts</h3>
-<p>0</p>
+<p id="total-posts">0</p>
 </div>
 
 <div class="card">
@@ -276,66 +282,19 @@ CashClique
 
 <!-- FEED -->
 
-<div class="feed">
-
-<div class="post">
-
-<div class="post-header">
-<img src="https://i.pravatar.cc/150?img=5">
-<strong>CreatorOne</strong>
-</div>
-
-<p>
-Welcome to CashClique! 🎉  
-This platform is where content truly meets cash. Share valuable insights, grow your audience, and monetize your creativity.
-</p>
-
-<div class="post-actions">
-<span>👍 Like</span>
-<span>💬 Comment</span>
-<span>🔁 Share</span>
-</div>
+<div class="feed" id="feed"></div>
 
 </div>
 
-<div class="post">
+<button class="create-btn" onclick="window.location.href='post.html'">+</button>
 
-<div class="post-header">
-<img src="https://i.pravatar.cc/150?img=7">
-<strong>FinanceGuru</strong>
-</div>
-
-<p>
-Side hustle tip 💡  
-You can turn your knowledge into income by publishing valuable content consistently. Stay active and watch your growth!
-</p>
-
-<div class="post-actions">
-<span>👍 Like</span>
-<span>💬 Comment</span>
-<span>🔁 Share</span>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<button class="create-btn">+</button>
-
-<!-- FIREBASE -->
+<!-- FIREBASE SCRIPT -->
 
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-
-import {
-getAuth,
-onAuthStateChanged,
-signOut
-}
-from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, doc, addDoc, onSnapshot, updateDoc, increment, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
 apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -349,39 +308,130 @@ measurementId: "G-V5WHJB6LS0"
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
-onAuthStateChanged(auth,(user)=>{
+const feed = document.getElementById("feed");
 
-if(user){
+onAuthStateChanged(auth, async (user) => {
+
+if(!user){
+window.location.href="login.html";
+return;
+}
 
 document.getElementById("username").innerText = user.email;
 
-}else{
+// Real-time balance
+const userRef = doc(db,"users",user.uid);
+onSnapshot(userRef,(snap)=>{
+if(snap.exists()){
+document.getElementById("earnings").innerText = "$" + (snap.data().balance || 0);
+}
+});
 
-window.location.href="login.html";
+// Real-time posts feed
+const postsQuery = query(collection(db,"posts"), orderBy("timestamp","desc"));
+onSnapshot(postsQuery,(snapshot)=>{
 
+feed.innerHTML="";
+document.getElementById("total-posts").innerText = snapshot.size;
+
+snapshot.forEach((postDoc)=>{
+const post = postDoc.data();
+const postId = postDoc.id;
+
+const postHTML = document.createElement("div");
+postHTML.className="post";
+
+postHTML.innerHTML = `
+<div class="post-header">
+<img src="https://i.pravatar.cc/150?u=${post.userId}">
+<strong>${post.username}</strong>
+</div>
+
+<p>${post.content}</p>
+
+<div class="post-actions">
+<span class="like-btn" data-id="${postId}">❤️ ${post.likes || 0}</span>
+<span onclick="toggleComments('${postId}')">💬 Comment</span>
+</div>
+
+<div class="comments" id="comments-${postId}" style="display:none">
+<div class="comment-list" id="comment-list-${postId}"></div>
+<input placeholder="Write a comment..." id="comment-input-${postId}" style="margin-top:10px;width:100%;padding:8px;border-radius:6px;border:1px solid #ddd"/>
+<button onclick="addComment('${postId}')" style="margin-top:5px;background:#ff6a00;color:white;border:none;padding:6px 12px;border-radius:6px">Post</button>
+</div>
+`;
+
+feed.appendChild(postHTML);
+
+// Load comments
+const commentsRef = collection(db,"posts",postId,"comments");
+onSnapshot(commentsRef,(commentSnap)=>{
+const list = document.getElementById(`comment-list-${postId}`);
+if(!list) return;
+list.innerHTML="";
+commentSnap.forEach((c)=>{
+const data = c.data();
+const div = document.createElement("div");
+div.style.fontSize="13px";
+div.style.marginTop="6px";
+div.innerHTML = `<b>${data.username}</b>: ${data.text}`;
+list.appendChild(div);
+});
+});
+
+});
+
+attachLikeEvents();
+
+});
+
+// Likes system
+function attachLikeEvents(){
+document.querySelectorAll(".like-btn").forEach(btn=>{
+btn.onclick = async ()=>{
+const postId = btn.dataset.id;
+const ref = doc(db,"posts",postId);
+await updateDoc(ref,{likes: increment(1)});
+};
+});
 }
 
-});
+// Comment toggle
+window.toggleComments = function(id){
+const box = document.getElementById("comments-"+id);
+box.style.display = box.style.display === "none" ? "block" : "none";
+}
 
+// Add comment
+window.addComment = async function(postId){
+const user = auth.currentUser;
+const input = document.getElementById(`comment-input-${postId}`);
+const text = input.value.trim();
+if(!text) return;
+await addDoc(collection(db,"posts",postId,"comments"),{
+userId:user.uid,
+username:user.email,
+text:text,
+timestamp:serverTimestamp()
+});
+input.value="";
+}
+
+// Logout
 document.getElementById("logout").addEventListener("click",()=>{
-
 signOut(auth).then(()=>{
-
 window.location.href="login.html";
-
 });
-
 });
 
 </script>
 
 <script>
-
 function toggleMenu(){
 document.getElementById("sidebar").classList.toggle("active")
 }
-
 </script>
 
 </body>
