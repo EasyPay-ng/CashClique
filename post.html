@@ -96,16 +96,13 @@ document.getElementById("logout").addEventListener("click",()=>{
   signOut(auth).then(()=>{ window.location.href="login.html"; });
 });
 
-// Convert file to Base64
-function toBase64(file){
+// Convert file to Base64 for Firestore
+async function fileToBase64(file){
   return new Promise((resolve,reject)=>{
     const reader = new FileReader();
     reader.readAsDataURL(file);
-    reader.onload = () => {
-      const base64 = reader.result.split(',')[1];
-      resolve(base64);
-    };
-    reader.onerror = error => reject(error);
+    reader.onload = () => resolve(reader.result); // full base64 string
+    reader.onerror = err => reject(err);
   });
 }
 
@@ -120,36 +117,14 @@ postBtn.addEventListener("click", async ()=>{
   const originalText = postBtn.innerHTML;
   postBtn.innerHTML = 'Posting <div class="spinner"></div>';
 
-  let imageURL = null;
+  let imageBase64 = null;
 
   if(file){
     try{
-      const base64 = await toBase64(file);
-      const res = await fetch("https://api.imgur.com/3/image",{
-        method:"POST",
-        headers:{
-          Authorization:"Client-ID fb5333db21a59486",
-          Accept:"application/json"
-        },
-        body: JSON.stringify({ image: base64, type: "base64" })
-      });
-
-      const data = await res.json();
-
-      if(data?.success && data?.data?.link){
-        imageURL = data.data.link;
-      } else {
-        console.error("Imgur upload failed:", data);
-        const errMsg = data?.data?.error || data?.status || "Unknown error";
-        alert("Image upload failed: "+errMsg);
-        postBtn.disabled = false;
-        postBtn.innerHTML = originalText;
-        return;
-      }
-
+      imageBase64 = await fileToBase64(file);
     } catch(e){
-      console.error("Imgur upload error:", e);
-      alert("Image upload error: "+e.message);
+      console.error("Image conversion error:", e);
+      alert("Failed to read image. Try again.");
       postBtn.disabled = false;
       postBtn.innerHTML = originalText;
       return;
@@ -161,7 +136,7 @@ postBtn.addEventListener("click", async ()=>{
       userId: currentUser.uid,
       username: currentUser.email,
       content: text,
-      imageURL: imageURL,
+      imageBase64: imageBase64,
       likes:0,
       timestamp: serverTimestamp()
     });
