@@ -11,17 +11,17 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
 body{background:#f5f5f5;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:20px;}
-header{width:100%;max-width:700px;display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;}
+.container{width:100%;max-width:700px;background:white;padding:30px;border-radius:20px;box-shadow:0 15px 30px rgba(0,0,0,0.08);}
+header{width:100%;display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;}
 header h1{font-size:26px;color:#ff6a00;}
+header h1 small{font-size:16px;color:#555;font-weight:400;}
 textarea{width:100%;height:150px;padding:15px;font-size:16px;border-radius:12px;border:1px solid #ddd;resize:none;margin-bottom:15px;box-shadow:0 5px 15px rgba(0,0,0,0.05);}
 input[type=file]{margin-bottom:15px;}
-button{background:#ff6a00;color:white;border:none;padding:12px 25px;font-size:16px;border-radius:12px;cursor:pointer;transition:0.3s;box-shadow:0 5px 15px rgba(0,0,0,0.1);}
+button{background:#ff6a00;color:white;border:none;padding:12px 25px;font-size:16px;border-radius:12px;cursor:pointer;transition:0.3s;box-shadow:0 5px 15px rgba(0,0,0,0.1);margin-right:10px;}
 button:hover{transform:scale(1.05);}
 .logout{background:#555;}
-.preview{max-width:700px;max-height:400px;margin-bottom:15px;border-radius:12px;object-fit:cover;display:none;}
-.container{width:100%;max-width:700px;background:white;padding:25px;border-radius:20px;box-shadow:0 10px 25px rgba(0,0,0,0.08);}
+.preview{max-width:100%;max-height:400px;margin-bottom:15px;border-radius:12px;object-fit:cover;display:none;}
 label{font-weight:500;margin-bottom:8px;display:block;color:#333;}
-h1 small{font-size:16px;color:#555;font-weight:400;}
 @media(max-width:768px){body{padding:15px;}textarea{height:130px;}}
 </style>
 </head>
@@ -49,6 +49,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+// Firebase config
 const firebaseConfig = {
 apiKey:"AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
 authDomain:"cashclique-31718.firebaseapp.com",
@@ -68,6 +69,7 @@ const postContent = document.getElementById("post-content");
 const postImage = document.getElementById("post-image");
 const preview = document.getElementById("preview");
 
+// Ensure user is logged in
 onAuthStateChanged(auth, user => {
   if(!user) window.location.href="login.html";
   else currentUser = user;
@@ -91,6 +93,19 @@ document.getElementById("logout").addEventListener("click",()=>{
   signOut(auth).then(()=>{ window.location.href="login.html"; });
 });
 
+// Convert file to Base64
+function toBase64(file){
+  return new Promise((resolve,reject)=>{
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      const base64 = reader.result.split(',')[1]; // Remove prefix
+      resolve(base64);
+    };
+    reader.onerror = error => reject(error);
+  });
+}
+
 // Post button
 document.getElementById("post-btn").addEventListener("click", async ()=>{
   const text = postContent.value.trim();
@@ -102,21 +117,23 @@ document.getElementById("post-btn").addEventListener("click", async ()=>{
 
   if(file){
     try{
-      const form = new FormData();
-      form.append("image", file);
+      const base64 = await toBase64(file);
 
       const res = await fetch("https://api.imgur.com/3/image",{
         method:"POST",
-        headers:{ Authorization:"Client-ID fb5333db21a59486" },
-        body: form
+        headers:{
+          Authorization:"Client-ID fb5333db21a59486",
+          Accept:"application/json"
+        },
+        body: JSON.stringify({ image: base64, type: "base64" })
       });
 
       const data = await res.json();
       if(data.success) imageURL = data.data.link;
-      else { alert("Image upload failed."); return; }
+      else { alert("Image upload failed: "+data.data.error); return; }
     } catch(e){
       console.error(e);
-      alert("Image upload error.");
+      alert("Image upload error. Try again.");
       return;
     }
   }
@@ -130,7 +147,8 @@ document.getElementById("post-btn").addEventListener("click", async ()=>{
       likes:0,
       timestamp: serverTimestamp()
     });
-    // Redirect back to dashboard
+
+    // Redirect to dashboard
     window.location.href="dashboard.html";
   } catch(e){
     console.error(e);
