@@ -3,11 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Dashboard | CashClique</title>
 
 <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
-
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
@@ -20,7 +18,7 @@ body{background:#f5f5f5;display:flex;min-height:100vh;}
 .sidebar a:hover{background:rgba(255,255,255,0.2);}
 .main{margin-left:240px;width:100%;padding:20px;}
 .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;}
-.user{display:flex;align-items:center;gap:10px;}
+.user{display:flex;align-items:center;gap:10px;cursor:pointer;}
 .user img{width:35px;height:35px;border-radius:50%;}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px;margin-bottom:25px;}
 .card{background:white;padding:20px;border-radius:12px;box-shadow:0 5px 15px rgba(0,0,0,0.05);transition:0.3s;}
@@ -28,13 +26,15 @@ body{background:#f5f5f5;display:flex;min-height:100vh;}
 .card h3{font-size:14px;color:gray;margin-bottom:10px;}
 .card p{font-size:22px;font-weight:600;color:#ff6a00;}
 .feed{display:flex;flex-direction:column;gap:20px;}
-.post{background:white;padding:20px;border-radius:12px;box-shadow:0 5px 15px rgba(0,0,0,0.05);}
+.post{background:white;padding:20px;border-radius:12px;box-shadow:0 5px 15px rgba(0,0,0,0.05);position:relative;}
 .post-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-.post-header img{width:35px;height:35px;border-radius:50%;}
-.post-actions{display:flex;gap:20px;margin-top:10px;color:gray;font-size:14px;}
+.post-header img{width:35px;height:35px;border-radius:50%;cursor:pointer;}
+.post-actions{display:flex;gap:20px;margin-top:10px;color:gray;font-size:14px;align-items:center;}
 .comments{margin-top:10px;padding-top:10px;border-top:1px solid #eee;}
 .create-btn{position:fixed;bottom:25px;right:25px;background:#ff6a00;color:white;border:none;width:60px;height:60px;border-radius:50%;font-size:30px;cursor:pointer;box-shadow:0 10px 20px rgba(0,0,0,0.2);transition:0.3s;}
 .create-btn:hover{transform:scale(1.1);}
+.post-image{margin-top:10px;width:100%;border-radius:12px;object-fit:cover;}
+.three-dot{position:absolute;top:15px;right:15px;cursor:pointer;font-size:18px;}
 @media(max-width:900px){
 .sidebar{transform:translateX(-100%);position:fixed;z-index:999;}
 .sidebar.active{transform:translateX(0);}
@@ -64,7 +64,7 @@ CashClique
 <div class="main">
 <div class="header">
 <div class="menu-btn" onclick="toggleMenu()">☰</div>
-<div class="user">
+<div class="user" id="current-user">
 <img src="https://i.pravatar.cc/150?img=3">
 <span id="username">User</span>
 </div>
@@ -84,11 +84,10 @@ CashClique
 
 <button class="create-btn" onclick="window.location.href='post.html'">+</button>
 
-<!-- FIREBASE SCRIPT -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, doc, addDoc, onSnapshot, updateDoc, increment, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, doc, addDoc, onSnapshot, updateDoc, increment, serverTimestamp, query, orderBy, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
 apiKey:"AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -105,11 +104,12 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 const feed = document.getElementById("feed");
+let currentUser=null;
+let userLikes={}; // track likes per post for current user
 
 onAuthStateChanged(auth, (user) => {
   if(!user){ window.location.href="login.html"; return; }
-
-  // show email immediately
+  currentUser=user;
   document.getElementById("username").innerText = user.email || "User";
 
   const userRef = doc(db,"users",user.uid);
@@ -125,7 +125,6 @@ onAuthStateChanged(auth, (user) => {
     document.getElementById("total-posts").innerText = snapshot.size;
 
     if(snapshot.empty){
-      // placeholder post
       const placeholder = document.createElement("div");
       placeholder.className="post";
       placeholder.innerHTML=`
@@ -142,14 +141,18 @@ onAuthStateChanged(auth, (user) => {
     snapshot.forEach((postDoc)=>{
       const post=postDoc.data();
       const postId=postDoc.id;
+
       const postHTML=document.createElement("div");
       postHTML.className="post";
+      let imgHTML = post.imageBase64 ? `<img src="${post.imageBase64}" class="post-image">` : '';
       postHTML.innerHTML=`
         <div class="post-header">
-          <img src="https://i.pravatar.cc/150?u=${post.userId}">
-          <strong>${post.username}</strong>
+          <img src="https://i.pravatar.cc/150?u=${post.userId}" class="profile-pic">
+          <strong class="username">${post.username}</strong>
+          <span class="three-dot" onclick="openPostView('${postId}')">⋮</span>
         </div>
         <p>${post.content}</p>
+        ${imgHTML}
         <div class="post-actions">
           <span class="like-btn" data-id="${postId}">❤️ ${post.likes||0}</span>
           <span onclick="toggleComments('${postId}')">💬 Comment</span>
@@ -161,6 +164,9 @@ onAuthStateChanged(auth, (user) => {
         </div>
       `;
       feed.appendChild(postHTML);
+
+      // Profile click
+      postHTML.querySelector('.profile-pic').onclick=()=>{ window.location.href=`profile.html?uid=${post.userId}`; }
 
       const commentsRef = collection(db,"posts",postId,"comments");
       onSnapshot(commentsRef,(commentSnap)=>{
@@ -180,13 +186,19 @@ onAuthStateChanged(auth, (user) => {
   });
 });
 
-// Likes system
-function attachLikeEvents(){
-  document.querySelectorAll(".like-btn").forEach(btn=>{
-    btn.onclick=async()=>{
-      const postId=btn.dataset.id;
+// Likes system: max 2 likes per user per post
+async function attachLikeEvents(){
+  const likeBtns = document.querySelectorAll(".like-btn");
+  likeBtns.forEach(btn=>{
+    const postId=btn.dataset.id;
+    if(!userLikes[postId]) userLikes[postId]=0;
+
+    btn.onclick=async ()=>{
+      if(userLikes[postId]>=2) return;
       const ref=doc(db,"posts",postId);
       await updateDoc(ref,{likes:increment(1)});
+      userLikes[postId]+=1;
+      btn.innerText=`❤️ ${(parseInt(btn.innerText.split(' ')[1])+1)||1}`;
     };
   });
 }
@@ -194,7 +206,7 @@ function attachLikeEvents(){
 // Comment toggle
 window.toggleComments=function(id){
   const box=document.getElementById("comments-"+id);
-  box.style.display=box.style.display==="none"?"block":"none";
+  box.style.display=box.style.display==="none"?"block":"none"
 }
 
 // Add comment
@@ -210,6 +222,11 @@ window.addComment=async function(postId){
     timestamp:serverTimestamp()
   });
   input.value="";
+}
+
+// Open full post view
+window.openPostView=function(postId){
+  window.location.href=`post-view.html?postId=${postId}`;
 }
 
 // Logout
