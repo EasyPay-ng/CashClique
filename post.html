@@ -125,7 +125,6 @@ postBtn.addEventListener("click", async ()=>{
   if(file){
     try{
       const base64 = await toBase64(file);
-
       const res = await fetch("https://api.imgur.com/3/image",{
         method:"POST",
         headers:{
@@ -136,10 +135,20 @@ postBtn.addEventListener("click", async ()=>{
       });
 
       const data = await res.json();
-      if(data.success) imageURL = data.data.link;
-      else { throw new Error(data.data.error); }
+
+      if(data?.success && data?.data?.link){
+        imageURL = data.data.link;
+      } else {
+        console.error("Imgur upload failed:", data);
+        const errMsg = data?.data?.error || data?.status || "Unknown error";
+        alert("Image upload failed: "+errMsg);
+        postBtn.disabled = false;
+        postBtn.innerHTML = originalText;
+        return;
+      }
+
     } catch(e){
-      console.error(e);
+      console.error("Imgur upload error:", e);
       alert("Image upload error: "+e.message);
       postBtn.disabled = false;
       postBtn.innerHTML = originalText;
@@ -160,7 +169,7 @@ postBtn.addEventListener("click", async ()=>{
     // Redirect to dashboard
     window.location.href="dashboard.html";
   } catch(e){
-    console.error(e);
+    console.error("Firestore post error:", e);
     alert("Failed to post. Try again.");
     postBtn.disabled = false;
     postBtn.innerHTML = originalText;
