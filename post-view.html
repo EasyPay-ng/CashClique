@@ -9,59 +9,298 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{background:#f5f5f5;display:flex;justify-content:center;min-height:100vh;padding:20px;}
-.container{width:100%;max-width:700px;background:white;padding:25px;border-radius:20px;box-shadow:0 15px 30px rgba(0,0,0,0.08);}
-.post-header{display:flex;align-items:center;gap:10px;margin-bottom:15px;}
-.post-header img{width:50px;height:50px;border-radius:50%;cursor:pointer;}
-.post-content{margin-bottom:15px;}
-.post-image{width:100%;border-radius:12px;object-fit:cover;margin-bottom:15px;}
-.post-actions{display:flex;gap:20px;color:gray;font-size:16px;align-items:center;margin-bottom:15px;}
-.comments{margin-top:10px;padding-top:10px;border-top:1px solid #eee;}
-.comment-list div{margin-top:6px;font-size:14px;}
-textarea{width:100%;padding:12px;border-radius:8px;border:1px solid #ddd;margin-top:10px;resize:none;}
-button{margin-top:10px;background:#ff6a00;color:white;border:none;padding:10px 18px;border-radius:8px;cursor:pointer;transition:0.3s;display:flex;align-items:center;justify-content:center;}
-button:hover{transform:scale(1.05);}
-.spinner{border:3px solid rgba(255,255,255,0.3);border-top:3px solid white;border-radius:50%;width:18px;height:18px;animation:spin 1s linear infinite;margin-left:8px;}
-@keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background: #f5f5f5;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.container {
+  max-width: 700px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+.post-card {
+  padding: 25px;
+}
+
+/* Post Header */
+.post-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.post-header img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 12px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.post-header img:hover {
+  transform: scale(1.1);
+}
+
+.post-header-info {
+  flex-grow: 1;
+}
+
+.poster-name {
+  font-weight: 600;
+  font-size: 16px;
+  color: #333;
+  display: block;
+}
+
+.poster-handle {
+  font-size: 13px;
+  color: #888;
+  margin-top: 3px;
+}
+
+/* Post Content */
+.post-content {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #444;
+  margin: 20px 0;
+  white-space: pre-wrap;
+}
+
+.post-image {
+  width: 100%;
+  border-radius: 12px;
+  margin: 15px 0;
+  object-fit: cover;
+  max-height: 500px;
+  display: none;
+}
+
+/* Post Actions */
+.post-actions {
+  display: flex;
+  gap: 25px;
+  padding: 15px 0;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+  margin: 15px 0;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.action-btn:hover {
+  background: #f8f8f8;
+}
+
+.liked {
+  color: #ff4444 !important;
+}
+
+/* Comments Section */
+.comments-section {
+  margin-top: 20px;
+}
+
+.section-title {
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 15px;
+  color: #555;
+}
+
+.comment-list {
+  margin-bottom: 20px;
+}
+
+.comment {
+  display: flex;
+  padding: 12px;
+  border-radius: 12px;
+  background: #f8f9fa;
+  margin-bottom: 12px;
+  transition: background 0.2s;
+}
+
+.comment:hover {
+  background: #f1f3f5;
+}
+
+.comment-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  margin-right: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.comment-content {
+  flex-grow: 1;
+}
+
+.comment-user {
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.comment-text {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.4;
+}
+
+.comment-input-container {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.comment-input {
+  flex-grow: 1;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 25px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.comment-input:focus {
+  border-color: #ff6a00;
+}
+
+.comment-btn {
+  background: #ff6a00;
+  color: white;
+  border: none;
+  padding: 0 25px;
+  border-radius: 25px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.comment-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(255,106,0,0.3);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .container {
+    border-radius: 15px;
+  }
+  
+  .post-card {
+    padding: 20px;
+  }
+  
+  .comment-input-container {
+    flex-direction: column;
+  }
+  
+  .comment-btn {
+    padding: 12px;
+  }
+}
 </style>
 </head>
 
 <body>
 
 <div class="container">
-  <div class="post-header">
-    <img id="poster-pic" src="https://i.pravatar.cc/150?img=3">
-    <strong id="poster-name">Username</strong>
-  </div>
+  <div class="post-card">
+    <!-- Post Header -->
+    <div class="post-header">
+      <img id="poster-pic" src="https://i.pravatar.cc/150?img=3" alt="User">
+      <div class="post-header-info">
+        <span class="poster-name" id="poster-name">Username</span>
+        <span class="poster-handle" id="poster-handle">@username</span>
+      </div>
+    </div>
 
-  <div class="post-content" id="post-text"></div>
-  <img id="post-img" class="post-image" style="display:none;">
+    <!-- Post Content -->
+    <div class="post-content" id="post-text"></div>
+    <img id="post-img" class="post-image" alt="Post image">
 
-  <div class="post-actions">
-    <span id="like-btn">❤️ 0</span>
-  </div>
+    <!-- Post Actions -->
+    <div class="post-actions">
+      <div class="action-btn" id="like-btn">
+        ❤️ <span id="like-count">0</span>
+      </div>
+      <div class="action-btn" id="comment-btn">
+        💬 Comment
+      </div>
+    </div>
 
-  <div class="comments" id="comments-section">
-    <div class="comment-list" id="comment-list"></div>
-    <textarea id="comment-input" placeholder="Write a comment..."></textarea>
-    <button id="comment-btn">Post Comment</button>
+    <!-- Comments Section -->
+    <div class="comments-section">
+      <div class="section-title">Comments (<span id="comments-count">0</span>)</div>
+      <div class="comment-list" id="comment-list">
+        <!-- Comments will be inserted here -->
+      </div>
+      
+      <div class="comment-input-container">
+        <input type="text" class="comment-input" id="comment-input" placeholder="Write a comment...">
+        <button class="comment-btn" id="comment-submit">Post</button>
+      </div>
+    </div>
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, collection, getDoc, onSnapshot, addDoc, updateDoc, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { 
+  getFirestore, 
+  doc, 
+  getDoc, 
+  onSnapshot, 
+  addDoc, 
+  updateDoc, 
+  increment, 
+  serverTimestamp, 
+  arrayUnion, 
+  arrayRemove 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
-apiKey:"AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
-authDomain:"cashclique-31718.firebaseapp.com",
-projectId:"cashclique-31718",
-storageBucket:"cashclique-31718.firebasestorage.app",
-messagingSenderId:"1064282591269",
-appId:"1:1064282591269:web:17fbaf9b683d5b0dfbafcc",
-measurementId:"G-V5WHJB6LS0"
+  apiKey:"AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
+  authDomain:"cashclique-31718.firebaseapp.com",
+  projectId:"cashclique-31718",
+  storageBucket:"cashclique-31718.firebasestorage.app",
+  messagingSenderId:"1064282591269",
+  appId:"1:1064282591269:web:17fbaf9b683d5b0dfbafcc",
+  measurementId:"G-V5WHJB6LS0"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -71,75 +310,129 @@ const db = getFirestore(app);
 const urlParams = new URLSearchParams(window.location.search);
 const postId = urlParams.get('postId');
 
+// DOM Elements
 const posterPic = document.getElementById("poster-pic");
 const posterName = document.getElementById("poster-name");
+const posterHandle = document.getElementById("poster-handle");
 const postText = document.getElementById("post-text");
 const postImg = document.getElementById("post-img");
 const likeBtn = document.getElementById("like-btn");
+const likeCount = document.getElementById("like-count");
 const commentList = document.getElementById("comment-list");
 const commentInput = document.getElementById("comment-input");
+const commentSubmit = document.getElementById("comment-submit");
+const commentsCount = document.getElementById("comments-count");
 const commentBtn = document.getElementById("comment-btn");
 
-let currentUser=null;
-let userLikes=0; // max 2 likes
+let currentUser = null;
+let userLikeStatus = false;
 
-onAuthStateChanged(auth,user=>{
-  if(!user) window.location.href="login.html";
-  else currentUser=user;
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+  currentUser = user;
   loadPost();
 });
 
-// Load post data
-async function loadPost(){
-  const postRef = doc(db,"posts",postId);
+async function loadPost() {
+  const postRef = doc(db, "posts", postId);
+  
+  // Load post data
   const postSnap = await getDoc(postRef);
-  if(!postSnap.exists()){ alert("Post not found"); return; }
+  if (!postSnap.exists()) {
+    alert("Post not found");
+    return;
+  }
+  
   const post = postSnap.data();
-
-  posterName.innerText = post.username;
+  
+  // Set post content
+  posterName.textContent = post.username;
+  posterHandle.textContent = `@${post.username.toLowerCase().replace(/\s/g, '')}`;
+  postText.textContent = post.content || '';
+  
+  // Set poster image
   posterPic.src = post.imageBase64 || `https://i.pravatar.cc/150?u=${post.userId}`;
-  postText.innerText = post.content || '';
-  if(post.imageBase64){ postImg.src = post.imageBase64; postImg.style.display='block'; }
-
-  posterPic.onclick = ()=>{ window.location.href=`profile.html?uid=${post.userId}`; }
-
-  likeBtn.innerText = `❤️ ${post.likes||0}`;
-  attachLike(postRef);
-
-  // Load comments
-  const commentsRef = collection(db,"posts",postId,"comments");
-  onSnapshot(commentsRef,(snap)=>{
-    commentList.innerHTML="";
-    snap.forEach(c=>{
-      const data = c.data();
-      const div = document.createElement("div");
-      div.innerHTML=`<b>${data.username}</b>: ${data.text}`;
-      commentList.appendChild(div);
-    });
-  });
-}
-
-// Like with max 2 likes
-function attachLike(postRef){
-  likeBtn.onclick=async()=>{
-    if(userLikes>=2) return;
-    await updateDoc(postRef,{likes:increment(1)});
-    userLikes+=1;
-    likeBtn.innerText = `❤️ ${parseInt(likeBtn.innerText.split(' ')[1])+1}`;
+  posterPic.onclick = () => window.location.href = `profile.html?uid=${post.userId}`;
+  
+  // Handle post image
+  if (post.imageBase64) {
+    postImg.src = post.imageBase64;
+    postImg.style.display = 'block';
+  }
+  
+  // Set up likes
+  likeCount.textContent = post.likes || 0;
+  userLikeStatus = post.likedBy?.includes(currentUser.uid) || false;
+  likeBtn.classList.toggle('liked', userLikeStatus);
+  
+  // Like button handler
+  likeBtn.onclick = async () => {
+    if (!userLikeStatus) {
+      // Add like
+      await updateDoc(postRef, {
+        likes: increment(1),
+        likedBy: arrayUnion(currentUser.uid)
+      });
+    } else {
+      // Remove like
+      await updateDoc(postRef, {
+        likes: increment(-1),
+        likedBy: arrayRemove(currentUser.uid)
+      });
+    }
+    userLikeStatus = !userLikeStatus;
   };
+  
+  // Load comments
+  const commentsRef = collection(db, "posts", postId, "comments");
+  onSnapshot(commentsRef, (snapshot) => {
+    commentsCount.textContent = snapshot.size;
+    commentList.innerHTML = '';
+    
+    snapshot.forEach((doc) => {
+      const comment = doc.data();
+      const commentEl = document.createElement('div');
+      commentEl.className = 'comment';
+      commentEl.innerHTML = `
+        <img class="comment-avatar" src="${comment.imageBase64 || `https://i.pravatar.cc/150?u=${comment.userId}`}" alt="User">
+        <div class="comment-content">
+          <div class="comment-user">${comment.username}</div>
+          <div class="comment-text">${comment.text}</div>
+        </div>
+      `;
+      commentList.appendChild(commentEl);
+    });
+    
+    // Scroll to bottom when new comment is added
+    commentList.scrollTop = commentList.scrollHeight;
+  });
 }
 
 // Add comment
-commentBtn.onclick=async()=>{
+commentSubmit.onclick = async () => {
   const text = commentInput.value.trim();
-  if(!text) return;
-  await addDoc(collection(db,"posts",postId,"comments"),{
-    userId: currentUser.uid,
-    username: currentUser.email,
-    text: text,
-    timestamp: serverTimestamp()
-  });
-  commentInput.value="";
+  if (!text) return;
+  
+  try {
+    await addDoc(collection(db, "posts", postId, "comments"), {
+      userId: currentUser.uid,
+      username: currentUser.displayName || currentUser.email.split('@')[0],
+      text: text,
+      timestamp: serverTimestamp()
+    });
+    commentInput.value = '';
+  } catch (error) {
+    console.error("Error posting comment:", error);
+  }
+};
+
+// Toggle comments section visibility
+commentBtn.onclick = () => {
+  const commentsSection = document.querySelector('.comments-section');
+  commentsSection.style.display = commentsSection.style.display === 'none' ? 'block' : 'none';
 };
 </script>
 
