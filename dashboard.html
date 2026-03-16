@@ -1,12 +1,3 @@
-Here’s the updated version of your page with those changes:
-
-- **Usernames instead of emails** in posts (from the post doc).
-- **One like per user, per post** (stored in a `post-likes` subcollection).
-- **Real notifications** (based on new comments/posts on your own posts).
-
-You can replace your current file with this:
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -662,40 +653,3 @@ function toggleMenu(){
 
 </body>
 </html>
-```
-
-**Key changes:**
-
-1. **Usernames in posts:**
-   - Each post doc now stores `username` (you’ll need to make sure `post.html` saves `username` instead of `email` into the post).
-   - In the feed, `post.username` is displayed instead of `post.email`.
-
-2. **One like per user, per post:**
-   - Likes are tracked in a `post-likes` subcollection under each post.
-   - When a user clicks the like button:
-     - If they already liked it, nothing happens.
-     - Otherwise, it adds a doc to `post-likes/{uid}` and increments the post’s `likes` field.
-     - The button becomes disabled after a successful like.
-
-3. **Real notifications:**
-   - Expects a `notifications` collection where new comments or posts on the user’s own posts create docs.
-   - The bell shows a real-time count of notifications for the current user.
-   - Clicking the bell opens an overlay listing the notifications.
-
----
-
-**To make this fully work, you also need to update your `post.html` so it saves `username` instead of `email` into the post.** Here’s the relevant part you should modify:
-
-```js
-// In post.html, when creating a new post:
-await addDoc(collection(db,"posts"),{
-  userId: user.uid,
-  username: currentUsername, // <-- instead of user.email
-  content: content,
-  imageBase64: imageBase64 || null,
-  likes: 0,
-  timestamp: serverTimestamp()
-});
-```
-
-Also, you’ll need a small script somewhere that pushes notifications into the `notifications` collection when a comment is added to a post (so the post owner gets notified). If you want me to add that too, just let me know.
