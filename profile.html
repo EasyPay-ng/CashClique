@@ -6,71 +6,90 @@
 <title>Profile | CashClique</title>
 <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
 body{background:#f5f5f5;min-height:100vh;}
-.top-bar{background:#ff6a00;padding:15px 20px;color:white;display:flex;align-items:center;gap:15px;}
-.top-bar a{color:white;text-decoration:none;font-size:14px;}
-.profile-container{max-width:600px;margin:30px auto;padding:0 20px;}
-.profile-card{background:white;border-radius:16px;padding:30px;text-align:center;box-shadow:0 5px 20px rgba(0,0,0,0.08);}
-.profile-avatar{width:100px;height:100px;border-radius:50%;margin-bottom:15px;border:3px solid #ff6a00;}
-.profile-name{font-size:22px;font-weight:600;margin-bottom:5px;}
-.profile-handle{color:#888;font-size:14px;margin-bottom:15px;}
-.profile-stats{display:flex;justify-content:center;gap:30px;margin:20px 0;}
-.profile-stat{text-align:center;}
-.profile-stat .num{font-size:20px;font-weight:600;color:#ff6a00;}
-.profile-stat .label{font-size:12px;color:#888;}
-.follow-btn{background:#ff6a00;color:white;border:none;padding:10px 40px;border-radius:25px;font-size:15px;cursor:pointer;transition:0.3s;font-family:'Poppins',sans-serif;}
-.follow-btn:hover{background:#e05500;}
-.follow-btn.following{background:#555;}
-.follow-btn.following:hover{background:#444;}
-.follow-btn:disabled{opacity:0.6;cursor:not-allowed;}
-.user-posts{margin-top:25px;display:flex;flex-direction:column;gap:15px;}
-.user-posts h3{text-align:center;color:#333;margin-bottom:10px;}
-.post{background:white;padding:20px;border-radius:12px;box-shadow:0 5px 15px rgba(0,0,0,0.05);}
-.post-image{width:100%;border-radius:12px;margin-top:10px;cursor:pointer;}
-.error-box{background:#fff3f3;border:1px solid #ffb3b3;border-radius:8px;color:#a40000;padding:12px;margin-top:10px;font-size:13px;text-align:left;}
+.back-btn{position:fixed;top:20px;left:20px;background:#ff6a00;color:white;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:500;z-index:100;box-shadow:0 4px 15px rgba(255,106,0,0.3);}
+.back-btn:hover{background:#e55d00;}
+
+.profile-container{max-width:600px;margin:0 auto;padding:80px 20px 40px;}
+
+.profile-card{background:white;border-radius:16px;padding:30px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.08);margin-bottom:30px;}
+.profile-avatar{width:110px;height:110px;border-radius:50%;border:5px solid #ff6a00;margin-bottom:15px;object-fit:cover;}
+.profile-name{font-size:24px;font-weight:600;margin-bottom:6px;}
+.profile-bio{color:#555;font-size:14.5px;line-height:1.5;margin-bottom:20px;max-width:90%;margin-left:auto;margin-right:auto;}
+
+.profile-stats{display:flex;justify-content:center;gap:50px;margin:25px 0;}
+.stat{text-align:center;}
+.stat-num{font-size:24px;font-weight:700;color:#ff6a00;}
+.stat-label{font-size:13px;color:#888;text-transform:uppercase;letter-spacing:0.5px;}
+
+.follow-btn{background:#ff6a00;color:white;border:none;padding:13px 45px;border-radius:30px;font-size:16px;font-weight:600;cursor:pointer;transition:all 0.3s;box-shadow:0 5px 15px rgba(255,106,0,0.3);}
+.follow-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(255,106,0,0.4);}
+.follow-btn.following{background:#333;}
+.follow-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+
+.edit-btn{background:transparent;border:2.5px solid #ff6a00;color:#ff6a00;padding:12px 45px;border-radius:30px;font-size:16px;font-weight:600;cursor:pointer;transition:all 0.3s;}
+.edit-btn:hover{background:#ff6a00;color:white;}
+
+.section-title{font-size:17px;font-weight:600;margin:30px 0 15px;color:#222;}
+
+.posts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.post-thumb{aspect-ratio:1;background:#eee;border-radius:12px;overflow:hidden;cursor:pointer;transition:0.3s;box-shadow:0 3px 10px rgba(0,0,0,0.1);}
+.post-thumb:hover{transform:scale(1.05);box-shadow:0 8px 25px rgba(0,0,0,0.15);}
+.post-thumb img{width:100%;height:100%;object-fit:cover;}
+.empty-posts{text-align:center;color:#888;padding:50px 20px;background:white;border-radius:16px;font-size:15px;grid-column:1/-1;}
 </style>
 </head>
+
 <body>
 
-<div class="top-bar">
-    <a href="dashboard.html">← Back to Dashboard</a>
-</div>
+<button class="back-btn" onclick="history.back()">← Back</button>
 
 <div class="profile-container">
     <div class="profile-card">
-        <img class="profile-avatar" id="profile-avatar" src="https://i.pravatar.cc/150?img=3">
-        <div class="profile-name" id="profile-name">Loading...</div>
-        <div class="profile-handle" id="profile-handle">@username</div>
-
+        <img class="profile-avatar" id="avatar" src="" alt="Avatar">
+        <h2 class="profile-name" id="profile-name">Loading...</h2>
+        <p class="profile-bio" id="profile-bio">No bio yet</p>
+        
         <div class="profile-stats">
-            <div class="profile-stat"><div class="num" id="post-count">—</div><div class="label">Posts</div></div>
-            <div class="profile-stat"><div class="num" id="follower-count">—</div><div class="label">Followers</div></div>
-            <div class="profile-stat"><div class="num" id="following-count">—</div><div class="label">Following</div></div>
+            <div class="stat">
+                <div class="stat-num" id="posts-count">0</div>
+                <div class="stat-label">Posts</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num" id="followers-count">0</div>
+                <div class="stat-label">Followers</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num" id="following-count">0</div>
+                <div class="stat-label">Following</div>
+            </div>
         </div>
-
-        <button class="follow-btn" id="follow-btn" disabled>Follow</button>
+        
+        <button class="follow-btn" id="action-btn" style="display:none;">Follow</button>
     </div>
 
-    <div class="user-posts" id="user-posts">
-        <h3>Recent Posts</h3>
+    <h3 class="section-title">Posts</h3>
+    <div class="posts-grid" id="posts-grid">
+        <!-- Posts load here -->
     </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, doc, onSnapshot, updateDoc, increment, serverTimestamp, query, addDoc, arrayUnion, arrayRemove, getDoc, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, query, where, onSnapshot, doc, getDoc, updateDoc, arrayUnion, arrayRemove, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
-    apiKey:"AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
-    authDomain:"cashclique-31718.firebaseapp.com",
-    projectId:"cashclique-31718",
-    storageBucket:"cashclique-31718.firebasestorage.app",
-    messagingSenderId:"1064282591269",
-    appId:"1:1064282591269:web:17fbaf9b683d5b0dfbafcc",
-    measurementId:"G-V5WHJB6LS0"
+    apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
+    authDomain: "cashclique-31718.firebaseapp.com",
+    projectId: "cashclique-31718",
+    storageBucket: "cashclique-31718.firebasestorage.app",
+    messagingSenderId: "1064282591269",
+    appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc",
+    measurementId: "G-V5WHJB6LS0"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -78,159 +97,138 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 const urlParams = new URLSearchParams(window.location.search);
-const profileUid = urlParams.get("uid");
-if (!profileUid) {
-    document.querySelector(".profile-container").innerHTML = "<p style='text-align:center;margin-top:50px;'>No user specified.</p>";
-    throw new Error("No profile uid provided");
-}
-
+let profileUid = urlParams.get("uid");
 let currentUser = null;
 let currentUsername = "User";
+let isOwnProfile = false;
 
 onAuthStateChanged(auth, async (user) => {
     if (!user) { window.location.href = "login.html"; return; }
     currentUser = user;
 
-    // Load current user's display name for notifications + validation
-    const meRef = doc(db, "users", user.uid);
-    const meSnap = await getDoc(meRef);
-    if (meSnap.exists()) {
-        currentUsername = meSnap.data().username || meSnap.data().displayName || user.email?.split('@')[0] || "User";
+    const mySnap = await getDoc(doc(db, "users", user.uid));
+    if (mySnap.exists()) {
+        currentUsername = mySnap.data().username || user.email.split("@")[0];
     }
 
-    // Profile data + post count (real-time)
-    const profileRef = doc(db, "users", profileUid);
-    onSnapshot(profileRef,
-      (snap) => {
+    if (!profileUid) profileUid = user.uid;
+    isOwnProfile = profileUid === user.uid;
+
+    loadProfile();
+    loadUserPosts();
+});
+
+function loadProfile() {
+    const userRef = doc(db, "users", profileUid);
+    const unsub = onSnapshot(userRef, (snap) => {
         if (!snap.exists()) {
-            document.querySelector(".profile-container").innerHTML = "<p style='text-align:center;margin-top:50px;'>User not found.</p>";
+            document.getElementById("profile-name").innerText = "User not found";
             return;
         }
-        const data = snap.data();
-        document.getElementById("profile-name").innerText = data.username || data.displayName || "User";
-        document.getElementById("profile-handle").innerText = "@" + (data.username || "user");
-        document.getElementById("profile-avatar").src = data.avatar || `https://i.pravatar.cc/150?u=${profileUid}`;
-        document.getElementById("follower-count").innerText = data.followersCount || 0;
-        document.getElementById("following-count").innerText = data.followingCount || 0;
+        const d = snap.data();
+        document.getElementById("avatar").src = d.avatar || `https://i.pravatar.cc/300?u=${profileUid}`;
+        document.getElementById("profile-name").innerText = d.username || "Anonymous";
+        document.getElementById("profile-bio").innerText = d.bio || "No bio yet";
+        document.getElementById("followers-count").innerText = (d.followers?.length || 0);
+        document.getElementById("following-count").innerText = (d.following?.length || 0);
 
-        // ✅ Recommended: use stored postCount from user doc for fast, accurate total
-        // If you prefer not to store this, you can rely on posts snapshot size instead (see below)
-        document.getElementById("post-count").innerText = data.postCount ?? "—";
-      },
-      (error) => {
-        console.error("❌ Profile listener error:", error);
-        showError("Could not load profile data. Please try again later.");
-      }
-    );
+        const btn = document.getElementById("action-btn");
+        btn.style.display = "inline-block";
 
-    // Follow/following live status
-    if (profileUid === user.uid) {
-        const btn = document.getElementById("follow-btn");
-        btn.innerText = "This is You";
-        btn.disabled = true;
-        btn.style.background = "#999";
-    } else {
-        onSnapshot(meRef, (snap) => {
-            if (!snap.exists()) return;
-            const data = snap.data();
-            const isFollowing = data.following && data.following.includes(profileUid);
-            const btn = document.getElementById("follow-btn");
-            btn.innerText = isFollowing ? "Unfollow" : "Follow";
+        if (isOwnProfile) {
+            btn.textContent = "Edit Profile";
+            btn.className = "edit-btn";
+            btn.onclick = () => location.href = "settings.html";
+        } else {
+            const isFollowing = d.followers?.includes(currentUser.uid) || false;
+            btn.textContent = isFollowing ? "Following" : "Follow";
             btn.className = isFollowing ? "follow-btn following" : "follow-btn";
-            btn.disabled = false;
-        });
-    }
-
-    // Follow / Unfollow action
-    document.getElementById("follow-btn").addEventListener("click", async () => {
-        const btn = document.getElementById("follow-btn");
-        btn.disabled = true;
-        try {
-            const isFollowingSnap = await getDoc(meRef);
-            const isFollowing = isFollowingSnap.exists() && isFollowingSnap.data().following?.includes(profileUid);
-
-            if (!isFollowing) {
-                // Follow
-                await updateDoc(meRef, {
-                    following: arrayUnion(profileUid),
-                    followingCount: increment(1)
-                });
-                await updateDoc(profileRef, {
-                    followers: arrayUnion(user.uid),
-                    followersCount: increment(1)
-                });
-
-                // Create notification for the followed user
-                await addDoc(collection(db, "users", profileUid, "notifications"), {
-                    type: "follow",
-                    title: "New Follower",
-                    message: `${currentUsername} started following you`,
-                    fromUserId: user.uid,
-                    fromUsername: currentUsername,
-                    read: false,
-                    timestamp: serverTimestamp()
-                });
-                console.log("✅ Follow + notification created");
-            } else {
-                // Unfollow
-                await updateDoc(meRef, {
-                    following: arrayRemove(profileUid),
-                    followingCount: increment(-1)
-                });
-                await updateDoc(profileRef, {
-                    followers: arrayRemove(user.uid),
-                    followersCount: increment(-1)
-                });
-                console.log("✅ Unfollowed");
-            }
-        } catch (err) {
-            console.error("❌ Follow/unfollow failed:", err);
-            showError("Could not update follow status. Please try again.");
-        } finally {
-            btn.disabled = false;
+            btn.onclick = () => toggleFollow(isFollowing, d.username);
         }
     });
+}
 
-    // ✅ Alternative posts query: no composite index required
-    // Query posts by userId only and sort client-side by timestamp (newest first)
-    const postsQuery = query(collection(db, "posts"), where("userId", "==", profileUid));
-    onSnapshot(postsQuery,
-      (snapshot) => {
-        // Optional: if you did NOT store postCount, uncomment this line to use snapshot size
-        // document.getElementById("post-count").innerText = snapshot.size;
+/* 100% WORKING POSTS LOADER – NO INDEX REQUIRED */
+function loadUserPosts() {
+    const q = query(collection(db, "posts"), where("userId", "==", profileUid));
 
-        const container = document.getElementById("user-posts");
-        // Clear existing posts but keep heading
-        while (container.lastElementChild !== container.firstElementChild) {
-            container.removeChild(container.lastElementChild);
+    onSnapshot(q, (snapshot) => {
+        const total = snapshot.size;
+        document.getElementById("posts-count").textContent = total;
+
+        const grid = document.getElementById("posts-grid");
+        grid.innerHTML = "";
+
+        if (total === 0) {
+            grid.innerHTML = `<div class="empty-posts">No posts yet</div>`;
+            return;
         }
 
-        if (snapshot.empty) {
-            container.innerHTML += `<div class="post"><p style="text-align:center;color:#888;">No posts yet.</p></div>`;
+        // Sort newest first (local sort = no index needed)
+        const sorted = snapshot.docs.sort((a, b) => {
+            const ta = a.data().timestamp?.seconds || 0;
+            const tb = b.data().timestamp?.seconds || 0;
+            return tb - ta;
+        });
+
+        sorted.forEach(doc => {
+            const post = doc.data();
+            const div = document.createElement("div");
+            div.className = "post-thumb";
+
+            if (post.imageBase64) {
+                div.innerHTML = `<img src="${post.imageBase64}" loading="lazy">`;
+            } else {
+                div.style.background = "#ff6a00";
+                div.style.color = "white";
+                div.style.display = "flex";
+                div.style.alignItems = "center";
+                div.style.justifyContent = "center";
+                div.style.padding = "10px";
+                div.style.fontSize = "13px";
+                div.textContent = post.content?.substring(0, 40) || "Post";
+            }
+
+            div.onclick = () => location.href = `post-view.html?postId=${doc.id}`;
+            grid.appendChild(div);
+        });
+    }, (err) => {
+        console.error("Posts error:", err);
+        document.getElementById("posts-grid").innerHTML = `<div class="empty-posts">Failed to load posts</div>`;
+    });
+}
+
+async function toggleFollow(currentlyFollowing, targetUsername) {
+    const btn = document.getElementById("action-btn");
+    btn.disabled = true;
+
+    try {
+        const profileRef = doc(db, "users", profileUid);
+        const myRef = doc(db, "users", currentUser.uid);
+
+        if (currentlyFollowing) {
+            await updateDoc(profileRef, { followers: arrayRemove(currentUser.uid) });
+            await updateDoc(myRef, { following: arrayRemove(profileUid) });
         } else {
-            const posts = [];
-            snapshot.forEach(postDoc => posts.push({ id: postDoc.id, ...postDoc.data() }));
+            await updateDoc(profileRef, { followers: arrayUnion(currentUser.uid) });
+            await updateDoc(myRef, { following: arrayUnion(profileUid) });
 
-            // Sort newest first by timestamp.seconds (works reliably with serverTimestamp-based timestamps)
-            posts.sort((a, b) => {
-                const ta = a.timestamp?.seconds || 0;
-                const tb = b.timestamp?.seconds || 0;
-                return tb - ta;
-            });
-
-            posts.forEach(post => {
-                const div = document.createElement("div");
-                div.className = "post";
-                const imgHTML = post.imageBase64 ? `<img src="${post.imageBase64}" class="post-image">` : "";
-                div.innerHTML = `
-                    <p>${post.content || ""}</p>
-                    ${imgHTML}
-                    <small style="color:#999;margin-top:8px;display:block">❤️ ${post.likes || 0} likes</small>
-                `;
-                container.appendChild(div);
+            await addDoc(collection(db, "users", profileUid, "notifications"), {
+                type: "follow",
+                title: `${currentUsername} started following you`,
+                message: "Tap to view profile",
+                fromUserId: currentUser.uid,
+                fromUsername: currentUsername,
+                read: false,
+                timestamp: serverTimestamp()
             });
         }
-      },
-      (error) => {
-        console.error("❌ Posts listener error:", error);
-        const isIndexError = error.code 
+    } catch (e) {
+        console.error(e);
+        alert("Failed to update follow status");
+    }
+    btn.disabled = false;
+}
+</script>
+</body>
+</html>
