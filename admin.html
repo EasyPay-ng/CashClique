@@ -19,6 +19,7 @@ body{background:#f5f5f5;min-height:100vh;color:#333;}
 .login-input{width:100%;padding:15px;margin-bottom:20px;border:2px solid #ddd;border-radius:10px;font-size:16px;}
 .login-btn{width:100%;background:#ff6a00;color:white;padding:15px;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;transition:0.3s;}
 .login-btn:hover{background:#d95600;}
+.error-msg{color:#d32f2f;text-align:center;margin-bottom:15px;font-size:14px;display:none;}
 
 /* Admin Sidebar */
 .sidebar{width:260px;background:#2d2d2d;color:white;padding:25px;display:flex;flex-direction:column;gap:10px;position:fixed;height:100%;z-index:100;}
@@ -87,9 +88,11 @@ input[type="number"]{width:80px;padding:6px;border:1px solid #ddd;border-radius:
 <div class="login-overlay" id="login-overlay">
     <div class="login-box">
         <h2 class="login-title">🔒 Admin Access</h2>
+        <p class="error-msg" id="error-msg">Access Denied: Email not authorized</p>
         <input type="email" class="login-input" id="admin-email" placeholder="Admin Email">
         <input type="password" class="login-input" id="admin-password" placeholder="Password">
         <button class="login-btn" onclick="adminLogin()">Secure Login</button>
+        <p style="text-align:center;margin-top:20px;font-size:12px;color:#888;">Authorized emails only</p>
     </div>
 </div>
 
@@ -211,7 +214,7 @@ input[type="number"]{width:80px;padding:6px;border:1px solid #ddd;border-radius:
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, collection, doc, onSnapshot, query, where, updateDoc, addDoc, serverTimestamp, increment, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -228,35 +231,82 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// === ADMIN EMAIL WHITELIST ===
+const ALLOWED_ADMIN_EMAILS = [
+    "beniwealth70@gmail.com",
+    "cashclique@gmail.com"
+];
+
 let currentUser = null;
 
-// === ADMIN LOGIN LOGIC ===
+// === ADMIN LOGIN LOGIC WITH EMAIL CHECK ===
 window.adminLogin = async () => {
-    const email = document.getElementById("admin-email").value;
-    const password = document.getElementById("admin-password").value;
+    const emailInput = document.getElementById("admin-email");
+    const passwordInput = document.getElementById("admin-password");
+    const errorMsg = document.getElementById("error-msg");
+    
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+    
+    // Check email whitelist first
+    if (!ALLOWED_ADMIN_EMAILS.includes(email)) {
+        errorMsg.style.display = "block";
+        errorMsg.innerText = "Access Denied: Email not authorized";
+        return;
+    }
     
     try {
         await signInWithEmailAndPassword(auth, email, password);
         const user = auth.currentUser;
         
-        // Verify Admin Role (Check Firestore metadata field)
-        const userRef = doc(db, "admins", user.uid); // You must create this user in console manually
-        // Simplified check: if email contains 'admin' or you know the UID
-        
-        if(user.email.includes("admin") || user.email.includes("cashclique")) {
+        // Verify again after login
+        if (user.email === email && ALLOWED_ADMIN_EMAILS.includes(user.email)) {
              document.getElementById("login-overlay").style.display = "none";
              loadDashboard();
         } else {
-            alert("Access Denied: Not authorized.");
+            alert("Access Denied: Authentication mismatch.");
             signOut(auth);
+            location.reload();
         }
     } catch(e) {
-        alert("Login Failed");
+        console.error("Login error:", e);
+        errorMsg.style.display = "block";
+        errorMsg.innerText = "Invalid credentials. Please try again.";
     }
 };
 
+// Prevent keyboard submit bypass
+document.getElementById("admin-email").addEventListener("keypress", (e) => {
+    if(e.key === 'Enter') adminLogin();
+});
+
+// Auth Listener - Kick out unauthorized users
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        if (!ALLOWED_ADMIN_EMAILS.includes(user.email)) {
+            alert("Unauthorized access attempt detected.");
+            signOut(auth).then(() => {
+                location.reload();
+            });
+        } else {
+            // Already logged in and authorized
+            if (document.getElementById("login-overlay").style.display !== "none") {
+                document.getElementById("login-overlay").style.display = "none";
+                loadDashboard();
+            }
+        }
+    } else {
+        // Not logged in
+        if (document.getElementById("login-overlay").style.display !== "none") {
+            // Stay on login screen
+        }
+    }
+});
+
 window.adminLogout = () => {
-    signOut(auth).then(() => location.reload());
+    if(confirm("Are you sure you want to logout?")) {
+        signOut(auth).then(() => location.reload());
+    }
 };
 
 // === LOAD DASHBOARDS ===
@@ -273,15 +323,15 @@ function loadStats() {
         document.getElementById("total-users").innerText = snap.size;
     });
     
-    // Sum pending withdrawals logic would go here (simulated below)
+    // Sum pending withdrawals logic
     let pendingSum = 0;
     const wQuery = query(collection(db, "withdrawals"));
     onSnapshot(wQuery, (snap) => {
         pendingSum = 0;
         let distributed = 0;
         snap.forEach(d => {
-            if(!d.data().paid) pendingSum += d.data().amount;
-            else distributed += d.data().amount;
+            if(!d.data().paid) pendingSum += d.data().amount || 0;
+            else distributed += d.data().amount || 0;
         });
         document.getElementById("pending-withdrawals").innerText = "$" + pendingSum.toFixed(2);
         document.getElementById("total-distributed").innerText = "$" + distributed.toFixed(2);
@@ -296,7 +346,7 @@ function loadUsers() {
         snap.forEach(doc => {
             const u = doc.data();
             const row = `<tr>
-                <td><strong>${u.username}</strong><br><small style="color:#888">${u.email}</small></td>
+                <td><strong>${u.username || 'Anonymous'}</strong><br><small style="color:#888">${u.email || ''}</small></td>
                 <td class="balance-display">$${(u.balance||0).toFixed(2)}</td>
                 <td>${u.updatedAt ? new Date(u.updatedAt?.toDate()).toLocaleDateString() : 'Never'}</td>
                 <td><button class="btn btn-primary btn-sm" onclick="openBalanceModal('${doc.id}')">Edit Balance</button></td>
@@ -319,11 +369,10 @@ window.updateBalance = async () => {
     if(isNaN(amount)) return alert("Enter valid amount");
     
     const userRef = doc(db, "users", uid);
-    // Read current first
-    // Simpler: Direct set
     await updateDoc(userRef, { 
         balance: increment(amount), 
-        updatedAt: serverTimestamp() 
+        updatedAt: serverTimestamp(),
+        lastUpdatedBy: currentUser.email
     });
     
     closeModal("balance-modal");
@@ -341,36 +390,42 @@ function loadWithdrawals() {
             const statusClass = d.paid ? "badge-approved" : (d.status === "rejected" ? "badge-rejected" : "badge-pending");
             
             const row = `<tr>
-                <td><strong>${d.username}</strong><br><small>${d.userId}</small></td>
-                <td>$${d.amount.toFixed(2)}</td>
-                <td>${new Date(d.timestamp.toDate()).toLocaleDateString()}</td>
+                <td><strong>${d.username}</strong><br><small>${d.userId.substring(0,8)}...</small></td>
+                <td>$${(d.amount||0).toFixed(2)}</td>
+                <td>${d.timestamp ? new Date(d.timestamp.toDate()).toLocaleDateString() : 'Unknown'}</td>
                 <td><span class="badge ${statusClass}">${d.paid ? 'Paid' : 'Pending'}</span></td>
                 <td>
-                    ${!d.paid ? `<button class="btn btn-success btn-sm" onclick="approveWithdrawal('${doc.id}', '${d.userId}')">Approve</button>` : '<span>Paid</span>'}
+                    ${!d.paid ? `<button class="btn btn-success btn-sm" onclick="approveWithdrawal('${doc.id}', '${d.userId}', ${d.amount})">Approve</button>` : '<span>Paid</span>'}
                 </td>
             </tr>`;
             tbody.insertAdjacentHTML("beforeend", row);
         });
-    });
+    }, (err) => console.error("Withdrawal fetch error:", err));
 }
 
-window.approveWithdrawal = async (id, userId) => {
-    if(!confirm("Confirm payout processed externally? This will deduct the user's balance.")) return;
+window.approveWithdrawal = async (id, userId, amount) => {
+    if(!confirm(`Confirm payout of $${amount} has been processed externally? This will deduct the user's balance.`)) return;
     
-    // Deduct user balance
-    await updateDoc(doc(db, "users", userId), {
-        balance: increment(0), // Resetting to 0 implies full payout. If partial, adjust logic.
-        // Note: In a real app, you'd likely just mark as paid and trust the admin.
-        // For now, we reset balance to 0 upon payout approval
-    });
-    
-    await updateDoc(doc(db, "withdrawals", id), {
-        paid: true,
-        status: "approved",
-        processedAt: serverTimestamp()
-    });
-    
-    alert("Withdrawal Approved & Balance Reset");
+    try {
+        // Deduct user balance
+        await updateDoc(doc(db, "users", userId), {
+            balance: increment(-amount), // Actually deduct the amount
+            withdrawnAmount: increment(amount),
+            updatedAt: serverTimestamp()
+        });
+        
+        await updateDoc(doc(db, "withdrawals", id), {
+            paid: true,
+            status: "approved",
+            processedAt: serverTimestamp(),
+            processedBy: currentUser.email
+        });
+        
+        alert("Withdrawal Approved & Balance Adjusted");
+    } catch(e) {
+        console.error(e);
+        alert("Failed to process withdrawal");
+    }
 };
 
 // === POST EARNINGS ASSIGNMENT ===
@@ -383,10 +438,10 @@ function loadPosts() {
             const earned = p.earning || 0;
             
             const row = `<tr>
-                <td><code style="background:#eee;padding:2px 5px;border-radius:3px;">${doc.id.substring(0,6)}...</code></td>
-                <td>${p.username}</td>
+                <td><code style="background:#eee;padding:2px 5px;border-radius:3px;">${doc.id.substring(0,8)}...</code></td>
+                <td>${p.username || 'Unknown'}</td>
                 <td>${p.likes || 0}</td>
-                <td style="color:${earned > 0 ? 'green' : '#888'}">${earned > 0 ? '$'+earned : '-'}</td>
+                <td style="color:${earned > 0 ? 'green' : '#888'}">${earned > 0 ? '$'+earned.toFixed(2) : '-'}</td>
                 <td><button class="btn btn-primary btn-sm" onclick="openPayoutModal('${doc.id}', '${p.userId}')">Set Pay</button></td>
             </tr>`;
             tbody.insertAdjacentHTML("beforeend", row);
@@ -412,12 +467,14 @@ window.assignPostEarning = async () => {
         await updateDoc(doc(db, "posts", postId), {
             earning: earning,
             paid: true,
-            payoutDate: serverTimestamp()
+            payoutDate: serverTimestamp(),
+            assignedBy: currentUser.email
         });
         
         // Add to user wallet
         await updateDoc(doc(db, "users", userId), {
-            balance: increment(earning)
+            balance: increment(earning),
+            updatedAt: serverTimestamp()
         });
         
         closeModal("payout-modal");
@@ -440,13 +497,6 @@ window.switchTab = (tabName) => {
 };
 
 window.closeModal = (id) => document.getElementById(id).classList.remove("active");
-
-// Auth Listener
-onAuthStateChanged(auth, (user) => {
-    if(user && !document.getElementById("login-overlay").style.display || document.getElementById("login-overlay").style.display === "none"){
-        loadDashboard();
-    }
-});
 </script>
 </body>
 </html>
