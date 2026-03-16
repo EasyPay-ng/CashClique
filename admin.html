@@ -21,7 +21,7 @@ body{background:#f5f5f5;min-height:100vh;color:#333;}
 .login-btn:hover{background:#d95600;}
 .error-msg{color:#d32f2f;text-align:center;margin-bottom:15px;font-size:14px;display:none;}
 
-/* Admin Sidebar */
+/* Side Navigation */
 .sidebar{width:260px;background:#2d2d2d;color:white;padding:25px;display:flex;flex-direction:column;gap:10px;position:fixed;height:100%;z-index:100;}
 .sidebar h2{font-size:22px;margin-bottom:30px;font-weight:700;color:#ff6a00;}
 .sidebar a{color:#ccc;text-decoration:none;padding:12px 15px;border-radius:8px;transition:0.3s;font-weight:500;}
@@ -31,13 +31,15 @@ body{background:#f5f5f5;min-height:100vh;color:#333;}
 .main{margin-left:260px;padding:30px;width:calc(100% - 260px);}
 .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;padding-bottom:20px;border-bottom:2px solid #eee;}
 .header h1{font-size:28px;font-weight:700;}
-
-/* Stats Grid */
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:30px;}
 .stat-card{background:white;padding:25px;border-radius:12px;box-shadow:0 5px 20px rgba(0,0,0,0.05);}
 .stat-label{font-size:13px;color:#777;text-transform:uppercase;font-weight:600;}
 .stat-value{font-size:28px;font-weight:700;color:#2d2d2d;margin-top:8px;}
-.stat-value.success{color:#4caf50;}
+
+/* Tabs */
+.tabs{display:flex;gap:5px;margin-bottom:20px;border-bottom:2px solid #eee;}
+.tab{padding:12px 25px;cursor:pointer;font-weight:500;color:#666;border-bottom:3px solid transparent;transition:0.3s;}
+.tab.active{color:#ff6a00;border-bottom-color:#ff6a00;}
 
 /* Tables */
 .table-container{background:white;border-radius:12px;box-shadow:0 5px 20px rgba(0,0,0,0.05);overflow-x:auto;}
@@ -46,39 +48,28 @@ thead th{padding:18px;text-align:left;background:#fafafa;font-weight:600;color:#
 tbody tr{border-bottom:1px solid #f5f5f5;transition:0.2s;}
 tbody tr:hover{background:#fafafa;}
 td{padding:18px;font-size:14px;}
+.badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;}
+.badge-pending{background:#fff3cd;color:#856404;}
+.badge-approved{background:#d4edda;color:#155724;}
+.badge-rejected{background:#f8d7da;color:#721c24;}
 
-/* Buttons & Inputs */
+/* Controls & Buttons */
 .btn{padding:10px 20px;border:none;border-radius:8px;font-weight:600;cursor:pointer;transition:0.2s;font-size:14px;}
 .btn-primary{background:#ff6a00;color:white;}
 .btn-success{background:#4caf50;color:white;}
-.btn-danger{background:#f44336;color:white;}
 .btn-sm{padding:6px 12px;font-size:12px;}
-input[type="number"]{width:80px;padding:6px;border:1px solid #ddd;border-radius:6px;}
-.balance-display{font-weight:700;color:#ff6a00;}
+input, select{width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;}
 
 /* Modal */
 .modal{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;pointer-events:none;transition:0.3s;}
 .modal.active{opacity:1;pointer-events:auto;}
 .modal-content{background:white;padding:30px;border-radius:12px;width:450px;max-width:95%;}
 .modal-title{font-size:20px;font-weight:700;margin-bottom:20px;color:#333;}
-.form-group{margin-bottom:15px;}
-.form-group label{display:block;margin-bottom:5px;font-weight:500;}
-.form-group input, .form-group select{width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;}
 .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
-.badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;}
-.badge-pending{background:#fff3cd;color:#856404;}
-.badge-approved{background:#d4edda;color:#155724;}
-.badge-rejected{background:#f8d7da;color:#721c24;}
 
-/* Tabs */
-.tabs{display:flex;gap:5px;margin-bottom:20px;border-bottom:2px solid #eee;}
-.tab{padding:12px 25px;cursor:pointer;font-weight:500;color:#666;border-bottom:3px solid transparent;transition:0.3s;}
-.tab.active{color:#ff6a00;border-bottom-color:#ff6a00;}
-
-@media(max-width:900px){
-    .sidebar{transform:translateX(-100%);transition:0.3s;}
-    .main{margin-left:0;width:100%;}
-}
+/* Helpers */
+.align-with-tabs{margin-top:20px;}
+.text-success{color:#4caf50}
 </style>
 </head>
 
@@ -92,7 +83,6 @@ input[type="number"]{width:80px;padding:6px;border:1px solid #ddd;border-radius:
         <input type="email" class="login-input" id="admin-email" placeholder="Admin Email">
         <input type="password" class="login-input" id="admin-password" placeholder="Password">
         <button class="login-btn" onclick="adminLogin()">Secure Login</button>
-        <p style="text-align:center;margin-top:20px;font-size:12px;color:#888;">Authorized emails only</p>
     </div>
 </div>
 
@@ -109,10 +99,9 @@ input[type="number"]{width:80px;padding:6px;border:1px solid #ddd;border-radius:
 <div class="main">
     <div class="header">
         <h1 id="page-title">User Management</h1>
-        <span class="badge badge-pending">Live Mode</span>
     </div>
 
-    <!-- DASHBOARD STATS -->
+    <!-- Stats -->
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-label">Total Users</div>
@@ -120,7 +109,7 @@ input[type="number"]{width:80px;padding:6px;border:1px solid #ddd;border-radius:
         </div>
         <div class="stat-card">
             <div class="stat-label">Pending Withdrawals</div>
-            <div class="stat-value success" id="pending-withdrawals">$0.00</div>
+            <div class="stat-value" id="pending-withdrawals">$0.00</div>
         </div>
         <div class="stat-card">
             <div class="stat-label">Total Distributed</div>
@@ -128,7 +117,7 @@ input[type="number"]{width:80px;padding:6px;border:1px solid #ddd;border-radius:
         </div>
     </div>
 
-    <!-- TABS -->
+    <!-- Tabs -->
     <div class="tabs">
         <div class="tab active" id="tab-users" onclick="switchTab('users')">Users & Balances</div>
         <div class="tab" id="tab-withdrawals" onclick="switchTab('withdrawals')">Withdrawal Requests</div>
@@ -175,7 +164,7 @@ input[type="number"]{width:80px;padding:6px;border:1px solid #ddd;border-radius:
                     <th>Creator</th>
                     <th>Likes</th>
                     <th>Current Earn.</th>
-                    <th>Set Payout ($)</th>
+                    <th>Set Payout</th>
                 </tr>
             </thead>
             <tbody><!-- JS Loads Here --></tbody>
@@ -189,7 +178,7 @@ input[type="number"]{width:80px;padding:6px;border:1px solid #ddd;border-radius:
         <h3 class="modal-title">💰 Adjust Balance</h3>
         <div class="form-group">
             <label>Add/Remove Amount</label>
-            <input type="number" id="amount-adjustment" step="0.01" placeholder="e.g., 10.00">
+            <input type="number" id="amount-adjustment" step="0.01">
         </div>
         <div class="modal-actions">
             <button class="btn" onclick="closeModal('balance-modal')">Cancel</button>
@@ -203,7 +192,7 @@ input[type="number"]{width:80px;padding:6px;border:1px solid #ddd;border-radius:
         <h3 class="modal-title">📝 Set Post Payout</h3>
         <div class="form-group">
             <label>Earnings ($) for this Post</label>
-            <input type="number" id="post-earnings" step="0.01" min="0">
+            <input type="number" id="post-earnings" step="0.01">
         </div>
         <div class="modal-actions">
             <button class="btn" onclick="closeModal('payout-modal')">Cancel</button>
@@ -214,8 +203,8 @@ input[type="number"]{width:80px;padding:6px;border:1px solid #ddd;border-radius:
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, doc, onSnapshot, query, where, updateDoc, addDoc, serverTimestamp, increment, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, doc, onSnapshot, query, addDoc, updateDoc, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -231,272 +220,160 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// === ADMIN EMAIL WHITELIST ===
-const ALLOWED_ADMIN_EMAILS = [
-    "beniwealth70@gmail.com",
-    "cashclique@gmail.com"
-];
+// ADMIN WHITELIST (hard-coded, secure)
+const ALLOWED_ADMIN_EMAILS = ["beniwealth70@gmail.com", "cashclique@gmail.com"];
 
-let currentUser = null;
-
-// === ADMIN LOGIN LOGIC WITH EMAIL CHECK ===
-window.adminLogin = async () => {
-    const emailInput = document.getElementById("admin-email");
-    const passwordInput = document.getElementById("admin-password");
-    const errorMsg = document.getElementById("error-msg");
+// Login
+async function adminLogin() {
+    const email = document.getElementById("admin-email").value;
+    const password = document.getElementById("admin-password").value;
     
-    const email = emailInput.value.trim();
-    const password = passwordInput.value;
-    
-    // Check email whitelist first
     if (!ALLOWED_ADMIN_EMAILS.includes(email)) {
-        errorMsg.style.display = "block";
-        errorMsg.innerText = "Access Denied: Email not authorized";
+        document.getElementById("error-msg").style.display = "block";
+        document.getElementById("error-msg").innerText = "Access Denied: Email not authorized";
         return;
     }
     
     try {
         await signInWithEmailAndPassword(auth, email, password);
-        const user = auth.currentUser;
-        
-        // Verify again after login
-        if (user.email === email && ALLOWED_ADMIN_EMAILS.includes(user.email)) {
-             document.getElementById("login-overlay").style.display = "none";
-             loadDashboard();
-        } else {
-            alert("Access Denied: Authentication mismatch.");
-            signOut(auth);
-            location.reload();
-        }
+        loadAllAdminData();
     } catch(e) {
-        console.error("Login error:", e);
-        errorMsg.style.display = "block";
-        errorMsg.innerText = "Invalid credentials. Please try again.";
+        document.getElementById("error-msg").style.display = "block";
+        document.getElementById("error-msg").innerText = "Invalid credentials";
     }
-};
+}
 
-// Prevent keyboard submit bypass
-document.getElementById("admin-email").addEventListener("keypress", (e) => {
-    if(e.key === 'Enter') adminLogin();
-});
+// Logout
+function adminLogout() {
+    signOut(auth).then(() => location.reload());
+}
 
-// Auth Listener - Kick out unauthorized users
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        if (!ALLOWED_ADMIN_EMAILS.includes(user.email)) {
-            alert("Unauthorized access attempt detected.");
-            signOut(auth).then(() => {
-                location.reload();
-            });
-        } else {
-            // Already logged in and authorized
-            if (document.getElementById("login-overlay").style.display !== "none") {
-                document.getElementById("login-overlay").style.display = "none";
-                loadDashboard();
-            }
-        }
+// Initialize app on login state
+auth.onAuthStateChanged((user) => {
+    if(user && ALLOWED_ADMIN_EMAILS.includes(user.email)){
+        loadAllAdminData();
     } else {
-        // Not logged in
-        if (document.getElementById("login-overlay").style.display !== "none") {
-            // Stay on login screen
-        }
+        // Redirect or stay on login if not authorized
     }
 });
 
-window.adminLogout = () => {
-    if(confirm("Are you sure you want to logout?")) {
-        signOut(auth).then(() => location.reload());
-    }
-};
-
-// === LOAD DASHBOARDS ===
-function loadDashboard() {
-    loadStats();
+// Load dashboards
+function loadAllAdminData() {
     loadUsers();
     loadWithdrawals();
     loadPosts();
 }
 
-function loadStats() {
-    // Load users count
-    onSnapshot(collection(db, "users"), (snap) => {
-        document.getElementById("total-users").innerText = snap.size;
-    });
-    
-    // Sum pending withdrawals logic
-    let pendingSum = 0;
-    const wQuery = query(collection(db, "withdrawals"));
-    onSnapshot(wQuery, (snap) => {
-        pendingSum = 0;
-        let distributed = 0;
-        snap.forEach(d => {
-            if(!d.data().paid) pendingSum += d.data().amount || 0;
-            else distributed += d.data().amount || 0;
-        });
-        document.getElementById("pending-withdrawals").innerText = "$" + pendingSum.toFixed(2);
-        document.getElementById("total-distributed").innerText = "$" + distributed.toFixed(2);
-    });
-}
-
-// === USERS MANAGEMENT ===
 function loadUsers() {
     onSnapshot(collection(db, "users"), (snap) => {
         const tbody = document.querySelector("#users-table tbody");
         tbody.innerHTML = "";
         snap.forEach(doc => {
             const u = doc.data();
-            const row = `<tr>
-                <td><strong>${u.username || 'Anonymous'}</strong><br><small style="color:#888">${u.email || ''}</small></td>
-                <td class="balance-display">$${(u.balance||0).toFixed(2)}</td>
-                <td>${u.updatedAt ? new Date(u.updatedAt?.toDate()).toLocaleDateString() : 'Never'}</td>
-                <td><button class="btn btn-primary btn-sm" onclick="openBalanceModal('${doc.id}')">Edit Balance</button></td>
-            </tr>`;
-            tbody.insertAdjacentHTML("beforeend", row);
+            tbody.insertAdjacentHTML("beforeend", `
+                <tr>
+                    <td><strong>${u.username || ''}</strong><br><small style="color:#888">${doc.id}</small></td>
+                    <td class="balance-display">$${(u.balance||0).toFixed(2)}</td>
+                    <td>${u.updatedAt ? new Date(u.updatedAt?.toDate()).toLocaleDateString() : 'Never'}</td>
+                    <td><button class="btn btn-primary btn-sm" onclick="openBalanceModal('${doc.id}')">Adjust Balance</button></td>
+                </tr>
+            `);
         });
     });
 }
 
-window.openBalanceModal = (uid) => {
-    window.currentUid = uid;
-    document.getElementById("balance-modal").classList.add("active");
-    document.getElementById("amount-adjustment").value = "";
-}
-
-window.updateBalance = async () => {
-    const uid = window.currentUid;
-    const amount = parseFloat(document.getElementById("amount-adjustment").value);
-    
-    if(isNaN(amount)) return alert("Enter valid amount");
-    
-    const userRef = doc(db, "users", uid);
-    await updateDoc(userRef, { 
-        balance: increment(amount), 
-        updatedAt: serverTimestamp(),
-        lastUpdatedBy: currentUser.email
-    });
-    
-    closeModal("balance-modal");
-    alert(`Updated user balance by $${amount}`);
-};
-
-// === WITHDRAWALS MANAGEMENT ===
 function loadWithdrawals() {
-    const q = query(collection(db, "withdrawals"), where("userId", "!=", ""));
+    const q = collection(db, "withdrawals");
     onSnapshot(q, (snap) => {
         const tbody = document.querySelector("#withdrawals-table tbody");
         tbody.innerHTML = "";
         snap.forEach(doc => {
             const d = doc.data();
-            const statusClass = d.paid ? "badge-approved" : (d.status === "rejected" ? "badge-rejected" : "badge-pending");
+            const tagClass = d.paid ? "badge-approved" : (d.status === "rejected" ? "badge-rejected" : "badge-pending");
+            const tagText = d.paid ? "Paid" : (d.status || "Pending");
             
-            const row = `<tr>
-                <td><strong>${d.username}</strong><br><small>${d.userId.substring(0,8)}...</small></td>
-                <td>$${(d.amount||0).toFixed(2)}</td>
-                <td>${d.timestamp ? new Date(d.timestamp.toDate()).toLocaleDateString() : 'Unknown'}</td>
-                <td><span class="badge ${statusClass}">${d.paid ? 'Paid' : 'Pending'}</span></td>
-                <td>
-                    ${!d.paid ? `<button class="btn btn-success btn-sm" onclick="approveWithdrawal('${doc.id}', '${d.userId}', ${d.amount})">Approve</button>` : '<span>Paid</span>'}
-                </td>
-            </tr>`;
-            tbody.insertAdjacentHTML("beforeend", row);
+            tbody.insertAdjacentHTML("beforeend", `
+                <tr>
+                    <td><strong>${d.username}</strong><br><small>${d.userId.substring(0,8)}...</small></td>
+                    <td>$${(d.amount||0).toFixed(2)}</td>
+                    <td>${d.timestamp ? new Date(d.timestamp.toDate()).toLocaleDateString() : 'Unknown'}</td>
+                    <td><span class="badge ${tagClass}">${tagText}</span></td>
+                    <td>${!d.paid ? '<button class="btn btn-success btn-sm" onclick="approveWithdrawal(\''+doc.id+'\', \''+d.userId+'\')">Approve</button>' : 'Done'}</td>
+                </tr>
+            `);
         });
-    }, (err) => console.error("Withdrawal fetch error:", err));
+    });
 }
 
-window.approveWithdrawal = async (id, userId, amount) => {
-    if(!confirm(`Confirm payout of $${amount} has been processed externally? This will deduct the user's balance.`)) return;
-    
-    try {
-        // Deduct user balance
-        await updateDoc(doc(db, "users", userId), {
-            balance: increment(-amount), // Actually deduct the amount
-            withdrawnAmount: increment(amount),
-            updatedAt: serverTimestamp()
-        });
-        
-        await updateDoc(doc(db, "withdrawals", id), {
-            paid: true,
-            status: "approved",
-            processedAt: serverTimestamp(),
-            processedBy: currentUser.email
-        });
-        
-        alert("Withdrawal Approved & Balance Adjusted");
-    } catch(e) {
-        console.error(e);
-        alert("Failed to process withdrawal");
-    }
-};
-
-// === POST EARNINGS ASSIGNMENT ===
 function loadPosts() {
     onSnapshot(collection(db, "posts"), (snap) => {
         const tbody = document.querySelector("#posts-table tbody");
         tbody.innerHTML = "";
         snap.forEach(doc => {
             const p = doc.data();
-            const earned = p.earning || 0;
-            
-            const row = `<tr>
-                <td><code style="background:#eee;padding:2px 5px;border-radius:3px;">${doc.id.substring(0,8)}...</code></td>
-                <td>${p.username || 'Unknown'}</td>
-                <td>${p.likes || 0}</td>
-                <td style="color:${earned > 0 ? 'green' : '#888'}">${earned > 0 ? '$'+earned.toFixed(2) : '-'}</td>
-                <td><button class="btn btn-primary btn-sm" onclick="openPayoutModal('${doc.id}', '${p.userId}')">Set Pay</button></td>
-            </tr>`;
-            tbody.insertAdjacentHTML("beforeend", row);
+            tbody.insertAdjacentHTML("beforeend", `
+                <tr>
+                    <td><code style="background:#eee;padding:2px 5px;border-radius:3px;">${doc.id.substring(0,8)}...</code></td>
+                    <td>${p.username}</td>
+                    <td>${p.likes || 0}</td>
+                    <td style="color:${(p.earning||0) > 0 ? 'green' : '#888'}">$${(p.earning||0).toFixed(2)}</td>
+                    <td><button class="btn btn-primary btn-sm" onclick="openPayoutModal('${doc.id}', '${p.userId}')">Set Pay</button></td>
+                </tr>
+            `);
         });
     });
 }
 
-window.openPayoutModal = (postId, userId) => {
+// Balance & Post Earning Actions
+async function updateBalance() {
+    const userId = window.currentUserForBalance; // Set in modal open
+    const amount = parseFloat(document.getElementById("amount-adjustment").value);
+    if (isNaN(amount)) return alert("Enter valid amount");
+    
+    await updateDoc(doc(db, "users", userId), {
+        balance: increment(amount),
+        updatedAt: serverTimestamp()
+    });
+    
+    closeModal();
+}
+
+async function assignPostEarning() {
+    const postId = window.currentPostId;
+    const userId = window.currentUserIdForPost;
+    const amount = parseFloat(document.getElementById("post-earnings").value);
+    if (isNaN(amount)) return alert("Enter valid amount");
+    
+    await updateDoc(doc(db, "posts", postId), {
+        earning: amount,
+        payoutDate: serverTimestamp()
+    });
+    
+    // Also reflect earnings in user's balance
+    await updateDoc(doc(db, "users", userId), {
+        balance: increment(amount),
+        updatedAt: serverTimestamp()
+    });
+    
+    closeModal();
+}
+
+// Modal controls
+function openBalanceModal(userId) {
+    window.currentUserForBalance = userId;
+    document.getElementById("balance-modal").classList.add("active");
+}
+
+function openPayoutModal(postId, userId) {
     window.currentPostId = postId;
     window.currentUserIdForPost = userId;
     document.getElementById("payout-modal").classList.add("active");
-    document.getElementById("post-earnings").value = "";
 }
 
-window.assignPostEarning = async () => {
-    const postId = window.currentPostId;
-    const userId = window.currentUserIdForPost;
-    const earning = parseFloat(document.getElementById("post-earnings").value);
-    
-    if(isNaN(earning) || earning < 0) return alert("Invalid amount");
-    
-    try {
-        await updateDoc(doc(db, "posts", postId), {
-            earning: earning,
-            paid: true,
-            payoutDate: serverTimestamp(),
-            assignedBy: currentUser.email
-        });
-        
-        // Add to user wallet
-        await updateDoc(doc(db, "users", userId), {
-            balance: increment(earning),
-            updatedAt: serverTimestamp()
-        });
-        
-        closeModal("payout-modal");
-        alert(`Assigned $${earning} to post. Added to user balance.`);
-    } catch(e) {
-        console.error(e);
-        alert("Failed to save");
-    }
+function closeModal() {
+    const modals = ['balance-modal', 'payout-modal'];
+    modals.forEach(id => document.getElementById(id).classList.remove("active"));
 }
-
-// === UTILS ===
-window.switchTab = (tabName) => {
-    ['users', 'withdrawals', 'posts'].forEach(t => {
-        document.getElementById(`tab-${t}`).classList.remove('active');
-        document.getElementById(`view-${t}`).style.display = t === tabName ? 'block' : 'none';
-    });
-    
-    document.getElementById(`tab-${tabName}`).classList.add('active');
-    document.getElementById('page-title').innerText = tabName.charAt(0).toUpperCase() + tabName.slice(1);
-};
-
-window.closeModal = (id) => document.getElementById(id).classList.remove("active");
 </script>
 </body>
 </html>
