@@ -78,6 +78,14 @@ align-items:center;
 margin-bottom:25px;
 }
 
+/* HEADER RIGHT */
+
+.header-right{
+display:flex;
+align-items:center;
+gap:20px;
+}
+
 .user{
 display:flex;
 align-items:center;
@@ -90,24 +98,67 @@ height:35px;
 border-radius:50%;
 }
 
-.stats{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-gap:20px;
-margin-bottom:25px;
-}
+/* NOTIFICATION BELL */
 
-.card{
-background:white;
-padding:20px;
-border-radius:12px;
-box-shadow:0 5px 15px rgba(0,0,0,0.05);
-}
-
-.card p{
+.notification{
+position:relative;
 font-size:22px;
-font-weight:600;
-color:#ff6a00;
+cursor:pointer;
+}
+
+.notification-count{
+position:absolute;
+top:-6px;
+right:-8px;
+background:red;
+color:white;
+font-size:11px;
+padding:2px 6px;
+border-radius:50%;
+}
+
+/* NOTIFICATION OVERLAY */
+
+.notifications-overlay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.6);
+display:none;
+align-items:center;
+justify-content:center;
+z-index:9999;
+}
+
+.notifications-box{
+background:white;
+width:420px;
+max-height:80vh;
+overflow:auto;
+border-radius:12px;
+padding:20px;
+}
+
+.notifications-box h3{
+margin-bottom:15px;
+}
+
+.notification-item{
+padding:10px;
+border-bottom:1px solid #eee;
+font-size:14px;
+}
+
+.notification-item:last-child{
+border:none;
+}
+
+.notification-time{
+font-size:11px;
+color:gray;
+margin-top:4px;
 }
 
 /* FEED */
@@ -123,90 +174,6 @@ background:white;
 padding:20px;
 border-radius:12px;
 box-shadow:0 5px 15px rgba(0,0,0,0.05);
-position:relative;
-}
-
-.post-header{
-display:flex;
-align-items:center;
-gap:10px;
-margin-bottom:10px;
-}
-
-.post-header img{
-width:35px;
-height:35px;
-border-radius:50%;
-cursor:pointer;
-}
-
-.post-time{
-font-size:12px;
-color:gray;
-}
-
-.post-image{
-margin-top:10px;
-width:100%;
-border-radius:12px;
-cursor:pointer;
-}
-
-.post-video{
-margin-top:10px;
-width:100%;
-border-radius:12px;
-cursor:pointer;
-}
-
-.post-actions{
-display:flex;
-gap:20px;
-margin-top:10px;
-font-size:14px;
-color:gray;
-}
-
-.comments{
-margin-top:10px;
-border-top:1px solid #eee;
-padding-top:10px;
-}
-
-.create-btn{
-position:fixed;
-bottom:25px;
-right:25px;
-background:#ff6a00;
-color:white;
-border:none;
-width:60px;
-height:60px;
-border-radius:50%;
-font-size:30px;
-cursor:pointer;
-}
-
-/* MEDIA VIEWER */
-
-.media-viewer{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,0.95);
-display:none;
-align-items:center;
-justify-content:center;
-z-index:9999;
-}
-
-.media-viewer img,
-.media-viewer video{
-max-width:95%;
-max-height:95%;
-border-radius:10px;
 }
 
 /* MOBILE */
@@ -225,6 +192,10 @@ transform:translateX(0);
 margin-left:0;
 }
 
+.notifications-box{
+width:90%;
+}
+
 }
 
 </style>
@@ -232,10 +203,18 @@ margin-left:0;
 
 <body>
 
-<!-- MEDIA VIEWER -->
-<div class="media-viewer" id="mediaViewer" onclick="closeViewer()">
-<img id="viewerImg">
-<video id="viewerVideo" controls></video>
+<!-- NOTIFICATIONS OVERLAY -->
+
+<div class="notifications-overlay" id="notificationsOverlay" onclick="closeNotifications()">
+
+<div class="notifications-box" onclick="event.stopPropagation()">
+
+<h3>Notifications</h3>
+
+<div id="notificationsList"></div>
+
+</div>
+
 </div>
 
 <!-- SIDEBAR -->
@@ -250,7 +229,6 @@ CashClique
 <a href="#">🏠 Dashboard</a>
 <a href="my-content.html">📝 My Content</a>
 <a href="earnings.html">💰 Earnings</a>
-<a href="opportunities.html">🔥 Opportunities</a>
 <a href="settings.html">⚙ Settings</a>
 <a href="#" id="logout">🚪 Logout</a>
 
@@ -261,53 +239,52 @@ CashClique
 <div class="main">
 
 <div class="header">
+
 <div onclick="toggleMenu()">☰</div>
+
+<div class="header-right">
+
+<!-- NOTIFICATION ICON -->
+
+<div class="notification" onclick="openNotifications()">
+🔔
+<span class="notification-count" id="notificationCount" style="display:none">0</span>
+</div>
+
 <div class="user">
 <img src="https://i.pravatar.cc/150">
 <span id="username">User</span>
 </div>
+
 </div>
 
-<div class="stats">
-<div class="card"><h3>Total Earnings</h3><p id="earnings">$0</p></div>
-<div class="card"><h3>Total Posts</h3><p id="total-posts">0</p></div>
-<div class="card"><h3>Followers</h3><p>0</p></div>
-<div class="card"><h3>Engagement</h3><p>0%</p></div>
 </div>
 
 <div class="feed" id="feed"></div>
 
 </div>
 
-<button class="create-btn" onclick="window.location.href='post.html'">+</button>
-
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 
-import { getAuth,onAuthStateChanged,signOut }
-
-from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+getAuth,
+onAuthStateChanged,
+signOut
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 import {
-
 getFirestore,
 collection,
-doc,
-addDoc,
-onSnapshot,
-updateDoc,
-increment,
-serverTimestamp,
 query,
+where,
 orderBy,
-getDoc,
-setDoc
-
-}
-
-from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
+onSnapshot,
+serverTimestamp,
+doc,
+updateDoc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig={
 apiKey:"AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -323,292 +300,112 @@ const auth=getAuth(app);
 const db=getFirestore(app);
 
 let currentUser=null;
-const feed=document.getElementById("feed");
+
+/* FORMAT DATE */
 
 function formatDate(ts){
-
 if(!ts) return "";
-
 return ts.toDate().toLocaleString();
-
 }
+
+/* AUTH */
 
 onAuthStateChanged(auth,(user)=>{
 
 if(!user){
-
 window.location.href="login.html";
-
 return;
-
 }
 
 currentUser=user;
 
 document.getElementById("username").innerText=user.email;
 
-const postsQuery=query(
-collection(db,"posts"),
+loadNotifications();
+
+});
+
+/* LOAD NOTIFICATIONS */
+
+function loadNotifications(){
+
+const q=query(
+collection(db,"notifications"),
+where("toUser","==",currentUser.uid),
 orderBy("timestamp","desc")
 );
 
-onSnapshot(postsQuery,(snapshot)=>{
+onSnapshot(q,(snapshot)=>{
 
-feed.innerHTML="";
-document.getElementById("total-posts").innerText=snapshot.size;
-
-snapshot.forEach((postDoc)=>{
-
-const post=postDoc.data();
-const postId=postDoc.id;
-
-let media="";
-
-if(post.image){
-
-media=`<img src="${post.image}" class="post-image" onclick="openViewer('${post.image}','image')">`;
-}
-
-if(post.video){
-
-media=`<video src="${post.video}" class="post-video" onclick="openViewer('${post.video}','video')"></video>`;
-}
-
-const div=document.createElement("div");
-div.className="post";
-
-div.innerHTML=`
-
-<div class="post-header">
-
-<img src="https://i.pravatar.cc/150?u=${post.userId}">
-
-<div>
-<b>${post.username}</b>
-<div class="post-time">${formatDate(post.timestamp)}</div>
-</div>
-
-</div>
-
-<p>${post.content||""}</p>
-
-${media}
-
-<div class="post-actions">
-
-<span class="like-btn" data-id="${postId}">❤️ ${post.likes||0}</span>
-
-<span>👁 ${post.views||0}</span>
-
-<span onclick="toggleComments('${postId}')">💬 Comment</span>
-
-</div>
-
-<div class="comments" id="comments-${postId}" style="display:none">
-
-<div id="comment-list-${postId}"></div>
-
-<input id="comment-input-${postId}" placeholder="Write comment..." style="width:100%;padding:8px;margin-top:10px">
-
-<button onclick="addComment('${postId}')">Post</button>
-
-</div>
-
-`;
-
-feed.appendChild(div);
-
-trackViews(div,postId);
-loadComments(postId);
-
-});
-
-attachLikeEvents();
-
-});
-
-});
-
-/* LIKE SYSTEM */
-
-async function attachLikeEvents(){
-
-document.querySelectorAll(".like-btn").forEach(btn=>{
-
-btn.onclick=async()=>{
-
-const postId=btn.dataset.id;
-
-const likeRef=doc(db,"posts",postId,"likes",currentUser.uid);
-const likeSnap=await getDoc(likeRef);
-
-if(likeSnap.exists()){
-
-alert("You already liked this post");
-return;
-
-}
-
-await setDoc(likeRef,{userId:currentUser.uid});
-
-await updateDoc(doc(db,"posts",postId),{
-likes:increment(1)
-});
-
-};
-
-});
-
-}
-
-/* VIEW SYSTEM */
-
-function trackViews(postEl,postId){
-
-let viewed=false;
-let timer=null;
-
-const observer=new IntersectionObserver(entries=>{
-
-entries.forEach(entry=>{
-
-if(entry.isIntersecting && !viewed){
-
-timer=setTimeout(async()=>{
-
-const viewRef=doc(db,"posts",postId,"viewers",currentUser.uid);
-
-const snap=await getDoc(viewRef);
-
-if(!snap.exists()){
-
-await setDoc(viewRef,{userId:currentUser.uid});
-
-await updateDoc(doc(db,"posts",postId),{
-views:increment(1)
-});
-
-}
-
-viewed=true;
-
-},3000);
-
-}else{
-
-clearTimeout(timer);
-
-}
-
-});
-
-},{threshold:0.6});
-
-observer.observe(postEl);
-
-}
-
-/* COMMENTS */
-
-function loadComments(postId){
-
-const q=query(
-collection(db,"posts",postId,"comments"),
-orderBy("timestamp","asc")
-);
-
-onSnapshot(q,(snap)=>{
-
-const list=document.getElementById(`comment-list-${postId}`);
-if(!list) return;
+const list=document.getElementById("notificationsList");
+const count=document.getElementById("notificationCount");
 
 list.innerHTML="";
 
-snap.forEach(c=>{
+let unread=0;
 
-const data=c.data();
+snapshot.forEach(docSnap=>{
+
+const data=docSnap.data();
+
+if(!data.read) unread++;
 
 const div=document.createElement("div");
+div.className="notification-item";
 
-div.innerHTML=`<b>${data.username}</b>: ${data.text}`;
+div.innerHTML=`
+
+${data.message}
+
+<div class="notification-time">
+${formatDate(data.timestamp)}
+</div>
+
+`;
 
 list.appendChild(div);
 
 });
 
+if(unread>0){
+
+count.style.display="inline";
+count.innerText=unread;
+
+}else{
+
+count.style.display="none";
+
+}
+
 });
 
 }
 
-window.toggleComments=function(id){
+/* OPEN / CLOSE */
 
-const box=document.getElementById("comments-"+id);
+window.openNotifications=function(){
 
-box.style.display = box.style.display==="none" ? "block" : "none";
-
-}
-
-window.addComment=async function(postId){
-
-const input=document.getElementById(`comment-input-${postId}`);
-const text=input.value.trim();
-
-if(!text) return;
-
-await addDoc(collection(db,"posts",postId,"comments"),{
-
-userId:currentUser.uid,
-username:currentUser.email,
-text:text,
-timestamp:serverTimestamp()
-
-});
-
-input.value="";
+document.getElementById("notificationsOverlay").style.display="flex";
 
 }
 
-/* MEDIA VIEWER */
+window.closeNotifications=function(){
 
-window.openViewer=function(src,type){
-
-const viewer=document.getElementById("mediaViewer");
-const img=document.getElementById("viewerImg");
-const vid=document.getElementById("viewerVideo");
-
-img.style.display="none";
-vid.style.display="none";
-
-if(type==="image"){
-
-img.src=src;
-img.style.display="block";
-
-}
-
-if(type==="video"){
-
-vid.src=src;
-vid.style.display="block";
-
-}
-
-viewer.style.display="flex";
-
-}
-
-window.closeViewer=function(){
-
-document.getElementById("mediaViewer").style.display="none";
-
-document.getElementById("viewerVideo").pause();
+document.getElementById("notificationsOverlay").style.display="none";
 
 }
 
 /* LOGOUT */
 
 document.getElementById("logout").onclick=()=>{
-signOut(auth).then(()=>window.location.href="login.html")
+
+signOut(auth).then(()=>{
+
+window.location.href="login.html";
+
+});
+
 }
 
 </script>
