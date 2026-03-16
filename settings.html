@@ -10,329 +10,281 @@
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{background:#f5f5f5;display:flex;min-height:100vh;}
-
-/* SIDEBAR */
-.sidebar{
-  width:240px;
-  background:#ff6a00;
-  color:white;
-  padding:20px;
-  display:flex;
-  flex-direction:column;
-  gap:20px;
-  position:fixed;
-  height:100%;
-}
+body{background:#f5f5f5;min-height:100vh;padding:20px;}
+.sidebar{width:240px;background:#ff6a00;color:white;padding:20px;display:flex;flex-direction:column;gap:20px;position:fixed;height:100%;z-index:999;transition:0.3s;}
 .sidebar img{width:45px;border-radius:10px;}
 .logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:18px;}
 .sidebar a{color:white;text-decoration:none;padding:10px;border-radius:8px;transition:0.3s;}
-.sidebar a:hover,.sidebar a.active{background:rgba(255,255,255,0.2);}
-
-/* MAIN */
-.main{
-  margin-left:240px;
-  width:100%;
-  padding:30px;
-  max-width:900px;
-}
-.header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:30px;
-}
-.header h1{font-size:24px;color:#333;}
-
-.card{
-  background:white;
-  padding:25px;
-  border-radius:15px;
-  box-shadow:0 8px 25px rgba(0,0,0,0.05);
-  margin-bottom:25px;
-}
-.card h2{
-  font-size:17px;
-  margin-bottom:20px;
-  color:#333;
-}
-
-.form-group{margin-bottom:18px;}
-.form-group label{
-  display:block;
-  margin-bottom:6px;
-  font-size:14px;
-  color:#555;
-}
-.form-group input,
-.form-group textarea{
-  width:100%;
-  padding:10px 12px;
-  border-radius:8px;
-  border:1px solid #ddd;
-  font-size:14px;
-}
-.form-group textarea{resize:none;height:90px;}
-
-.avatar-section{
-  display:flex;
-  align-items:center;
-  gap:15px;
-  margin-bottom:20px;
-}
-.avatar-preview{
-  width:90px;
-  height:90px;
-  border-radius:50%;
-  object-fit:cover;
-  border:3px solid #ff6a00;
-}
-input[type="file"]{display:none;}
-
-.btn{
-  background:#ff6a00;
-  color:white;
-  border:none;
-  padding:10px 18px;
-  border-radius:8px;
-  cursor:pointer;
-  font-weight:500;
-  transition:0.3s;
-}
-.btn:hover{transform:translateY(-2px);}
-.btn-danger{background:#e53935;}
-
-.toggle{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:15px;
-}
-.switch{
-  position:relative;
-  display:inline-block;
-  width:46px;height:24px;
-}
-.switch input{opacity:0;width:0;height:0;}
-.slider{
-  position:absolute;cursor:pointer;
-  top:0;left:0;right:0;bottom:0;
-  background:#ccc;border-radius:20px;transition:.3s;
-}
-.slider:before{
-  content:"";position:absolute;height:18px;width:18px;
-  left:3px;bottom:3px;background:white;border-radius:50%;transition:.3s;
-}
-input:checked + .slider{background:#ff6a00;}
-input:checked + .slider:before{transform:translateX(22px);}
-
-.toast{
-  position:fixed;
-  bottom:20px;
-  right:20px;
-  background:#333;
-  color:white;
-  padding:12px 18px;
-  border-radius:8px;
-  display:none;
-}
-
+.sidebar a:hover{background:rgba(255,255,255,0.2);}
+.main{margin-left:240px;width:calc(100vw - 240px);padding:20px;}
+.back-btn{margin-bottom:20px;background:#ff6a00;color:white;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:500;box-shadow:0 4px 15px rgba(255,106,0,0.3);transition:0.2s;}
+.back-btn:hover{background:#e55d00;transform:translateY(-1px);}
+.container{background:white;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.08);overflow:hidden;}
+.section{padding:30px;border-bottom:1px solid #f0f0f0;}
+.section:last-child{border-bottom:none;}
+.section-title{font-size:20px;font-weight:600;margin-bottom:25px;color:#333;}
+.avatar-section{display:flex;align-items:center;gap:20px;margin-bottom:25px;}
+.avatar{width:100px;height:100px;border-radius:50%;object-fit:cover;border:4px solid #ff6a00;}
+.form-group{margin-bottom:20px;}
+.form-group label{display:block;margin-bottom:8px;font-weight:500;color:#555;font-size:14px;}
+.form-group input, .form-group textarea{width:100%;padding:14px 16px;border:1px solid #ddd;border-radius:12px;font-size:15px;outline:none;transition:0.2s;}
+.form-group input:focus, .form-group textarea:focus{border-color:#ff6a00;box-shadow:0 0 0 3px rgba(255,106,0,0.1);}
+.save-btn{background:#ff6a00;color:white;border:none;padding:14px 30px;border-radius:12px;font-weight:600;font-size:15px;cursor:pointer;transition:0.3s;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 15px rgba(255,106,0,0.3);}
+.save-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,106,0,0.4);}
+.save-btn:active{transform:translateY(0);}
+.save-btn:disabled{opacity:0.6;cursor:not-allowed;}
+.danger-zone{margin-top:25px;padding:25px;background:#fef5f5;border-radius:12px;border:1px solid #ffebee;}
+.danger-zone h3{font-size:18px;color:#d32f2f;margin-bottom:12px;}
+.danger-zone p{color:#666;margin-bottom:20px;}
+.delete-btn{background:#d32f2f;color:white;border:none;padding:12px 25px;border-radius:10px;font-weight:600;cursor:pointer;transition:0.2s;}
+.delete-btn:hover{background:#b71c1c;}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;pointer-events:none;transition:opacity 0.3s;}
+.modal.active{opacity:1;pointer-events:auto;}
+.modal-content{background:white;padding:35px;border-radius:16px;max-width:450px;width:90%;text-align:center;}
+.modal-title{font-size:22px;font-weight:600;margin-bottom:15px;color:#333;}
+.modal-text{font-size:16px;color:#666;line-height:1.5;margin-bottom:25px;}
+.modal-confirm-input{width:100%;max-width:300px;padding:12px;border:1px solid #ddd;border-radius:8px;text-align:center;font-size:15px;margin-bottom:20px;text-transform:uppercase;}
+.modal-buttons{display:flex;gap:12px;justify-content:center;}
 @media(max-width:900px){
 .sidebar{transform:translateX(-100%);}
 .sidebar.active{transform:translateX(0);}
-.main{margin-left:0;}
+.main{margin-left:0;width:100%;}
 }
 </style>
 </head>
 
 <body>
-
+<!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
-  <div class="logo">
-    <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
-    CashClique
-  </div>
-  <a href="dashboard.html">🏠 Dashboard</a>
-  <a href="my-content.html">📝 My Content</a>
-  <a href="earnings.html">💰 Earnings</a>
-  <a href="opportunities.html">🔥 Opportunities</a>
-  <a href="settings.html" class="active">⚙ Settings</a>
-  <a href="#" id="logout">🚪 Logout</a>
+<div class="logo">
+<img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
+CashClique
+</div>
+<a href="dashboard.html">🏠 Dashboard</a>
+<a href="my-content.html">📝 My Content</a>
+<a href="earnings.html">💰 Earnings</a>
+<a href="opportunities.html">🔥 Opportunities</a>
+<a href="settings.html">⚙ Settings</a>
+<a href="#" id="logout">🚪 Logout</a>
 </div>
 
+<!-- MAIN -->
 <div class="main">
-<div class="header">
-  <h1>Settings</h1>
-  <button onclick="toggleMenu()">☰</button>
+<button class="back-btn" onclick="history.back()">← Back</button>
+
+<div class="container">
+  <!-- Profile Section -->
+  <div class="section">
+    <h2 class="section-title">Profile Information</h2>
+    
+    <div class="avatar-section">
+      <img id="user-avatar" class="avatar" src="">
+      <span style="color:#666;font-size:14px;">Avatar auto-generated from email</span>
+    </div>
+    
+    <form id="profile-form">
+      <div class="form-group">
+        <label>Display Name</label>
+        <input type="text" id="username" placeholder="Enter your display name" maxlength="30">
+      </div>
+      
+      <div class="form-group">
+        <label>Bio</label>
+        <textarea id="bio" placeholder="Tell us about yourself (optional)" rows="3" maxlength="160"></textarea>
+      </div>
+      
+      <button type="submit" class="save-btn">
+        Save Changes
+      </button>
+    </form>
+  </div>
+  
+  <!-- Account Section -->
+  <div class="section">
+    <h2 class="section-title">Account</h2>
+    
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="email-display" readonly>
+    </div>
+    
+    <div style="display:flex;gap:15px;">
+      <button class="save-btn" onclick="resetPassword()">Reset Password</button>
+      <button class="save-btn" onclick="logout()" style="background:#666;">Logout</button>
+    </div>
+  </div>
+  
+  <!-- Danger Zone -->
+  <div class="section">
+    <div class="danger-zone">
+      <h3>⚠️ Delete Account</h3>
+      <p style="margin-bottom:20px;color:#666;font-size:15px;">This action <strong>cannot be undone</strong>. Your account, posts, comments, followers, and all data will be permanently deleted.</p>
+      <button class="delete-btn" onclick="showDeleteModal()">Delete My Account</button>
+    </div>
+  </div>
+</div>
 </div>
 
-<!-- PROFILE -->
-<div class="card">
-<h2>Profile</h2>
-
-<div class="avatar-section">
-  <img id="avatar-preview" class="avatar-preview">
-  <label class="btn">
-    Change Avatar
-    <input type="file" id="avatar-input" accept="image/*">
-  </label>
+<!-- Delete Modal -->
+<div class="modal" id="delete-modal">
+  <div class="modal-content">
+    <h3 class="modal-title">Delete Account?</h3>
+    <p class="modal-text">This will <strong>permanently</strong> delete your entire account and all associated data.</p>
+    <p style="font-size:14px;color:#666;">Type <strong>DELETE</strong> to confirm:</p>
+    <input type="text" class="modal-confirm-input" id="confirm-delete" placeholder="DELETE">
+    <div class="modal-buttons">
+      <button class="save-btn" onclick="hideDeleteModal()">Cancel</button>
+      <button class="delete-btn" onclick="deleteAccount()">DELETE ACCOUNT</button>
+    </div>
+  </div>
 </div>
-
-<div class="form-group">
-  <label>Username</label>
-  <input type="text" id="username">
-</div>
-
-<div class="form-group">
-  <label>Bio</label>
-  <textarea id="bio"></textarea>
-</div>
-
-<button class="btn" onclick="saveProfile()">Save Profile</button>
-</div>
-
-<!-- PASSWORD -->
-<div class="card">
-<h2>Password</h2>
-
-<div class="form-group">
-  <label>Current Password</label>
-  <input type="password" id="current-password">
-</div>
-
-<div class="form-group">
-  <label>New Password</label>
-  <input type="password" id="new-password">
-</div>
-
-<button class="btn" onclick="updatePassword()">Update Password</button>
-</div>
-
-<!-- NOTIFICATIONS -->
-<div class="card">
-<h2>Notifications</h2>
-
-<div class="toggle">
-  <span>Follow Notifications</span>
-  <label class="switch">
-    <input type="checkbox" id="notif-follow">
-    <span class="slider"></span>
-  </label>
-</div>
-
-<div class="toggle">
-  <span>Like Notifications</span>
-  <label class="switch">
-    <input type="checkbox" id="notif-like">
-    <span class="slider"></span>
-  </label>
-</div>
-
-<button class="btn" onclick="saveNotifications()">Save Preferences</button>
-</div>
-
-<!-- DANGER -->
-<div class="card">
-<h2 style="color:#e53935;">Danger Zone</h2>
-<button class="btn btn-danger" onclick="deleteAccount()">Delete Account</button>
-</div>
-
-</div>
-
-<div class="toast" id="toast"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut, updatePassword as fbUpdatePassword, reauthenticateWithCredential, EmailAuthProvider, deleteUser } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-const firebaseConfig={
-apiKey:"AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
-authDomain:"cashclique-31718.firebaseapp.com",
-projectId:"cashclique-31718",
-storageBucket:"cashclique-31718.firebasestorage.app",
-messagingSenderId:"1064282591269",
-appId:"1:1064282591269:web:17fbaf9b683d5b0dfbafcc"
+const firebaseConfig = {
+    apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
+    authDomain: "cashclique-31718.firebaseapp.com",
+    projectId: "cashclique-31718",
+    storageBucket: "cashclique-31718.firebasestorage.app",
+    messagingSenderId: "1064282591269",
+    appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc",
+    measurementId: "G-V5WHJB6LS0"
 };
 
-const app=initializeApp(firebaseConfig);
-const auth=getAuth(app);
-const db=getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-let currentUser;
+let currentUser = null;
 
-onAuthStateChanged(auth,async(user)=>{
-if(!user){window.location.href="login.html";return;}
-currentUser=user;
-
-const snap=await getDoc(doc(db,"users",user.uid));
-if(snap.exists()){
-const d=snap.data();
-username.value=d.username||"";
-bio.value=d.bio||"";
-avatarPreview.src=d.avatar||`https://i.pravatar.cc/150?u=${user.uid}`;
-notifFollow.checked=d.notifications?.follow??true;
-notifLike.checked=d.notifications?.like??true;
-}
+onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+        window.location.href = "login.html";
+        return;
+    }
+    currentUser = user;
+    
+    await loadUserData();
 });
 
-avatarInput.onchange=e=>{
-const file=e.target.files[0];
-const reader=new FileReader();
-reader.onload=()=>avatarPreview.src=reader.result;
-reader.readAsDataURL(file);
-};
-
-window.saveProfile=async()=>{
-await updateDoc(doc(db,"users",currentUser.uid),{
-username:username.value.trim(),
-bio:bio.value.trim(),
-avatar:avatarPreview.src
-});
-toastMsg("Profile updated ✅");
-};
-
-window.updatePassword=async()=>{
-try{
-const cred=EmailAuthProvider.credential(currentUser.email,currentPassword.value);
-await reauthenticateWithCredential(currentUser,cred);
-await fbUpdatePassword(currentUser,newPassword.value);
-toastMsg("Password updated ✅");
-}catch(e){toastMsg("Error updating password ❌");}
-};
-
-window.saveNotifications=async()=>{
-await updateDoc(doc(db,"users",currentUser.uid),{
-notifications:{
-follow:notifFollow.checked,
-like:notifLike.checked
-}
-});
-toastMsg("Preferences saved ✅");
-};
-
-window.deleteAccount=async()=>{
-if(!confirm("Are you sure?"))return;
-await deleteDoc(doc(db,"users",currentUser.uid));
-await deleteUser(currentUser);
-window.location.href="login.html";
-};
-
-document.getElementById("logout").onclick=()=>{
-signOut(auth).then(()=>window.location.href="login.html");
-};
-
-function toastMsg(msg){
-const t=document.getElementById("toast");
-t.innerText=msg;
-t.style.display="block";
-setTimeout(()=>t.style.display="none",3000);
+async function loadUserData() {
+    const userRef = doc(db, "users", currentUser.uid);
+    const userSnap = await getDoc(userRef);
+    
+    document.getElementById('email-display').value = currentUser.email;
+    document.getElementById('user-avatar').src = `https://i.pravatar.cc/200?u=${currentUser.email}`;
+    
+    if (userSnap.exists()) {
+        const data = userSnap.data();
+        document.getElementById('username').value = data.username || '';
+        document.getElementById('bio').value = data.bio || '';
+    }
 }
 
-window.toggleMenu=()=>{
-document.getElementById("sidebar").classList.toggle("active");
+// Save profile
+document.getElementById('profile-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const username = document.getElementById('username').value.trim();
+    const bio = document.getElementById('bio').value.trim();
+    
+    if (!username) {
+        alert('Username is required!');
+        return;
+    }
+    
+    try {
+        const userRef = doc(db, "users", currentUser.uid);
+        await setDoc(userRef, {
+            username,
+            bio,
+            email: currentUser.email,
+            updatedAt: new Date()
+        }, { merge: true });
+        
+        alert('Profile updated successfully! ✅');
+    } catch (error) {
+        console.error('Error saving profile:', error);
+        alert('Failed to save profile. Please try again.');
+    }
+});
+
+// Reset password
+async function resetPassword() {
+    try {
+        await sendPasswordResetEmail(auth, currentUser.email);
+        alert(`Password reset email sent to ${currentUser.email}`);
+    } catch (error) {
+        console.error('Error sending email:', error);
+        alert('Failed to send reset email.');
+    }
+}
+
+// Logout
+async function logout() {
+    await signOut(auth);
+    window.location.href = "login.html";
+}
+
+// Delete modal
+function showDeleteModal() {
+    document.getElementById('delete-modal').classList.add('active');
+    document.getElementById('confirm-delete').value = '';
+}
+
+function hideDeleteModal() {
+    document.getElementById('delete-modal').classList.remove('active');
+}
+
+// Delete account
+async function deleteAccount() {
+    const confirmText = document.getElementById('confirm-delete').value;
+    if (confirmText !== 'DELETE') {
+        alert('Please type DELETE exactly.');
+        return;
+    }
+    
+    if (!confirm('This will PERMANENTLY delete your account. Continue?')) return;
+    
+    try {
+        // Mark user as deleted
+        await updateDoc(doc(db, "users", currentUser.uid), {
+            deleted: true,
+            deletedAt: new Date()
+        });
+        
+        // Delete auth account
+        await auth.currentUser.delete();
+        
+        alert('Account deleted.');
+        window.location.href = "login.html";
+    } catch (error) {
+        console.error('Delete failed:', error);
+        alert('Failed to delete account.');
+        hideDeleteModal();
+    }
+}
+
+// Sidebar toggle for mobile
+document.querySelector('.back-btn').onclick = (e) => {
+    if (window.innerWidth <= 900) {
+        e.stopPropagation();
+    }
 };
+
+document.addEventListener('click', (e) => {
+    if (window.innerWidth <= 900) {
+        const sidebar = document.getElementById('sidebar');
+        if (!sidebar.contains(e.target)) {
+            sidebar.classList.remove('active');
+        }
+    }
+});
+
+document.getElementById('logout').onclick = logout;
 </script>
-
 </body>
 </html>
