@@ -16,50 +16,57 @@ body{background:#f5f5f5;min-height:100vh;padding:20px;}
 .logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:18px;}
 .sidebar a{color:white;text-decoration:none;padding:10px;border-radius:8px;transition:0.3s;}
 .sidebar a:hover{background:rgba(255,255,255,0.2);}
-.main{margin-left:240px;width:calc(100vw - 240px);padding:20px;}
+.main{margin-left:240px;width:calc(100% - 240px);padding:20px;transition:0.3s;}
+
 .container{background:white;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.08);overflow:hidden;}
 .header{padding:30px;text-align:center;border-bottom:1px solid #f0f0f0;}
 .header h1{font-size:28px;font-weight:700;color:#333;margin-bottom:8px;}
 .balance-display{font-size:48px;font-weight:700;background:linear-gradient(135deg,#ff6a00,#ff8a00);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-1px;}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:25px;padding:30px;}
-.stat-card{background:#f8f9fa;padding:25px;border-radius:16px;text-align:center;border:2px solid transparent;transition:0.3s;}
-.stat-card:hover{transform:translateY(-5px);border-color:#ff6a00;box-shadow:0 15px 35px rgba(255,106,0,0.15);}
+
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:20px;padding:25px;}
+.stat-card{background:#f8f9fa;padding:20px;border-radius:16px;text-align:center;transition:0.3s;}
+.stat-card:hover{transform:translateY(-5px);}
 .stat-label{font-size:13px;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;}
-.stat-value{font-size:24px;font-weight:700;color:#333;}
-.earnings-primary{color:#ff6a00 !important;}
+.stat-value{font-size:22px;font-weight:700;color:#333;}
 
-.content-table{width:100%;border-collapse:collapse;margin:30px 0;}
-.table-header{font-weight:600;background:#f8f9fa;text-align:left;padding:15px 20px;font-size:14px;color:#555;border-bottom:2px solid #e0e0e0;}
-.table-row{cursor:pointer;padding:18px 20px;border-bottom:1px solid #f0f0f0;transition:0.2s;display:flex;align-items:center;gap:15px;}
+.content-table{width:100%;border-collapse:collapse;margin:20px 0;}
+.table-header{font-weight:600;background:#f8f9fa;padding:15px 20px;font-size:14px;color:#555;border-bottom:2px solid #e0e0e0;}
+.table-row{cursor:pointer;padding:15px 20px;border-bottom:1px solid #f0f0f0;transition:0.2s;}
 .table-row:hover{background:#f8f9fa;}
-.post-preview{width:50px;height:50px;border-radius:8px;overflow:hidden;flex-shrink:0;}
-.post-preview img{width:100%;height:100%;object-fit:cover;}
-.post-info{flex:1;}
-.post-title{font-weight:600;font-size:15px;margin-bottom:3px;}
-.post-stats{display:flex;gap:15px;font-size:13px;color:#666;}
-.earning-amount{font-weight:600;color:#ff6a00;font-size:16px;flex-shrink:0;}
 
-.withdraw-section{padding:30px;border-top:1px solid #f0f0f0;text-align:center;background:#f9f9f9;}
-.withdraw-btn{background:#ff6a00;color:white;border:none;padding:16px 40px;border-radius:12px;font-weight:600;font-size:16px;cursor:pointer;transition:0.3s;box-shadow:0 4px 15px rgba(255,106,0,0.3);}
-.withdraw-btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(255,106,0,0.4);}
-.withdraw-btn:disabled{opacity:0.5;cursor:not-allowed;background:#ccc;transform:none;}
-.min-withdraw{font-size:13px;color:#666;margin-top:10px;}
+.post-preview{width:45px;height:45px;border-radius:8px;overflow:hidden;flex-shrink:0;background:#ff6a00;}
+.post-info{flex:1;min-width:0;}
+.post-title{font-weight:600;font-size:15px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.post-stats{font-size:13px;color:#666;}
 
-.empty-state{text-align:center;padding:60px 30px;color:#888;}
-.empty-state h3{font-size:22px;margin-bottom:10px;}
-.empty-state p{font-size:15px;margin-bottom:25px;}
+.withdraw-section{padding:30px;text-align:center;background:#f9f9f9;}
+.withdraw-btn{background:#ff6a00;color:white;border:none;padding:16px 40px;border-radius:12px;font-weight:600;font-size:16px;cursor:pointer;transition:0.3s;width:100%;max-width:300px;}
+.withdraw-btn:disabled{opacity:0.6;cursor:not-allowed;}
+
+.empty-state{text-align:center;padding:60px 20px;color:#888;}
+.empty-state h3{font-size:20px;margin-bottom:10px;}
+
+/* Mobile Menu Button */
+.menu-btn{position:absolute;top:20px;left:20px;background:white;border:none;width:50px;height:50px;border-radius:50%;font-size:24px;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,0.1);z-index:1000;display:none;}
 
 @media(max-width:900px){
-.sidebar{transform:translateX(-100%);}
-.sidebar.active{transform:translateX(0);}
-.main{margin-left:0;width:100%;}
-.stats-grid{grid-template-columns:repeat(2,1fr);}
-.table-row{flex-direction:column;gap:12px;text-align:center;}
+    .sidebar{transform:translateX(-100%);}
+    .sidebar.active{transform:translateX(0);}
+    .main{margin-left:0;width:100%;padding:20px 15px;}
+    .menu-btn{display:block;}
+    .stats-grid{grid-template-columns:repeat(2,1fr);gap:15px;}
+    .header{padding:25px 15px;}
+    .balance-display{font-size:38px;}
+    .table-row{flex-direction:column;gap:10px;text-align:center;}
+    .post-title{font-size:14px;}
 }
 </style>
 </head>
 
 <body>
+
+<button class="menu-btn" onclick="toggleSidebar()">☰</button>
+
 <!-- Sidebar -->
 <div class="sidebar" id="sidebar">
 <div class="logo">
@@ -101,20 +108,22 @@ CashClique
     </div>
   </div>
   
-  <div style="padding:30px;">
-    <h3 style="font-size:17px;font-weight:600;margin-bottom:20px;color:#333;">Content Performance</h3>
-    <table class="content-table">
-      <thead>
-        <tr>
-          <th class="table-header">Post</th>
-          <th class="table-header">Stats</th>
-          <th class="table-header">Earning</th>
-        </tr>
-      </thead>
-      <tbody id="content-table-body">
-        <tr><td colspan="3" class="empty-state"><h3>No earnings yet</h3><p>Create content and get likes to start earning!</p></td></tr>
-      </tbody>
-    </table>
+  <div style="padding:25px;">
+    <h3 style="font-size:17px;font-weight:600;margin-bottom:15px;color:#333;">Content Performance</h3>
+    <div style="overflow-x:auto;">
+      <table class="content-table">
+        <thead>
+          <tr>
+            <th class="table-header">Post</th>
+            <th class="table-header">Stats</th>
+            <th class="table-header">Earning</th>
+          </tr>
+        </thead>
+        <tbody id="content-table-body">
+          <tr><td colspan="3" class="empty-state"><h3>No earnings yet</h3><p>Create content and get likes to start earning!</p></td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
   
   <div class="withdraw-section">
@@ -127,7 +136,7 @@ CashClique
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, query, where, onSnapshot, doc, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -135,8 +144,7 @@ const firebaseConfig = {
     projectId: "cashclique-31718",
     storageBucket: "cashclique-31718.firebasestorage.app",
     messagingSenderId: "1064282591269",
-    appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc",
-    measurementId: "G-V5WHJB6LS0"
+    appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -154,79 +162,65 @@ const withdrawBtn = document.getElementById('withdraw-btn');
 let currentUser = null;
 let balance = 0;
 
-onAuthStateChanged(auth, async (user) => {
+onAuthStateChanged(auth, (user) => {
     if (!user) {
         window.location.href = "login.html";
         return;
     }
     currentUser = user;
-    
     loadEarnings();
 });
 
 function loadEarnings() {
-    // User earnings (you'll populate this in admin panel)
     const userRef = doc(db, "users", currentUser.uid);
     onSnapshot(userRef, (snap) => {
         if (snap.exists()) {
             const data = snap.data();
             balance = data.balance || 0;
             totalBalanceEl.textContent = `$${balance.toFixed(2)}`;
-            
             withdrawBtn.disabled = balance < 25;
-            withdrawBtn.textContent = `Withdraw $${balance.toFixed(2)}`;
+            withdrawBtn.textContent = balance >= 25 ? `Withdraw $${balance.toFixed(2)}` : 'Withdraw Earnings';
         }
     });
 
-    // User stats
     const postsQuery = query(collection(db, "posts"), where("userId", "==", currentUser.uid));
-    let totalLikes = 0;
-    let paidPostsCount = 0;
     
     onSnapshot(postsQuery, (postsSnap) => {
         totalPostsEl.textContent = postsSnap.size;
-        
-        totalLikes = 0;
-        paidPostsCount = 0;
+        let totalLikes = 0;
+        let paidPostsCount = 0;
         contentTableBody.innerHTML = "";
-        
+
         if (postsSnap.empty) {
-            contentTableBody.innerHTML = '<tr><td colspan="3" class="empty-state"><h3>No posts yet</h3><p>Create content to start earning!</p></td></tr>';
+            contentTableBody.innerHTML = `<tr><td colspan="3" class="empty-state"><h3>No posts yet</h3><p>Create content to start earning!</p></td></tr>`;
             updateStats(0, 0);
             return;
         }
-        
-        let contentCount = 0;
+
         postsSnap.docs.forEach((postDoc) => {
             const post = postDoc.data();
             const likes = post.likes || 0;
-            const earning = post.earning || 0; // Admin sets this
+            const earning = post.earning || 0;
             
             totalLikes += likes;
             if (earning > 0) paidPostsCount++;
-            
-            // Add to table
+
             const row = document.createElement('tr');
             row.className = 'table-row';
             row.onclick = () => window.location.href = `post-view.html?postId=${postDoc.id}`;
             row.innerHTML = `
-                <td>
-                    <div class="post-preview" style="background:${post.imageBase64 ? `url(${post.imageBase64}) center/cover` : '#ff6a00'};background-size:cover;">
-                        ${!post.imageBase64 ? '<div style="color:white;font-size:11px;padding:8px;">' + (post.content?.substring(0,20) || 'Post') + '</div>' : ''}
-                    </div>
+                <td style="display:flex;align-items:center;gap:12px;">
+                    <div class="post-preview" style="background:${post.imageBase64 ? `url(${post.imageBase64}) center/cover` : '#ff6a00'}"></div>
                     <div class="post-info">
-                        <div class="post-title">${post.content?.substring(0, 35)}${post.content?.length > 35 ? '...' : ''}</div>
+                        <div class="post-title">${post.content?.substring(0, 35) || 'Post'} ${post.content?.length > 35 ? '...' : ''}</div>
                     </div>
                 </td>
-                <td><div class="post-stats"><span>❤️ ${likes}</span><span>💬 12</span></div></td>
+                <td><div class="post-stats"><span>❤️ ${likes}</span></div></td>
                 <td class="earning-amount">$${earning.toFixed(2)}</td>
             `;
             contentTableBody.appendChild(row);
-            contentCount++;
-            
-            if (contentCount >= 10) return; // Show top 10
         });
-        
+
         updateStats(totalLikes, paidPostsCount);
     });
 }
@@ -235,45 +229,46 @@ function updateStats(totalLikes, paidPosts) {
     totalLikesEl.textContent = totalLikes;
     paidPostsEl.textContent = paidPosts;
     
-    const avgEarning = balance > 0 && totalPostsEl.textContent > 0 ? 
-        (balance / parseInt(totalPostsEl.textContent)).toFixed(2) : 
-        '0.00';
-    avgEarningEl.textContent = `$${avgEarning}`;
+    const avg = (parseInt(totalPostsEl.textContent) > 0 && balance > 0) 
+        ? (balance / parseInt(totalPostsEl.textContent)).toFixed(2) 
+        : '0.00';
+    avgEarningEl.textContent = `$${avg}`;
 }
 
-// Withdraw button
+// Withdraw
 withdrawBtn.onclick = async () => {
-    if (balance < 25) {
-        alert('Minimum withdrawal is $25.00');
-        return;
-    }
-    
+    if (balance < 25) return alert('Minimum withdrawal is $25.00');
     if (!confirm(`Withdraw $${balance.toFixed(2)}?`)) return;
-    
+
     try {
-        // Update balance to 0 (admin will handle payout)
         await updateDoc(doc(db, "users", currentUser.uid), {
             balance: 0,
             lastWithdrawal: new Date()
         });
-        alert('Withdrawal request submitted! Check your email for payout details.');
+        alert('Withdrawal request submitted successfully!');
     } catch (error) {
-        console.error('Withdraw failed:', error);
+        console.error(error);
         alert('Failed to process withdrawal.');
     }
 };
 
 // Logout
-document.getElementById('logout').onclick = async () => {
+document.getElementById('logout').addEventListener('click', async () => {
     await signOut(auth);
     window.location.href = "login.html";
-};
+});
 
-// Mobile sidebar toggle
-document.querySelector('.back-btn').addEventListener('click', (e) => {
-    if (window.innerWidth <= 900) {
-        e.stopPropagation();
-        document.getElementById('sidebar').classList.toggle('active');
+// Mobile Sidebar
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('active');
+}
+
+// Close sidebar when clicking outside on mobile
+document.addEventListener('click', (e) => {
+    const sidebar = document.getElementById('sidebar');
+    const menuBtn = document.querySelector('.menu-btn');
+    if (window.innerWidth <= 900 && !sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+        sidebar.classList.remove('active');
     }
 });
 </script>
