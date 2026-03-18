@@ -19,10 +19,92 @@
 body {
   background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
   min-height: 100vh;
+  padding: 0;
+}
+
+/* Mobile Header */
+.mobile-header {
+  display: none;
+  background: #ff6a00;
+  color: white;
+  padding: 15px 20px;
+  align-items: center;
+  gap: 15px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.mobile-header h1 {
+  font-size: 18px;
+  font-weight: 600;
+  flex: 1;
+}
+
+.menu-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 240px;
+  background: #ff6a00;
+  color: white;
   padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: fixed;
+  height: 100%;
+  z-index: 999;
+  transition: 0.3s;
+  transform: translateX(0);
+}
+
+.sidebar img {
+  width: 45px;
+  border-radius: 10px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.sidebar a {
+  color: white;
+  text-decoration: none;
+  padding: 12px 15px;
+  border-radius: 8px;
+  transition: 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Main Content */
+.main {
+  margin-left: 240px;
+  padding: 20px;
+  transition: 0.3s;
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 100vh;
 }
 
 .container {
@@ -229,7 +311,8 @@ textarea::placeholder {
   margin-top: 30px;
 }
 
-.post-btn, .cancel-btn {
+.post-btn,
+.cancel-btn {
   flex: 1;
   padding: 16px;
   border: none;
@@ -325,11 +408,24 @@ textarea::placeholder {
   background: linear-gradient(135deg, #f44336, #ef5350);
 }
 
-/* Mobile Responsive */
-@media (max-width: 768px) {
-  body {
+/* Responsive */
+@media (max-width: 900px) {
+  .mobile-header {
+    display: flex;
+  }
+  
+  .sidebar {
+    transform: translateX(-100%);
+  }
+  
+  .sidebar.active {
+    transform: translateX(0);
+  }
+  
+  .main {
+    margin-left: 0;
     padding: 10px;
-    align-items: flex-start;
+    padding-top: 70px;
   }
   
   .container {
@@ -372,7 +468,8 @@ textarea::placeholder {
     gap: 10px;
   }
   
-  .post-btn, .cancel-btn {
+  .post-btn,
+  .cancel-btn {
     width: 100%;
   }
   
@@ -381,7 +478,6 @@ textarea::placeholder {
   }
 }
 
-/* Very small screens */
 @media (max-width: 480px) {
   .header h1 {
     font-size: 18px;
@@ -401,46 +497,69 @@ textarea::placeholder {
 
 <body>
 
-<div class="container">
-  <div class="header">
-    <div>
-      <h1>✨ Create Post</h1>
-      <div class="subtitle">Share your thoughts with the community</div>
-    </div>
-    <button class="logout-btn" id="logout">Logout</button>
+<!-- Mobile Header -->
+<div class="mobile-header">
+  <button class="menu-btn" onclick="toggleMenu()">☰</button>
+  <h1>Create Post</h1>
+</div>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+  <div class="logo">
+    <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
+    CashClique
   </div>
+  <a href="dashboard.html">🏠 Dashboard</a>
+  <a href="my-content.html">📝 My Content</a>
+  <a href="earnings.html">💰 Earnings</a>
+  <a href="opportunities.html">🔥 Opportunities</a>
+  <a href="settings.html">⚙ Settings</a>
+  <a href="#" id="logout">🚪 Logout</a>
+</div>
 
-  <div class="form-container">
-    <div class="form-group">
-      <label for="post-content">What's on your mind?</label>
-      <textarea 
-        id="post-content" 
-        placeholder="Write something amazing... (minimum 10 characters)"
-        maxlength="500"
-      ></textarea>
-      <div class="char-count" id="char-count">0 / 500</div>
+<!-- Main Content -->
+<div class="main">
+  <div class="container">
+    <div class="header">
+      <div>
+        <h1>✨ Create Post</h1>
+        <div class="subtitle">Share your thoughts with the community</div>
+      </div>
+      <button class="logout-btn" id="logout">Logout</button>
     </div>
 
-    <div class="form-group">
-      <label>Add Image (optional)</label>
-      <div class="image-upload" id="image-upload-area">
-        <input type="file" id="post-image" accept="image/*">
-        <span class="upload-icon">📷</span>
-        <div class="upload-text">Click to upload image</div>
-        <div class="upload-hint">JPG, PNG, GIF (max 5MB)</div>
+    <div class="form-container">
+      <div class="form-group">
+        <label for="post-content">What's on your mind?</label>
+        <textarea 
+          id="post-content" 
+          placeholder="Write something amazing... (minimum 10 characters)"
+          maxlength="500"
+        ></textarea>
+        <div class="char-count" id="char-count">0 / 500</div>
       </div>
-      
-      <div class="image-preview" id="image-preview">
-        <img id="preview-img" src="" alt="Preview">
-        <button class="remove-image" id="remove-image">×</button>
-      </div>
-    </div>
 
-    <div class="button-group">
-      <button class="cancel-btn" onclick="window.history.back()">Cancel</button>
-      <button class="post-btn" id="post-btn">
-        <span>Publish Post</span>
-      </button>
+      <div class="form-group">
+        <label>Add Image (optional)</label>
+        <div class="image-upload" id="image-upload-area">
+          <input type="file" id="post-image" accept="image/*">
+          <span class="upload-icon">📷</span>
+          <div class="upload-text">Click to upload image</div>
+          <div class="upload-hint">JPG, PNG, GIF (max 5MB)</div>
+        </div>
+        
+        <div class="image-preview" id="image-preview">
+          <img id="preview-img" src="" alt="Preview">
+          <button class="remove-image" id="remove-image">×</button>
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button class="cancel-btn" onclick="window.history.back()">Cancel</button>
+        <button class="post-btn" id="post-btn">
+          <span>Publish Post</span>
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -450,7 +569,14 @@ textarea::placeholder {
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, addDoc, serverTimestamp, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { 
+  getFirestore, 
+  collection, 
+  addDoc, 
+  serverTimestamp, 
+  doc, 
+  getDoc 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -657,6 +783,22 @@ function showToast(message, type = "success") {
 document.addEventListener("keydown", (e) => {
   if (e.key === "Enter" && !e.shiftKey && document.activeElement !== postContent) {
     e.preventDefault();
+  }
+});
+
+// Mobile menu toggle
+window.toggleMenu = function() {
+  document.getElementById('sidebar').classList.toggle('active');
+};
+
+// Close sidebar when clicking outside on mobile
+document.addEventListener('click', (e) => {
+  if (window.innerWidth <= 900) {
+    const sidebar = document.getElementById('sidebar');
+    const menuBtn = document.querySelector('.menu-btn');
+    if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+      sidebar.classList.remove('active');
+    }
   }
 });
 </script>
