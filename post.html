@@ -10,40 +10,101 @@
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{background:#f5f5f5;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:20px;}
-.container{width:100%;max-width:700px;background:white;padding:30px;border-radius:20px;box-shadow:0 15px 30px rgba(0,0,0,0.08);}
-header{width:100%;display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;}
-header h1{font-size:26px;color:#ff6a00;}
-header h1 small{font-size:16px;color:#555;font-weight:400;}
-textarea{width:100%;height:150px;padding:15px;font-size:16px;border-radius:12px;border:1px solid #ddd;resize:none;margin-bottom:15px;box-shadow:0 5px 15px rgba(0,0,0,0.05);}
-input[type=file]{margin-bottom:15px;}
-button{background:#ff6a00;color:white;border:none;padding:12px 25px;font-size:16px;border-radius:12px;cursor:pointer;transition:0.3s;box-shadow:0 5px 15px rgba(0,0,0,0.1);margin-right:10px;display:flex;align-items:center;justify-content:center;}
-button:hover{transform:scale(1.05);}
-.logout{background:#555;}
-.preview{max-width:100%;max-height:400px;margin-bottom:15px;border-radius:12px;object-fit:cover;display:none;}
-label{font-weight:500;margin-bottom:8px;display:block;color:#333;}
-.spinner{border:3px solid rgba(255,255,255,0.3);border-top:3px solid white;border-radius:50%;width:18px;height:18px;animation:spin 1s linear infinite;margin-left:8px;}
+body{background:#f5f5f5;min-height:100vh;padding:20px;}
+.sidebar{width:240px;background:#ff6a00;color:white;padding:20px;display:flex;flex-direction:column;gap:20px;position:fixed;height:100%;z-index:999;transition:0.3s;}
+.sidebar img{width:45px;border-radius:10px;}
+.logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:18px;}
+.sidebar a{color:white;text-decoration:none;padding:10px;border-radius:8px;transition:0.3s;}
+.sidebar a:hover{background:rgba(255,255,255,0.2);}
+
+.main{margin-left:240px;width:calc(100% - 240px);padding:20px;}
+.menu-btn{display:none;font-size:26px;cursor:pointer;margin-bottom:15px;background:white;border:none;width:50px;height:50px;border-radius:50%;box-shadow:0 4px 15px rgba(0,0,0,0.1);}
+
+.container{background:white;border-radius:20px;box-shadow:0 15px 35px rgba(0,0,0,0.1);overflow:hidden;max-width:700px;margin:0 auto;}
+.header{background:linear-gradient(135deg,#ff6a00,#ff8a00);color:white;padding:25px;text-align:center;}
+.header h1{font-size:28px;font-weight:700;}
+.header p{font-size:15px;opacity:0.9;margin-top:5px;}
+
+.form-content{padding:30px;}
+label{font-weight:600;color:#333;margin-bottom:8px;display:block;font-size:15px;}
+textarea{width:100%;height:160px;padding:18px;font-size:16px;border:2px solid #eee;border-radius:16px;resize:none;outline:none;transition:0.3s;}
+textarea:focus{border-color:#ff6a00;box-shadow:0 0 0 4px rgba(255,106,0,0.1);}
+
+.upload-area{border:2px dashed #ddd;border-radius:16px;padding:40px 20px;text-align:center;cursor:pointer;transition:0.3s;margin:15px 0;}
+.upload-area:hover{border-color:#ff6a00;background:#fff8f0;}
+.upload-area p{color:#666;margin-top:10px;}
+
+.preview-container{position:relative;margin:15px 0;display:none;}
+.preview{max-width:100%;max-height:380px;border-radius:16px;box-shadow:0 8px 25px rgba(0,0,0,0.15);}
+.remove-preview{position:absolute;top:10px;right:10px;background:#ff4444;color:white;border:none;width:35px;height:35px;border-radius:50%;font-size:18px;cursor:pointer;}
+
+.btn-group{display:flex;gap:15px;margin-top:25px;}
+button{background:#ff6a00;color:white;border:none;padding:14px 28px;font-size:16px;font-weight:600;border-radius:12px;cursor:pointer;transition:0.3s;display:flex;align-items:center;justify-content:center;gap:8px;}
+button:hover{transform:translateY(-3px);box-shadow:0 10px 25px rgba(255,106,0,0.3);}
+#cancel-btn{background:#ddd;color:#333;}
+
+.spinner{border:3px solid rgba(255,255,255,0.3);border-top:3px solid white;border-radius:50%;width:20px;height:20px;animation:spin 1s linear infinite;}
 @keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
-@media(max-width:768px){body{padding:15px;}textarea{height:130px;}}
+
+@media(max-width:900px){
+    .sidebar{transform:translateX(-100%);}
+    .sidebar.active{transform:translateX(0);}
+    .main{margin-left:0;width:100%;padding:15px;}
+    .menu-btn{display:block;}
+    .container{border-radius:16px;}
+    .header{padding:20px;}
+    .form-content{padding:20px;}
+}
 </style>
 </head>
 
 <body>
 
+<button class="menu-btn" onclick="toggleSidebar()">☰</button>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+<div class="logo">
+<img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
+CashClique
+</div>
+<a href="dashboard.html">🏠 Dashboard</a>
+<a href="my-content.html">📝 My Content</a>
+<a href="earnings.html">💰 Earnings</a>
+<a href="opportunities.html">🔥 Opportunities</a>
+<a href="settings.html">⚙ Settings</a>
+<a href="#" id="logout">🚪 Logout</a>
+</div>
+
+<div class="main">
 <div class="container">
-<header>
-<h1>Create a New Post <small>Share your thoughts or images</small></h1>
-<button id="logout" class="logout">Logout</button>
-</header>
+    <div class="header">
+        <h1>Create Post</h1>
+        <p>Share your thoughts with the community</p>
+    </div>
 
-<label for="post-content">Post Text</label>
-<textarea id="post-content" placeholder="Write something amazing..."></textarea>
+    <div class="form-content">
+        <label>What's on your mind?</label>
+        <textarea id="post-content" placeholder="Write something inspiring..."></textarea>
 
-<label for="post-image">Attach Image (optional)</label>
-<input type="file" id="post-image" accept="image/*">
-<img id="preview" class="preview">
+        <label style="margin-top:15px;">Add Photo (Optional)</label>
+        <div class="upload-area" id="upload-area">
+            <p style="font-size:42px;margin-bottom:10px;">📸</p>
+            <p>Click to upload image</p>
+            <input type="file" id="post-image" accept="image/*" style="display:none;">
+        </div>
 
-<button id="post-btn">Post</button>
+        <div class="preview-container" id="preview-container">
+            <img id="preview" class="preview">
+            <button class="remove-preview" onclick="removeImage()">×</button>
+        </div>
+
+        <div class="btn-group">
+            <button id="post-btn"><span>Post Now</span></button>
+            <button id="cancel-btn" onclick="history.back()">Cancel</button>
+        </div>
+    </div>
+</div>
 </div>
 
 <script type="module">
@@ -51,15 +112,13 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// Firebase config
 const firebaseConfig = {
-apiKey:"AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
-authDomain:"cashclique-31718.firebaseapp.com",
-projectId:"cashclique-31718",
-storageBucket:"cashclique-31718.firebasestorage.app",
-messagingSenderId:"1064282591269",
-appId:"1:1064282591269:web:17fbaf9b683d5b0dfbafcc",
-measurementId:"G-V5WHJB6LS0"
+    apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
+    authDomain: "cashclique-31718.firebaseapp.com",
+    projectId: "cashclique-31718",
+    storageBucket: "cashclique-31718.firebasestorage.app",
+    messagingSenderId: "1064282591269",
+    appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -67,90 +126,97 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 let currentUser = null;
-const postContent = document.getElementById("post-content");
-const postImage = document.getElementById("post-image");
-const preview = document.getElementById("preview");
-const postBtn = document.getElementById("post-btn");
+let selectedFile = null;
 
-// Ensure user is logged in
-onAuthStateChanged(auth, user => {
-  if(!user) window.location.href="login.html";
-  else currentUser = user;
+onAuthStateChanged(auth, (user) => {
+    if (!user) window.location.href = "login.html";
+    else currentUser = user;
 });
 
-// Image preview
-postImage.addEventListener("change", ()=>{
-  const file = postImage.files[0];
-  if(file){
-    const reader = new FileReader();
-    reader.onload = (e)=>{
-      preview.src = e.target.result;
-      preview.style.display = "block";
+// Image Upload Handling
+const uploadArea = document.getElementById("upload-area");
+const fileInput = document.getElementById("post-image");
+const previewContainer = document.getElementById("preview-container");
+const previewImg = document.getElementById("preview");
+
+uploadArea.addEventListener("click", () => fileInput.click());
+
+fileInput.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        selectedFile = file;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            previewImg.src = ev.target.result;
+            previewContainer.style.display = "block";
+        };
+        reader.readAsDataURL(file);
     }
-    reader.readAsDataURL(file);
-  } else preview.style.display = "none";
 });
 
-// Logout
-document.getElementById("logout").addEventListener("click",()=>{
-  signOut(auth).then(()=>{ window.location.href="login.html"; });
+window.removeImage = () => {
+    selectedFile = null;
+    fileInput.value = "";
+    previewContainer.style.display = "none";
+};
+
+// Post Function
+document.getElementById("post-btn").addEventListener("click", async () => {
+    const text = document.getElementById("post-content").value.trim();
+    const btn = document.getElementById("post-btn");
+
+    if (!text && !selectedFile) {
+        alert("Please write something or add an image.");
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = `Posting <div class="spinner"></div>`;
+
+    let imageBase64 = null;
+    if (selectedFile) {
+        imageBase64 = await fileToBase64(selectedFile);
+    }
+
+    try {
+        await addDoc(collection(db, "posts"), {
+            userId: currentUser.uid,
+            username: currentUser.email?.split('@')[0] || "User",
+            content: text,
+            imageBase64: imageBase64,
+            likes: 0,
+            likedBy: [],
+            timestamp: serverTimestamp()
+        });
+
+        alert("Post created successfully! 🎉");
+        window.location.href = "dashboard.html";
+    } catch (e) {
+        console.error(e);
+        alert("Failed to post. Please try again.");
+        btn.disabled = false;
+        btn.innerHTML = "Post Now";
+    }
 });
 
-// Convert file to Base64 for Firestore
-async function fileToBase64(file){
-  return new Promise((resolve,reject)=>{
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result); // full base64 string
-    reader.onerror = err => reject(err);
-  });
+async function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
 }
 
-// Post button
-postBtn.addEventListener("click", async ()=>{
-  const text = postContent.value.trim();
-  const file = postImage.files[0];
+// Mobile Sidebar
+function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("active");
+}
 
-  if(!text && !file){ alert("Please write something or select an image."); return; }
-
-  postBtn.disabled = true;
-  const originalText = postBtn.innerHTML;
-  postBtn.innerHTML = 'Posting <div class="spinner"></div>';
-
-  let imageBase64 = null;
-
-  if(file){
-    try{
-      imageBase64 = await fileToBase64(file);
-    } catch(e){
-      console.error("Image conversion error:", e);
-      alert("Failed to read image. Try again.");
-      postBtn.disabled = false;
-      postBtn.innerHTML = originalText;
-      return;
-    }
-  }
-
-  try{
-    await addDoc(collection(db,"posts"),{
-      userId: currentUser.uid,
-      username: currentUser.email,
-      content: text,
-      imageBase64: imageBase64,
-      likes:0,
-      timestamp: serverTimestamp()
-    });
-
-    // Redirect to dashboard
-    window.location.href="dashboard.html";
-  } catch(e){
-    console.error("Firestore post error:", e);
-    alert("Failed to post. Try again.");
-    postBtn.disabled = false;
-    postBtn.innerHTML = originalText;
-  }
+// Logout
+document.getElementById("logout").addEventListener("click", () => {
+    signOut(auth).then(() => window.location.href = "login.html");
 });
 </script>
-
 </body>
 </html>
