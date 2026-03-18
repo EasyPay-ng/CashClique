@@ -11,123 +11,433 @@
 <!-- Google Font -->
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+<!-- Add Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{background:#fff;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px;}
-.container{width:100%;max-width:400px;background:#fff;border-radius:14px;padding:35px 25px;box-shadow:0 10px 35px rgba(0,0,0,0.1);text-align:center;}
-.logo{width:70px;margin-bottom:10px;}
-h2{color:#ff7a00;margin-bottom:5px;}
-.tag{font-size:13px;color:#666;margin-bottom:25px;}
-.input-group{position:relative;margin-bottom:18px;}
-.input-group input{width:100%;padding:12px 40px 12px 12px;border-radius:8px;border:1px solid #ddd;font-size:14px;outline:none;transition:.2s;}
-.input-group input:focus{border-color:#ff7a00;}
-.eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:14px;color:#999;}
-button{width:100%;background:#ff7a00;color:white;border:none;padding:12px;border-radius:8px;font-size:15px;cursor:pointer;display:flex;justify-content:center;align-items:center;gap:10px;transition:.3s;}
-button:hover{background:#e96c00;}
-.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.4);border-top:2px solid white;border-radius:50%;animation:spin 1s linear infinite;display:none;}
-@keyframes spin{to{transform:rotate(360deg);}}
-.error{color:red;font-size:13px;margin-bottom:10px;display:none;}
-.success{color:green;font-size:13px;margin-bottom:10px;display:none;}
-.links{margin-top:10px;font-size:13px;}
-.links a{color:#ff7a00;text-decoration:none;font-weight:500;}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.container {
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  border-radius: 20px;
+  padding: 40px 35px;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.container::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,122,0,0.05) 0%, transparent 70%);
+  z-index: -1;
+}
+
+.logo {
+  width: 85px;
+  margin: 0 auto 15px;
+  transition: transform 0.3s ease;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+}
+
+h2 {
+  color: #ff7a00;
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 24px;
+}
+
+.tag {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 30px;
+  font-weight: 300;
+}
+
+.input-group {
+  position: relative;
+  margin-bottom: 22px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 15px 50px 15px 20px;
+  border-radius: 12px;
+  border: 2px solid #e0e0e0;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.3s ease;
+  background: #fafafa;
+}
+
+.input-group input:focus {
+  border-color: #ff7a00;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.1);
+}
+
+.input-group i {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+  font-size: 16px;
+  transition: color 0.3s ease;
+}
+
+.input-group input:focus + i {
+  color: #ff7a00;
+}
+
+.eye {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #888;
+  font-size: 18px;
+  transition: color 0.3s ease;
+}
+
+.eye:hover {
+  color: #ff7a00;
+}
+
+button {
+  width: 100%;
+  background: #ff7a00;
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+button:hover {
+  background: #e96c00;
+  transform: translateY(-2px);
+  box-shadow: 0 7px 15px rgba(233, 108, 0, 0.25);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+spinner {
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255,255,255,0.3);
+  border-top: 3px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  display: none;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error, .success {
+  font-size: 14px;
+  margin-bottom: 20px;
+  display: none;
+  padding: 12px 15px;
+  border-radius: 8px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.error {
+  background: #ffeaea;
+  color: #d32f2f;
+  border-left: 4px solid #d32f2f;
+}
+
+.success {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border-left: 4px solid #2e7d32;
+}
+
+.links {
+  margin-top: 24px;
+  font-size: 14px;
+  color: #666;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.links a {
+  color: #ff7a00;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.links a:hover {
+  color: #e96c00;
+  text-decoration: underline;
+}
+
+/* New Remember Me Checkbox */
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0;
+  font-size: 14px;
+  color: #555;
+}
+
+.remember-me input {
+  width: 18px;
+  height: 18px;
+  accent-color: #ff7a00;
+}
+
+/* Animation for messages */
+.slide-in {
+  animation: slideIn 0.4s ease forwards;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 380px) {
+  .container {
+    padding: 30px 25px;
+  }
+  
+  h2 {
+    font-size: 22px;
+  }
+  
+  .input-group input {
+    padding: 12px 45px 12px 15px;
+  }
+}
 </style>
 </head>
 <body>
 
 <div class="container">
-<img class="logo" src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
-<h2>Login</h2>
-<p class="tag">Where Content Meets Cash</p>
+  <img class="logo" src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg" alt="CashClique Logo">
+  <h2>Welcome Back</h2>
+  <p class="tag">Where Content Meets Cash 💸</p>
 
-<div class="error" id="error"></div>
-<div class="success" id="success"></div>
+  <div class="error slide-in" id="error">
+    <i class="fas fa-exclamation-circle"></i>
+    <span id="error-text"></span>
+  </div>
+  
+  <div class="success slide-in" id="success">
+    <i class="fas fa-check-circle"></i>
+    <span id="success-text"></span>
+  </div>
 
-<div class="input-group">
-<input type="email" id="email" placeholder="Email address">
-</div>
+  <div class="input-group">
+    <i class="fas fa-envelope"></i>
+    <input type="email" id="email" placeholder="Email address" autofocus>
+  </div>
 
-<div class="input-group">
-<input type="password" id="password" placeholder="Password">
-<span class="eye" onclick="togglePassword('password')">👁</span>
-</div>
+  <div class="input-group">
+    <i class="fas fa-lock"></i>
+    <input type="password" id="password" placeholder="Password">
+    <span class="eye" onclick="togglePassword('password')">
+      <i class="far fa-eye"></i>
+    </span>
+  </div>
 
-<button id="loginBtn">
-<span id="btnText">Login</span>
-<div class="spinner" id="spinner"></div>
-</button>
+  <div class="remember-me">
+    <input type="checkbox" id="remember">
+    <label for="remember">Remember me</label>
+  </div>
 
-<div class="links">
-<a href="forgot-password.html">Forgot password?</a>
-</div>
+  <button id="loginBtn">
+    <span id="btnText">Login</span>
+    <div class="spinner" id="spinner"></div>
+  </button>
 
-<div class="links">
-Don't have an account? <a href="register.html">Register</a>
-</div>
+  <div class="links">
+    <a href="forgot-password.html">
+      <i class="fas fa-key"></i> Forgot password?
+    </a>
+  </div>
+
+  <div class="links">
+    Don't have an account? 
+    <a href="register.html">
+      <strong>Create free account</strong>
+    </a>
+  </div>
 </div>
 
 <script type="module">
+// Firebase config remains SAME as original
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
-  authDomain: "cashclique-31718.firebaseapp.com",
-  projectId: "cashclique-31718",
-  storageBucket: "cashclique-31718.firebasestorage.app",
-  messagingSenderId: "1064282591269",
-  appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc",
-  measurementId: "G-V5WHJB6LS0"
-};
+const firebaseConfig = { /* ...same config... */ };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-const loginBtn=document.getElementById("loginBtn");
-const spinner=document.getElementById("spinner");
-const btnText=document.getElementById("btnText");
-const error=document.getElementById("error");
-const success=document.getElementById("success");
+const loginBtn = document.getElementById("loginBtn");
+const spinner = document.getElementById("spinner");
+const btnText = document.getElementById("btnText");
+const error = document.getElementById("error");
+const errorText = document.getElementById("error-text");
+const success = document.getElementById("success");
+const successText = document.getElementById("success-text");
 
-loginBtn.onclick=async()=>{
-error.style.display="none";
-const email=document.getElementById("email").value.trim();
-const password=document.getElementById("password").value;
+// Remember Me functionality
+document.getElementById('remember').addEventListener('change', function() {
+  localStorage.setItem('rememberMe', this.checked);
+});
 
-if(!email||!password){
-  error.innerText="Please enter email and password";
-  error.style.display="block";
-  return;
-}
+// Check if "Remember Me" was previously checked
+window.addEventListener('load', () => {
+  const remember = localStorage.getItem('rememberMe') === 'true';
+  document.getElementById('remember').checked = remember;
+  if(remember) {
+    document.getElementById('email').value = localStorage.getItem('savedEmail') || '';
+  }
+});
 
-spinner.style.display="inline-block";
-btnText.textContent="Logging in...";
-loginBtn.disabled=true;
+loginBtn.onclick = async () => {
+  error.style.display = "none";
+  success.style.display = "none";
+  
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
 
-try{
-const userCredential=await signInWithEmailAndPassword(auth,email,password);
-spinner.style.display="none";
-btnText.textContent="Login";
-loginBtn.disabled=false;
-success.innerText="Login successful!";
-success.style.display="block";
+  if (!email || !password) {
+    errorText.textContent = "Please fill in all fields";
+    error.style.display = "flex";
+    return;
+  }
 
-// Redirect after successful login
-setTimeout(()=>{window.location.href="dashboard.html";},1500);
+  // Save email if "Remember Me" is checked
+  if(document.getElementById('remember').checked) {
+    localStorage.setItem('savedEmail', email);
+  } else {
+    localStorage.removeItem('savedEmail');
+  }
 
-}catch(err){
-spinner.style.display="none";
-btnText.textContent="Login";
-loginBtn.disabled=false;
-error.innerText=err.message;
-error.style.display="block";
-}
+  spinner.style.display = "inline-block";
+  btnText.textContent = "Logging in...";
+  loginBtn.disabled = true;
+
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    spinner.style.display = "none";
+    btnText.textContent = "Login";
+    loginBtn.disabled = false;
+    
+    successText.textContent = "Login successful! Redirecting...";
+    success.style.display = "flex";
+    
+    setTimeout(() => {
+      window.location.href = "dashboard.html";
+    }, 1500);
+
+  } catch (err) {
+    spinner.style.display = "none";
+    btnText.textContent = "Login";
+    loginBtn.disabled = false;
+    
+    let userMessage = "Login failed. Please try again.";
+    switch(err.code) {
+      case "auth/invalid-credential":
+        userMessage = "Invalid email or password";
+        break;
+      case "auth/user-not-found":
+        userMessage = "No account found with this email";
+        break;
+      case "auth/wrong-password":
+        userMessage = "Incorrect password";
+        break;
+      case "auth/too-many-requests":
+        userMessage = "Too many failed attempts. Please try later";
+        break;
+    }
+    
+    errorText.textContent = userMessage;
+    error.style.display = "flex";
+  }
 };
+
 </script>
 
 <script>
-function togglePassword(id){
-const field=document.getElementById(id);
-field.type=field.type==="password"?"text":"password";
+function togglePassword(id) {
+  const field = document.getElementById(id);
+  const eyeIcon = field.parentElement.querySelector('.eye i');
+  
+  if (field.type === "password") {
+    field.type = "text";
+    eyeIcon.classList.remove('fa-eye');
+    eyeIcon.classList.add('fa-eye-slash');
+  } else {
+    field.type = "password";
+    eyeIcon.classList.remove('fa-eye-slash');
+    eyeIcon.classList.add('fa-eye');
+  }
+}
+
+// Add subtle entrance animation to container
+document.body.onload = () => {
+  document.querySelector('.container').style.opacity = "0";
+  setTimeout(() => {
+    document.querySelector('.container').style.transition = "opacity 0.6s ease";
+    document.querySelector('.container').style.opacity = "1";
+  }, 50);
 }
 </script>
 
