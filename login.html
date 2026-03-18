@@ -5,27 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Login • CashClique</title>
 
-<!-- Favicon -->
 <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
 
-<!-- Google Font -->
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-<!-- Font Awesome for Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
 
 :root {
     --primary: #ff7a00;
     --primary-dark: #e96c00;
-    --primary-light: #fff5eb;
     --text-dark: #1a1a2e;
     --text-light: #666;
     --text-lighter: #999;
@@ -33,403 +24,232 @@
     --error: #e74c3c;
     --success: #27ae60;
     --border: #e0e0e0;
-    --shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-    --shadow-hover: 0 15px 50px rgba(0, 0, 0, 0.15);
 }
 
 body {
-    background: linear-gradient(135deg, #fff5eb 0%, #ffe6d5 100%);
-    min-height: 100vh;
+    background: #fff5eb;
     display: flex;
-    justify-content: center;
     align-items: center;
-    padding: 20px;
-    position: relative;
-    overflow-x: hidden;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 15px;
 }
 
-/* Background Decorations */
-body::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -50%;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle, rgba(255,122,0,0.05) 0%, transparent 70%);
-    border-radius: 50%;
-}
-
-body::after {
-    content: '';
-    position: absolute;
-    bottom: -50%;
-    left: -50%;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle, rgba(255,122,0,0.05) 0%, transparent 70%);
-    border-radius: 50%;
-}
-
-/* Main Container */
 .container {
     width: 100%;
-    max-width: 420px;
+    max-width: 340px;
     background: var(--white);
-    border-radius: 20px;
-    padding: 40px 35px;
-    box-shadow: var(--shadow);
-    text-align: center;
-    position: relative;
-    z-index: 1;
-    transition: box-shadow 0.3s ease;
-}
-
-.container:hover {
-    box-shadow: var(--shadow-hover);
-}
-
-/* Logo */
-.logo-container {
-    margin-bottom: 25px;
+    border-radius: 14px;
+    padding: 25px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
 }
 
 .logo {
-    width: 80px;
-    height: 80px;
-    border-radius: 20px;
-    object-fit: cover;
-    box-shadow: 0 5px 20px rgba(255, 122, 0, 0.2);
-    transition: transform 0.3s ease;
-}
-
-.logo:hover {
-    transform: scale(1.05);
-}
-
-/* Header */
-.header {
-    margin-bottom: 30px;
+    width: 55px;
+    height: 55px;
+    border-radius: 12px;
+    display: block;
+    margin: 0 auto 10px;
 }
 
 h2 {
     color: var(--primary);
-    font-size: 28px;
+    font-size: 20px;
     font-weight: 700;
-    margin-bottom: 5px;
+    text-align: center;
 }
 
 .tag {
-    font-size: 14px;
+    font-size: 12px;
     color: var(--text-light);
-    font-weight: 400;
-}
-
-/* Messages */
-.message-container {
-    min-height: 40px;
+    text-align: center;
     margin-bottom: 15px;
 }
 
 .message {
-    padding: 12px 16px;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 500;
-    display: flex;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    display: none;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    animation: slideIn 0.3s ease;
-    opacity: 0;
-    transform: translateY(-10px);
-    transition: all 0.3s ease;
+    gap: 6px;
+    margin-bottom: 12px;
 }
 
-.message.show {
-    opacity: 1;
-    transform: translateY(0);
-}
+.message.show { display: flex; }
 
 .message.error {
     background: rgba(231, 76, 60, 0.1);
     color: var(--error);
-    border: 1px solid rgba(231, 76, 60, 0.2);
 }
 
 .message.success {
     background: rgba(39, 174, 96, 0.1);
     color: var(--success);
-    border: 1px solid rgba(39, 174, 96, 0.2);
 }
 
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Form */
-.form {
-    margin-bottom: 25px;
-}
-
-/* Input Groups */
-.input-group {
-    position: relative;
-    margin-bottom: 20px;
-}
+.input-group { margin-bottom: 12px; }
 
 .input-group label {
     display: block;
-    text-align: left;
-    font-size: 13px;
-    font-weight: 500;
+    font-size: 11px;
+    font-weight: 600;
     color: var(--text-dark);
-    margin-bottom: 8px;
+    margin-bottom: 4px;
 }
 
-.input-wrapper {
-    position: relative;
-}
+.input-wrapper { position: relative; }
 
 .input-wrapper input {
     width: 100%;
-    padding: 14px 45px 14px 45px;
-    border-radius: 12px;
-    border: 2px solid var(--border);
-    font-size: 15px;
+    padding: 10px 35px 10px 35px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    font-size: 13px;
     color: var(--text-dark);
     outline: none;
-    transition: all 0.3s ease;
-    background: var(--white);
+    transition: all 0.2s;
 }
 
-.input-wrapper input::placeholder {
-    color: var(--text-lighter);
-}
+.input-wrapper input::placeholder { color: var(--text-lighter); }
 
 .input-wrapper input:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 4px rgba(255, 122, 0, 0.1);
+    box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.1);
 }
 
-.input-wrapper input.error {
-    border-color: var(--error);
-    box-shadow: 0 0 0 4px rgba(231, 76, 60, 0.1);
-}
+.input-wrapper input.error { border-color: var(--error); }
 
 .input-icon {
     position: absolute;
-    left: 15px;
+    left: 10px;
     top: 50%;
     transform: translateY(-50%);
     color: var(--text-lighter);
-    font-size: 16px;
-    transition: color 0.3s ease;
+    font-size: 12px;
 }
 
-.input-wrapper input:focus ~ .input-icon {
-    color: var(--primary);
-}
+.input-wrapper input:focus ~ .input-icon { color: var(--primary); }
 
 .toggle-password {
     position: absolute;
-    right: 15px;
+    right: 10px;
     top: 50%;
     transform: translateY(-50%);
     background: none;
     border: none;
     cursor: pointer;
     color: var(--text-lighter);
-    font-size: 16px;
-    padding: 5px;
-    transition: color 0.3s ease;
+    font-size: 12px;
+    padding: 4px;
 }
 
-.toggle-password:hover {
-    color: var(--primary);
-}
+.toggle-password:hover { color: var(--primary); }
 
-/* Options Row */
 .options-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 25px;
-    font-size: 14px;
+    margin-bottom: 12px;
+    font-size: 11px;
 }
 
 .remember-me {
     display: flex;
     align-items: center;
-    gap: 8px;
-    cursor: pointer;
+    gap: 4px;
     color: var(--text-light);
-}
-
-.remember-me input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    accent-color: var(--primary);
     cursor: pointer;
 }
 
-.remember-me span {
-    font-size: 14px;
-}
+.remember-me input { accent-color: var(--primary); }
 
 .forgot-password a {
     color: var(--primary);
     text-decoration: none;
     font-weight: 500;
-    transition: color 0.3s ease;
+    font-size: 11px;
 }
 
-.forgot-password a:hover {
-    color: var(--primary-dark);
-    text-decoration: underline;
-}
+.forgot-password a:hover { text-decoration: underline; }
 
-/* Login Button */
 .login-btn {
     width: 100%;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    background: var(--primary);
     color: white;
     border: none;
-    padding: 16px;
-    border-radius: 12px;
-    font-size: 16px;
+    padding: 11px;
+    border-radius: 8px;
+    font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 10px;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
+    gap: 6px;
+    transition: all 0.2s;
 }
 
-.login-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-    transition: left 0.5s ease;
-}
+.login-btn:hover { background: var(--primary-dark); }
 
-.login-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(255, 122, 0, 0.3);
-}
-
-.login-btn:hover::before {
-    left: 100%;
-}
-
-.login-btn:active {
-    transform: translateY(0);
-}
-
-.login-btn:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-    transform: none;
-}
-
-.login-btn:disabled::before {
-    display: none;
-}
+.login-btn:disabled { opacity: 0.7; cursor: not-allowed; }
 
 .spinner {
-    width: 20px;
-    height: 20px;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    border-top: 3px solid white;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top: 2px solid white;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
     display: none;
 }
 
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
-/* Divider */
 .divider {
     display: flex;
     align-items: center;
-    margin: 25px 0;
+    margin: 12px 0;
     color: var(--text-lighter);
-    font-size: 13px;
+    font-size: 10px;
 }
 
-.divider::before,
-.divider::after {
+.divider::before, .divider::after {
     content: '';
     flex: 1;
     height: 1px;
     background: var(--border);
 }
 
-.divider span {
-    padding: 0 15px;
-}
+.divider span { padding: 0 8px; }
 
-/* Social Login */
 .social-login {
     display: flex;
-    gap: 12px;
-    margin-bottom: 25px;
+    gap: 8px;
+    margin-bottom: 12px;
 }
 
 .social-btn {
     flex: 1;
-    padding: 12px;
-    border: 2px solid var(--border);
-    border-radius: 12px;
+    padding: 8px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
     background: var(--white);
     cursor: pointer;
-    font-size: 18px;
+    font-size: 14px;
     color: var(--text-dark);
-    transition: all 0.3s ease;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    transition: all 0.2s;
 }
 
 .social-btn:hover {
     border-color: var(--primary);
     color: var(--primary);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-.social-btn.google:hover {
-    border-color: #ea4335;
-    color: #ea4335;
-}
-
-.social-btn.apple:hover {
-    border-color: #000;
-    color: #000;
-}
-
-/* Register Link */
 .register-link {
-    margin-top: 10px;
-    font-size: 14px;
+    text-align: center;
+    font-size: 11px;
     color: var(--text-light);
 }
 
@@ -437,93 +257,35 @@ h2 {
     color: var(--primary);
     text-decoration: none;
     font-weight: 600;
-    transition: color 0.3s ease;
 }
 
-.register-link a:hover {
-    color: var(--primary-dark);
-    text-decoration: underline;
-}
+.register-link a:hover { text-decoration: underline; }
 
-/* Password Requirements */
-.password-requirements {
-    text-align: left;
-    font-size: 12px;
-    color: var(--text-lighter);
-    margin-top: 5px;
-    padding-left: 5px;
-}
-
-/* Responsive */
-@media (max-width: 480px) {
-    .container {
-        padding: 30px 25px;
-    }
-    
-    h2 {
-        font-size: 24px;
-    }
-    
-    .input-wrapper input {
-        padding: 12px 40px 12px 40px;
-        font-size: 14px;
-    }
-    
-    .login-btn {
-        padding: 14px;
-        font-size: 15px;
-    }
-    
-    .options-row {
-        flex-direction: column;
-        gap: 15px;
-        align-items: flex-start;
-    }
-    
-    .forgot-password {
-        align-self: flex-end;
-    }
-}
-
-/* Shake Animation for Error */
 @keyframes shake {
     0%, 100% { transform: translateX(0); }
-    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-    20%, 40%, 60%, 80% { transform: translateX(5px); }
+    20%, 60% { transform: translateX(-4px); }
+    40%, 80% { transform: translateX(4px); }
 }
 
-.shake {
-    animation: shake 0.5s ease;
-}
+.shake { animation: shake 0.4s ease; }
 </style>
 </head>
+
 <body>
 
 <div class="container">
-    <div class="logo-container">
-        <img class="logo" src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg" alt="CashClique Logo">
-    </div>
+    <img class="logo" src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg" alt="CashClique">
 
-    <div class="header">
-        <h2>Welcome Back</h2>
-        <p class="tag">Sign in to continue to CashClique</p>
-    </div>
+    <h2>Welcome Back</h2>
+    <p class="tag">Sign in to continue</p>
 
-    <div class="message-container">
-        <div class="message" id="message" role="alert"></div>
-    </div>
+    <div class="message" id="message"></div>
 
-    <form class="form" id="loginForm" onsubmit="return false;">
+    <form id="loginForm">
         <div class="input-group">
-            <label for="email">Email Address</label>
+            <label for="email">Email</label>
             <div class="input-wrapper">
-                <input 
-                    type="email" 
-                    id="email" 
-                    placeholder="Enter your email"
-                    autocomplete="email"
-                    aria-label="Email address"
-                >
+                <input type="email" id="email" placeholder="Enter email" autocomplete="email">
                 <i class="fas fa-envelope input-icon"></i>
             </div>
         </div>
@@ -531,15 +293,9 @@ h2 {
         <div class="input-group">
             <label for="password">Password</label>
             <div class="input-wrapper">
-                <input 
-                    type="password" 
-                    id="password" 
-                    placeholder="Enter your password"
-                    autocomplete="current-password"
-                    aria-label="Password"
-                >
+                <input type="password" id="password" placeholder="Enter password" autocomplete="current-password">
                 <i class="fas fa-lock input-icon"></i>
-                <button type="button" class="toggle-password" onclick="togglePassword()" aria-label="Toggle password visibility">
+                <button type="button" class="toggle-password" onclick="togglePassword()">
                     <i class="fas fa-eye" id="eyeIcon"></i>
                 </button>
             </div>
@@ -548,10 +304,10 @@ h2 {
         <div class="options-row">
             <label class="remember-me">
                 <input type="checkbox" id="rememberMe">
-                <span>Remember me</span>
+                <span>Remember</span>
             </label>
             <div class="forgot-password">
-                <a href="forgot-password.html">Forgot password?</a>
+                <a href="forgot-password.html">Forgot?</a>
             </div>
         </div>
 
@@ -561,36 +317,26 @@ h2 {
         </button>
     </form>
 
-    <div class="divider">
-        <span>or continue with</span>
-    </div>
+    <div class="divider"><span>or with</span></div>
 
     <div class="social-login">
-        <button type="button" class="social-btn google" onclick="signInWithGoogle()" aria-label="Sign in with Google">
+        <button type="button" class="social-btn" onclick="signInWithGoogle()">
             <i class="fab fa-google"></i>
         </button>
-        <button type="button" class="social-btn apple" onclick="signInWithApple()" aria-label="Sign in with Apple">
+        <button type="button" class="social-btn" onclick="signInWithApple()">
             <i class="fab fa-apple"></i>
         </button>
     </div>
 
     <div class="register-link">
-        Don't have an account? <a href="register.html">Create one</a>
+        No account? <a href="register.html">Register</a>
     </div>
 </div>
 
-<!-- Firebase SDK -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { 
-    getAuth, 
-    signInWithEmailAndPassword,
-    GoogleAuthProvider,
-    signInWithPopup,
-    OAuthProvider
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, OAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-// Firebase Configuration
 const firebaseConfig = {
     apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
     authDomain: "cashclique-31718.firebaseapp.com",
@@ -601,12 +347,9 @@ const firebaseConfig = {
     measurementId: "G-V5WHJB6LS0"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// DOM Elements
-const loginForm = document.getElementById("loginForm");
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 const loginBtn = document.getElementById("loginBtn");
@@ -615,191 +358,47 @@ const btnText = document.getElementById("btnText");
 const message = document.getElementById("message");
 const rememberMe = document.getElementById("rememberMe");
 
-// Check for remembered email
 const rememberedEmail = localStorage.getItem("rememberedEmail");
-if (rememberedEmail) {
-    emailInput.value = rememberedEmail;
-    rememberMe.checked = true;
-}
+if (rememberedEmail) { emailInput.value = rememberedEmail; rememberMe.checked = true; }
 
-// Show Message Function
 function showMessage(text, type) {
-    message.textContent = text;
+    message.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i> ${text}`;
     message.className = `message ${type} show`;
-    
-    if (type === 'success') {
-        setTimeout(() => {
-            window.location.href = "dashboard.html";
-        }, 1500);
-    }
-    
-    setTimeout(() => {
-        message.classList.remove("show");
-    }, 5000);
+    if (type === 'success') setTimeout(() => window.location.href = "dashboard.html", 1500);
+    setTimeout(() => message.classList.remove("show"), 5000);
 }
 
-// Hide Message Function
-function hideMessage() {
-    message.classList.remove("show");
-}
-
-// Email Validation
-function isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-}
-
-// Set Loading State
 function setLoading(isLoading) {
-    if (isLoading) {
-        spinner.style.display = "inline-block";
-        btnText.textContent = "Signing in...";
-        loginBtn.disabled = true;
-    } else {
-        spinner.style.display = "none";
-        btnText.textContent = "Sign In";
-        loginBtn.disabled = false;
-    }
+    spinner.style.display = isLoading ? "inline-block" : "none";
+    btnText.textContent = isLoading ? "Signing in..." : "Sign In";
+    loginBtn.disabled = isLoading;
 }
 
-// Google Sign In
-window.signInWithGoogle = async () => {
-    const provider = new GoogleAuthProvider();
-    setLoading(true);
-    hideMessage();
-    
-    try {
-        const result = await signInWithPopup(auth, provider);
-        showMessage(`Welcome back, ${result.user.displayName}!`, "success");
-    } catch (error) {
-        setLoading(false);
-        if (error.code !== 'auth/popup-closed-by-user') {
-            showMessage(getErrorMessage(error.code), "error");
-        }
-    }
-};
-
-// Apple Sign In
-window.signInWithApple = async () => {
-    const provider = new OAuthProvider('apple.com');
-    provider.addScope('email');
-    provider.addScope('name');
-    setLoading(true);
-    hideMessage();
-    
-    try {
-        const result = await signInWithPopup(auth, provider);
-        showMessage(`Welcome back, ${result.user.displayName || 'User'}!`, "success");
-    } catch (error) {
-        setLoading(false);
-        if (error.code !== 'auth/popup-closed-by-user') {
-            showMessage(getErrorMessage(error.code), "error");
-        }
-    }
-};
-
-// Get User-Friendly Error Message
-function getErrorMessage(errorCode) {
-    const errorMessages = {
-        'auth/user-not-found': 'No account found with this email address.',
-        'auth/wrong-password': 'Incorrect password. Please try again.',
-        'auth/invalid-email': 'Please enter a valid email address.',
-        'auth/too-many-requests': 'Too many failed attempts. Please try again later.',
-        'auth/invalid-credential': 'Invalid email or password. Please check your credentials.',
-        'auth/network-request-failed': 'Network error. Please check your connection.',
-        'auth/user-disabled': 'This account has been disabled.',
-        'auth/operation-not-allowed': 'Email/password sign-in is not enabled.'
+function getErrorMessage(code) {
+    const errors = {
+        'auth/user-not-found': 'No account found.',
+        'auth/wrong-password': 'Incorrect password.',
+        'auth/invalid-email': 'Invalid email.',
+        'auth/too-many-requests': 'Too many attempts.',
+        'auth/invalid-credential': 'Invalid credentials.',
+        'auth/network-request-failed': 'Network error.',
+        'auth/user-disabled': 'Account disabled.'
     };
-    
-    return errorMessages[errorCode] || 'Login failed. Please try again.';
+    return errors[code] || 'Login failed.';
 }
 
-// Login Handler
+window.signInWithGoogle = async () => {
+    setLoading(true);
+    try { await signInWithPopup(auth, new GoogleAuthProvider()); showMessage("Welcome back!", "success"); }
+    catch (e) { setLoading(false); if (e.code !== 'auth/popup-closed-by-user') showMessage(getErrorMessage(e.code), "error"); }
+};
+
+window.signInWithApple = async () => {
+    setLoading(true);
+    try { await signInWithPopup(auth, new OAuthProvider('apple.com')); showMessage("Welcome back!", "success"); }
+    catch (e) { setLoading(false); if (e.code !== 'auth/popup-closed-by-user') showMessage(getErrorMessage(e.code), "error"); }
+};
+
 loginBtn.addEventListener("click", async (e) => {
     e.preventDefault();
-    
-    const email = emailInput.value.trim();
-    const password = passwordInput.value;
-    
-    // Validation
-    if (!email || !password) {
-        showMessage("Please enter both email and password.", "error");
-        emailInput.classList.add("error");
-        passwordInput.classList.add("error");
-        document.querySelector(".container").classList.add("shake");
-        setTimeout(() => {
-            document.querySelector(".container").classList.remove("shake");
-        }, 500);
-        return;
-    }
-    
-    if (!isValidEmail(email)) {
-        showMessage("Please enter a valid email address.", "error");
-        emailInput.classList.add("error");
-        return;
-    }
-    
-    // Clear errors
-    emailInput.classList.remove("error");
-    passwordInput.classList.remove("error");
-    hideMessage();
-    
-    // Remember email if checked
-    if (rememberMe.checked) {
-        localStorage.setItem("rememberedEmail", email);
-    } else {
-        localStorage.removeItem("rememberedEmail");
-    }
-    
-    setLoading(true);
-    
-    try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        showMessage(`Welcome back! Signing you in...`, "success");
-    } catch (error) {
-        setLoading(false);
-        showMessage(getErrorMessage(error.code), "error");
-        
-        // Add shake animation on error
-        document.querySelector(".container").classList.add("shake");
-        setTimeout(() => {
-            document.querySelector(".container").classList.remove("shake");
-        }, 500);
-    }
-});
-
-// Clear error styling on input
-emailInput.addEventListener("input", () => {
-    emailInput.classList.remove("error");
-});
-
-passwordInput.addEventListener("input", () => {
-    passwordInput.classList.remove("error");
-});
-
-// Enter key to submit
-document.addEventListener("keypress", (e) => {
-    if (e.key === "Enter" && !loginBtn.disabled) {
-        loginBtn.click();
-    }
-});
-
-// Toggle Password Visibility
-window.togglePassword = function() {
-    const passwordField = passwordInput;
-    const eyeIcon = document.getElementById("eyeIcon");
-    
-    if (passwordField.type === "password") {
-        passwordField.type = "text";
-        eyeIcon.classList.remove("fa-eye");
-        eyeIcon.classList.add("fa-eye-slash");
-    } else {
-        passwordField.type = "password";
-        eyeIcon.classList.remove("fa-eye-slash");
-        eyeIcon.classList.add("fa-eye");
-    }
-};
-</script>
-
-</body>
-</html>
+    const email = 
