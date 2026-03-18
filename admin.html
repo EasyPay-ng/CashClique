@@ -51,19 +51,17 @@ td{padding:18px;font-size:14px;}
 .btn{padding:10px 20px;border:none;border-radius:8px;font-weight:600;cursor:pointer;transition:0.2s;font-size:14px;}
 .btn-primary{background:#ff6a00;color:white;}
 .btn-success{background:#4caf50;color:white;}
-.btn-danger{background:#f44336;color:white;}
 .btn-sm{padding:6px 12px;font-size:12px;}
-input[type="number"]{width:80px;padding:6px;border:1px solid #ddd;border-radius:6px;}
+input[type="number"]{width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;}
 .balance-display{font-weight:700;color:#ff6a00;}
 
 /* Modal */
-.modal{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;pointer-events:none;transition:0.3s;}
-.modal.active{opacity:1;pointer-events:auto;}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1000;}
+.modal.active{display:flex;}
 .modal-content{background:white;padding:30px;border-radius:12px;width:450px;max-width:95%;}
 .modal-title{font-size:20px;font-weight:700;margin-bottom:20px;color:#333;}
 .form-group{margin-bottom:15px;}
 .form-group label{display:block;margin-bottom:5px;font-weight:500;}
-.form-group input, .form-group select{width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;}
 .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
 .badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;}
 .badge-pending{background:#fff3cd;color:#856404;}
@@ -92,27 +90,25 @@ input[type="number"]{width:80px;padding:6px;border:1px solid #ddd;border-radius:
         <input type="email" class="login-input" id="admin-email" placeholder="Admin Email">
         <input type="password" class="login-input" id="admin-password" placeholder="Password">
         <button class="login-btn" onclick="adminLogin()">Secure Login</button>
-        <p style="text-align:center;margin-top:20px;font-size:12px;color:#888;">Authorized emails only</p>
+        <p style="text-align:center;margin-top:20px;font-size:12px;color:#888;">Only beniwealth70@gmail.com and cashclique@gmail.com allowed</p>
     </div>
 </div>
 
 <!-- Admin Sidebar -->
-<div class="sidebar" id="sidebar">
+<div class="sidebar" id="sidebar" style="display:none;">
     <h2>CashClique Admin</h2>
     <a href="#" class="active" onclick="switchTab('users')">💰 Users & Balances</a>
     <a href="#" onclick="switchTab('withdrawals')">📤 Withdrawals</a>
     <a href="#" onclick="switchTab('posts')">📝 Posts Management</a>
-    <a href="#" id="logout-admin" onclick="adminLogout()">🚪 Logout</a>
+    <a href="#" onclick="adminLogout()">🚪 Logout</a>
 </div>
 
 <!-- Main Content -->
-<div class="main">
+<div class="main" id="main-content" style="display:none;">
     <div class="header">
         <h1 id="page-title">User Management</h1>
-        <span class="badge badge-pending">Live Mode</span>
     </div>
 
-    <!-- DASHBOARD STATS -->
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-label">Total Users</div>
@@ -128,68 +124,32 @@ input[type="number"]{width:80px;padding:6px;border:1px solid #ddd;border-radius:
         </div>
     </div>
 
-    <!-- TABS -->
     <div class="tabs">
         <div class="tab active" id="tab-users" onclick="switchTab('users')">Users & Balances</div>
         <div class="tab" id="tab-withdrawals" onclick="switchTab('withdrawals')">Withdrawal Requests</div>
         <div class="tab" id="tab-posts" onclick="switchTab('posts')">Assign Earnings</div>
     </div>
 
-    <!-- USERS TABLE -->
     <div class="table-container" id="view-users">
-        <table id="users-table">
-            <thead>
-                <tr>
-                    <th>User</th>
-                    <th>Balance</th>
-                    <th>Last Update</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody><!-- JS Loads Here --></tbody>
-        </table>
+        <table id="users-table"><thead><tr><th>User</th><th>Balance</th><th>Last Update</th><th>Action</th></tr></thead><tbody></tbody></table>
     </div>
 
-    <!-- WITHDRAWALS TABLE -->
     <div class="table-container" id="view-withdrawals" style="display:none;">
-        <table id="withdrawals-table">
-            <thead>
-                <tr>
-                    <th>User</th>
-                    <th>Amount</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody><!-- JS Loads Here --></tbody>
-        </table>
+        <table id="withdrawals-table"><thead><tr><th>User</th><th>Amount</th><th>Date</th><th>Status</th><th>Action</th></tr></thead><tbody></tbody></table>
     </div>
 
-    <!-- POSTS TABLE -->
     <div class="table-container" id="view-posts" style="display:none;">
-        <table id="posts-table">
-            <thead>
-                <tr>
-                    <th>Post ID</th>
-                    <th>Creator</th>
-                    <th>Likes</th>
-                    <th>Current Earn.</th>
-                    <th>Set Payout ($)</th>
-                </tr>
-            </thead>
-            <tbody><!-- JS Loads Here --></tbody>
-        </table>
+        <table id="posts-table"><thead><tr><th>Post ID</th><th>Creator</th><th>Likes</th><th>Current Earn.</th><th>Set Payout ($)</th></tr></thead><tbody></tbody></table>
     </div>
 </div>
 
 <!-- Modals -->
 <div class="modal" id="balance-modal">
     <div class="modal-content">
-        <h3 class="modal-title">💰 Adjust Balance</h3>
+        <h3 class="modal-title">Adjust User Balance</h3>
         <div class="form-group">
-            <label>Add/Remove Amount</label>
-            <input type="number" id="amount-adjustment" step="0.01" placeholder="e.g., 10.00">
+            <label>Add or Subtract Amount</label>
+            <input type="number" id="amount-adjustment" step="0.01" placeholder="e.g. 25.50 or -10.00">
         </div>
         <div class="modal-actions">
             <button class="btn" onclick="closeModal('balance-modal')">Cancel</button>
@@ -200,14 +160,14 @@ input[type="number"]{width:80px;padding:6px;border:1px solid #ddd;border-radius:
 
 <div class="modal" id="payout-modal">
     <div class="modal-content">
-        <h3 class="modal-title">📝 Set Post Payout</h3>
+        <h3 class="modal-title">Set Post Earnings</h3>
         <div class="form-group">
-            <label>Earnings ($) for this Post</label>
-            <input type="number" id="post-earnings" step="0.01" min="0">
+            <label>Earnings Amount ($)</label>
+            <input type="number" id="post-earnings" step="0.01" min="0" placeholder="0.00">
         </div>
         <div class="modal-actions">
             <button class="btn" onclick="closeModal('payout-modal')">Cancel</button>
-            <button class="btn btn-primary" onclick="assignPostEarning()">Save Payout</button>
+            <button class="btn btn-primary" onclick="assignPostEarning()">Save Earnings</button>
         </div>
     </div>
 </div>
@@ -215,7 +175,7 @@ input[type="number"]{width:80px;padding:6px;border:1px solid #ddd;border-radius:
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, doc, onSnapshot, query, where, updateDoc, addDoc, serverTimestamp, increment, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, doc, onSnapshot, query, updateDoc, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -223,93 +183,49 @@ const firebaseConfig = {
     projectId: "cashclique-31718",
     storageBucket: "cashclique-31718.firebasestorage.app",
     messagingSenderId: "1064282591269",
-    appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc",
-    measurementId: "G-V5WHJB6LS0"
+    appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// === ADMIN EMAIL WHITELIST ===
-const ALLOWED_ADMIN_EMAILS = [
-    "beniwealth70@gmail.com",
-    "cashclique@gmail.com"
-];
+const ALLOWED_ADMIN_EMAILS = ["beniwealth70@gmail.com", "cashclique@gmail.com"];
 
 let currentUser = null;
 
-// === ADMIN LOGIN LOGIC WITH EMAIL CHECK ===
 window.adminLogin = async () => {
-    const emailInput = document.getElementById("admin-email");
-    const passwordInput = document.getElementById("admin-password");
+    const email = document.getElementById("admin-email").value.trim();
+    const password = document.getElementById("admin-password").value;
     const errorMsg = document.getElementById("error-msg");
-    
-    const email = emailInput.value.trim();
-    const password = passwordInput.value;
-    
-    // Check email whitelist first
+
+    errorMsg.style.display = "none";
+
     if (!ALLOWED_ADMIN_EMAILS.includes(email)) {
-        errorMsg.style.display = "block";
         errorMsg.innerText = "Access Denied: Email not authorized";
+        errorMsg.style.display = "block";
         return;
     }
-    
+
     try {
         await signInWithEmailAndPassword(auth, email, password);
-        const user = auth.currentUser;
-        
-        // Verify again after login
-        if (user.email === email && ALLOWED_ADMIN_EMAILS.includes(user.email)) {
-             document.getElementById("login-overlay").style.display = "none";
-             loadDashboard();
-        } else {
-            alert("Access Denied: Authentication mismatch.");
-            signOut(auth);
-            location.reload();
-        }
-    } catch(e) {
-        console.error("Login error:", e);
+    } catch (e) {
+        console.error(e);
+        errorMsg.innerText = "Invalid email or password";
         errorMsg.style.display = "block";
-        errorMsg.innerText = "Invalid credentials. Please try again.";
     }
 };
 
-// Prevent keyboard submit bypass
-document.getElementById("admin-email").addEventListener("keypress", (e) => {
-    if(e.key === 'Enter') adminLogin();
-});
-
-// Auth Listener - Kick out unauthorized users
 onAuthStateChanged(auth, (user) => {
-    if (user) {
-        if (!ALLOWED_ADMIN_EMAILS.includes(user.email)) {
-            alert("Unauthorized access attempt detected.");
-            signOut(auth).then(() => {
-                location.reload();
-            });
-        } else {
-            // Already logged in and authorized
-            if (document.getElementById("login-overlay").style.display !== "none") {
-                document.getElementById("login-overlay").style.display = "none";
-                loadDashboard();
-            }
-        }
-    } else {
-        // Not logged in
-        if (document.getElementById("login-overlay").style.display !== "none") {
-            // Stay on login screen
-        }
+    if (user && ALLOWED_ADMIN_EMAILS.includes(user.email)) {
+        currentUser = user;
+        document.getElementById("login-overlay").style.display = "none";
+        document.getElementById("sidebar").style.display = "block";
+        document.getElementById("main-content").style.display = "block";
+        loadDashboard();
     }
 });
 
-window.adminLogout = () => {
-    if(confirm("Are you sure you want to logout?")) {
-        signOut(auth).then(() => location.reload());
-    }
-};
-
-// === LOAD DASHBOARDS ===
 function loadDashboard() {
     loadStats();
     loadUsers();
@@ -318,185 +234,164 @@ function loadDashboard() {
 }
 
 function loadStats() {
-    // Load users count
     onSnapshot(collection(db, "users"), (snap) => {
         document.getElementById("total-users").innerText = snap.size;
     });
-    
-    // Sum pending withdrawals logic
-    let pendingSum = 0;
-    const wQuery = query(collection(db, "withdrawals"));
-    onSnapshot(wQuery, (snap) => {
-        pendingSum = 0;
-        let distributed = 0;
-        snap.forEach(d => {
-            if(!d.data().paid) pendingSum += d.data().amount || 0;
-            else distributed += d.data().amount || 0;
-        });
-        document.getElementById("pending-withdrawals").innerText = "$" + pendingSum.toFixed(2);
-        document.getElementById("total-distributed").innerText = "$" + distributed.toFixed(2);
-    });
 }
 
-// === USERS MANAGEMENT ===
 function loadUsers() {
     onSnapshot(collection(db, "users"), (snap) => {
         const tbody = document.querySelector("#users-table tbody");
         tbody.innerHTML = "";
-        snap.forEach(doc => {
-            const u = doc.data();
-            const row = `<tr>
-                <td><strong>${u.username || 'Anonymous'}</strong><br><small style="color:#888">${u.email || ''}</small></td>
-                <td class="balance-display">$${(u.balance||0).toFixed(2)}</td>
-                <td>${u.updatedAt ? new Date(u.updatedAt?.toDate()).toLocaleDateString() : 'Never'}</td>
-                <td><button class="btn btn-primary btn-sm" onclick="openBalanceModal('${doc.id}')">Edit Balance</button></td>
-            </tr>`;
-            tbody.insertAdjacentHTML("beforeend", row);
+        snap.forEach((docSnap) => {
+            const u = docSnap.data();
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td><strong>${u.username || 'Anonymous'}</strong><br><small>${u.email || ''}</small></td>
+                <td class="balance-display">$${(u.balance || 0).toFixed(2)}</td>
+                <td>${u.updatedAt ? new Date(u.updatedAt.toDate()).toLocaleDateString() : 'Never'}</td>
+                <td><button class="btn btn-primary btn-sm" onclick="openBalanceModal('${docSnap.id}')">Edit Balance</button></td>
+            `;
+            tbody.appendChild(row);
         });
     });
 }
 
-window.openBalanceModal = (uid) => {
-    window.currentUid = uid;
-    document.getElementById("balance-modal").classList.add("active");
-    document.getElementById("amount-adjustment").value = "";
-}
-
-window.updateBalance = async () => {
-    const uid = window.currentUid;
-    const amount = parseFloat(document.getElementById("amount-adjustment").value);
-    
-    if(isNaN(amount)) return alert("Enter valid amount");
-    
-    const userRef = doc(db, "users", uid);
-    await updateDoc(userRef, { 
-        balance: increment(amount), 
-        updatedAt: serverTimestamp(),
-        lastUpdatedBy: currentUser.email
-    });
-    
-    closeModal("balance-modal");
-    alert(`Updated user balance by $${amount}`);
-};
-
-// === WITHDRAWALS MANAGEMENT ===
 function loadWithdrawals() {
-    const q = query(collection(db, "withdrawals"), where("userId", "!=", ""));
-    onSnapshot(q, (snap) => {
+    onSnapshot(collection(db, "withdrawals"), (snap) => {
         const tbody = document.querySelector("#withdrawals-table tbody");
         tbody.innerHTML = "";
-        snap.forEach(doc => {
-            const d = doc.data();
-            const statusClass = d.paid ? "badge-approved" : (d.status === "rejected" ? "badge-rejected" : "badge-pending");
-            
-            const row = `<tr>
-                <td><strong>${d.username}</strong><br><small>${d.userId.substring(0,8)}...</small></td>
+        snap.forEach(docSnap => {
+            const d = docSnap.data();
+            const statusClass = d.paid ? "badge-approved" : "badge-pending";
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${d.username || 'User'}</td>
                 <td>$${(d.amount||0).toFixed(2)}</td>
-                <td>${d.timestamp ? new Date(d.timestamp.toDate()).toLocaleDateString() : 'Unknown'}</td>
+                <td>${d.timestamp ? new Date(d.timestamp.toDate()).toLocaleDateString() : '-'}</td>
                 <td><span class="badge ${statusClass}">${d.paid ? 'Paid' : 'Pending'}</span></td>
-                <td>
-                    ${!d.paid ? `<button class="btn btn-success btn-sm" onclick="approveWithdrawal('${doc.id}', '${d.userId}', ${d.amount})">Approve</button>` : '<span>Paid</span>'}
-                </td>
-            </tr>`;
-            tbody.insertAdjacentHTML("beforeend", row);
+                <td>${!d.paid ? `<button class="btn btn-success btn-sm" onclick="approveWithdrawal('${docSnap.id}', '${d.userId}', ${d.amount||0})">Approve</button>` : 'Done'}</td>
+            `;
+            tbody.appendChild(row);
         });
-    }, (err) => console.error("Withdrawal fetch error:", err));
+    });
 }
 
-window.approveWithdrawal = async (id, userId, amount) => {
-    if(!confirm(`Confirm payout of $${amount} has been processed externally? This will deduct the user's balance.`)) return;
-    
-    try {
-        // Deduct user balance
-        await updateDoc(doc(db, "users", userId), {
-            balance: increment(-amount), // Actually deduct the amount
-            withdrawnAmount: increment(amount),
-            updatedAt: serverTimestamp()
-        });
-        
-        await updateDoc(doc(db, "withdrawals", id), {
-            paid: true,
-            status: "approved",
-            processedAt: serverTimestamp(),
-            processedBy: currentUser.email
-        });
-        
-        alert("Withdrawal Approved & Balance Adjusted");
-    } catch(e) {
-        console.error(e);
-        alert("Failed to process withdrawal");
-    }
-};
-
-// === POST EARNINGS ASSIGNMENT ===
 function loadPosts() {
     onSnapshot(collection(db, "posts"), (snap) => {
         const tbody = document.querySelector("#posts-table tbody");
         tbody.innerHTML = "";
-        snap.forEach(doc => {
-            const p = doc.data();
+        snap.forEach(docSnap => {
+            const p = docSnap.data();
             const earned = p.earning || 0;
-            
-            const row = `<tr>
-                <td><code style="background:#eee;padding:2px 5px;border-radius:3px;">${doc.id.substring(0,8)}...</code></td>
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td><code>${docSnap.id.substring(0,8)}...</code></td>
                 <td>${p.username || 'Unknown'}</td>
                 <td>${p.likes || 0}</td>
-                <td style="color:${earned > 0 ? 'green' : '#888'}">${earned > 0 ? '$'+earned.toFixed(2) : '-'}</td>
-                <td><button class="btn btn-primary btn-sm" onclick="openPayoutModal('${doc.id}', '${p.userId}')">Set Pay</button></td>
-            </tr>`;
-            tbody.insertAdjacentHTML("beforeend", row);
+                <td style="color:${earned > 0 ? 'green' : '#888'}">$${earned.toFixed(2)}</td>
+                <td><button class="btn btn-primary btn-sm" onclick="openPayoutModal('${docSnap.id}', '${p.userId}')">Set Pay</button></td>
+            `;
+            tbody.appendChild(row);
         });
     });
 }
 
+// === BALANCE MODAL ===
+window.openBalanceModal = (uid) => {
+    window.currentEditingUserId = uid;
+    document.getElementById("balance-modal").classList.add("active");
+};
+
+window.updateBalance = async () => {
+    const uid = window.currentEditingUserId;
+    const amount = parseFloat(document.getElementById("amount-adjustment").value);
+
+    if (!uid || isNaN(amount)) {
+        alert("Invalid input");
+        return;
+    }
+
+    try {
+        await updateDoc(doc(db, "users", uid), {
+            balance: increment(amount),
+            updatedAt: serverTimestamp()
+        });
+        alert("Balance updated successfully!");
+        closeModal("balance-modal");
+    } catch (e) {
+        console.error(e);
+        alert("Failed to update balance. Check console.");
+    }
+};
+
+// === PAYOUT MODAL ===
 window.openPayoutModal = (postId, userId) => {
     window.currentPostId = postId;
-    window.currentUserIdForPost = userId;
+    window.currentPostUserId = userId;
     document.getElementById("payout-modal").classList.add("active");
-    document.getElementById("post-earnings").value = "";
-}
+};
 
 window.assignPostEarning = async () => {
     const postId = window.currentPostId;
-    const userId = window.currentUserIdForPost;
-    const earning = parseFloat(document.getElementById("post-earnings").value);
-    
-    if(isNaN(earning) || earning < 0) return alert("Invalid amount");
-    
+    const userId = window.currentPostUserId;
+    const amount = parseFloat(document.getElementById("post-earnings").value);
+
+    if (!postId || !userId || isNaN(amount) || amount < 0) {
+        alert("Please enter a valid amount");
+        return;
+    }
+
     try {
         await updateDoc(doc(db, "posts", postId), {
-            earning: earning,
+            earning: amount,
             paid: true,
-            payoutDate: serverTimestamp(),
-            assignedBy: currentUser.email
+            payoutDate: serverTimestamp()
         });
-        
-        // Add to user wallet
+
         await updateDoc(doc(db, "users", userId), {
-            balance: increment(earning),
+            balance: increment(amount),
             updatedAt: serverTimestamp()
         });
-        
-        closeModal("payout-modal");
-        alert(`Assigned $${earning} to post. Added to user balance.`);
-    } catch(e) {
-        console.error(e);
-        alert("Failed to save");
-    }
-}
 
-// === UTILS ===
-window.switchTab = (tabName) => {
-    ['users', 'withdrawals', 'posts'].forEach(t => {
-        document.getElementById(`tab-${t}`).classList.remove('active');
-        document.getElementById(`view-${t}`).style.display = t === tabName ? 'block' : 'none';
-    });
-    
-    document.getElementById(`tab-${tabName}`).classList.add('active');
-    document.getElementById('page-title').innerText = tabName.charAt(0).toUpperCase() + tabName.slice(1);
+        alert(`Successfully assigned $${amount} to the post!`);
+        closeModal("payout-modal");
+    } catch (e) {
+        console.error("Error assigning earnings:", e);
+        alert("Failed to save. Check browser console for details.");
+    }
 };
 
-window.closeModal = (id) => document.getElementById(id).classList.remove("active");
+window.approveWithdrawal = async (withdrawalId, userId, amount) => {
+    if (!confirm(`Mark this $${amount} withdrawal as paid?`)) return;
+    try {
+        await updateDoc(doc(db, "withdrawals", withdrawalId), { paid: true, status: "approved" });
+        alert("Withdrawal approved");
+    } catch (e) {
+        console.error(e);
+        alert("Failed to approve withdrawal");
+    }
+};
+
+window.switchTab = (tab) => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.table-container').forEach(c => c.style.display = 'none');
+    
+    document.getElementById(`tab-${tab}`).classList.add('active');
+    document.getElementById(`view-${tab}`).style.display = 'block';
+    document.getElementById('page-title').innerText = tab === 'users' ? 'User Management' : 
+                                                     tab === 'withdrawals' ? 'Withdrawal Requests' : 'Assign Earnings';
+};
+
+window.closeModal = (id) => {
+    document.getElementById(id).classList.remove("active");
+};
+
+window.adminLogout = () => {
+    if (confirm("Logout from admin panel?")) {
+        signOut(auth).then(() => location.reload());
+    }
+};
 </script>
 </body>
 </html>
