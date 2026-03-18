@@ -10,62 +10,101 @@
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{background:#f5f5f5;min-height:100vh;padding:20px;}
-.sidebar{width:240px;background:#ff6a00;color:white;padding:20px;display:flex;flex-direction:column;gap:20px;position:fixed;height:100%;z-index:999;transition:0.3s;}
-.sidebar img{width:45px;border-radius:10px;}
-.logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:18px;}
-.sidebar a{color:white;text-decoration:none;padding:10px;border-radius:8px;transition:0.3s;}
-.sidebar a:hover{background:rgba(255,255,255,0.2);}
-.main{margin-left:240px;width:calc(100% - 240px);padding:20px;transition:0.3s;}
+body{background:#f5f5f5;min-height:100vh;padding:0;}
 
+/* Mobile Header */
+.mobile-header{display:none;background:#ff6a00;color:white;padding:15px 20px;align-items:center;gap:15px;position:sticky;top:0;z-index:100;}
+.mobile-header h1{font-size:18px;font-weight:600;flex:1;}
+.menu-btn{background:none;border:none;color:white;font-size:24px;cursor:pointer;padding:5px;}
+
+/* Sidebar */
+.sidebar{width:240px;background:#ff6a00;color:white;padding:20px;display:flex;flex-direction:column;gap:20px;position:fixed;height:100%;z-index:999;transition:0.3s;transform:translateX(0);}
+.sidebar img{width:45px;border-radius:10px;}
+.logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:18px;margin-bottom:10px;}
+.sidebar a{color:white;text-decoration:none;padding:12px 15px;border-radius:8px;transition:0.3s;display:flex;align-items:center;gap:10px;}
+.sidebar a:hover, .sidebar a.active{background:rgba(255,255,255,0.2);}
+
+/* Main Content */
+.main{margin-left:240px;padding:20px;transition:0.3s;}
 .container{background:white;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.08);overflow:hidden;}
 .header{padding:30px;text-align:center;border-bottom:1px solid #f0f0f0;}
 .header h1{font-size:28px;font-weight:700;color:#333;margin-bottom:8px;}
 .balance-display{font-size:48px;font-weight:700;background:linear-gradient(135deg,#ff6a00,#ff8a00);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-1px;}
 
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:20px;padding:25px;}
-.stat-card{background:#f8f9fa;padding:20px;border-radius:16px;text-align:center;transition:0.3s;}
-.stat-card:hover{transform:translateY(-5px);}
-.stat-label{font-size:13px;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;}
-.stat-value{font-size:22px;font-weight:700;color:#333;}
+/* Stats Grid */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px;padding:20px;}
+.stat-card{background:#f8f9fa;padding:20px;border-radius:12px;text-align:center;border:2px solid transparent;transition:0.3s;}
+.stat-card:hover{transform:translateY(-3px);border-color:#ff6a00;box-shadow:0 8px 20px rgba(255,106,0,0.1);}
+.stat-label{font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;}
+.stat-value{font-size:20px;font-weight:700;color:#333;}
 
-.content-table{width:100%;border-collapse:collapse;margin:20px 0;}
-.table-header{font-weight:600;background:#f8f9fa;padding:15px 20px;font-size:14px;color:#555;border-bottom:2px solid #e0e0e0;}
-.table-row{cursor:pointer;padding:15px 20px;border-bottom:1px solid #f0f0f0;transition:0.2s;}
+/* Table Container - Horizontal Scroll */
+.table-container{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:20px;border:1px solid #eee;border-radius:12px;}
+.content-table{width:100%;border-collapse:collapse;min-width:600px;}
+.table-header{font-weight:600;background:#fafafa;text-align:left;padding:15px;font-size:13px;color:#555;border-bottom:2px solid #eee;white-space:nowrap;}
+.table-row{cursor:pointer;border-bottom:1px solid #f0f0f0;transition:0.2s;}
 .table-row:hover{background:#f8f9fa;}
+.table-row td{padding:15px;font-size:14px;vertical-align:middle;}
+.post-preview{width:50px;height:50px;border-radius:8px;overflow:hidden;flex-shrink:0;}
+.post-preview img{width:100%;height:100%;object-fit:cover;}
+.post-info{flex:1;}
+.post-title{font-weight:600;font-size:14px;margin-bottom:3px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.post-stats{display:flex;gap:10px;font-size:12px;color:#666;flex-wrap:wrap;}
+.earning-amount{font-weight:600;color:#ff6a00;font-size:15px;white-space:nowrap;}
 
-.post-preview{width:45px;height:45px;border-radius:8px;overflow:hidden;flex-shrink:0;background:#ff6a00;}
-.post-info{flex:1;min-width:0;}
-.post-title{font-weight:600;font-size:15px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.post-stats{font-size:13px;color:#666;}
+/* Withdraw Section */
+.withdraw-section{padding:25px;border-top:1px solid #f0f0f0;text-align:center;background:#f9f9f9;margin:20px;border-radius:0 0 16px 16px;}
+.withdraw-btn{background:#ff6a00;color:white;border:none;padding:14px 35px;border-radius:10px;font-weight:600;font-size:15px;cursor:pointer;transition:0.3s;box-shadow:0 4px 12px rgba(255,106,0,0.2);}
+.withdraw-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,106,0,0.3);}
+.withdraw-btn:disabled{opacity:0.5;cursor:not-allowed;background:#ccc;transform:none;}
+.min-withdraw{font-size:12px;color:#666;margin-top:8px;}
 
-.withdraw-section{padding:30px;text-align:center;background:#f9f9f9;}
-.withdraw-btn{background:#ff6a00;color:white;border:none;padding:16px 40px;border-radius:12px;font-weight:600;font-size:16px;cursor:pointer;transition:0.3s;width:100%;max-width:300px;}
-.withdraw-btn:disabled{opacity:0.6;cursor:not-allowed;}
+/* Empty State */
+.empty-state{text-align:center;padding:40px 20px;color:#888;}
+.empty-state h3{font-size:18px;margin-bottom:8px;}
+.empty-state p{font-size:14px;margin-bottom:20px;}
 
-.empty-state{text-align:center;padding:60px 20px;color:#888;}
-.empty-state h3{font-size:20px;margin-bottom:10px;}
-
-/* Mobile Menu Button */
-.menu-btn{position:absolute;top:20px;left:20px;background:white;border:none;width:50px;height:50px;border-radius:50%;font-size:24px;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,0.1);z-index:1000;display:none;}
-
+/* Mobile Responsive */
 @media(max-width:900px){
-    .sidebar{transform:translateX(-100%);}
-    .sidebar.active{transform:translateX(0);}
-    .main{margin-left:0;width:100%;padding:20px 15px;}
-    .menu-btn{display:block;}
-    .stats-grid{grid-template-columns:repeat(2,1fr);gap:15px;}
-    .header{padding:25px 15px;}
-    .balance-display{font-size:38px;}
-    .table-row{flex-direction:column;gap:10px;text-align:center;}
-    .post-title{font-size:14px;}
+  .mobile-header{display:flex;}
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.active{transform:translateX(0);}
+  .main{margin-left:0;padding:10px;padding-top:70px;}
+  .container{border-radius:12px;}
+  .header{padding:20px;}
+  .header h1{font-size:22px;}
+  .balance-display{font-size:36px;}
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:10px;padding:10px;}
+  .stat-card{padding:15px;}
+  .stat-value{font-size:18px;}
+  .table-container{margin:10px;border-radius:8px;}
+  .table-header, .table-row td{padding:12px 10px;font-size:13px;}
+  .post-preview{width:40px;height:40px;}
+  .post-title{max-width:150px;font-size:13px;}
+  .post-stats{gap:8px;}
+  .withdraw-section{margin:10px;padding:20px;}
+  .withdraw-btn{padding:12px 30px;font-size:14px;}
+}
+
+/* Very small screens */
+@media(max-width:480px){
+  .stats-grid{grid-template-columns:1fr;}
+  .mobile-header h1{font-size:16px;}
+  .balance-display{font-size:28px;}
+  .post-preview{width:35px;height:35px;}
+  .post-title{max-width:120px;font-size:12px;}
+  .post-stats{font-size:11px;}
 }
 </style>
 </head>
 
 <body>
 
-<button class="menu-btn" onclick="toggleSidebar()">☰</button>
+<!-- Mobile Header -->
+<div class="mobile-header">
+  <button class="menu-btn" onclick="toggleMenu()">☰</button>
+  <h1>Your Earnings</h1>
+</div>
 
 <!-- Sidebar -->
 <div class="sidebar" id="sidebar">
@@ -75,7 +114,7 @@ CashClique
 </div>
 <a href="dashboard.html">🏠 Dashboard</a>
 <a href="my-content.html">📝 My Content</a>
-<a href="earnings.html">💰 Earnings</a>
+<a href="earnings.html" class="active">💰 Earnings</a>
 <a href="opportunities.html">🔥 Opportunities</a>
 <a href="settings.html">⚙ Settings</a>
 <a href="#" id="logout">🚪 Logout</a>
@@ -108,22 +147,19 @@ CashClique
     </div>
   </div>
   
-  <div style="padding:25px;">
-    <h3 style="font-size:17px;font-weight:600;margin-bottom:15px;color:#333;">Content Performance</h3>
-    <div style="overflow-x:auto;">
-      <table class="content-table">
-        <thead>
-          <tr>
-            <th class="table-header">Post</th>
-            <th class="table-header">Stats</th>
-            <th class="table-header">Earning</th>
-          </tr>
-        </thead>
-        <tbody id="content-table-body">
-          <tr><td colspan="3" class="empty-state"><h3>No earnings yet</h3><p>Create content and get likes to start earning!</p></td></tr>
-        </tbody>
-      </table>
-    </div>
+  <div class="table-container">
+    <table class="content-table">
+      <thead>
+        <tr>
+          <th class="table-header">Post</th>
+          <th class="table-header">Stats</th>
+          <th class="table-header">Earning</th>
+        </tr>
+      </thead>
+      <tbody id="content-table-body">
+        <tr><td colspan="3" class="empty-state"><h3>No earnings yet</h3><p>Create content and get likes to start earning!</p></td></tr>
+      </tbody>
+    </table>
   </div>
   
   <div class="withdraw-section">
@@ -136,7 +172,7 @@ CashClique
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, query, where, onSnapshot, doc, orderBy, getDoc, updateDoc, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -144,7 +180,8 @@ const firebaseConfig = {
     projectId: "cashclique-31718",
     storageBucket: "cashclique-31718.firebasestorage.app",
     messagingSenderId: "1064282591269",
-    appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc"
+    appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc",
+    measurementId: "G-V5WHJB6LS0"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -162,65 +199,100 @@ const withdrawBtn = document.getElementById('withdraw-btn');
 let currentUser = null;
 let balance = 0;
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
     if (!user) {
         window.location.href = "login.html";
         return;
     }
     currentUser = user;
+    
     loadEarnings();
 });
 
 function loadEarnings() {
+    // User balance
     const userRef = doc(db, "users", currentUser.uid);
     onSnapshot(userRef, (snap) => {
         if (snap.exists()) {
             const data = snap.data();
             balance = data.balance || 0;
             totalBalanceEl.textContent = `$${balance.toFixed(2)}`;
+            
             withdrawBtn.disabled = balance < 25;
-            withdrawBtn.textContent = balance >= 25 ? `Withdraw $${balance.toFixed(2)}` : 'Withdraw Earnings';
+            withdrawBtn.textContent = balance >= 25 ? `Withdraw $${balance.toFixed(2)}` : `$${balance.toFixed(2)} (Min $25)`;
         }
     });
 
+    // User posts stats
     const postsQuery = query(collection(db, "posts"), where("userId", "==", currentUser.uid));
+    let totalLikes = 0;
+    let paidPostsCount = 0;
     
     onSnapshot(postsQuery, (postsSnap) => {
         totalPostsEl.textContent = postsSnap.size;
-        let totalLikes = 0;
-        let paidPostsCount = 0;
+        
+        totalLikes = 0;
+        paidPostsCount = 0;
         contentTableBody.innerHTML = "";
-
+        
         if (postsSnap.empty) {
-            contentTableBody.innerHTML = `<tr><td colspan="3" class="empty-state"><h3>No posts yet</h3><p>Create content to start earning!</p></td></tr>`;
+            contentTableBody.innerHTML = '<tr><td colspan="3" class="empty-state"><h3>No posts yet</h3><p>Create content to start earning!</p></td></tr>';
             updateStats(0, 0);
             return;
         }
-
-        postsSnap.docs.forEach((postDoc) => {
+        
+        // Sort by earning (highest first) for top 10
+        const sortedPosts = postsSnap.docs.sort((a, b) => {
+            const earnA = a.data().earning || 0;
+            const earnB = b.data().earning || 0;
+            return earnB - earnA;
+        });
+        
+        let contentCount = 0;
+        sortedPosts.forEach((postDoc) => {
             const post = postDoc.data();
             const likes = post.likes || 0;
             const earning = post.earning || 0;
             
             totalLikes += likes;
             if (earning > 0) paidPostsCount++;
-
-            const row = document.createElement('tr');
-            row.className = 'table-row';
-            row.onclick = () => window.location.href = `post-view.html?postId=${postDoc.id}`;
-            row.innerHTML = `
-                <td style="display:flex;align-items:center;gap:12px;">
-                    <div class="post-preview" style="background:${post.imageBase64 ? `url(${post.imageBase64}) center/cover` : '#ff6a00'}"></div>
-                    <div class="post-info">
-                        <div class="post-title">${post.content?.substring(0, 35) || 'Post'} ${post.content?.length > 35 ? '...' : ''}</div>
-                    </div>
-                </td>
-                <td><div class="post-stats"><span>❤️ ${likes}</span></div></td>
-                <td class="earning-amount">$${earning.toFixed(2)}</td>
-            `;
-            contentTableBody.appendChild(row);
+            
+            // Add to table (only first 10)
+            if (contentCount < 10) {
+                const row = document.createElement('tr');
+                row.className = 'table-row';
+                row.onclick = () => window.location.href = `post-view.html?postId=${postDoc.id}`;
+                
+                const imgHtml = post.imageBase64 
+                    ? `<img src="${post.imageBase64}" class="post-preview" alt="Post">`
+                    : `<div class="post-preview" style="background:#ff6a00;display:flex;align-items:center;justify-content:center;color:white;font-size:10px;">${(post.content?.substring(0,2) || 'P').toUpperCase()}</div>`;
+                
+                row.innerHTML = `
+                    <td>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            ${imgHtml}
+                            <div class="post-info">
+                                <div class="post-title">${post.content?.substring(0, 50) || 'No text'}${post.content?.length > 50 ? '...' : ''}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="post-stats">
+                            <span>❤️ ${likes}</span>
+                            <span>💬 ${post.commentCount || 0}</span>
+                        </div>
+                    </td>
+                    <td class="earning-amount">$${earning.toFixed(2)}</td>
+                `;
+                contentTableBody.appendChild(row);
+                contentCount++;
+            }
         });
-
+        
+        if (contentCount === 0 && postsSnap.size > 0) {
+            contentTableBody.innerHTML = '<tr><td colspan="3" class="empty-state"><h3>No paid posts yet</h3><p>Admin hasn\'t assigned earnings to your posts</p></td></tr>';
+        }
+        
         updateStats(totalLikes, paidPostsCount);
     });
 }
@@ -229,48 +301,67 @@ function updateStats(totalLikes, paidPosts) {
     totalLikesEl.textContent = totalLikes;
     paidPostsEl.textContent = paidPosts;
     
-    const avg = (parseInt(totalPostsEl.textContent) > 0 && balance > 0) 
-        ? (balance / parseInt(totalPostsEl.textContent)).toFixed(2) 
-        : '0.00';
-    avgEarningEl.textContent = `$${avg}`;
+    const avgEarning = balance > 0 && totalPostsEl.textContent > 0 ? 
+        (balance / parseInt(totalPostsEl.textContent)).toFixed(2) : 
+        '0.00';
+    avgEarningEl.textContent = `$${avgEarning}`;
 }
 
-// Withdraw
+// Withdraw button
 withdrawBtn.onclick = async () => {
-    if (balance < 25) return alert('Minimum withdrawal is $25.00');
-    if (!confirm(`Withdraw $${balance.toFixed(2)}?`)) return;
-
+    if (balance < 25) {
+        alert('Minimum withdrawal is $25.00. You need $' + (25 - balance).toFixed(2) + ' more.');
+        return;
+    }
+    
+    if (!confirm(`Withdraw $${balance.toFixed(2)} to your payment method?`)) return;
+    
     try {
+        // Create withdrawal request
+        await addDoc(collection(db, "withdrawals"), {
+            userId: currentUser.uid,
+            username: currentUser.displayName || currentUser.email?.split('@')[0] || 'User',
+            amount: balance,
+            status: 'pending',
+            timestamp: serverTimestamp()
+        });
+        
+        // Set balance to 0
         await updateDoc(doc(db, "users", currentUser.uid), {
             balance: 0,
-            lastWithdrawal: new Date()
+            lastWithdrawal: serverTimestamp()
         });
-        alert('Withdrawal request submitted successfully!');
+        
+        alert('✅ Withdrawal request submitted! You\'ll be notified when processed.');
+        withdrawBtn.disabled = true;
     } catch (error) {
-        console.error(error);
-        alert('Failed to process withdrawal.');
+        console.error('Withdraw failed:', error);
+        alert('Failed to submit withdrawal. Please try again.');
     }
 };
 
 // Logout
-document.getElementById('logout').addEventListener('click', async () => {
+document.getElementById('logout').onclick = async () => {
     await signOut(auth);
     window.location.href = "login.html";
-});
+};
 
-// Mobile Sidebar
-function toggleSidebar() {
+// Mobile menu toggle
+window.toggleMenu = function() {
     document.getElementById('sidebar').classList.toggle('active');
-}
+};
 
 // Close sidebar when clicking outside on mobile
 document.addEventListener('click', (e) => {
-    const sidebar = document.getElementById('sidebar');
-    const menuBtn = document.querySelector('.menu-btn');
-    if (window.innerWidth <= 900 && !sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
-        sidebar.classList.remove('active');
+    if (window.innerWidth <= 900) {
+        const sidebar = document.getElementById('sidebar');
+        const menuBtn = document.querySelector('.menu-btn');
+        if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+            sidebar.classList.remove('active');
+        }
     }
 });
 </script>
+
 </body>
 </html>
