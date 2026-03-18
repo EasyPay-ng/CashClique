@@ -1,436 +1,391 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Register • CashClique</title>
+<title>My Content | CashClique</title>
 
 <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
-
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{background:#f5f5f5;min-height:100vh;padding:0;}
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Poppins,sans-serif;
+/* Mobile Header */
+.mobile-header{display:none;background:#ff6a00;color:white;padding:15px 20px;align-items:center;gap:15px;position:sticky;top:0;z-index:100;}
+.mobile-header h1{font-size:18px;font-weight:600;flex:1;}
+.menu-btn{background:none;border:none;color:white;font-size:24px;cursor:pointer;padding:5px;}
+
+/* Sidebar */
+.sidebar{width:240px;background:#ff6a00;color:white;padding:20px;display:flex;flex-direction:column;gap:20px;position:fixed;height:100%;z-index:999;transition:0.3s;transform:translateX(0);}
+.sidebar img{width:45px;border-radius:10px;}
+.logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:18px;margin-bottom:10px;}
+.sidebar a{color:white;text-decoration:none;padding:12px 15px;border-radius:8px;transition:0.3s;display:flex;align-items:center;gap:10px;}
+.sidebar a:hover, .sidebar a.active{background:rgba(255,255,255,0.2);}
+
+/* Main Content */
+.main{margin-left:240px;padding:20px;transition:0.3s;}
+.container{background:white;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.08);overflow:hidden;padding:30px;}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;padding-bottom:20px;border-bottom:2px solid #f0f0f0;}
+.header h1{font-size:28px;font-weight:700;color:#333;}
+.create-btn{background:#ff6a00;color:white;border:none;padding:12px 25px;border-radius:10px;font-weight:600;cursor:pointer;transition:0.3s;box-shadow:0 4px 12px rgba(255,106,0,0.2);display:flex;align-items:center;gap:8px;}
+.create-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,106,0,0.3);}
+
+/* Posts Grid */
+.posts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:25px;margin-top:20px;}
+.post-card{background:#f8f9fa;border-radius:12px;overflow:hidden;transition:0.3s;border:2px solid transparent;}
+.post-card:hover{transform:translateY(-5px);border-color:#ff6a00;box-shadow:0 10px 25px rgba(0,0,0,0.1);}
+.post-image-container{position:relative;height:200px;overflow:hidden;background:#eee;}
+.post-image{width:100%;height:100%;object-fit:cover;}
+.post-content{padding:20px;}
+.post-text{font-size:15px;line-height:1.6;color:#444;margin-bottom:15px;max-height:80px;overflow:hidden;position:relative;}
+.post-text::after{content:'';position:absolute;bottom:0;left:0;right:0;height:30px;background:linear-gradient(transparent,#f8f9fa);}
+.post-stats{display:flex;gap:15px;margin-bottom:15px;font-size:14px;color:#666;}
+.post-stat{display:flex;align-items:center;gap:5px;}
+.post-actions{display:flex;gap:10px;margin-top:15px;padding-top:15px;border-top:1px solid #e0e0e0;}
+.delete-btn{background:#ff4444;color:white;border:none;padding:8px 15px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;transition:0.2s;flex:1;}
+.delete-btn:hover{background:#e03333;}
+.view-comments-btn{background:#666;color:white;border:none;padding:8px 15px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;transition:0.2s;flex:1;}
+.view-comments-btn:hover{background:#555;}
+
+/* Comments Modal */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;pointer-events:none;transition:0.3s;}
+.modal.active{opacity:1;pointer-events:auto;}
+.modal-content{background:white;border-radius:16px;width:90%;max-width:600px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;}
+.modal-header{display:flex;justify-content:space-between;align-items:center;padding:20px;border-bottom:1px solid #eee;}
+.modal-title{font-size:18px;font-weight:600;color:#333;}
+.close-modal{background:none;border:none;font-size:24px;cursor:pointer;color:#999;padding:5px;}
+.modal-body{flex:1;overflow-y:auto;padding:20px;}
+.comment-item{display:flex;gap:12px;padding:12px;border-bottom:1px solid #f0f0f0;transition:0.2s;}
+.comment-item:hover{background:#f8f9fa;}
+.comment-avatar{width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0;}
+.comment-content{flex:1;}
+.comment-user{font-weight:600;font-size:14px;margin-bottom:4px;}
+.comment-text{font-size:14px;color:#555;line-height:1.4;word-break:break-word;}
+.comment-time{font-size:12px;color:#999;margin-top:5px;}
+.comment-actions{display:flex;gap:8px;margin-top:8px;}
+.comment-delete-btn{background:#ff4444;color:white;border:none;padding:4px 10px;border-radius:4px;font-size:12px;cursor:pointer;transition:0.2s;}
+.comment-delete-btn:hover{background:#e03333;}
+.empty-comments{text-align:center;padding:40px 20px;color:#888;}
+
+/* Toast */
+.toast{position:fixed;bottom:30px;right:30px;background:#333;color:white;padding:15px 25px;border-radius:10px;box-shadow:0 5px 15px rgba(0,0,0,0.2);display:none;z-index:1000;animation:slideIn 0.3s ease;}
+.toast.success{background:#4caf50;}
+.toast.error{background:#f44336;}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+
+/* Responsive */
+@media(max-width:900px){
+  .mobile-header{display:flex;}
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.active{transform:translateX(0);}
+  .main{margin-left:0;padding:10px;padding-top:70px;}
+  .container{padding:20px;}
+  .header{flex-direction:column;gap:15px;align-items:flex-start;}
+  .posts-grid{grid-template-columns:1fr;}
+  .post-image-container{height:180px;}
 }
-
-body{
-background:#fff;
-display:flex;
-justify-content:center;
-align-items:center;
-min-height:100vh;
-padding:20px;
-}
-
-.container{
-width:100%;
-max-width:420px;
-background:#fff;
-border-radius:14px;
-padding:35px 25px;
-box-shadow:0 10px 35px rgba(0,0,0,0.1);
-text-align:center;
-}
-
-.logo{
-width:70px;
-margin-bottom:10px;
-}
-
-h2{
-color:#ff7a00;
-margin-bottom:5px;
-}
-
-.tag{
-font-size:13px;
-color:#666;
-margin-bottom:25px;
-}
-
-.input-group{
-position:relative;
-margin-bottom:18px;
-}
-
-.input-group input{
-width:100%;
-padding:12px 40px 12px 12px;
-border-radius:8px;
-border:1px solid #ddd;
-font-size:14px;
-outline:none;
-}
-
-.input-group input:focus{
-border-color:#ff7a00;
-}
-
-.eye{
-position:absolute;
-right:12px;
-top:50%;
-transform:translateY(-50%);
-cursor:pointer;
-font-size:14px;
-color:#999;
-}
-
-.strength{
-font-size:12px;
-text-align:left;
-margin-top:4px;
-}
-
-.weak{color:red}
-.medium{color:orange}
-.strong{color:green}
-
-.terms-box{
-margin:15px 0;
-text-align:left;
-}
-
-.terms-label{
-display:flex;
-gap:10px;
-align-items:flex-start;
-font-size:13px;
-}
-
-.terms-label a{
-color:#ff7a00;
-font-weight:500;
-text-decoration:none;
-}
-
-button{
-width:100%;
-background:#ff7a00;
-color:white;
-border:none;
-padding:12px;
-border-radius:8px;
-font-size:15px;
-cursor:pointer;
-display:flex;
-justify-content:center;
-align-items:center;
-gap:10px;
-}
-
-button:hover{
-background:#e96c00;
-}
-
-.spinner{
-width:16px;
-height:16px;
-border:2px solid rgba(255,255,255,0.4);
-border-top:2px solid white;
-border-radius:50%;
-animation:spin 1s linear infinite;
-display:none;
-}
-
-@keyframes spin{
-to{transform:rotate(360deg);}
-}
-
-.login-link{
-margin-top:15px;
-font-size:13px;
-}
-
-.login-link a{
-color:#ff7a00;
-text-decoration:none;
-font-weight:500;
-}
-
-.error{
-color:red;
-font-size:13px;
-margin-bottom:10px;
-display:none;
-}
-
-.success{
-color:green;
-font-size:13px;
-margin-bottom:10px;
-display:none;
-}
-
 </style>
-
 </head>
 
 <body>
 
+<!-- Mobile Header -->
+<div class="mobile-header">
+  <button class="menu-btn" onclick="toggleMenu()">☰</button>
+  <h1>My Content</h1>
+</div>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+<div class="logo">
+<img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
+CashClique
+</div>
+<a href="dashboard.html">🏠 Dashboard</a>
+<a href="my-content.html" class="active">📝 My Content</a>
+<a href="earnings.html">💰 Earnings</a>
+<a href="opportunities.html">🔥 Opportunities</a>
+<a href="settings.html">⚙ Settings</a>
+<a href="#" id="logout">🚪 Logout</a>
+</div>
+
+<!-- Main Content -->
+<div class="main">
 <div class="container">
-
-<img class="logo" src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
-
-<h2>Create Account</h2>
-<p class="tag">Where Content Meets Cash</p>
-
-<div class="error" id="error"></div>
-<div class="success" id="success"></div>
-
-<div class="input-group">
-<input type="text" id="username" placeholder="Username">
+  <div class="header">
+    <h1>My Content</h1>
+    <button class="create-btn" onclick="window.location.href='post.html'">+ Create New Post</button>
+  </div>
+  
+  <div class="posts-grid" id="posts-grid">
+    <!-- Posts will be loaded here -->
+  </div>
+</div>
 </div>
 
-<div class="input-group">
-<input type="email" id="email" placeholder="Email address">
+<!-- Comments Modal -->
+<div class="modal" id="comments-modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Comments</h3>
+      <button class="close-modal" onclick="closeCommentsModal()">×</button>
+    </div>
+    <div class="modal-body" id="comments-list">
+      <!-- Comments loaded here -->
+    </div>
+  </div>
 </div>
 
-<div class="input-group">
-<input type="password" id="password" placeholder="Password">
-<span class="eye" onclick="togglePassword('password')">👁</span>
-<div id="strength" class="strength"></div>
-</div>
-
-<div class="input-group">
-<input type="password" id="confirmPassword" placeholder="Confirm Password">
-<span class="eye" onclick="togglePassword('confirmPassword')">👁</span>
-</div>
-
-<div class="input-group">
-<input type="text" id="inviteCode" placeholder="Invite Code (optional)">
-</div>
-
-<div class="terms-box">
-<label class="terms-label">
-<input type="checkbox" id="terms">
-<span>I accept the <a href="terms.html">Terms and Conditions</a></span>
-</label>
-</div>
-
-<button id="registerBtn">
-<span id="btnText">Register</span>
-<div class="spinner" id="spinner"></div>
-</button>
-
-<div class="login-link">
-Already have an account? <a href="login.html">Login</a>
-</div>
-
-</div>
-
+<div class="toast" id="toast"></div>
 
 <script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-import {
-getAuth,
-createUserWithEmailAndPassword,
-sendEmailVerification
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-import {
-getFirestore,
-doc,
-setDoc,
-query,
-where,
-getDocs,
-collection
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { 
+  getFirestore, 
+  collection, 
+  query, 
+  where, 
+  onSnapshot, 
+  doc, 
+  deleteDoc, 
+  orderBy, 
+  serverTimestamp,
+  getDocs,
+  writeBatch
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
-  authDomain: "cashclique-31718.firebaseapp.com",
-  projectId: "cashclique-31718",
-  storageBucket: "cashclique-31718.firebasestorage.app",
-  messagingSenderId: "1064282591269",
-  appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc",
-  measurementId: "G-V5WHJB6LS0"
+    apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
+    authDomain: "cashclique-31718.firebaseapp.com",
+    projectId: "cashclique-31718",
+    storageBucket: "cashclique-31718.firebasestorage.app",
+    messagingSenderId: "1064282591269",
+    appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc",
+    measurementId: "G-V5WHJB6LS0"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const btn=document.getElementById("registerBtn");
-const spinner=document.getElementById("spinner");
-const error=document.getElementById("error");
-const success=document.getElementById("success");
+const postsGrid = document.getElementById('posts-grid');
+const commentsModal = document.getElementById('comments-modal');
+const commentsList = document.getElementById('comments-list');
+const toast = document.getElementById('toast');
 
-btn.onclick=async()=>{
+let currentUser = null;
+let currentPostId = null;
 
-error.style.display="none";
-success.style.display="none";
-
-const username=document.getElementById("username").value.trim().toLowerCase();
-const email=document.getElementById("email").value.trim();
-const password=document.getElementById("password").value;
-const confirmPassword=document.getElementById("confirmPassword").value;
-const invite=document.getElementById("inviteCode").value.trim();
-const terms=document.getElementById("terms").checked;
-
-if(!username || !email || !password || !confirmPassword){
-
-error.innerText="Please fill all required fields";
-error.style.display="block";
-return;
-
-}
-
-if(password!==confirmPassword){
-
-error.innerText="Passwords do not match";
-error.style.display="block";
-return;
-
-}
-
-if(!terms){
-
-error.innerText="You must accept the terms";
-error.style.display="block";
-return;
-
-}
-
-spinner.style.display="inline-block";
-
-try{
-
-/* USERNAME CHECK */
-
-const usernameQuery=query(
-collection(db,"users"),
-where("username","==",username)
-);
-
-const usernameSnap=await getDocs(usernameQuery);
-
-if(!usernameSnap.empty){
-
-spinner.style.display="none";
-error.innerText="Username already taken";
-error.style.display="block";
-return;
-
-}
-
-
-/* INVITE CHECK */
-
-let inviterUID=null;
-
-if(invite){
-
-const inviteQuery=query(
-collection(db,"users"),
-where("inviteCode","==",invite)
-);
-
-const inviteSnap=await getDocs(inviteQuery);
-
-if(inviteSnap.empty){
-
-spinner.style.display="none";
-error.innerText="Invalid invite code";
-error.style.display="block";
-return;
-
-}
-
-inviterUID=inviteSnap.docs[0].id;
-
-}
-
-
-/* CREATE ACCOUNT */
-
-const userCredential=await createUserWithEmailAndPassword(auth,email,password);
-
-const user=userCredential.user;
-
-const inviteCode=user.uid.substring(0,6);
-
-
-/* SAVE USER */
-
-await setDoc(doc(db,"users",user.uid),{
-
-username:username,
-email:email,
-inviteCode:inviteCode,
-invitedBy:inviterUID,
-createdAt:Date.now()
-
+onAuthStateChanged(auth, (user) => {
+    if (!user) {
+        window.location.href = "login.html";
+        return;
+    }
+    currentUser = user;
+    loadUserPosts();
 });
 
+// Load user's posts
+function loadUserPosts() {
+    const postsQuery = query(
+        collection(db, "posts"),
+        where("userId", "==", currentUser.uid),
+        orderBy("timestamp", "desc")
+    );
 
-/* VERIFY EMAIL */
+    onSnapshot(postsQuery, (snapshot) => {
+        postsGrid.innerHTML = "";
+        
+        if (snapshot.empty) {
+            postsGrid.innerHTML = `
+                <div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:#888;">
+                    <h3 style="font-size:22px;margin-bottom:10px;">No posts yet</h3>
+                    <p style="font-size:15px;margin-bottom:25px;">Create your first post to see it here!</p>
+                    <button class="create-btn" onclick="window.location.href='post.html'">Create Post</button>
+                </div>
+            `;
+            return;
+        }
 
-await sendEmailVerification(user);
-
-spinner.style.display="none";
-
-success.innerText="Account created! Check your email to verify.";
-success.style.display="block";
-
-setTimeout(()=>{
-window.location.href="login.html";
-},3000);
-
+        snapshot.forEach((postDoc) => {
+            const post = postDoc.data();
+            const postId = postDoc.id;
+            
+            const postCard = document.createElement('div');
+            postCard.className = 'post-card';
+            postCard.innerHTML = `
+                <div class="post-image-container" onclick="window.location.href='post-view.html?postId=${postId}'" style="cursor:pointer;">
+                    ${post.imageBase64 
+                        ? `<img src="${post.imageBase64}" class="post-image" alt="Post image">` 
+                        : `<div style="width:100%;height:100%;background:linear-gradient(135deg,#ff6a00,#ff8a00);display:flex;align-items:center;justify-content:center;color:white;font-size:48px;font-weight:700;">💬</div>`
+                    }
+                </div>
+                <div class="post-content">
+                    <div class="post-text">${post.content || 'No text content'}</div>
+                    <div class="post-stats">
+                        <div class="post-stat">❤️ ${post.likes || 0}</div>
+                        <div class="post-stat">💬 ${post.commentCount || 0}</div>
+                        ${post.earning > 0 ? `<div class="post-stat" style="color:#ff6a00;font-weight:600;">$${post.earning.toFixed(2)}</div>` : ''}
+                    </div>
+                    <div class="post-actions">
+                        <button class="delete-btn" onclick="deletePost('${postId}')">🗑️ Delete Post</button>
+                        <button class="view-comments-btn" onclick="openCommentsModal('${postId}')">💬 View Comments</button>
+                    </div>
+                </div>
+            `;
+            postsGrid.appendChild(postCard);
+        });
+    });
 }
-catch(err){
 
-spinner.style.display="none";
-error.innerText=err.message;
-error.style.display="block";
+// Delete post with confirmation
+window.deletePost = async (postId) => {
+    if (!confirm('Are you sure you want to delete this post? This will also delete all comments on this post. This action cannot be undone.')) {
+        return;
+    }
 
-}
-
+    try {
+        // First, get all comments for this post
+        const commentsRef = collection(db, "posts", postId, "comments");
+        const commentsSnap = await getDocs(commentsRef);
+        
+        // Create batch to delete all comments and the post
+        const batch = writeBatch(db);
+        
+        // Add all comments to batch delete
+        commentsSnap.forEach(commentDoc => {
+            batch.delete(commentDoc.ref);
+        });
+        
+        // Add post to batch delete
+        batch.delete(doc(db, "posts", postId));
+        
+        // Commit batch
+        await batch.commit();
+        
+        showToast('✅ Post and all comments deleted successfully', 'success');
+    } catch (error) {
+        console.error('Error deleting post:', error);
+        showToast('❌ Failed to delete post. Please try again.', 'error');
+    }
 };
 
-</script>
+// Open comments modal
+window.openCommentsModal = async (postId) => {
+    currentPostId = postId;
+    commentsModal.classList.add('active');
+    await loadComments(postId);
+};
 
+// Close comments modal
+window.closeCommentsModal = () => {
+    commentsModal.classList.remove('active');
+    currentPostId = null;
+};
 
-<script>
-
-function togglePassword(id){
-
-const field=document.getElementById(id);
-
-field.type = field.type === "password" ? "text" : "password";
-
+// Load comments for a post
+async function loadComments(postId) {
+    if (!postId) return;
+    
+    try {
+        const commentsRef = collection(db, "posts", postId, "comments");
+        const commentsQuery = query(commentsRef, orderBy("timestamp", "desc"));
+        const snapshot = await getDocs(commentsQuery);
+        
+        commentsList.innerHTML = "";
+        
+        if (snapshot.empty) {
+            commentsList.innerHTML = '<div class="empty-comments">No comments yet</div>';
+            return;
+        }
+        
+        snapshot.forEach((commentDoc) => {
+            const comment = commentDoc.data();
+            const commentId = commentDoc.id;
+            const isMyComment = comment.userId === currentUser.uid;
+            const isPostOwner = true; // Since we're viewing our own post, we are the owner
+            
+            const commentEl = document.createElement('div');
+            commentEl.className = 'comment-item';
+            commentEl.innerHTML = `
+                <img class="comment-avatar" src="${comment.imageBase64 || `https://i.pravatar.cc/150?u=${comment.userId}`}" alt="User">
+                <div class="comment-content">
+                    <div class="comment-user">${comment.username || 'Anonymous'}</div>
+                    <div class="comment-text">${comment.text}</div>
+                    <div class="comment-time">${comment.timestamp ? new Date(comment.timestamp.toDate()).toLocaleString() : 'Just now'}</div>
+                    ${(isMyComment || isPostOwner) ? `
+                        <div class="comment-actions">
+                            <button class="comment-delete-btn" onclick="deleteComment('${postId}', '${commentId}')">🗑️ Delete</button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            commentsList.appendChild(commentEl);
+        });
+    } catch (error) {
+        console.error('Error loading comments:', error);
+        commentsList.innerHTML = '<div class="empty-comments">Failed to load comments</div>';
+    }
 }
 
-const passwordInput=document.getElementById("password");
-const strength=document.getElementById("strength");
+// Delete comment
+window.deleteComment = async (postId, commentId) => {
+    if (!confirm('Delete this comment?')) return;
+    
+    try {
+        await deleteDoc(doc(db, "posts", postId, "comments", commentId));
+        showToast('✅ Comment deleted', 'success');
+        // Reload comments for this post
+        await loadComments(postId);
+    } catch (error) {
+        console.error('Error deleting comment:', error);
+        showToast('❌ Failed to delete comment', 'error');
+    }
+};
 
-passwordInput.addEventListener("input",()=>{
-
-const val=passwordInput.value;
-
-if(val.length<6){
-strength.innerHTML="<span class='weak'>Weak password</span>";
+// Toast notification
+function showToast(message, type = 'success') {
+    toast.textContent = message;
+    toast.className = `toast ${type}`;
+    toast.style.display = 'block';
+    
+    setTimeout(() => {
+        toast.style.display = 'none';
+    }, 3000);
 }
-else if(val.match(/[A-Z]/) && val.match(/[0-9]/)){
-strength.innerHTML="<span class='strong'>Strong password</span>";
-}
-else{
-strength.innerHTML="<span class='medium'>Medium password</span>";
-}
 
+// Logout
+document.getElementById('logout').addEventListener('click', async (e) => {
+    e.preventDefault();
+    await signOut(auth);
+    window.location.href = "login.html";
 });
 
+// Mobile menu toggle
+window.toggleMenu = function() {
+    document.getElementById('sidebar').classList.toggle('active');
+};
+
+// Close modal when clicking outside
+commentsModal.addEventListener('click', (e) => {
+    if (e.target === commentsModal) {
+        closeCommentsModal();
+    }
+});
+
+// Close sidebar when clicking outside on mobile
+document.addEventListener('click', (e) => {
+    if (window.innerWidth <= 900) {
+        const sidebar = document.getElementById('sidebar');
+        const menuBtn = document.querySelector('.menu-btn');
+        if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+            sidebar.classList.remove('active');
+        }
+    }
+});
 </script>
 
 </body>
