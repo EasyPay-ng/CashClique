@@ -1,440 +1,311 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>CashClique — Where Content Meets Cash</title>
 
-<link rel="icon" type="image/png" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
-
+<link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-<meta name="description" content="CashClique — Where Content Meets Cash. Share valuable ideas, discover opportunities and build income.">
-
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #0f0f0f;
+    color: #eee;
+    line-height: 1.6;
+    overflow-x: hidden;
 }
 
-body{
-background:#fffaf5;
-color:#222;
-line-height:1.6;
+/* Navbar */
+nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: rgba(15,15,15,0.95);
+    backdrop-filter: blur(12px);
+    z-index: 1000;
+    padding: 18px 8%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,106,0,0.1);
 }
 
-/* HEADER */
-
-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:15px 20px;
-background:white;
-border-bottom:1px solid #eee;
-position:sticky;
-top:0;
-z-index:100;
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 700;
+    font-size: 22px;
+    color: #ff6a00;
 }
 
-.logo{
-display:flex;
-align-items:center;
-gap:10px;
+.logo img { height: 42px; border-radius: 10px; }
+
+.nav-links {
+    display: flex;
+    gap: 40px;
+    font-weight: 500;
 }
 
-.logo img{
-height:38px;
-border-radius:8px;
+.nav-links a {
+    color: #ddd;
+    text-decoration: none;
+    transition: 0.3s;
 }
 
-.logo h1{
-font-size:18px;
-color:#ff7a18;
-font-weight:700;
+.nav-links a:hover {
+    color: #ff6a00;
 }
 
-.header-actions{
-display:flex;
-gap:10px;
+.auth-buttons button {
+    padding: 10px 24px;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-left: 12px;
 }
 
-.login-btn{
-background:transparent;
-border:2px solid #ff7a18;
-color:#ff7a18;
-padding:8px 16px;
-border-radius:8px;
-font-weight:600;
-cursor:pointer;
+.login-btn {
+    background: transparent;
+    border: 2px solid #ff6a00;
+    color: #ff6a00;
 }
 
-.login-btn:hover{
-background:#ff7a18;
-color:white;
+.register-btn {
+    background: #ff6a00;
+    border: none;
+    color: white;
 }
 
-.register-btn{
-background:#ff7a18;
-color:white;
-border:none;
-padding:8px 16px;
-border-radius:8px;
-font-weight:600;
-cursor:pointer;
+.register-btn:hover {
+    background: #ff8a00;
+    transform: translateY(-2px);
 }
 
-.register-btn:hover{
-opacity:0.9;
+/* Hero */
+.hero {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+    position: relative;
+    overflow: hidden;
 }
 
-/* HERO */
-
-.hero{
-padding:70px 20px;
-text-align:center;
+.hero-content {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 8%;
+    z-index: 2;
 }
 
-.hero h2{
-font-size:34px;
-color:#ff7a18;
-margin-bottom:15px;
+.hero h1 {
+    font-size: 4.2rem;
+    line-height: 1.1;
+    font-weight: 800;
+    margin-bottom: 20px;
+    background: linear-gradient(90deg, #ff6a00, #ffaa00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
-.hero p{
-font-size:16px;
-color:#555;
-max-width:600px;
-margin:auto;
-margin-bottom:30px;
+.hero p {
+    font-size: 1.25rem;
+    color: #ccc;
+    max-width: 520px;
+    margin-bottom: 35px;
 }
 
-.hero button{
-background:#ff7a18;
-color:white;
-border:none;
-padding:14px 28px;
-border-radius:8px;
-font-weight:600;
-cursor:pointer;
+.cta-buttons {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
 }
 
-/* FEATURES */
-
-.features{
-padding:60px 20px;
+.cta-buttons button {
+    padding: 16px 36px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.4s;
 }
 
-.features h3{
-text-align:center;
-color:#ff7a18;
-font-size:24px;
-margin-bottom:10px;
+.primary-btn {
+    background: #ff6a00;
+    color: white;
+    border: none;
 }
 
-.section-desc{
-text-align:center;
-max-width:650px;
-margin:0 auto 40px;
-color:#666;
-font-size:15px;
+.primary-btn:hover {
+    background: #ff8a00;
+    transform: scale(1.05);
 }
 
-.feature-grid{
-display:grid;
-grid-template-columns:1fr;
-gap:20px;
+.secondary-btn {
+    background: transparent;
+    color: white;
+    border: 2px solid rgba(255,255,255,0.6);
 }
 
-.feature-card{
-background:white;
-padding:22px;
-border-radius:10px;
-border:1px solid #eee;
-transition:0.3s;
+.secondary-btn:hover {
+    border-color: white;
+    background: rgba(255,255,255,0.1);
 }
 
-.feature-card:hover{
-transform:translateY(-5px);
-box-shadow:0 8px 20px rgba(0,0,0,0.08);
+/* Features */
+.features {
+    padding: 100px 8%;
+    background: white;
+    color: #222;
 }
 
-.feature-card h4{
-color:#ff7a18;
-margin-bottom:8px;
-font-size:17px;
+.section-title {
+    text-align: center;
+    font-size: 2.4rem;
+    margin-bottom: 60px;
+    color: #ff6a00;
+    font-weight: 700;
 }
 
-.feature-card p{
-font-size:14px;
-color:#555;
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
 }
 
-/* HOW SECTION */
-
-.how{
-padding:60px 20px;
-background:#fff2e8;
+.feature-card {
+    background: #fff;
+    padding: 35px 25px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+    transition: 0.4s;
+    text-align: center;
 }
 
-.how h3{
-text-align:center;
-color:#ff7a18;
-margin-bottom:30px;
+.feature-card:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 20px 40px rgba(255,106,0,0.15);
 }
 
-.steps{
-display:grid;
-grid-template-columns:1fr;
-gap:25px;
-}
-
-.step{
-text-align:center;
-}
-
-.step-number{
-font-size:30px;
-color:#ff7a18;
-font-weight:700;
-margin-bottom:6px;
+.feature-card h3 {
+    color: #ff6a00;
+    margin: 18px 0 12px;
+    font-size: 1.4rem;
 }
 
 /* CTA */
-
-.cta{
-padding:70px 20px;
-text-align:center;
-background:#ff7a18;
-color:white;
+.final-cta {
+    background: linear-gradient(135deg, #ff6a00, #ff8a00);
+    color: white;
+    text-align: center;
+    padding: 100px 20px;
 }
 
-.cta h3{
-font-size:24px;
-margin-bottom:10px;
+.final-cta h2 {
+    font-size: 2.8rem;
+    margin-bottom: 20px;
 }
 
-.cta-buttons{
-margin-top:20px;
-display:flex;
-flex-direction:column;
-gap:12px;
-align-items:center;
+/* Footer */
+footer {
+    background: #0a0a0a;
+    color: #888;
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 14px;
 }
 
-.cta-buttons button{
-padding:12px 24px;
-border-radius:8px;
-border:none;
-font-weight:600;
-cursor:pointer;
-width:180px;
+/* Responsive */
+@media (max-width: 768px) {
+    .hero h1 { font-size: 2.8rem; }
+    .nav-links { display: none; }
+    .hero { height: 90vh; }
 }
-
-.register{
-background:white;
-color:#ff7a18;
-}
-
-.login{
-background:transparent;
-border:2px solid white;
-color:white;
-}
-
-/* FOOTER */
-
-footer{
-text-align:center;
-padding:25px;
-font-size:13px;
-color:#777;
-background:#fff;
-border-top:1px solid #eee;
-}
-
-/* TABLET */
-
-@media(min-width:600px){
-
-.hero h2{
-font-size:40px;
-}
-
-.feature-grid{
-grid-template-columns:repeat(2,1fr);
-}
-
-.steps{
-grid-template-columns:repeat(3,1fr);
-}
-
-}
-
-/* DESKTOP */
-
-@media(min-width:900px){
-
-header{
-padding:18px 8%;
-}
-
-.hero{
-padding:110px 20px;
-}
-
-.hero h2{
-font-size:48px;
-}
-
-.features{
-padding:100px 8%;
-}
-
-.feature-grid{
-grid-template-columns:repeat(4,1fr);
-}
-
-}
-
 </style>
-
 </head>
 
 <body>
 
-<header>
+<nav>
+    <div class="logo">
+        <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg" alt="Logo">
+        <h1>CashClique</h1>
+    </div>
+    
+    <div class="nav-links">
+        <a href="#">Features</a>
+        <a href="#">Opportunities</a>
+        <a href="#">Creators</a>
+        <a href="#">Blog</a>
+    </div>
 
-<div class="logo">
-<img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
-<h1>CashClique</h1>
-</div>
-
-<div class="header-actions">
-
-<button onclick="location.href='login.html'" class="login-btn">
-Login
-</button>
-
-<button onclick="location.href='register.html'" class="register-btn">
-Register
-</button>
-
-</div>
-
-</header>
+    <div class="auth-buttons">
+        <button onclick="location.href='login.html'" class="login-btn">Login</button>
+        <button onclick="location.href='register.html'" class="register-btn">Get Started</button>
+    </div>
+</nav>
 
 <section class="hero">
-
-<h2>Where Content Meets Cash</h2>
-
-<p>
-CashClique is the social platform where creators share powerful financial insights,
-money-making opportunities, and business ideas while building influence and income.
-</p>
-
-<button onclick="location.href='register.html'">
-Start Creating
-</button>
-
+    <div class="hero-content">
+        <h1>Where Content<br>Meets Cash</h1>
+        <p>Share valuable ideas, discover money-making opportunities, and build real income in Nigeria's smartest creator community.</p>
+        
+        <div class="cta-buttons">
+            <button onclick="location.href='register.html'" class="primary-btn">Start Creating Free</button>
+            <button onclick="location.href='login.html'" class="secondary-btn">Watch Demo</button>
+        </div>
+    </div>
 </section>
 
 <section class="features">
-
-<h3>Why CashClique?</h3>
-
-<p class="section-desc">
-CashClique empowers creators to turn knowledge into influence and income.
-Share valuable insights, discover opportunities, and build a community that rewards creativity and intelligence.
-</p>
-
-<div class="feature-grid">
-
-<div class="feature-card">
-<h4>Create Valuable Content</h4>
-<p>Share financial knowledge, business strategies, and ideas that help others grow.</p>
-</div>
-
-<div class="feature-card">
-<h4>Grow Your Audience</h4>
-<p>Connect with people who value real money knowledge and actionable ideas.</p>
-</div>
-
-<div class="feature-card">
-<h4>Monetization Focus</h4>
-<p>Content can lead to real opportunities, collaborations, and income.</p>
-</div>
-
-<div class="feature-card">
-<h4>Discover Opportunities</h4>
-<p>Find side hustles, trends, and new ways to grow financially.</p>
-</div>
-
-</div>
-
+    <h3 class="section-title">Why Creators Love CashClique</h3>
+    
+    <div class="feature-grid">
+        <div class="feature-card">
+            <h3>💡 Share Knowledge</h3>
+            <p>Post powerful financial insights, business ideas, and money-making strategies.</p>
+        </div>
+        <div class="feature-card">
+            <h3>👥 Build Community</h3>
+            <p>Connect with people who value real knowledge and actionable advice.</p>
+        </div>
+        <div class="feature-card">
+            <h3>💰 Monetize Influence</h3>
+            <p>Turn your audience into income through brand deals and opportunities.</p>
+        </div>
+        <div class="feature-card">
+            <h3>🔍 Discover Deals</h3>
+            <p>Find legit business opportunities and collaborations daily.</p>
+        </div>
+    </div>
 </section>
 
-<section class="how">
-
-<h3>How It Works</h3>
-
-<div class="steps">
-
-<div class="step">
-<div class="step-number">1</div>
-<h4>Create Account</h4>
-<p>Register and set up your creator profile.</p>
-</div>
-
-<div class="step">
-<div class="step-number">2</div>
-<h4>Share Content</h4>
-<p>Post valuable insights, opportunities and business ideas.</p>
-</div>
-
-<div class="step">
-<div class="step-number">3</div>
-<h4>Grow & Earn</h4>
-<p>Build an audience and unlock income opportunities.</p>
-</div>
-
-</div>
-
-</section>
-
-<section class="cta">
-
-<h3>Ready to Join CashClique?</h3>
-
-<p>Start creating valuable content today.</p>
-
-<div class="cta-buttons">
-
-<button class="register" onclick="location.href='register.html'">
-Create Account
-</button>
-
-<button class="login" onclick="location.href='login.html'">
-Login
-</button>
-
-</div>
-
+<section class="final-cta">
+    <h2>Ready to Turn Your Knowledge Into Income?</h2>
+    <p style="font-size:18px;opacity:0.95;margin-bottom:30px;">Join thousands of Nigerian creators already growing on CashClique.</p>
+    <button onclick="location.href='register.html'" style="background:white;color:#ff6a00;padding:18px 40px;font-size:18px;border-radius:50px;font-weight:700;">Create Your Account — It's Free</button>
 </section>
 
 <footer>
-
-© 2026 CashClique. All Rights Reserved.
-
+    © 2026 CashClique. All Rights Reserved. | Made for Nigerian Creators
 </footer>
 
-<script type="module" src="./js/firebase.js"></script>
+<script>
+// Simple smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+            behavior: 'smooth'
+        });
+    });
+});
+</script>
 
 </body>
 </html>
