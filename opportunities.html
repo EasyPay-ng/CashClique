@@ -10,46 +10,138 @@
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{background:#f5f5f5;min-height:100vh;padding:20px;}
-.sidebar{width:240px;background:#ff6a00;color:white;padding:20px;display:flex;flex-direction:column;gap:20px;position:fixed;height:100%;z-index:999;transition:0.3s;}
+body{background:#f5f5f5;min-height:100vh;padding:0;}
+
+/* Mobile Header */
+.mobile-header{display:none;background:#ff6a00;color:white;padding:15px 20px;align-items:center;gap:15px;position:sticky;top:0;z-index:100;}
+.mobile-header h1{font-size:18px;font-weight:600;flex:1;}
+.menu-btn{background:none;border:none;color:white;font-size:24px;cursor:pointer;padding:5px;}
+
+/* Sidebar */
+.sidebar{width:240px;background:#ff6a00;color:white;padding:20px;display:flex;flex-direction:column;gap:20px;position:fixed;height:100%;z-index:999;transition:0.3s;transform:translateX(0);}
 .sidebar img{width:45px;border-radius:10px;}
-.logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:18px;}
-.sidebar a{color:white;text-decoration:none;padding:10px;border-radius:8px;transition:0.3s;}
-.sidebar a:hover{background:rgba(255,255,255,0.2);}
-.main{margin-left:240px;width:calc(100% - 240px);padding:20px;}
-.menu-btn{display:none;font-size:26px;cursor:pointer;margin-bottom:15px;background:white;border:none;width:50px;height:50px;border-radius:50%;box-shadow:0 4px 15px rgba(0,0,0,0.1);}
+.logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:18px;margin-bottom:10px;}
+.sidebar a{color:white;text-decoration:none;padding:12px 15px;border-radius:8px;transition:0.3s;display:flex;align-items:center;gap:10px;}
+.sidebar a:hover, .sidebar a.active{background:rgba(255,255,255,0.2);}
 
-.container{background:white;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,0.08);padding:30px;}
-.header{text-align:center;margin-bottom:40px;}
-.header h1{font-size:32px;font-weight:700;color:#333;}
-.header p{color:#666;font-size:16px;max-width:600px;margin:0 auto;}
+/* Main Content */
+.main{margin-left:240px;padding:20px;transition:0.3s;}
+.container{max-width:1200px;margin:0 auto;}
+.page-header{text-align:center;margin-bottom:40px;padding:20px 0;}
+.page-header h1{font-size:32px;font-weight:700;color:#333;margin-bottom:10px;}
+.page-header p{font-size:16px;color:#666;max-width:600px;margin:0 auto;line-height:1.6;}
 
-.opportunities-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:25px;margin-top:20px;}
+/* Opportunities Grid */
+.opportunities-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:30px;margin-top:20px;}
 
-.opp-card{background:white;border-radius:16px;overflow:hidden;box-shadow:0 8px 25px rgba(0,0,0,0.08);transition:0.3s;height:100%;}
-.opp-card:hover{transform:translateY(-10px);box-shadow:0 15px 35px rgba(255,106,0,0.15);}
-.opp-card-header{padding:25px;background:linear-gradient(135deg,#ff6a00,#ff8a00);color:white;text-align:center;}
-.opp-card-header h2{font-size:24px;margin-bottom:8px;}
-.opp-card-body{padding:30px;}
-.opp-card-body p{font-size:15.5px;line-height:1.7;color:#444;margin-bottom:30px;}
-.opp-card-body button{background:#ff6a00;color:white;border:none;padding:14px 32px;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;transition:0.3s;width:100%;}
-.opp-card-body button:hover{background:#e55d00;transform:scale(1.03);}
+/* Opportunity Card */
+.opportunity-card{background:white;border-radius:20px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,0.08);transition:all 0.3s ease;display:flex;flex-direction:column;}
+.opportunity-card:hover{transform:translateY(-8px);box-shadow:0 20px 50px rgba(0,0,0,0.15);}
 
-.icon{font-size:48px;margin-bottom:10px;}
+.card-header{height:200px;background:linear-gradient(135deg,#ff6a00,#ff8a00);position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.card-header::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");}
+.card-icon{font-size:64px;position:relative;z-index:1;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.2));}
+.card-body{padding:35px;flex:1;display:flex;flex-direction:column;}
+.card-title{font-size:24px;font-weight:700;color:#333;margin-bottom:15px;}
+.card-description{font-size:15px;color:#666;line-height:1.7;margin-bottom:25px;flex:1;}
+.card-features{background:#f8f9fa;border-radius:12px;padding:20px;margin-bottom:25px;}
+.card-features h4{font-size:14px;color:#ff6a00;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;font-weight:600;}
+.card-features ul{list-style:none;padding:0;margin:0;}
+.card-features li{position:relative;padding-left:25px;margin-bottom:10px;font-size:14px;color:#555;}
+.card-features li::before{content:"✓";position:absolute;left:0;color:#4caf50;font-weight:700;}
 
+.card-footer{margin-top:auto;}
+.cta-button{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  width:100%;
+  background:linear-gradient(135deg,#ff6a00,#ff8a00);
+  color:white;
+  border:none;
+  padding:16px 30px;
+  border-radius:12px;
+  font-size:16px;
+  font-weight:600;
+  cursor:pointer;
+  transition:all 0.3s ease;
+  text-decoration:none;
+  box-shadow:0 6px 20px rgba(255,106,0,0.3);
+}
+.cta-button:hover{
+  transform:translateY(-3px);
+  box-shadow:0 10px 30px rgba(255,106,0,0.4);
+  background:linear-gradient(135deg,#ff8a00,#ff6a00);
+}
+.cta-button:active{
+  transform:translateY(-1px);
+}
+
+/* Nigeria Flag Badge */
+.nigeria-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  background:rgba(255,255,255,0.2);
+  padding:6px 12px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:600;
+  margin-bottom:15px;
+  backdrop-filter:blur(10px);
+}
+.flag{width:20px;height:14px;border-radius:2px;background:linear-gradient(to right, #008751 33%, #ffffff 33%, #ffffff 66%, #008751 66%);position:relative;}
+.flag::after{content:'';position:absolute;top:0;left:33%;width:1px;height:100%;background:#fff;transform:translateX(-50%);}
+
+/* Stats Banner */
+.stats-banner{
+  background:linear-gradient(135deg,#1a2a3a,#2c3e50);
+  color:white;
+  border-radius:16px;
+  padding:30px;
+  margin-bottom:40px;
+  display:flex;
+  justify-content:space-around;
+  flex-wrap:wrap;
+  gap:20px;
+  text-align:center;
+}
+.stat-item{flex:1;min-width:150px;}
+.stat-value{font-size:36px;font-weight:700;margin-bottom:5px;background:linear-gradient(135deg,#ff6a00,#ff8a00);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.stat-label{font-size:14px;opacity:0.8;text-transform:uppercase;letter-spacing:1px;}
+
+/* Responsive */
 @media(max-width:900px){
-    .sidebar{transform:translateX(-100%);}
-    .sidebar.active{transform:translateX(0);}
-    .main{margin-left:0;width:100%;padding:15px;}
-    .menu-btn{display:block;}
-    .opportunities-grid{grid-template-columns:1fr;}
+  .mobile-header{display:flex;}
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.active{transform:translateX(0);}
+  .main{margin-left:0;padding:10px;padding-top:70px;}
+  .page-header h1{font-size:26px;}
+  .opportunities-grid{grid-template-columns:1fr;}
+  .card-header{height:160px;}
+  .card-body{padding:25px;}
+  .stats-banner{padding:20px;}
+  .stat-value{font-size:28px;}
+}
+
+@media(max-width:480px){
+  .page-header h1{font-size:22px;}
+  .card-title{font-size:20px;}
+  .card-description{font-size:14px;}
+  .cta-button{font-size:15px;padding:14px 25px;}
+  .stats-banner{flex-direction:column;gap:15px;}
 }
 </style>
 </head>
 
 <body>
 
-<button class="menu-btn" onclick="toggleSidebar()">☰</button>
+<!-- Mobile Header -->
+<div class="mobile-header">
+  <button class="menu-btn" onclick="toggleMenu()">☰</button>
+  <h1>Opportunities</h1>
+</div>
 
 <!-- Sidebar -->
 <div class="sidebar" id="sidebar">
@@ -60,58 +152,127 @@ CashClique
 <a href="dashboard.html">🏠 Dashboard</a>
 <a href="my-content.html">📝 My Content</a>
 <a href="earnings.html">💰 Earnings</a>
-<a href="opportunities.html">🔥 Opportunities</a>
+<a href="opportunities.html" class="active">🔥 Opportunities</a>
 <a href="settings.html">⚙ Settings</a>
 <a href="#" id="logout">🚪 Logout</a>
 </div>
 
+<!-- Main Content -->
 <div class="main">
 <div class="container">
-    <div class="header">
-        <h1>Opportunities</h1>
-        <p>Discover ways to grow your brand or monetize your influence on CashClique</p>
+  <div class="page-header">
+    <h1>Opportunities</h1>
+    <p>Grow your business or monetize your audience with CashClique's powerful platform</p>
+  </div>
+  
+  <!-- Stats Banner -->
+  <div class="stats-banner">
+    <div class="stat-item">
+      <div class="stat-value">50K+</div>
+      <div class="stat-label">Active Users</div>
     </div>
-
-    <div class="opportunities-grid">
-
-        <!-- First Card: For Businesses -->
-        <div class="opp-card">
-            <div class="opp-card-header">
-                <div class="icon">📣</div>
-                <h2>Advertise Your Business</h2>
-            </div>
-            <div class="opp-card-body">
-                <p>
-                    Reach a highly engaged audience across Nigeria. Promote your products, services, 
-                    or brand to real users on CashClique. Get maximum visibility and drive real results.
-                </p>
-                <button onclick="window.location.href='create-opportunities.html'">
-                    Create Opportunity
-                </button>
-            </div>
-        </div>
-
-        <!-- Second Card: For Content Creators -->
-        <div class="opp-card">
-            <div class="opp-card-header" style="background:linear-gradient(135deg,#00c853,#64dd17);">
-                <div class="icon">💰</div>
-                <h2>Monetize Your Influence</h2>
-            </div>
-            <div class="opp-card-body">
-                <p>
-                    Are you a content creator with a large and active audience? Get paid by brands 
-                    who want to collaborate with you. Turn your influence into income.
-                </p>
-                <button onclick="window.location.href='find-opportunities.html'" 
-                        style="background:#00c853;">
-                    Find Opportunities
-                </button>
-            </div>
-        </div>
-
+    <div class="stat-item">
+      <div class="stat-value">Nigeria</div>
+      <div class="stat-label">Coverage</div>
     </div>
+    <div class="stat-item">
+      <div class="stat-value">24/7</div>
+      <div class="stat-label">Support</div>
+    </div>
+  </div>
+  
+  <div class="opportunities-grid">
+    <!-- Create Opportunities Card -->
+    <div class="opportunity-card">
+      <div class="card-header">
+        <div class="nigeria-badge">
+          <div class="flag"></div>
+          Nigeria Wide
+        </div>
+        <div class="card-icon">📢</div>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">Advertise Your Business</h3>
+        <p class="card-description">
+          Reach thousands of active Nigerian users on CashClique. Promote your products, services, or brand to an engaged audience that's ready to convert.
+        </p>
+        <div class="card-features">
+          <h4>What You Get:</h4>
+          <ul>
+            <li>Targeted Nigerian audience</li>
+            <li>Flexible ad formats (image/video)</li>
+            <li>Real-time performance analytics</li>
+            <li>Pay-per-engagement pricing</li>
+            <li>Dedicated campaign support</li>
+          </ul>
+        </div>
+        <div class="card-footer">
+          <a href="create-opportunities.html" class="cta-button">
+            Create Advertisement →
+          </a>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Find Opportunities Card -->
+    <div class="opportunity-card">
+      <div class="card-header" style="background:linear-gradient(135deg,#4caf50,#66bb6a);">
+        <div class="card-icon">💰</div>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">Monetize Your Audience</h3>
+        <p class="card-description">
+          Have a following on CashClique? Get paid for promoting brands and products. Turn your influence into income with our creator partnership program.
+        </p>
+        <div class="card-features">
+          <h4>How It Works:</h4>
+          <ul>
+            <li>Get paid per engagement (likes/comments)</li>
+            <li>Choose brands that match your niche</li>
+            <li>Set your own rates</li>
+            <li>Weekly payouts to your account</li>
+            <li>No follower minimum required</li>
+          </ul>
+        </div>
+        <div class="card-footer">
+          <a href="find-opportunities.html" class="cta-button" style="background:linear-gradient(135deg,#4caf50,#66bb6a);box-shadow:0 6px 20px rgba(76,175,80,0.3);">
+            Find Opportunities →
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Info Section -->
+  <div style="background:white;border-radius:16px;padding:30px;margin-top:30px;box-shadow:0 5px 20px rgba(0,0,0,0.05);">
+    <h3 style="font-size:20px;margin-bottom:15px;color:#333;">How It Works</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;margin-top:20px;">
+      <div>
+        <h4 style="color:#ff6a00;margin-bottom:8px;">For Businesses</h4>
+        <p style="color:#666;font-size:14px;line-height:1.6;">
+          1. Create your ad campaign<br>
+          2. Target Nigerian audience<br>
+          3. We match you with relevant creators<br>
+          4. Track performance in real-time<br>
+          5. Pay only for results
+        </p>
+      </div>
+      <div>
+        <h4 style="color:#4caf50;margin-bottom:8px;">For Creators</h4>
+        <p style="color:#666;font-size:14px;line-height:1.6;">
+          1. Join creator program (free)<br>
+          2. Browse available campaigns<br>
+          3. Create content for brands<br>
+          4. Get paid per engagement<br>
+          5. Weekly withdrawals
+        </p>
+      </div>
+    </div>
+  </div>
 </div>
 </div>
+
+<div class="toast" id="toast"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -130,18 +291,35 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
 onAuthStateChanged(auth, (user) => {
-    if (!user) window.location.href = "login.html";
+    if (!user) {
+        window.location.href = "login.html";
+        return;
+    }
 });
-
-// Mobile Sidebar Toggle
-function toggleSidebar() {
-    document.getElementById("sidebar").classList.toggle("active");
-}
 
 // Logout
-document.getElementById("logout").addEventListener("click", () => {
-    signOut(auth).then(() => window.location.href = "login.html");
+document.getElementById('logout').addEventListener('click', async (e) => {
+    e.preventDefault();
+    await signOut(auth);
+    window.location.href = "login.html";
+});
+
+// Mobile menu toggle
+window.toggleMenu = function() {
+    document.getElementById('sidebar').classList.toggle('active');
+};
+
+// Close sidebar when clicking outside on mobile
+document.addEventListener('click', (e) => {
+    if (window.innerWidth <= 900) {
+        const sidebar = document.getElementById('sidebar');
+        const menuBtn = document.querySelector('.menu-btn');
+        if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+            sidebar.classList.remove('active');
+        }
+    }
 });
 </script>
+
 </body>
 </html>
