@@ -37,27 +37,24 @@
     --shadow-hover: 0 15px 50px rgba(0, 0, 0, 0.15);
 }
 
-html {
+html, body {
     height: 100%;
     overflow-x: hidden;
 }
 
 body {
     background: linear-gradient(135deg, #fff5eb 0%, #ffe6d5 100%);
-    min-height: 100%;
-    min-height: 100dvh; /* Dynamic viewport height for mobile browsers */
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 20px;
     position: relative;
-    overflow-x: hidden;
 }
 
 /* Background Decorations */
 body::before {
     content: '';
-    position: absolute;
+    position: fixed;
     top: -50%;
     right: -50%;
     width: 100%;
@@ -69,7 +66,7 @@ body::before {
 
 body::after {
     content: '';
-    position: absolute;
+    position: fixed;
     bottom: -50%;
     left: -50%;
     width: 100%;
@@ -148,7 +145,6 @@ h2 {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    animation: slideIn 0.3s ease;
     opacity: 0;
     transform: translateY(-10px);
     transition: all 0.3s ease;
@@ -169,17 +165,6 @@ h2 {
     background: rgba(39, 174, 96, 0.1);
     color: var(--success);
     border: 1px solid rgba(39, 174, 96, 0.2);
-}
-
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
 }
 
 /* Form */
@@ -208,15 +193,15 @@ h2 {
 
 .input-wrapper input {
     width: 100%;
-    padding: 14px 45px 14px 45px;
+    padding: 14px 45px;
     border-radius: 12px;
     border: 2px solid var(--border);
-    font-size: 16px; /* Prevents zoom on iOS */
+    font-size: 16px;
     color: var(--text-dark);
     outline: none;
     transition: all 0.3s ease;
     background: var(--white);
-    -webkit-appearance: none; /* Remove iOS styling */
+    -webkit-appearance: none;
 }
 
 .input-wrapper input::placeholder {
@@ -274,8 +259,6 @@ h2 {
     align-items: center;
     margin-bottom: 20px;
     font-size: 14px;
-    flex-wrap: wrap;
-    gap: 10px;
 }
 
 .remember-me {
@@ -364,10 +347,6 @@ h2 {
     transform: none;
 }
 
-.login-btn:disabled::before {
-    display: none;
-}
-
 .spinner {
     width: 20px;
     height: 20px;
@@ -379,9 +358,7 @@ h2 {
 }
 
 @keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
+    to { transform: rotate(360deg); }
 }
 
 /* Divider */
@@ -427,7 +404,6 @@ h2 {
     align-items: center;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
-    min-height: 48px;
 }
 
 .social-btn:hover,
@@ -452,7 +428,6 @@ h2 {
 
 /* Register Link */
 .register-link {
-    margin-top: 10px;
     font-size: 13px;
     color: var(--text-light);
 }
@@ -470,47 +445,28 @@ h2 {
     text-decoration: underline;
 }
 
-/* Password Requirements */
-.password-requirements {
-    text-align: left;
-    font-size: 12px;
-    color: var(--text-lighter);
-    margin-top: 5px;
-    padding-left: 5px;
-}
-
-/* ===== RESPONSIVE STYLES ===== */
-
-/* Tablets and smaller laptops */
-@media (max-width: 768px) {
+/* ===== MOBILE RESPONSIVE ===== */
+@media (max-width: 480px) {
+    html, body {
+        height: auto;
+        min-height: 100%;
+    }
+    
     body {
         padding: 15px;
-    }
-    
-    .container {
-        padding: 35px 30px;
-        border-radius: 18px;
-    }
-}
-
-/* Large phones */
-@media (max-width: 480px) {
-    body {
-        padding: 12px;
         align-items: flex-start;
-        padding-top: 20px;
+        padding-top: 30px;
+        padding-bottom: 30px;
     }
     
     .container {
-        padding: 28px 22px;
+        padding: 25px 20px;
         border-radius: 16px;
-        max-width: 100%;
     }
     
     .logo {
         width: 60px;
         height: 60px;
-        border-radius: 15px;
     }
     
     .logo-container {
@@ -531,41 +487,17 @@ h2 {
     
     .message-container {
         min-height: 36px;
-        margin-bottom: 8px;
-    }
-    
-    .message {
-        padding: 8px 12px;
-        font-size: 12px;
     }
     
     .input-group {
         margin-bottom: 14px;
     }
     
-    .input-group label {
-        font-size: 12px;
-        margin-bottom: 5px;
-    }
-    
     .input-wrapper input {
         padding: 12px 40px;
-        border-radius: 10px;
-    }
-    
-    .input-icon {
-        font-size: 14px;
-        left: 14px;
-    }
-    
-    .toggle-password {
-        right: 12px;
-        font-size: 14px;
     }
     
     .options-row {
-        flex-direction: row;
-        justify-content: space-between;
         margin-bottom: 18px;
     }
     
@@ -574,32 +506,17 @@ h2 {
         font-size: 12px;
     }
     
-    .remember-me input[type="checkbox"] {
-        width: 16px;
-        height: 16px;
-    }
-    
     .login-btn {
         padding: 14px;
         font-size: 15px;
-        border-radius: 10px;
     }
     
     .divider {
         margin: 16px 0;
-        font-size: 11px;
     }
     
     .social-login {
-        gap: 10px;
         margin-bottom: 16px;
-    }
-    
-    .social-btn {
-        padding: 11px;
-        border-radius: 10px;
-        font-size: 16px;
-        min-height: 44px;
     }
     
     .register-link {
@@ -607,165 +524,28 @@ h2 {
     }
 }
 
-/* Small phones */
 @media (max-width: 360px) {
     body {
-        padding: 10px;
-        padding-top: 15px;
+        padding: 12px;
+        padding-top: 20px;
+        padding-bottom: 20px;
     }
     
     .container {
-        padding: 24px 18px;
-        border-radius: 14px;
+        padding: 22px 18px;
     }
     
     .logo {
         width: 55px;
         height: 55px;
-        border-radius: 14px;
     }
     
     h2 {
         font-size: 20px;
     }
-    
-    .tag {
-        font-size: 12px;
-    }
-    
-    .input-wrapper input {
-        padding: 11px 38px;
-        font-size: 15px;
-    }
-    
-    .options-row {
-        gap: 8px;
-    }
-    
-    .remember-me span,
-    .forgot-password a {
-        font-size: 11px;
-    }
-    
-    .login-btn {
-        padding: 13px;
-        font-size: 14px;
-    }
-    
-    .social-btn {
-        padding: 10px;
-        font-size: 15px;
-    }
-    
-    .register-link {
-        font-size: 11px;
-    }
 }
 
-/* Very small phones / iPhone SE */
-@media (max-width: 320px) {
-    body {
-        padding: 8px;
-        padding-top: 10px;
-    }
-    
-    .container {
-        padding: 20px 15px;
-    }
-    
-    .logo {
-        width: 50px;
-        height: 50px;
-    }
-    
-    .logo-container {
-        margin-bottom: 12px;
-    }
-    
-    .header {
-        margin-bottom: 15px;
-    }
-    
-    h2 {
-        font-size: 18px;
-    }
-    
-    .tag {
-        font-size: 11px;
-    }
-    
-    .input-group {
-        margin-bottom: 12px;
-    }
-    
-    .input-wrapper input {
-        padding: 10px 36px;
-        font-size: 14px;
-    }
-    
-    .input-icon {
-        font-size: 13px;
-        left: 12px;
-    }
-    
-    .toggle-password {
-        right: 10px;
-        font-size: 13px;
-    }
-}
-
-/* Landscape mode on phones */
-@media (max-height: 500px) and (orientation: landscape) {
-    body {
-        align-items: flex-start;
-        padding: 10px;
-    }
-    
-    .container {
-        padding: 20px 25px;
-        margin: 10px auto;
-    }
-    
-    .logo {
-        width: 50px;
-        height: 50px;
-    }
-    
-    .logo-container {
-        margin-bottom: 10px;
-    }
-    
-    .header {
-        margin-bottom: 15px;
-    }
-    
-    h2 {
-        font-size: 20px;
-    }
-    
-    .message-container {
-        min-height: 30px;
-        margin-bottom: 5px;
-    }
-    
-    .input-group {
-        margin-bottom: 10px;
-    }
-    
-    .options-row {
-        margin-bottom: 12px;
-    }
-    
-    .divider {
-        margin: 12px 0;
-    }
-    
-    .social-login {
-        margin-bottom: 12px;
-    }
-}
-
-/* Shake Animation for Error */
+/* Shake Animation */
 @keyframes shake {
     0%, 100% { transform: translateX(0); }
     10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
@@ -774,15 +554,6 @@ h2 {
 
 .shake {
     animation: shake 0.5s ease;
-}
-
-/* Safe area for notched phones */
-@supports (padding: max(0px)) {
-    body {
-        padding-left: max(12px, env(safe-area-inset-left));
-        padding-right: max(12px, env(safe-area-inset-right));
-        padding-bottom: max(12px, env(safe-area-inset-bottom));
-    }
 }
 </style>
 </head>
@@ -895,7 +666,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
 // DOM Elements
-const loginForm = document.getElementById("loginForm");
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 const loginBtn = document.getElementById("loginBtn");
@@ -999,7 +769,6 @@ function getErrorMessage(errorCode) {
         'auth/user-disabled': 'This account has been disabled.',
         'auth/operation-not-allowed': 'Email/password sign-in is not enabled.'
     };
-    
     return errorMessages[errorCode] || 'Login failed. Please try again.';
 }
 
@@ -1010,15 +779,12 @@ loginBtn.addEventListener("click", async (e) => {
     const email = emailInput.value.trim();
     const password = passwordInput.value;
     
-    // Validation
     if (!email || !password) {
         showMessage("Please enter both email and password.", "error");
         emailInput.classList.add("error");
         passwordInput.classList.add("error");
         document.querySelector(".container").classList.add("shake");
-        setTimeout(() => {
-            document.querySelector(".container").classList.remove("shake");
-        }, 500);
+        setTimeout(() => document.querySelector(".container").classList.remove("shake"), 500);
         return;
     }
     
@@ -1028,12 +794,10 @@ loginBtn.addEventListener("click", async (e) => {
         return;
     }
     
-    // Clear errors
     emailInput.classList.remove("error");
     passwordInput.classList.remove("error");
     hideMessage();
     
-    // Remember email if checked
     if (rememberMe.checked) {
         localStorage.setItem("rememberedEmail", email);
     } else {
@@ -1043,49 +807,31 @@ loginBtn.addEventListener("click", async (e) => {
     setLoading(true);
     
     try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        await signInWithEmailAndPassword(auth, email, password);
         showMessage(`Welcome back! Signing you in...`, "success");
     } catch (error) {
         setLoading(false);
         showMessage(getErrorMessage(error.code), "error");
-        
-        // Add shake animation on error
         document.querySelector(".container").classList.add("shake");
-        setTimeout(() => {
-            document.querySelector(".container").classList.remove("shake");
-        }, 500);
+        setTimeout(() => document.querySelector(".container").classList.remove("shake"), 500);
     }
 });
 
-// Clear error styling on input
-emailInput.addEventListener("input", () => {
-    emailInput.classList.remove("error");
-});
+emailInput.addEventListener("input", () => emailInput.classList.remove("error"));
+passwordInput.addEventListener("input", () => passwordInput.classList.remove("error"));
 
-passwordInput.addEventListener("input", () => {
-    passwordInput.classList.remove("error");
-});
-
-// Enter key to submit
 document.addEventListener("keypress", (e) => {
-    if (e.key === "Enter" && !loginBtn.disabled) {
-        loginBtn.click();
-    }
+    if (e.key === "Enter" && !loginBtn.disabled) loginBtn.click();
 });
 
-// Toggle Password Visibility
 window.togglePassword = function() {
-    const passwordField = passwordInput;
     const eyeIcon = document.getElementById("eyeIcon");
-    
-    if (passwordField.type === "password") {
-        passwordField.type = "text";
-        eyeIcon.classList.remove("fa-eye");
-        eyeIcon.classList.add("fa-eye-slash");
+    if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        eyeIcon.classList.replace("fa-eye", "fa-eye-slash");
     } else {
-        passwordField.type = "password";
-        eyeIcon.classList.remove("fa-eye-slash");
-        eyeIcon.classList.add("fa-eye");
+        passwordInput.type = "password";
+        eyeIcon.classList.replace("fa-eye-slash", "fa-eye");
     }
 };
 </script>
