@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Login • CashClique</title>
 
 <!-- Favicon -->
@@ -37,9 +37,15 @@
     --shadow-hover: 0 15px 50px rgba(0, 0, 0, 0.15);
 }
 
+html {
+    height: 100%;
+    overflow-x: hidden;
+}
+
 body {
     background: linear-gradient(135deg, #fff5eb 0%, #ffe6d5 100%);
-    min-height: 100vh;
+    min-height: 100%;
+    min-height: 100dvh; /* Dynamic viewport height for mobile browsers */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -58,6 +64,7 @@ body::before {
     height: 100%;
     background: radial-gradient(circle, rgba(255,122,0,0.05) 0%, transparent 70%);
     border-radius: 50%;
+    pointer-events: none;
 }
 
 body::after {
@@ -69,6 +76,7 @@ body::after {
     height: 100%;
     background: radial-gradient(circle, rgba(255,122,0,0.05) 0%, transparent 70%);
     border-radius: 50%;
+    pointer-events: none;
 }
 
 /* Main Container */
@@ -91,13 +99,13 @@ body::after {
 
 /* Logo */
 .logo-container {
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
 .logo {
-    width: 80px;
-    height: 80px;
-    border-radius: 20px;
+    width: 70px;
+    height: 70px;
+    border-radius: 18px;
     object-fit: cover;
     box-shadow: 0 5px 20px rgba(255, 122, 0, 0.2);
     transition: transform 0.3s ease;
@@ -109,12 +117,12 @@ body::after {
 
 /* Header */
 .header {
-    margin-bottom: 30px;
+    margin-bottom: 25px;
 }
 
 h2 {
     color: var(--primary);
-    font-size: 28px;
+    font-size: 26px;
     font-weight: 700;
     margin-bottom: 5px;
 }
@@ -128,18 +136,18 @@ h2 {
 /* Messages */
 .message-container {
     min-height: 40px;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
 .message {
-    padding: 12px 16px;
+    padding: 10px 14px;
     border-radius: 10px;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
     animation: slideIn 0.3s ease;
     opacity: 0;
     transform: translateY(-10px);
@@ -176,13 +184,13 @@ h2 {
 
 /* Form */
 .form {
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
 /* Input Groups */
 .input-group {
     position: relative;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 
 .input-group label {
@@ -191,7 +199,7 @@ h2 {
     font-size: 13px;
     font-weight: 500;
     color: var(--text-dark);
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 
 .input-wrapper {
@@ -203,11 +211,12 @@ h2 {
     padding: 14px 45px 14px 45px;
     border-radius: 12px;
     border: 2px solid var(--border);
-    font-size: 15px;
+    font-size: 16px; /* Prevents zoom on iOS */
     color: var(--text-dark);
     outline: none;
     transition: all 0.3s ease;
     background: var(--white);
+    -webkit-appearance: none; /* Remove iOS styling */
 }
 
 .input-wrapper input::placeholder {
@@ -248,11 +257,13 @@ h2 {
     cursor: pointer;
     color: var(--text-lighter);
     font-size: 16px;
-    padding: 5px;
+    padding: 8px;
     transition: color 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.toggle-password:hover {
+.toggle-password:hover,
+.toggle-password:active {
     color: var(--primary);
 }
 
@@ -261,8 +272,10 @@ h2 {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
     font-size: 14px;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .remember-me {
@@ -271,6 +284,7 @@ h2 {
     gap: 8px;
     cursor: pointer;
     color: var(--text-light);
+    -webkit-tap-highlight-color: transparent;
 }
 
 .remember-me input[type="checkbox"] {
@@ -281,7 +295,7 @@ h2 {
 }
 
 .remember-me span {
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .forgot-password a {
@@ -289,9 +303,11 @@ h2 {
     text-decoration: none;
     font-weight: 500;
     transition: color 0.3s ease;
+    font-size: 13px;
 }
 
-.forgot-password a:hover {
+.forgot-password a:hover,
+.forgot-password a:active {
     color: var(--primary-dark);
     text-decoration: underline;
 }
@@ -302,7 +318,7 @@ h2 {
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
     color: white;
     border: none;
-    padding: 16px;
+    padding: 15px;
     border-radius: 12px;
     font-size: 16px;
     font-weight: 600;
@@ -314,6 +330,8 @@ h2 {
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 .login-btn::before {
@@ -370,9 +388,9 @@ h2 {
 .divider {
     display: flex;
     align-items: center;
-    margin: 25px 0;
+    margin: 20px 0;
     color: var(--text-lighter);
-    font-size: 13px;
+    font-size: 12px;
 }
 
 .divider::before,
@@ -384,14 +402,14 @@ h2 {
 }
 
 .divider span {
-    padding: 0 15px;
+    padding: 0 12px;
 }
 
 /* Social Login */
 .social-login {
     display: flex;
     gap: 12px;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
 .social-btn {
@@ -407,21 +425,27 @@ h2 {
     display: flex;
     justify-content: center;
     align-items: center;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    min-height: 48px;
 }
 
-.social-btn:hover {
+.social-btn:hover,
+.social-btn:active {
     border-color: var(--primary);
     color: var(--primary);
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-.social-btn.google:hover {
+.social-btn.google:hover,
+.social-btn.google:active {
     border-color: #ea4335;
     color: #ea4335;
 }
 
-.social-btn.apple:hover {
+.social-btn.apple:hover,
+.social-btn.apple:active {
     border-color: #000;
     color: #000;
 }
@@ -429,7 +453,7 @@ h2 {
 /* Register Link */
 .register-link {
     margin-top: 10px;
-    font-size: 14px;
+    font-size: 13px;
     color: var(--text-light);
 }
 
@@ -440,7 +464,8 @@ h2 {
     transition: color 0.3s ease;
 }
 
-.register-link a:hover {
+.register-link a:hover,
+.register-link a:active {
     color: var(--primary-dark);
     text-decoration: underline;
 }
@@ -454,34 +479,289 @@ h2 {
     padding-left: 5px;
 }
 
-/* Responsive */
-@media (max-width: 480px) {
+/* ===== RESPONSIVE STYLES ===== */
+
+/* Tablets and smaller laptops */
+@media (max-width: 768px) {
+    body {
+        padding: 15px;
+    }
+    
     .container {
-        padding: 30px 25px;
+        padding: 35px 30px;
+        border-radius: 18px;
+    }
+}
+
+/* Large phones */
+@media (max-width: 480px) {
+    body {
+        padding: 12px;
+        align-items: flex-start;
+        padding-top: 20px;
+    }
+    
+    .container {
+        padding: 28px 22px;
+        border-radius: 16px;
+        max-width: 100%;
+    }
+    
+    .logo {
+        width: 60px;
+        height: 60px;
+        border-radius: 15px;
+    }
+    
+    .logo-container {
+        margin-bottom: 15px;
+    }
+    
+    .header {
+        margin-bottom: 20px;
     }
     
     h2 {
-        font-size: 24px;
+        font-size: 22px;
+    }
+    
+    .tag {
+        font-size: 13px;
+    }
+    
+    .message-container {
+        min-height: 36px;
+        margin-bottom: 8px;
+    }
+    
+    .message {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+    
+    .input-group {
+        margin-bottom: 14px;
+    }
+    
+    .input-group label {
+        font-size: 12px;
+        margin-bottom: 5px;
     }
     
     .input-wrapper input {
-        padding: 12px 40px 12px 40px;
+        padding: 12px 40px;
+        border-radius: 10px;
+    }
+    
+    .input-icon {
         font-size: 14px;
+        left: 14px;
+    }
+    
+    .toggle-password {
+        right: 12px;
+        font-size: 14px;
+    }
+    
+    .options-row {
+        flex-direction: row;
+        justify-content: space-between;
+        margin-bottom: 18px;
+    }
+    
+    .remember-me span,
+    .forgot-password a {
+        font-size: 12px;
+    }
+    
+    .remember-me input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
     }
     
     .login-btn {
         padding: 14px;
         font-size: 15px;
+        border-radius: 10px;
+    }
+    
+    .divider {
+        margin: 16px 0;
+        font-size: 11px;
+    }
+    
+    .social-login {
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+    
+    .social-btn {
+        padding: 11px;
+        border-radius: 10px;
+        font-size: 16px;
+        min-height: 44px;
+    }
+    
+    .register-link {
+        font-size: 12px;
+    }
+}
+
+/* Small phones */
+@media (max-width: 360px) {
+    body {
+        padding: 10px;
+        padding-top: 15px;
+    }
+    
+    .container {
+        padding: 24px 18px;
+        border-radius: 14px;
+    }
+    
+    .logo {
+        width: 55px;
+        height: 55px;
+        border-radius: 14px;
+    }
+    
+    h2 {
+        font-size: 20px;
+    }
+    
+    .tag {
+        font-size: 12px;
+    }
+    
+    .input-wrapper input {
+        padding: 11px 38px;
+        font-size: 15px;
     }
     
     .options-row {
-        flex-direction: column;
-        gap: 15px;
-        align-items: flex-start;
+        gap: 8px;
     }
     
-    .forgot-password {
-        align-self: flex-end;
+    .remember-me span,
+    .forgot-password a {
+        font-size: 11px;
+    }
+    
+    .login-btn {
+        padding: 13px;
+        font-size: 14px;
+    }
+    
+    .social-btn {
+        padding: 10px;
+        font-size: 15px;
+    }
+    
+    .register-link {
+        font-size: 11px;
+    }
+}
+
+/* Very small phones / iPhone SE */
+@media (max-width: 320px) {
+    body {
+        padding: 8px;
+        padding-top: 10px;
+    }
+    
+    .container {
+        padding: 20px 15px;
+    }
+    
+    .logo {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .logo-container {
+        margin-bottom: 12px;
+    }
+    
+    .header {
+        margin-bottom: 15px;
+    }
+    
+    h2 {
+        font-size: 18px;
+    }
+    
+    .tag {
+        font-size: 11px;
+    }
+    
+    .input-group {
+        margin-bottom: 12px;
+    }
+    
+    .input-wrapper input {
+        padding: 10px 36px;
+        font-size: 14px;
+    }
+    
+    .input-icon {
+        font-size: 13px;
+        left: 12px;
+    }
+    
+    .toggle-password {
+        right: 10px;
+        font-size: 13px;
+    }
+}
+
+/* Landscape mode on phones */
+@media (max-height: 500px) and (orientation: landscape) {
+    body {
+        align-items: flex-start;
+        padding: 10px;
+    }
+    
+    .container {
+        padding: 20px 25px;
+        margin: 10px auto;
+    }
+    
+    .logo {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .logo-container {
+        margin-bottom: 10px;
+    }
+    
+    .header {
+        margin-bottom: 15px;
+    }
+    
+    h2 {
+        font-size: 20px;
+    }
+    
+    .message-container {
+        min-height: 30px;
+        margin-bottom: 5px;
+    }
+    
+    .input-group {
+        margin-bottom: 10px;
+    }
+    
+    .options-row {
+        margin-bottom: 12px;
+    }
+    
+    .divider {
+        margin: 12px 0;
+    }
+    
+    .social-login {
+        margin-bottom: 12px;
     }
 }
 
@@ -494,6 +774,15 @@ h2 {
 
 .shake {
     animation: shake 0.5s ease;
+}
+
+/* Safe area for notched phones */
+@supports (padding: max(0px)) {
+    body {
+        padding-left: max(12px, env(safe-area-inset-left));
+        padding-right: max(12px, env(safe-area-inset-right));
+        padding-bottom: max(12px, env(safe-area-inset-bottom));
+    }
 }
 </style>
 </head>
