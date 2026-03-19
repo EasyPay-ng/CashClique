@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Register • CashClique</title>
 
 <!-- Favicon -->
@@ -39,9 +39,13 @@
     font-family: 'Poppins', sans-serif;
 }
 
+html {
+    height: 100%;
+}
+
 body {
     background: linear-gradient(135deg, #fff5eb 0%, #ffe6d5 100%);
-    min-height: 100vh;
+    min-height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -53,24 +57,26 @@ body {
 /* Background Decorations */
 body::before {
     content: '';
-    position: absolute;
+    position: fixed;
     top: -50%;
     right: -50%;
     width: 100%;
     height: 100%;
     background: radial-gradient(circle, rgba(255,122,0,0.05) 0%, transparent 70%);
     border-radius: 50%;
+    pointer-events: none;
 }
 
 body::after {
     content: '';
-    position: absolute;
+    position: fixed;
     bottom: -50%;
     left: -50%;
     width: 100%;
     height: 100%;
     background: radial-gradient(circle, rgba(255,122,0,0.05) 0%, transparent 70%);
     border-radius: 50%;
+    pointer-events: none;
 }
 
 /* Main Container */
@@ -79,7 +85,7 @@ body::after {
     max-width: 450px;
     background: var(--white);
     border-radius: 24px;
-    padding: 40px 35px;
+    padding: 35px 30px;
     box-shadow: var(--shadow);
     text-align: center;
     position: relative;
@@ -93,13 +99,13 @@ body::after {
 
 /* Logo */
 .logo-container {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .logo {
-    width: 85px;
-    height: 85px;
-    border-radius: 22px;
+    width: 70px;
+    height: 70px;
+    border-radius: 18px;
     object-fit: cover;
     box-shadow: 0 8px 25px rgba(255, 122, 0, 0.2);
     transition: transform 0.3s ease;
@@ -111,14 +117,14 @@ body::after {
 
 /* Header */
 .header {
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
 h2 {
     color: var(--primary);
-    font-size: 28px;
+    font-size: 26px;
     font-weight: 700;
-    margin-bottom: 5px;
+    margin-bottom: 3px;
 }
 
 .tag {
@@ -129,20 +135,19 @@ h2 {
 
 /* Message Container */
 .message-container {
-    min-height: 48px;
-    margin-bottom: 20px;
+    min-height: 40px;
+    margin-bottom: 15px;
 }
 
 .message {
-    padding: 14px 18px;
-    border-radius: 12px;
-    font-size: 14px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 13px;
     font-weight: 500;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    animation: slideIn 0.3s ease;
+    gap: 8px;
     opacity: 0;
     transform: translateY(-10px);
     transition: all 0.3s ease;
@@ -166,26 +171,15 @@ h2 {
     border: 1px solid rgba(39, 174, 96, 0.2);
 }
 
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
 /* Form */
 .form {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 /* Input Groups */
 .input-group {
     position: relative;
-    margin-bottom: 18px;
+    margin-bottom: 14px;
 }
 
 .input-group label {
@@ -194,7 +188,7 @@ h2 {
     font-size: 13px;
     font-weight: 500;
     color: var(--text-dark);
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 
 .input-wrapper {
@@ -203,14 +197,15 @@ h2 {
 
 .input-wrapper input {
     width: 100%;
-    padding: 14px 45px 14px 45px;
+    padding: 13px 45px;
     border-radius: 12px;
     border: 2px solid var(--border);
-    font-size: 15px;
+    font-size: 16px;
     color: var(--text-dark);
     outline: none;
     transition: all 0.3s ease;
     background: var(--white);
+    -webkit-appearance: none;
 }
 
 .input-wrapper input::placeholder {
@@ -256,23 +251,25 @@ h2 {
     cursor: pointer;
     color: var(--text-lighter);
     font-size: 16px;
-    padding: 5px;
+    padding: 8px;
     transition: color 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.toggle-password:hover {
+.toggle-password:hover,
+.toggle-password:active {
     color: var(--primary);
 }
 
 /* Password Strength */
 .password-strength {
-    margin-top: 8px;
+    margin-top: 6px;
 }
 
 .strength-bar {
     display: flex;
     gap: 4px;
-    margin-bottom: 5px;
+    margin-bottom: 4px;
 }
 
 .strength-segment {
@@ -296,43 +293,35 @@ h2 {
 }
 
 .strength-text {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 500;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.strength-text.weak {
-    color: var(--error);
-}
-
-.strength-text.medium {
-    color: orange;
-}
-
-.strength-text.strong {
-    color: var(--success);
-}
+.strength-text.weak { color: var(--error); }
+.strength-text.medium { color: orange; }
+.strength-text.strong { color: var(--success); }
 
 /* Password Requirements */
 .password-requirements {
-    margin-top: 8px;
+    margin-top: 6px;
     text-align: left;
-    font-size: 12px;
+    font-size: 11px;
     color: var(--text-lighter);
 }
 
 .requirement {
     display: flex;
     align-items: center;
-    gap: 6px;
-    margin-bottom: 4px;
+    gap: 5px;
+    margin-bottom: 2px;
     transition: color 0.3s ease;
 }
 
 .requirement i {
-    font-size: 10px;
+    font-size: 9px;
     transition: all 0.3s ease;
 }
 
@@ -346,7 +335,7 @@ h2 {
 
 /* Invite Code */
 .invite-hint {
-    font-size: 11px;
+    font-size: 10px;
     color: var(--text-lighter);
     margin-top: 4px;
     text-align: left;
@@ -354,22 +343,23 @@ h2 {
 
 /* Terms Checkbox */
 .terms-box {
-    margin: 20px 0;
+    margin: 16px 0;
     text-align: left;
 }
 
 .terms-label {
     display: flex;
     align-items: flex-start;
-    gap: 12px;
-    font-size: 14px;
+    gap: 10px;
+    font-size: 13px;
     color: var(--text-light);
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .terms-label input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     accent-color: var(--primary);
     cursor: pointer;
     flex-shrink: 0;
@@ -383,7 +373,8 @@ h2 {
     transition: color 0.3s ease;
 }
 
-.terms-label a:hover {
+.terms-label a:hover,
+.terms-label a:active {
     color: var(--primary-dark);
     text-decoration: underline;
 }
@@ -398,7 +389,7 @@ h2 {
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
     color: white;
     border: none;
-    padding: 16px;
+    padding: 15px;
     border-radius: 12px;
     font-size: 16px;
     font-weight: 600;
@@ -410,6 +401,8 @@ h2 {
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 .register-btn::before {
@@ -442,10 +435,6 @@ h2 {
     transform: none;
 }
 
-.register-btn:disabled::before {
-    display: none;
-}
-
 .spinner {
     width: 20px;
     height: 20px;
@@ -457,18 +446,16 @@ h2 {
 }
 
 @keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
+    to { transform: rotate(360deg); }
 }
 
 /* Divider */
 .divider {
     display: flex;
     align-items: center;
-    margin: 20px 0;
+    margin: 16px 0;
     color: var(--text-lighter);
-    font-size: 13px;
+    font-size: 12px;
 }
 
 .divider::before,
@@ -480,14 +467,14 @@ h2 {
 }
 
 .divider span {
-    padding: 0 15px;
+    padding: 0 12px;
 }
 
 /* Social Register */
 .social-register {
     display: flex;
     gap: 12px;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .social-btn {
@@ -503,29 +490,33 @@ h2 {
     display: flex;
     justify-content: center;
     align-items: center;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
-.social-btn:hover {
+.social-btn:hover,
+.social-btn:active {
     border-color: var(--primary);
     color: var(--primary);
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-.social-btn.google:hover {
+.social-btn.google:hover,
+.social-btn.google:active {
     border-color: #ea4335;
     color: #ea4335;
 }
 
-.social-btn.apple:hover {
+.social-btn.apple:hover,
+.social-btn.apple:active {
     border-color: #000;
     color: #000;
 }
 
 /* Login Link */
 .login-link {
-    margin-top: 15px;
-    font-size: 14px;
+    font-size: 13px;
     color: var(--text-light);
 }
 
@@ -536,7 +527,8 @@ h2 {
     transition: color 0.3s ease;
 }
 
-.login-link a:hover {
+.login-link a:hover,
+.login-link a:active {
     color: var(--primary-dark);
     text-decoration: underline;
 }
@@ -550,62 +542,6 @@ h2 {
 
 .shake {
     animation: shake 0.5s ease;
-}
-
-/* Responsive */
-@media (max-width: 480px) {
-    .container {
-        padding: 30px 25px;
-        border-radius: 20px;
-    }
-    
-    h2 {
-        font-size: 24px;
-    }
-    
-    .logo {
-        width: 70px;
-        height: 70px;
-    }
-    
-    .input-wrapper input {
-        padding: 12px 40px 12px 40px;
-        font-size: 14px;
-    }
-    
-    .register-btn {
-        padding: 14px;
-        font-size: 15px;
-    }
-    
-    .password-strength {
-        margin-top: 6px;
-    }
-}
-
-/* Step Indicator */
-.steps-indicator {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 25px;
-}
-
-.step {
-    width: 30px;
-    height: 4px;
-    background: var(--border);
-    border-radius: 2px;
-    transition: all 0.3s ease;
-}
-
-.step.active {
-    background: var(--primary);
-}
-
-.step.completed {
-    background: var(--success);
 }
 
 /* Success Animation */
@@ -630,6 +566,242 @@ h2 {
 .success-icon i {
     font-size: 24px;
     color: var(--success);
+}
+
+/* ===== MOBILE RESPONSIVE ===== */
+@media (max-width: 480px) {
+    body {
+        padding: 15px;
+        align-items: flex-start;
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+    
+    .container {
+        padding: 25px 20px;
+        border-radius: 18px;
+    }
+    
+    .logo {
+        width: 55px;
+        height: 55px;
+        border-radius: 14px;
+    }
+    
+    .logo-container {
+        margin-bottom: 12px;
+    }
+    
+    .header {
+        margin-bottom: 15px;
+    }
+    
+    h2 {
+        font-size: 22px;
+    }
+    
+    .tag {
+        font-size: 13px;
+    }
+    
+    .message-container {
+        min-height: 35px;
+        margin-bottom: 10px;
+    }
+    
+    .message {
+        padding: 10px 12px;
+        font-size: 12px;
+    }
+    
+    .form {
+        margin-bottom: 10px;
+    }
+    
+    .input-group {
+        margin-bottom: 12px;
+    }
+    
+    .input-group label {
+        font-size: 12px;
+        margin-bottom: 5px;
+    }
+    
+    .input-wrapper input {
+        padding: 11px 40px;
+        border-radius: 10px;
+    }
+    
+    .input-icon {
+        font-size: 14px;
+        left: 14px;
+    }
+    
+    .toggle-password {
+        right: 12px;
+        font-size: 14px;
+    }
+    
+    .password-strength {
+        margin-top: 5px;
+    }
+    
+    .strength-text {
+        font-size: 10px;
+    }
+    
+    .password-requirements {
+        margin-top: 5px;
+        font-size: 10px;
+    }
+    
+    .requirement {
+        margin-bottom: 1px;
+    }
+    
+    .requirement i {
+        font-size: 8px;
+    }
+    
+    .invite-hint {
+        font-size: 9px;
+    }
+    
+    .terms-box {
+        margin: 12px 0;
+    }
+    
+    .terms-label {
+        font-size: 11px;
+        gap: 8px;
+    }
+    
+    .terms-label input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .register-btn {
+        padding: 13px;
+        font-size: 15px;
+        border-radius: 10px;
+    }
+    
+    .divider {
+        margin: 12px 0;
+        font-size: 11px;
+    }
+    
+    .social-register {
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+    
+    .social-btn {
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 10px;
+    }
+    
+    .login-link {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 360px) {
+    body {
+        padding: 10px;
+        padding-top: 15px;
+        padding-bottom: 15px;
+    }
+    
+    .container {
+        padding: 20px 16px;
+        border-radius: 16px;
+    }
+    
+    .logo {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .logo-container {
+        margin-bottom: 10px;
+    }
+    
+    .header {
+        margin-bottom: 12px;
+    }
+    
+    h2 {
+        font-size: 20px;
+    }
+    
+    .tag {
+        font-size: 12px;
+    }
+    
+    .input-group {
+        margin-bottom: 10px;
+    }
+    
+    .input-group label {
+        font-size: 11px;
+        margin-bottom: 4px;
+    }
+    
+    .input-wrapper input {
+        padding: 10px 36px;
+        font-size: 15px;
+    }
+    
+    .terms-label {
+        font-size: 10px;
+    }
+    
+    .register-btn {
+        padding: 12px;
+        font-size: 14px;
+    }
+    
+    .login-link {
+        font-size: 11px;
+    }
+}
+
+/* Extra small phones */
+@media (max-width: 320px) {
+    body {
+        padding: 8px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+    
+    .container {
+        padding: 18px 14px;
+    }
+    
+    .logo {
+        width: 45px;
+        height: 45px;
+    }
+    
+    h2 {
+        font-size: 18px;
+    }
+    
+    .input-wrapper input {
+        padding: 9px 34px;
+        font-size: 14px;
+    }
+    
+    .password-requirements {
+        font-size: 9px;
+    }
+    
+    .terms-label {
+        font-size: 9px;
+    }
 }
 </style>
 </head>
@@ -864,14 +1036,13 @@ const matchStatus = document.getElementById("matchStatus");
 
 // Password Validation
 function validatePassword(password) {
-    const checks = {
+    return {
         length: password.length >= 8,
         upper: /[A-Z]/.test(password),
         lower: /[a-z]/.test(password),
         number: /[0-9]/.test(password),
         special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
     };
-    return checks;
 }
 
 function updatePasswordUI(password) {
@@ -879,32 +1050,23 @@ function updatePasswordUI(password) {
     const validCount = Object.values(checks).filter(Boolean).length;
     
     // Update requirement indicators
-    reqLength.className = `requirement ${checks.length ? 'valid' : ''}`;
-    reqLength.querySelector('i').className = checks.length ? 'fas fa-check-circle' : 'fas fa-circle';
+    const updateReq = (el, valid) => {
+        el.className = `requirement ${valid ? 'valid' : ''}`;
+        el.querySelector('i').className = valid ? 'fas fa-check-circle' : 'fas fa-circle';
+    };
     
-    reqUpper.className = `requirement ${checks.upper ? 'valid' : ''}`;
-    reqUpper.querySelector('i').className = checks.upper ? 'fas fa-check-circle' : 'fas fa-circle';
-    
-    reqLower.className = `requirement ${checks.lower ? 'valid' : ''}`;
-    reqLower.querySelector('i').className = checks.lower ? 'fas fa-check-circle' : 'fas fa-circle';
-    
-    reqNumber.className = `requirement ${checks.number ? 'valid' : ''}`;
-    reqNumber.querySelector('i').className = checks.number ? 'fas fa-check-circle' : 'fas fa-circle';
-    
-    reqSpecial.className = `requirement ${checks.special ? 'valid' : ''}`;
-    reqSpecial.querySelector('i').className = checks.special ? 'fas fa-check-circle' : 'fas fa-circle';
+    updateReq(reqLength, checks.length);
+    updateReq(reqUpper, checks.upper);
+    updateReq(reqLower, checks.lower);
+    updateReq(reqNumber, checks.number);
+    updateReq(reqSpecial, checks.special);
     
     // Update strength bar
     strengthSegments.forEach((seg, i) => {
         seg.className = 'strength-segment';
         if (i < validCount) {
-            if (validCount <= 2) {
-                seg.classList.add('active', 'weak');
-            } else if (validCount <= 3) {
-                seg.classList.add('active', 'medium');
-            } else {
-                seg.classList.add('active', 'strong');
-            }
+            const level = validCount <= 2 ? 'weak' : validCount <= 3 ? 'medium' : 'strong';
+            seg.classList.add('active', level);
         }
     });
     
@@ -913,13 +1075,13 @@ function updatePasswordUI(password) {
         strengthText.innerHTML = '<span>Password strength</span>';
         strengthText.className = 'strength-text';
     } else if (validCount <= 2) {
-        strengthText.innerHTML = '<span>Weak - Add more requirements</span>';
+        strengthText.innerHTML = '<span>Weak</span>';
         strengthText.className = 'strength-text weak';
     } else if (validCount <= 3) {
-        strengthText.innerHTML = '<span>Medium - Almost there!</span>';
+        strengthText.innerHTML = '<span>Medium</span>';
         strengthText.className = 'strength-text medium';
     } else {
-        strengthText.innerHTML = '<span>Strong password!</span>';
+        strengthText.innerHTML = '<span>Strong!</span>';
         strengthText.className = 'strength-text strong';
     }
     
@@ -947,71 +1109,45 @@ function updateMatchStatus() {
     }
 }
 
-// Password Input Events
-passwordInput.addEventListener("input", () => {
-    updatePasswordUI(passwordInput.value);
-});
-
-confirmPasswordInput.addEventListener("input", () => {
-    updateMatchStatus();
-});
+passwordInput.addEventListener("input", () => updatePasswordUI(passwordInput.value));
+confirmPasswordInput.addEventListener("input", updateMatchStatus);
 
 // Show Message
 function showMessage(text, type) {
     message.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i> ${text}`;
     message.className = `message ${type} show`;
-    
-    setTimeout(() => {
-        message.classList.remove("show");
-    }, 5000);
+    setTimeout(() => message.classList.remove("show"), 5000);
 }
 
-// Hide Message
 function hideMessage() {
     message.classList.remove("show");
 }
 
-// Set Loading State
 function setLoading(isLoading) {
-    if (isLoading) {
-        spinner.style.display = "inline-block";
-        btnText.textContent = "Creating account...";
-        registerBtn.disabled = true;
-    } else {
-        spinner.style.display = "none";
-        btnText.textContent = "Create Account";
-        registerBtn.disabled = false;
-    }
+    spinner.style.display = isLoading ? "inline-block" : "none";
+    btnText.textContent = isLoading ? "Creating account..." : "Create Account";
+    registerBtn.disabled = isLoading;
 }
 
-// Get User-Friendly Error Message
 function getErrorMessage(errorCode) {
-    const errorMessages = {
+    const errors = {
         'auth/email-already-in-use': 'This email is already registered. Try signing in.',
         'auth/invalid-email': 'Please enter a valid email address.',
         'auth/weak-password': 'Password is too weak. Please choose a stronger password.',
         'auth/network-request-failed': 'Network error. Please check your connection.',
         'auth/operation-not-allowed': 'Email/password sign-in is not enabled.'
     };
-    
-    return errorMessages[errorCode] || 'Registration failed. Please try again.';
+    return errors[errorCode] || 'Registration failed. Please try again.';
 }
 
-// Show Success State
 function showSuccessState() {
-    const container = document.querySelector(".container");
-    container.innerHTML = `
-        <div class="success-icon">
-            <i class="fas fa-check"></i>
-        </div>
+    document.querySelector(".container").innerHTML = `
+        <div class="success-icon"><i class="fas fa-check"></i></div>
         <h2 style="color: var(--success);">Account Created!</h2>
         <p class="tag" style="margin-bottom: 20px;">Please check your email to verify your account.</p>
         <p style="color: var(--text-light); font-size: 14px;">Redirecting you to login...</p>
     `;
-    
-    setTimeout(() => {
-        window.location.href = "login.html";
-    }, 3000);
+    setTimeout(() => window.location.href = "login.html", 3000);
 }
 
 // Google Sign Up
@@ -1022,18 +1158,14 @@ window.signUpWithGoogle = async () => {
     
     try {
         const result = await signInWithPopup(auth, provider);
-        
-        // Check if user already exists in database
         const userQuery = query(collection(db, "users"), where("email", "==", result.user.email));
         const userSnap = await getDocs(userQuery);
         
         if (userSnap.empty) {
-            // Create user document
-            const inviteCode = result.user.uid.substring(0, 6);
             await setDoc(doc(db, "users", result.user.uid), {
                 username: result.user.displayName || result.user.email.split('@')[0],
                 email: result.user.email,
-                inviteCode: inviteCode,
+                inviteCode: result.user.uid.substring(0, 6),
                 invitedBy: null,
                 createdAt: Date.now(),
                 provider: 'google'
@@ -1041,9 +1173,7 @@ window.signUpWithGoogle = async () => {
         }
         
         showMessage("Account created successfully!", "success");
-        setTimeout(() => {
-            window.location.href = "dashboard.html";
-        }, 1500);
+        setTimeout(() => window.location.href = "dashboard.html", 1500);
     } catch (error) {
         setLoading(false);
         if (error.code !== 'auth/popup-closed-by-user') {
@@ -1062,17 +1192,14 @@ window.signUpWithApple = async () => {
     
     try {
         const result = await signInWithPopup(auth, provider);
-        
-        // Check if user already exists
         const userQuery = query(collection(db, "users"), where("email", "==", result.user.email));
         const userSnap = await getDocs(userQuery);
         
         if (userSnap.empty) {
-            const inviteCode = result.user.uid.substring(0, 6);
             await setDoc(doc(db, "users", result.user.uid), {
                 username: result.user.email?.split('@')[0] || 'user',
                 email: result.user.email,
-                inviteCode: inviteCode,
+                inviteCode: result.user.uid.substring(0, 6),
                 invitedBy: null,
                 createdAt: Date.now(),
                 provider: 'apple'
@@ -1080,9 +1207,7 @@ window.signUpWithApple = async () => {
         }
         
         showMessage("Account created successfully!", "success");
-        setTimeout(() => {
-            window.location.href = "dashboard.html";
-        }, 1500);
+        setTimeout(() => window.location.href = "dashboard.html", 1500);
     } catch (error) {
         setLoading(false);
         if (error.code !== 'auth/popup-closed-by-user') {
@@ -1090,6 +1215,12 @@ window.signUpWithApple = async () => {
         }
     }
 };
+
+function shakeContainer() {
+    const container = document.querySelector(".container");
+    container.classList.add("shake");
+    setTimeout(() => container.classList.remove("shake"), 500);
+}
 
 // Form Submit Handler
 form.addEventListener("submit", async (e) => {
@@ -1102,14 +1233,10 @@ form.addEventListener("submit", async (e) => {
     const invite = inviteInput.value.trim();
     const terms = termsInput.checked;
     
-    // Clear previous errors
-    [usernameInput, emailInput, passwordInput, confirmPasswordInput].forEach(input => {
-        input.classList.remove('error');
-    });
+    [usernameInput, emailInput, passwordInput, confirmPasswordInput].forEach(input => input.classList.remove('error'));
     termsLabel.classList.remove('error');
     hideMessage();
     
-    // Validation
     if (!username || !email || !password || !confirmPassword) {
         showMessage("Please fill in all required fields.", "error");
         if (!username) usernameInput.classList.add("error");
@@ -1120,7 +1247,6 @@ form.addEventListener("submit", async (e) => {
         return;
     }
     
-    // Username validation
     if (username.length < 3) {
         showMessage("Username must be at least 3 characters.", "error");
         usernameInput.classList.add("error");
@@ -1135,16 +1261,13 @@ form.addEventListener("submit", async (e) => {
         return;
     }
     
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         showMessage("Please enter a valid email address.", "error");
         emailInput.classList.add("error");
         shakeContainer();
         return;
     }
     
-    // Password validation
     const passwordValid = validatePassword(password);
     if (!passwordValid.length || !passwordValid.upper || !passwordValid.lower || !passwordValid.number) {
         showMessage("Password does not meet requirements.", "error");
@@ -1152,7 +1275,6 @@ form.addEventListener("submit", async (e) => {
         return;
     }
     
-    // Confirm password
     if (password !== confirmPassword) {
         showMessage("Passwords do not match.", "error");
         confirmPasswordInput.classList.add("error");
@@ -1160,7 +1282,6 @@ form.addEventListener("submit", async (e) => {
         return;
     }
     
-    // Terms
     if (!terms) {
         showMessage("You must accept the terms to continue.", "error");
         termsLabel.classList.add('error');
@@ -1170,24 +1291,18 @@ form.addEventListener("submit", async (e) => {
     setLoading(true);
     
     try {
-        // Check if username is taken
-        const usernameQuery = query(collection(db, "users"), where("username", "==", username));
-        const usernameSnap = await getDocs(usernameQuery);
-        
+        const usernameSnap = await getDocs(query(collection(db, "users"), where("username", "==", username)));
         if (!usernameSnap.empty) {
             setLoading(false);
-            showMessage("Username is already taken. Please choose another.", "error");
+            showMessage("Username is already taken.", "error");
             usernameInput.classList.add("error");
             shakeContainer();
             return;
         }
         
-        // Check invite code if provided
         let inviterUID = null;
         if (invite) {
-            const inviteQuery = query(collection(db, "users"), where("inviteCode", "==", invite));
-            const inviteSnap = await getDocs(inviteQuery);
-            
+            const inviteSnap = await getDocs(query(collection(db, "users"), where("inviteCode", "==", invite)));
             if (inviteSnap.empty) {
                 setLoading(false);
                 showMessage("Invalid invite code.", "error");
@@ -1195,31 +1310,23 @@ form.addEventListener("submit", async (e) => {
                 shakeContainer();
                 return;
             }
-            
             inviterUID = inviteSnap.docs[0].id;
         }
         
-        // Create account
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
         
-        // Update display name
         await updateProfile(user, { displayName: username });
         
-        // Generate invite code
-        const inviteCode = user.uid.substring(0, 6);
-        
-        // Save user to Firestore
         await setDoc(doc(db, "users", user.uid), {
             username: username,
             email: email,
-            inviteCode: inviteCode,
+            inviteCode: user.uid.substring(0, 6),
             invitedBy: inviterUID,
             createdAt: Date.now(),
             provider: 'email'
         });
         
-        // Send verification email
         await sendEmailVerification(user);
         
         setLoading(false);
@@ -1232,31 +1339,15 @@ form.addEventListener("submit", async (e) => {
     }
 });
 
-// Shake Animation
-function shakeContainer() {
-    const container = document.querySelector(".container");
-    container.classList.add("shake");
-    setTimeout(() => {
-        container.classList.remove("shake");
-    }, 500);
-}
-
-// Clear error on input
 [usernameInput, emailInput, passwordInput, confirmPasswordInput, inviteInput].forEach(input => {
-    input.addEventListener("input", () => {
-        input.classList.remove("error");
-    });
+    input.addEventListener("input", () => input.classList.remove("error"));
 });
 
-// Enter key to submit
 document.addEventListener("keypress", (e) => {
-    if (e.key === "Enter" && !registerBtn.disabled) {
-        registerBtn.click();
-    }
+    if (e.key === "Enter" && !registerBtn.disabled) registerBtn.click();
 });
 </script>
 
-<!-- Toggle Password Script -->
 <script>
 window.togglePassword = function(inputId) {
     const input = document.getElementById(inputId);
@@ -1264,12 +1355,10 @@ window.togglePassword = function(inputId) {
     
     if (input.type === "password") {
         input.type = "text";
-        eyeIcon.classList.remove("fa-eye");
-        eyeIcon.classList.add("fa-eye-slash");
+        eyeIcon.classList.replace("fa-eye", "fa-eye-slash");
     } else {
         input.type = "password";
-        eyeIcon.classList.remove("fa-eye-slash");
-        eyeIcon.classList.add("fa-eye");
+        eyeIcon.classList.replace("fa-eye-slash", "fa-eye");
     }
 };
 </script>
