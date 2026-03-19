@@ -2,11 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Earnings | CashClique</title>
 
 <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
@@ -23,46 +24,90 @@ body{background:#f5f5f5;min-height:100vh;padding:0;}
 .logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:18px;margin-bottom:10px;}
 .sidebar a{color:white;text-decoration:none;padding:12px 15px;border-radius:8px;transition:0.3s;display:flex;align-items:center;gap:10px;}
 .sidebar a:hover, .sidebar a.active{background:rgba(255,255,255,0.2);}
+.sidebar a i{width:20px;text-align:center;}
 
 /* Main Content */
 .main{margin-left:240px;padding:20px;transition:0.3s;}
 .container{background:white;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.08);overflow:hidden;}
-.header{padding:30px;text-align:center;border-bottom:1px solid #f0f0f0;}
-.header h1{font-size:28px;font-weight:700;color:#333;margin-bottom:8px;}
-.balance-display{font-size:48px;font-weight:700;background:linear-gradient(135deg,#ff6a00,#ff8a00);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-1px;}
+.header{padding:30px;text-align:center;background:linear-gradient(135deg,#ff6a00,#ff8a00);color:white;}
+.header h1{font-size:28px;font-weight:700;margin-bottom:8px;}
+.balance-display{font-size:48px;font-weight:700;letter-spacing:-1px;}
+.balance-label{font-size:14px;opacity:0.9;margin-top:5px;}
 
 /* Stats Grid */
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px;padding:20px;}
-.stat-card{background:#f8f9fa;padding:20px;border-radius:12px;text-align:center;border:2px solid transparent;transition:0.3s;}
-.stat-card:hover{transform:translateY(-3px);border-color:#ff6a00;box-shadow:0 8px 20px rgba(255,106,0,0.1);}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;padding:20px;}
+.stat-card{background:linear-gradient(135deg,#f8f9fa,#fff);padding:20px;border-radius:12px;text-align:center;border:1px solid #eee;transition:0.3s;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:#ff6a00;transform:scaleY(0);transition:0.3s;transform-origin:bottom;}
+.stat-card:hover::before{transform:scaleY(1);}
+.stat-card:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,0.1);}
+.stat-icon{font-size:24px;color:#ff6a00;margin-bottom:10px;}
 .stat-label{font-size:12px;color:#666;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;}
-.stat-value{font-size:20px;font-weight:700;color:#333;}
+.stat-value{font-size:24px;font-weight:700;color:#333;}
+.stat-value.green{color:#27ae60;}
+.stat-value.red{color:#e74c3c;}
 
-/* Table Container - Horizontal Scroll */
-.table-container{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:20px;border:1px solid #eee;border-radius:12px;}
-.content-table{width:100%;border-collapse:collapse;min-width:600px;}
-.table-header{font-weight:600;background:#fafafa;text-align:left;padding:15px;font-size:13px;color:#555;border-bottom:2px solid #eee;white-space:nowrap;}
-.table-row{cursor:pointer;border-bottom:1px solid #f0f0f0;transition:0.2s;}
+/* Tabs */
+.tabs{display:flex;background:#f8f9fa;padding:5px;margin:20px;border-radius:12px;}
+.tab{flex:1;padding:12px;background:transparent;border:none;font-size:14px;font-weight:500;color:#666;cursor:pointer;transition:0.3s;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.tab:hover{color:#ff6a00;}
+.tab.active{background:white;color:#ff6a00;box-shadow:0 2px 10px rgba(0,0,0,0.05);}
+.tab i{font-size:16px;}
+
+/* Table Container */
+.table-container{margin:20px;border:1px solid #eee;border-radius:12px;overflow:hidden;background:white;}
+.table-header-row{background:#fafafa;font-weight:600;display:grid;padding:15px;font-size:13px;color:#555;border-bottom:2px solid #eee;}
+.table-row{display:grid;padding:15px;border-bottom:1px solid #f0f0f0;transition:0.2s;cursor:pointer;align-items:center;}
 .table-row:hover{background:#f8f9fa;}
-.table-row td{padding:15px;font-size:14px;vertical-align:middle;}
-.post-preview{width:50px;height:50px;border-radius:8px;overflow:hidden;flex-shrink:0;}
-.post-preview img{width:100%;height:100%;object-fit:cover;}
-.post-info{flex:1;}
-.post-title{font-weight:600;font-size:14px;margin-bottom:3px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.post-stats{display:flex;gap:10px;font-size:12px;color:#666;flex-wrap:wrap;}
-.earning-amount{font-weight:600;color:#ff6a00;font-size:15px;white-space:nowrap;}
+.table-row:last-child{border:none;}
+
+/* Table Layouts */
+.tips-layout{grid-template-columns:1fr 2fr 1fr 1fr;}
+.withdrawals-layout{grid-template-columns:1fr 2fr 1fr 1fr;}
+.revenue-layout{grid-template-columns:2fr 1fr 1fr 1fr;}
+
+/* Transaction Types */
+.transaction-type{display:flex;align-items:center;gap:10px;}
+.type-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.type-icon.tip{background:#e3f2fd;color:#2196f3;}
+.type-icon.withdrawal{background:#fff3e0;color:#ff9800;}
+.type-icon.revenue{background:#e8f5e9;color:#4caf50;}
+.type-info{text-align:left;}
+.type-title{font-weight:600;font-size:14px;color:#333;}
+.type-subtitle{font-size:12px;color:#888;margin-top:2px;}
+
+/* Amount Display */
+.amount{font-weight:600;font-size:15px;}
+.amount.credit{color:#27ae60;}
+.amount.debit{color:#e74c3c;}
+.amount.pending{color:#f39c12;}
+
+/* Status Badge */
+.status{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;text-align:center;}
+.status.completed{background:#e8f5e9;color:#4caf50;}
+.status.pending{background:#fff3e0;color:#ff9800;}
+.status.failed{background:#ffebee;color:#f44336;}
+
+/* Date Time */
+.date-time{font-size:13px;color:#666;}
 
 /* Withdraw Section */
-.withdraw-section{padding:25px;border-top:1px solid #f0f0f0;text-align:center;background:#f9f9f9;margin:20px;border-radius:0 0 16px 16px;}
-.withdraw-btn{background:#ff6a00;color:white;border:none;padding:14px 35px;border-radius:10px;font-weight:600;font-size:15px;cursor:pointer;transition:0.3s;box-shadow:0 4px 12px rgba(255,106,0,0.2);}
+.withdraw-section{padding:25px;border-top:1px solid #f0f0f0;text-align:center;background:#f9f9f9;margin:20px;border-radius:12px;}
+.withdraw-btn{background:linear-gradient(135deg,#ff6a00,#ff8a00);color:white;border:none;padding:14px 35px;border-radius:10px;font-weight:600;font-size:15px;cursor:pointer;transition:0.3s;box-shadow:0 4px 12px rgba(255,106,0,0.2);display:inline-flex;align-items:center;gap:8px;}
 .withdraw-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,106,0,0.3);}
 .withdraw-btn:disabled{opacity:0.5;cursor:not-allowed;background:#ccc;transform:none;}
+.withdraw-btn i{font-size:16px;}
 .min-withdraw{font-size:12px;color:#666;margin-top:8px;}
 
 /* Empty State */
-.empty-state{text-align:center;padding:40px 20px;color:#888;}
-.empty-state h3{font-size:18px;margin-bottom:8px;}
+.empty-state{text-align:center;padding:60px 20px;color:#888;}
+.empty-icon{font-size:48px;color:#ddd;margin-bottom:15px;}
+.empty-state h3{font-size:18px;margin-bottom:8px;color:#555;}
 .empty-state p{font-size:14px;margin-bottom:20px;}
+
+/* Loading */
+.loading{text-align:center;padding:40px;color:#888;}
+.loading i{font-size:32px;color:#ff6a00;animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
 
 /* Mobile Responsive */
 @media(max-width:900px){
@@ -76,12 +121,15 @@ body{background:#f5f5f5;min-height:100vh;padding:0;}
   .balance-display{font-size:36px;}
   .stats-grid{grid-template-columns:repeat(2,1fr);gap:10px;padding:10px;}
   .stat-card{padding:15px;}
-  .stat-value{font-size:18px;}
-  .table-container{margin:10px;border-radius:8px;}
-  .table-header, .table-row td{padding:12px 10px;font-size:13px;}
-  .post-preview{width:40px;height:40px;}
-  .post-title{max-width:150px;font-size:13px;}
-  .post-stats{gap:8px;}
+  .stat-value{font-size:20px;}
+  .tabs{margin:10px;flex-wrap:wrap;}
+  .tab{font-size:12px;padding:10px;}
+  .table-container{margin:10px;}
+  .table-row{padding:12px;font-size:13px;}
+  .tips-layout, .withdrawals-layout, .revenue-layout{grid-template-columns:1fr;}
+  .table-header-row{display:none;}
+  .table-row{border:1px solid #eee;margin-bottom:10px;border-radius:8px;}
+  .mobile-label{display:inline;font-weight:600;color:#666;margin-right:5px;}
   .withdraw-section{margin:10px;padding:20px;}
   .withdraw-btn{padding:12px 30px;font-size:14px;}
 }
@@ -91,9 +139,11 @@ body{background:#f5f5f5;min-height:100vh;padding:0;}
   .stats-grid{grid-template-columns:1fr;}
   .mobile-header h1{font-size:16px;}
   .balance-display{font-size:28px;}
-  .post-preview{width:35px;height:35px;}
-  .post-title{max-width:120px;font-size:12px;}
-  .post-stats{font-size:11px;}
+}
+
+/* Desktop only */
+@media(min-width:901px){
+  .mobile-label{display:none;}
 }
 </style>
 </head>
@@ -102,7 +152,9 @@ body{background:#f5f5f5;min-height:100vh;padding:0;}
 
 <!-- Mobile Header -->
 <div class="mobile-header">
-  <button class="menu-btn" onclick="toggleMenu()">☰</button>
+  <button class="menu-btn" onclick="toggleMenu()">
+    <i class="fas fa-bars"></i>
+  </button>
   <h1>Your Earnings</h1>
 </div>
 
@@ -112,58 +164,111 @@ body{background:#f5f5f5;min-height:100vh;padding:0;}
 <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
 CashClique
 </div>
-<a href="dashboard.html">🏠 Dashboard</a>
-<a href="my-content.html">📝 My Content</a>
-<a href="earnings.html" class="active">💰 Earnings</a>
-<a href="opportunities.html">🔥 Opportunities</a>
-<a href="settings.html">⚙ Settings</a>
-<a href="#" id="logout">🚪 Logout</a>
+<a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+<a href="my-content.html"><i class="fas fa-file-alt"></i> My Content</a>
+<a href="earnings.html" class="active"><i class="fas fa-dollar-sign"></i> Earnings</a>
+<a href="opportunities.html"><i class="fas fa-fire"></i> Opportunities</a>
+<a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+<a href="#" id="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
 </div>
 
 <!-- Main Content -->
 <div class="main">
 <div class="container">
   <div class="header">
-    <h1>Your Earnings</h1>
+    <h1>Earnings Overview</h1>
     <div class="balance-display" id="total-balance">$0.00</div>
+    <div class="balance-label">Available Balance</div>
   </div>
   
   <div class="stats-grid">
     <div class="stat-card">
-      <div class="stat-label">Total Posts</div>
-      <div class="stat-value" id="total-posts">0</div>
+      <i class="fas fa-hand-holding-dollar stat-icon"></i>
+      <div class="stat-label">Tips Received</div>
+      <div class="stat-value green" id="total-tips">$0.00</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Total Likes</div>
-      <div class="stat-value" id="total-likes">0</div>
+      <i class="fas fa-file-invoice-dollar stat-icon"></i>
+      <div class="stat-label">Post Revenue</div>
+      <div class="stat-value green" id="total-revenue">$0.00</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Paid Posts</div>
-      <div class="stat-value" id="paid-posts">0</div>
+      <i class="fas fa-money-check-alt stat-icon"></i>
+      <div class="stat-label">Total Withdrawn</div>
+      <div class="stat-value red" id="total-withdrawn">$0.00</div>
     </div>
     <div class="stat-card">
-      <div class="stat-label">Avg $/Post</div>
-      <div class="stat-value" id="avg-earning">$0.00</div>
+      <i class="fas fa-clock stat-icon"></i>
+      <div class="stat-label">Pending</div>
+      <div class="stat-value" id="pending-amount">$0.00</div>
     </div>
   </div>
   
-  <div class="table-container">
-    <table class="content-table">
-      <thead>
-        <tr>
-          <th class="table-header">Post</th>
-          <th class="table-header">Stats</th>
-          <th class="table-header">Earning</th>
-        </tr>
-      </thead>
-      <tbody id="content-table-body">
-        <tr><td colspan="3" class="empty-state"><h3>No earnings yet</h3><p>Create content and get likes to start earning!</p></td></tr>
-      </tbody>
-    </table>
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('tips', this)">
+      <i class="fas fa-hand-holding-dollar"></i> Tips
+    </button>
+    <button class="tab" onclick="switchTab('revenue', this)">
+      <i class="fas fa-file-invoice-dollar"></i> Post Revenue
+    </button>
+    <button class="tab" onclick="switchTab('withdrawals', this)">
+      <i class="fas fa-money-check-alt"></i> Withdrawals
+    </button>
+  </div>
+  
+  <!-- Tips Table -->
+  <div class="table-container" id="tips-table">
+    <div class="table-header-row tips-layout">
+      <div>From</div>
+      <div>Post</div>
+      <div>Amount</div>
+      <div>Date</div>
+    </div>
+    <div id="tips-content">
+      <div class="loading">
+        <i class="fas fa-spinner"></i><br>
+        Loading tips...
+      </div>
+    </div>
+  </div>
+  
+  <!-- Revenue Table -->
+  <div class="table-container" id="revenue-table" style="display:none;">
+    <div class="table-header-row revenue-layout">
+      <div>Post</div>
+      <div>Likes</div>
+      <div>Revenue</div>
+      <div>Date</div>
+    </div>
+    <div id="revenue-content">
+      <div class="loading">
+        <i class="fas fa-spinner"></i><br>
+        Loading revenue...
+      </div>
+    </div>
+  </div>
+  
+  <!-- Withdrawals Table -->
+  <div class="table-container" id="withdrawals-table" style="display:none;">
+    <div class="table-header-row withdrawals-layout">
+      <div>ID</div>
+      <div>Method</div>
+      <div>Amount</div>
+      <div>Status</div>
+    </div>
+    <div id="withdrawals-content">
+      <div class="loading">
+        <i class="fas fa-spinner"></i><br>
+        Loading withdrawals...
+      </div>
+    </div>
   </div>
   
   <div class="withdraw-section">
-    <button class="withdraw-btn" id="withdraw-btn" disabled>Withdraw Earnings</button>
+    <button class="withdraw-btn" id="withdraw-btn" disabled>
+      <i class="fas fa-money-check-alt"></i> Withdraw Earnings
+    </button>
     <div class="min-withdraw">Minimum withdrawal: $25.00</div>
   </div>
 </div>
@@ -172,7 +277,7 @@ CashClique
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, query, where, onSnapshot, doc, orderBy, getDoc, updateDoc, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, query, where, onSnapshot, doc, orderBy, getDoc, updateDoc, serverTimestamp, increment, addDoc, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -189,15 +294,13 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 const totalBalanceEl = document.getElementById('total-balance');
-const totalPostsEl = document.getElementById('total-posts');
-const totalLikesEl = document.getElementById('total-likes');
-const paidPostsEl = document.getElementById('paid-posts');
-const avgEarningEl = document.getElementById('avg-earning');
-const contentTableBody = document.getElementById('content-table-body');
 const withdrawBtn = document.getElementById('withdraw-btn');
 
 let currentUser = null;
 let balance = 0;
+let totalTips = 0;
+let totalRevenue = 0;
+let totalWithdrawn = 0;
 
 onAuthStateChanged(auth, async (user) => {
     if (!user) {
@@ -206,11 +309,14 @@ onAuthStateChanged(auth, async (user) => {
     }
     currentUser = user;
     
-    loadEarnings();
+    loadUserBalance();
+    loadTips();
+    loadRevenue();
+    loadWithdrawals();
 });
 
-function loadEarnings() {
-    // User balance
+// Load user balance
+function loadUserBalance() {
     const userRef = doc(db, "users", currentUser.uid);
     onSnapshot(userRef, (snap) => {
         if (snap.exists()) {
@@ -219,102 +325,296 @@ function loadEarnings() {
             totalBalanceEl.textContent = `$${balance.toFixed(2)}`;
             
             withdrawBtn.disabled = balance < 25;
-            withdrawBtn.textContent = balance >= 25 ? `Withdraw $${balance.toFixed(2)}` : `$${balance.toFixed(2)} (Min $25)`;
-        }
-    });
-
-    // User posts stats
-    const postsQuery = query(collection(db, "posts"), where("userId", "==", currentUser.uid));
-    let totalLikes = 0;
-    let paidPostsCount = 0;
-    
-    onSnapshot(postsQuery, (postsSnap) => {
-        totalPostsEl.textContent = postsSnap.size;
-        
-        totalLikes = 0;
-        paidPostsCount = 0;
-        contentTableBody.innerHTML = "";
-        
-        if (postsSnap.empty) {
-            contentTableBody.innerHTML = '<tr><td colspan="3" class="empty-state"><h3>No posts yet</h3><p>Create content to start earning!</p></td></tr>';
-            updateStats(0, 0);
-            return;
-        }
-        
-        // Sort by earning (highest first) for top 10
-        const sortedPosts = postsSnap.docs.sort((a, b) => {
-            const earnA = a.data().earning || 0;
-            const earnB = b.data().earning || 0;
-            return earnB - earnA;
-        });
-        
-        let contentCount = 0;
-        sortedPosts.forEach((postDoc) => {
-            const post = postDoc.data();
-            const likes = post.likes || 0;
-            const earning = post.earning || 0;
-            
-            totalLikes += likes;
-            if (earning > 0) paidPostsCount++;
-            
-            // Add to table (only first 10)
-            if (contentCount < 10) {
-                const row = document.createElement('tr');
-                row.className = 'table-row';
-                row.onclick = () => window.location.href = `post-view.html?postId=${postDoc.id}`;
-                
-                const imgHtml = post.imageBase64 
-                    ? `<img src="${post.imageBase64}" class="post-preview" alt="Post">`
-                    : `<div class="post-preview" style="background:#ff6a00;display:flex;align-items:center;justify-content:center;color:white;font-size:10px;">${(post.content?.substring(0,2) || 'P').toUpperCase()}</div>`;
-                
-                row.innerHTML = `
-                    <td>
-                        <div style="display:flex;align-items:center;gap:10px;">
-                            ${imgHtml}
-                            <div class="post-info">
-                                <div class="post-title">${post.content?.substring(0, 50) || 'No text'}${post.content?.length > 50 ? '...' : ''}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="post-stats">
-                            <span>❤️ ${likes}</span>
-                            <span>💬 ${post.commentCount || 0}</span>
-                        </div>
-                    </td>
-                    <td class="earning-amount">$${earning.toFixed(2)}</td>
-                `;
-                contentTableBody.appendChild(row);
-                contentCount++;
+            if (balance >= 25) {
+                withdrawBtn.innerHTML = `<i class="fas fa-money-check-alt"></i> Withdraw $${balance.toFixed(2)}`;
+            } else {
+                withdrawBtn.innerHTML = `<i class="fas fa-money-check-alt"></i> Min. $25 (Need $${(25 - balance).toFixed(2)} more)`;
             }
-        });
-        
-        if (contentCount === 0 && postsSnap.size > 0) {
-            contentTableBody.innerHTML = '<tr><td colspan="3" class="empty-state"><h3>No paid posts yet</h3><p>Admin hasn\'t assigned earnings to your posts</p></td></tr>';
         }
-        
-        updateStats(totalLikes, paidPostsCount);
     });
 }
 
-function updateStats(totalLikes, paidPosts) {
-    totalLikesEl.textContent = totalLikes;
-    paidPostsEl.textContent = paidPosts;
+// Load tips received
+function loadTips() {
+    const tipsQuery = query(
+        collection(db, "transactions"), 
+        where("to", "==", currentUser.uid),
+        where("type", "==", "tip"),
+        orderBy("timestamp", "desc"),
+        limit(50)
+    );
     
-    const avgEarning = balance > 0 && totalPostsEl.textContent > 0 ? 
-        (balance / parseInt(totalPostsEl.textContent)).toFixed(2) : 
-        '0.00';
-    avgEarningEl.textContent = `$${avgEarning}`;
+    onSnapshot(tipsQuery, (snapshot) => {
+        const tipsContent = document.getElementById('tips-content');
+        totalTips = 0;
+        
+        if (snapshot.empty) {
+            tipsContent.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon"><i class="fas fa-hand-holding-dollar"></i></div>
+                    <h3>No tips received yet</h3>
+                    <p>Create engaging content to receive tips from your audience</p>
+                </div>`;
+            document.getElementById('total-tips').textContent = '$0.00';
+            return;
+        }
+        
+        tipsContent.innerHTML = '';
+        snapshot.forEach(doc => {
+            const tip = doc.data();
+            totalTips += tip.amount || 0;
+            
+            const date = tip.timestamp ? formatDate(tip.timestamp.toDate()) : 'Just now';
+            
+            const row = document.createElement('div');
+            row.className = 'table-row tips-layout';
+            row.innerHTML = `
+                <div class="transaction-type">
+                    <div class="type-icon tip">
+                        <i class="fas fa-hand-holding-dollar"></i>
+                    </div>
+                    <div class="type-info">
+                        <div class="type-title">${tip.fromUsername || 'Anonymous'}</div>
+                        <div class="type-subtitle mobile-label">Tip</div>
+                    </div>
+                </div>
+                <div class="type-subtitle">
+                    <span class="mobile-label">Post:</span>
+                    ${tip.postId ? 'View Post' : 'Direct tip'}
+                </div>
+                <div class="amount credit">
+                    <span class="mobile-label">Amount:</span>
+                    +$${tip.amount.toFixed(2)}
+                </div>
+                <div class="date-time">
+                    <span class="mobile-label">Date:</span>
+                    ${date}
+                </div>
+            `;
+            
+            if (tip.postId) {
+                row.style.cursor = 'pointer';
+                row.onclick = () => window.location.href = `post-view.html?postId=${tip.postId}`;
+            }
+            
+            tipsContent.appendChild(row);
+        });
+        
+        document.getElementById('total-tips').textContent = `$${totalTips.toFixed(2)}`;
+    }, (error) => {
+        console.error("Error loading tips:", error);
+        document.getElementById('tips-content').innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <h3>Error loading tips</h3>
+                <p>Please refresh the page</p>
+            </div>`;
+    });
+}
+
+// Load post revenue
+function loadRevenue() {
+    const postsQuery = query(
+        collection(db, "posts"), 
+        where("userId", "==", currentUser.uid),
+        where("earning", ">", 0)
+    );
+    
+    onSnapshot(postsQuery, (snapshot) => {
+        const revenueContent = document.getElementById('revenue-content');
+        totalRevenue = 0;
+        
+        if (snapshot.empty) {
+            revenueContent.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+                    <h3>No post revenue yet</h3>
+                    <p>Your posts haven't earned revenue yet</p>
+                </div>`;
+            document.getElementById('total-revenue').textContent = '$0.00';
+            return;
+        }
+        
+        revenueContent.innerHTML = '';
+        
+        // Sort by earning amount
+        const sortedPosts = snapshot.docs.sort((a, b) => {
+            return (b.data().earning || 0) - (a.data().earning || 0);
+        });
+        
+        sortedPosts.forEach(doc => {
+            const post = doc.data();
+            const earning = post.earning || 0;
+            totalRevenue += earning;
+            
+            const date = post.timestamp ? formatDate(post.timestamp.toDate()) : 'Unknown';
+            
+            const row = document.createElement('div');
+            row.className = 'table-row revenue-layout';
+            row.style.cursor = 'pointer';
+            row.onclick = () => window.location.href = `post-view.html?postId=${doc.id}`;
+            
+            row.innerHTML = `
+                <div class="transaction-type">
+                    <div class="type-icon revenue">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="type-info">
+                        <div class="type-title">${post.content?.substring(0, 30) || 'Untitled Post'}${post.content?.length > 30 ? '...' : ''}</div>
+                        <div class="type-subtitle">Posted ${date}</div>
+                    </div>
+                </div>
+                <div>
+                    <span class="mobile-label">Likes:</span>
+                    <i class="fas fa-heart" style="color:#ff4444;"></i> ${post.likes || 0}
+                </div>
+                <div class="amount credit">
+                    <span class="mobile-label">Revenue:</span>
+                    +$${earning.toFixed(2)}
+                </div>
+                <div class="status completed">
+                    <span class="mobile-label">Status:</span>
+                    Earned
+                </div>
+            `;
+            
+            revenueContent.appendChild(row);
+        });
+        
+        document.getElementById('total-revenue').textContent = `$${totalRevenue.toFixed(2)}`;
+    });
+}
+
+// Load withdrawals
+function loadWithdrawals() {
+    const withdrawalsQuery = query(
+        collection(db, "withdrawals"),
+        where("userId", "==", currentUser.uid),
+        orderBy("timestamp", "desc"),
+        limit(50)
+    );
+    
+    onSnapshot(withdrawalsQuery, (snapshot) => {
+        const withdrawalsContent = document.getElementById('withdrawals-content');
+        totalWithdrawn = 0;
+        let pendingAmount = 0;
+        
+        if (snapshot.empty) {
+            withdrawalsContent.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon"><i class="fas fa-money-check-alt"></i></div>
+                    <h3>No withdrawals yet</h3>
+                    <p>You haven't made any withdrawal requests</p>
+                </div>`;
+            document.getElementById('total-withdrawn').textContent = '$0.00';
+            document.getElementById('pending-amount').textContent = '$0.00';
+            return;
+        }
+        
+        withdrawalsContent.innerHTML = '';
+        snapshot.forEach(doc => {
+            const withdrawal = doc.data();
+            const status = withdrawal.status || 'pending';
+            
+            if (status === 'completed') {
+                totalWithdrawn += withdrawal.amount || 0;
+            } else if (status === 'pending') {
+                pendingAmount += withdrawal.amount || 0;
+            }
+            
+            const date = withdrawal.timestamp ? formatDate(withdrawal.timestamp.toDate()) : 'Unknown';
+            
+            const row = document.createElement('div');
+            row.className = 'table-row withdrawals-layout';
+            
+            let statusClass = status === 'completed' ? 'completed' : status === 'pending' ? 'pending' : 'failed';
+            let statusIcon = status === 'completed' ? 'check-circle' : status === 'pending' ? 'clock' : 'times-circle';
+            
+            row.innerHTML = `
+                <div class="transaction-type">
+                    <div class="type-icon withdrawal">
+                        <i class="fas fa-money-check-alt"></i>
+                    </div>
+                    <div class="type-info">
+                        <div class="type-title">#${doc.id.substring(0, 8).toUpperCase()}</div>
+                        <div class="type-subtitle">${date}</div>
+                    </div>
+                </div>
+                <div>
+                    <span class="mobile-label">Method:</span>
+                    ${withdrawal.method || 'Default'}
+                </div>
+                <div class="amount debit">
+                    <span class="mobile-label">Amount:</span>
+                    -$${withdrawal.amount.toFixed(2)}
+                </div>
+                <div class="status ${statusClass}">
+                    <i class="fas fa-${statusIcon}"></i> ${status.charAt(0).toUpperCase() + status.slice(1)}
+                </div>
+            `;
+            
+            withdrawalsContent.appendChild(row);
+        });
+        
+        document.getElementById('total-withdrawn').textContent = `$${totalWithdrawn.toFixed(2)}`;
+        document.getElementById('pending-amount').textContent = `$${pendingAmount.toFixed(2)}`;
+    }, (error) => {
+        console.error("Error loading withdrawals:", error);
+        document.getElementById('withdrawals-content').innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <h3>Error loading withdrawals</h3>
+                <p>Please refresh the page</p>
+            </div>`;
+    });
+}
+
+// Tab switching
+window.switchTab = function(tab, element) {
+    // Update active tab
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    element.classList.add('active');
+    
+    // Hide all tables
+    document.getElementById('tips-table').style.display = 'none';
+    document.getElementById('revenue-table').style.display = 'none';
+    document.getElementById('withdrawals-table').style.display = 'none';
+    
+    // Show selected table
+    document.getElementById(`${tab}-table`).style.display = 'block';
+};
+
+// Format date
+function formatDate(date) {
+    const now = new Date();
+    const diff = Math.floor((now - date) / 1000);
+    
+    if (diff < 60) return "Just now";
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+    if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+    
+    return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+    });
 }
 
 // Withdraw button
 withdrawBtn.onclick = async () => {
     if (balance < 25) {
-        alert('Minimum withdrawal is $25.00. You need $' + (25 - balance).toFixed(2) + ' more.');
+        alert(`Minimum withdrawal is $25.00. You need $${(25 - balance).toFixed(2)} more.`);
         return;
     }
     
-    if (!confirm(`Withdraw $${balance.toFixed(2)} to your payment method?`)) return;
+    const method = prompt('Enter your payment method (PayPal email, bank account, etc.):');
+    if (!method) return;
+    
+    if (!confirm(`Withdraw $${balance.toFixed(2)} to ${method}?`)) return;
+    
+    withdrawBtn.disabled = true;
+    withdrawBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
     
     try {
         // Create withdrawal request
@@ -322,6 +622,7 @@ withdrawBtn.onclick = async () => {
             userId: currentUser.uid,
             username: currentUser.displayName || currentUser.email?.split('@')[0] || 'User',
             amount: balance,
+            method: method,
             status: 'pending',
             timestamp: serverTimestamp()
         });
@@ -332,11 +633,13 @@ withdrawBtn.onclick = async () => {
             lastWithdrawal: serverTimestamp()
         });
         
-        alert('✅ Withdrawal request submitted! You\'ll be notified when processed.');
+        alert('✅ Withdrawal request submitted! You\'ll receive your payment within 3-5 business days.');
         withdrawBtn.disabled = true;
     } catch (error) {
         console.error('Withdraw failed:', error);
         alert('Failed to submit withdrawal. Please try again.');
+        withdrawBtn.disabled = false;
+        withdrawBtn.innerHTML = `<i class="fas fa-money-check-alt"></i> Withdraw $${balance.toFixed(2)}`;
     }
 };
 
