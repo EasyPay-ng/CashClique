@@ -7,6 +7,7 @@
 
 <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
@@ -14,19 +15,22 @@ body{background:#f5f5f5;display:flex;min-height:100vh;}
 .sidebar{width:240px;background:#ff6a00;color:white;padding:20px;display:flex;flex-direction:column;gap:20px;position:fixed;height:100%;transition:0.3s;z-index:999;}
 .sidebar img{width:45px;border-radius:10px;}
 .logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:18px;}
-.sidebar a{color:white;text-decoration:none;padding:10px;border-radius:8px;transition:0.3s;}
+.sidebar a{color:white;text-decoration:none;padding:12px;border-radius:8px;transition:0.3s;display:flex;align-items:center;gap:10px;}
 .sidebar a:hover{background:rgba(255,255,255,0.2);}
+.sidebar i{width:20px;text-align:center;}
 
 .main{margin-left:240px;width:100%;padding:20px;}
 .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;}
 .header-right{display:flex;align-items:center;gap:15px;}
-.user{display:flex;align-items:center;gap:10px;cursor:pointer;}
+.user{display:flex;align-items:center;gap:10px;cursor:pointer;padding:8px 12px;border-radius:25px;transition:0.2s;}
+.user:hover{background:rgba(0,0,0,0.05);}
 .user img{width:35px;height:35px;border-radius:50%;}
 
-.notification-bell{position:relative;cursor:pointer;font-size:24px;}
-.badge{position:absolute;top:-8px;right:-8px;background:#ff0000;color:white;font-size:11px;min-width:18px;height:18px;padding:2px 5px;border-radius:50%;font-weight:600;display:none;text-align:center;line-height:14px;}
+.notification-bell{position:relative;cursor:pointer;font-size:20px;padding:8px;transition:0.2s;}
+.notification-bell:hover{color:#ff6a00;}
+.badge{position:absolute;top:0;right:0;background:#ff0000;color:white;font-size:10px;min-width:16px;height:16px;padding:2px 4px;border-radius:50%;font-weight:600;display:none;text-align:center;line-height:12px;}
 
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px;margin-bottom:25px;}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:25px;}
 .card{background:white;padding:20px;border-radius:12px;box-shadow:0 5px 15px rgba(0,0,0,0.05);transition:0.3s;}
 .card:hover{transform:translateY(-5px);}
 .card h3{font-size:14px;color:gray;margin-bottom:10px;}
@@ -37,23 +41,28 @@ body{background:#f5f5f5;display:flex;min-height:100vh;}
 .post-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;position:relative;padding-right:30px;}
 .post-header img{width:35px;height:35px;border-radius:50%;cursor:pointer;}
 .post-time{font-size:11px;color:#888;margin-left:auto;}
-.post-actions{display:flex;gap:15px;margin-top:15px;color:gray;font-size:14px;align-items:center;flex-wrap:wrap;}
-.action-item{display:flex;align-items:center;gap:5px;cursor:pointer;transition:0.2s;}
+.post-actions{display:flex;gap:20px;margin-top:15px;padding-top:15px;border-top:1px solid #f0f0f0;align-items:center;flex-wrap:wrap;}
+.action-item{display:flex;align-items:center;gap:6px;cursor:pointer;transition:0.2s;color:#666;font-size:14px;font-weight:500;}
 .action-item:hover{color:#ff6a00;}
+.action-item i{font-size:16px;}
 .action-item.liked{color:#ff4444;}
+.action-item.liked i{font-weight:900;}
 .comments{margin-top:15px;padding-top:15px;border-top:1px solid #eee;}
-.create-btn{position:fixed;bottom:25px;right:25px;background:#ff6a00;color:white;border:none;width:60px;height:60px;border-radius:50%;font-size:30px;cursor:pointer;box-shadow:0 10px 20px rgba(0,0,0,0.2);transition:0.3s;z-index:99;}
-.create-btn:hover{transform:scale(1.1);}
+.create-btn{position:fixed;bottom:25px;right:25px;background:#ff6a00;color:white;border:none;width:60px;height:60px;border-radius:50%;font-size:24px;cursor:pointer;box-shadow:0 10px 20px rgba(0,0,0,0.2);transition:0.3s;z-index:99;display:flex;align-items:center;justify-content:center;}
+.create-btn:hover{transform:scale(1.1);background:#e96c00;}
 .post-image{margin-top:10px;width:100%;max-height:400px;border-radius:12px;object-fit:cover;cursor:pointer;}
-.three-dot{position:absolute;top:15px;right:15px;cursor:pointer;font-size:18px;}
+.three-dot{position:absolute;top:15px;right:15px;cursor:pointer;font-size:20px;color:#999;padding:5px;transition:0.2s;}
+.three-dot:hover{color:#666;}
 
 /* Priority Badge */
 .priority-badge{position:absolute;top:-5px;left:-5px;background:linear-gradient(135deg,#ff6a00,#ff8c00);color:white;padding:3px 8px;border-radius:15px;font-size:10px;font-weight:600;display:flex;align-items:center;gap:4px;}
+.priority-badge i{font-size:10px;}
 
 /* Tip Modal */
 .tip-modal{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:2000;}
 .tip-content{background:white;padding:25px;border-radius:16px;width:90%;max-width:400px;text-align:center;}
-.tip-content h3{color:#ff6a00;margin-bottom:15px;}
+.tip-content h3{color:#ff6a00;margin-bottom:15px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.tip-content h3 i{font-size:24px;}
 .tip-options{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0;}
 .tip-btn{padding:12px;background:#f5f5f5;border:2px solid #eee;border-radius:10px;cursor:pointer;font-weight:600;transition:0.2s;}
 .tip-btn:hover{background:#ff6a00;color:white;border-color:#ff6a00;}
@@ -74,16 +83,18 @@ body{background:#f5f5f5;display:flex;min-height:100vh;}
 /* Notifications */
 .notification-overlay{position:fixed;top:70px;right:20px;width:350px;background:white;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,0.2);display:none;z-index:1000;overflow:hidden;max-height:80vh;}
 .notification-header{padding:15px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;font-weight:600;background:#fafafa;}
+.notification-header i{margin-right:8px;}
 .notification-panel{max-height:400px;overflow-y:auto;}
 .notification-item{padding:12px 15px;border-bottom:1px solid #f0f0f0;cursor:pointer;transition:0.2s;display:flex;gap:12px;align-items:flex-start;}
 .notification-item:hover{background:#f8f8f8;}
 .notification-item.unread{background:#fff3e0;border-left:3px solid #ff6a00;}
 .notification-item:last-child{border-bottom:none;}
-.notif-icon{font-size:24px;flex-shrink:0;}
+.notif-icon{font-size:20px;flex-shrink:0;width:24px;text-align:center;color:#ff6a00;}
 .notif-content{flex:1;}
 .notif-content strong{display:block;font-size:13px;margin-bottom:2px;}
 .notif-content small{color:#888;font-size:11px;}
 .empty-notif{padding:40px 20px;text-align:center;color:#888;font-size:14px;}
+.empty-notif i{font-size:40px;margin-bottom:10px;opacity:0.3;}
 
 .menu-btn{display:none;font-size:22px;cursor:pointer;}
 
@@ -95,6 +106,7 @@ body{background:#f5f5f5;display:flex;min-height:100vh;}
 .notification-overlay{right:10px;left:10px;width:auto;}
 .post-time{display:block;margin-left:0;margin-top:5px;}
 .tip-options{grid-template-columns:repeat(2,1fr);}
+.post-actions{gap:15px;}
 }
 </style>
 </head>
@@ -107,12 +119,12 @@ body{background:#f5f5f5;display:flex;min-height:100vh;}
 <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
 CashClique
 </div>
-<a href="#">🏠 Dashboard</a>
-<a href="my-content.html">📝 My Content</a>
-<a href="earnings.html">💰 Earnings</a>
-<a href="opportunities.html">🔥 Opportunities</a>
-<a href="settings.html">⚙ Settings</a>
-<a href="#" id="logout">🚪 Logout</a>
+<a href="#"><i class="fas fa-home"></i> Dashboard</a>
+<a href="my-content.html"><i class="fas fa-file-alt"></i> My Content</a>
+<a href="earnings.html"><i class="fas fa-dollar-sign"></i> Earnings</a>
+<a href="opportunities.html"><i class="fas fa-fire"></i> Opportunities</a>
+<a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+<a href="#" id="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
 </div>
 
 <!-- MAIN -->
@@ -121,7 +133,7 @@ CashClique
     <div class="menu-btn" onclick="toggleMenu()">☰</div>
     <div class="header-right">
         <div class="notification-bell" id="notification-bell">
-            🔔
+            <i class="fas fa-bell"></i>
             <span class="badge" id="notif-count">0</span>
         </div>
         <div class="user" onclick="window.location.href='profile.html'">
@@ -138,8 +150,8 @@ CashClique
         <p id="total-posts">0</p>
     </div>
     <div class="card">
-        <h3>Your Balance</h3>
-        <p id="user-balance">$0.00</p>
+        <h3>Total Engagement</h3>
+        <p id="total-engagement">0</p>
     </div>
 </div>
 
@@ -147,7 +159,9 @@ CashClique
 <div class="feed" id="feed"></div>
 </div>
 
-<button class="create-btn" onclick="window.location.href='post.html'">+</button>
+<button class="create-btn" onclick="window.location.href='post.html'">
+    <i class="fas fa-plus"></i>
+</button>
 
 <!-- Media Viewer -->
 <div class="media-modal" id="media-modal" onclick="closeMediaModal()">
@@ -158,9 +172,8 @@ CashClique
 <!-- Tip Modal -->
 <div class="tip-modal" id="tip-modal">
     <div class="tip-content">
-        <h3>💰 Send a Tip</h3>
+        <h3><i class="fas fa-hand-holding-dollar"></i> Send a Tip</h3>
         <p style="color:#666;margin-bottom:10px;">Support <span id="tip-recipient">this creator</span></p>
-        <p style="font-size:14px;color:#888;margin-bottom:15px;">Your balance: <strong id="modal-balance">$0.00</strong></p>
         
         <div class="tip-options">
             <button class="tip-btn" data-amount="1">$1</button>
@@ -181,7 +194,7 @@ CashClique
 <!-- Notifications Overlay -->
 <div class="notification-overlay" id="notification-overlay">
     <div class="notification-header">
-        <span>🔔 Notifications</span>
+        <span><i class="fas fa-bell"></i> Notifications</span>
         <span style="font-size:12px;color:#ff6a00;cursor:pointer;" id="mark-all-read">Mark all read</span>
     </div>
     <div class="notification-panel" id="notification-panel"></div>
@@ -212,6 +225,7 @@ let currentUsername = "User";
 let currentBalance = 0;
 let viewTimers = {};
 let followingList = [];
+let totalEngagement = 0;
 
 // ================= AUTH & USER =================
 onAuthStateChanged(auth, async (user) => {
@@ -228,8 +242,6 @@ onAuthStateChanged(auth, async (user) => {
             followingList = data.following || [];
             document.getElementById("username").innerText = currentUsername;
             document.getElementById("user-avatar").src = data.avatar || `https://i.pravatar.cc/150?u=${user.uid}`;
-            document.getElementById("user-balance").innerText = `$${currentBalance.toFixed(2)}`;
-            document.getElementById("modal-balance").innerText = `$${currentBalance.toFixed(2)}`;
         } else {
             currentUsername = user.email?.split('@')[0] || "User";
             document.getElementById("username").innerText = currentUsername;
@@ -250,6 +262,13 @@ async function loadFeed() {
     onSnapshot(postsQuery, async (snapshot) => {
         feed.innerHTML = "";
         document.getElementById("total-posts").innerText = snapshot.size;
+        
+        let engagement = 0;
+        snapshot.forEach(doc => {
+            const post = doc.data();
+            engagement += (post.likes || 0) + (post.commentCount || 0) + (post.views || 0);
+        });
+        document.getElementById("total-engagement").innerText = engagement;
 
         if (snapshot.empty) {
             feed.innerHTML = `<div class="post"><p>Welcome to CashClique! Create your first post to see it here. 🚀</p></div>`;
@@ -315,7 +334,7 @@ async function renderPost(post) {
 
     // Priority badge for unviewed posts from followed users
     const priorityBadge = post.isFromFollowed && !hasViewed ? 
-        `<div class="priority-badge">⭐ From Following</div>` : '';
+        `<div class="priority-badge"><i class="fas fa-star"></i> From Following</div>` : '';
 
     postEl.innerHTML = `
         ${priorityBadge}
@@ -325,22 +344,22 @@ async function renderPost(post) {
                 <strong>${post.username || "Anonymous"}</strong>
                 <div class="post-time">${timestamp}</div>
             </div>
-            <span class="three-dot" onclick="openPostView('${postId}')">⋮</span>
+            <i class="fas fa-ellipsis-v three-dot" onclick="openPostView('${postId}')"></i>
         </div>
         <p>${post.content}</p>
         ${imgHTML}
         <div class="post-actions">
             <span class="action-item like-btn ${isLiked ? 'liked' : ''}" data-id="${postId}" data-owner="${post.userId}" data-liked="${isLiked}">
-                ❤️ ${post.likes || 0}
+                <i class="${isLiked ? 'fas' : 'far'} fa-heart"></i> ${post.likes || 0}
             </span>
             <span class="action-item" onclick="toggleComments('${postId}')">
-                💬 ${commentCount} ${commentCount === 1 ? 'Comment' : 'Comments'}
+                <i class="far fa-comment"></i> ${commentCount}
             </span>
             <span class="action-item">
-                👁️ ${viewCount} ${viewCount === 1 ? 'View' : 'Views'}
+                <i class="far fa-eye"></i> ${viewCount}
             </span>
             <span class="action-item tip-jar" data-id="${postId}" data-owner="${post.userId}" data-username="${post.username}">
-                💰 Tip
+                <i class="fas fa-hand-holding-dollar"></i> Tip
             </span>
         </div>
         <div class="comments" id="comments-${postId}" style="display:none">
@@ -425,8 +444,10 @@ function attachEventHandlers() {
                 });
                 btn.dataset.liked = "true";
                 btn.classList.add("liked");
-                const count = parseInt(btn.innerText.split(' ')[1]) || 0;
-                btn.innerText = `❤️ ${count + 1}`;
+                const icon = btn.querySelector("i");
+                icon.classList.replace("far", "fas");
+                const count = parseInt(btn.innerText) || 0;
+                btn.innerHTML = `<i class="fas fa-heart"></i> ${count + 1}`;
 
                 if (ownerId !== currentUser.uid) {
                     await sendNotification(ownerId, {
@@ -467,7 +488,6 @@ let currentTipData = null;
 function openTipModal(postId, ownerId, username) {
     currentTipData = { postId, ownerId, username };
     document.getElementById("tip-recipient").innerText = username || "this creator";
-    document.getElementById("modal-balance").innerText = `$${currentBalance.toFixed(2)}`;
     document.getElementById("tip-modal").style.display = "flex";
     
     // Reset modal
@@ -622,7 +642,7 @@ function loadNotifications() {
         let unread = 0;
 
         if (snap.empty) {
-            panel.innerHTML = `<div class="empty-notif">🔕 No notifications yet</div>`;
+            panel.innerHTML = `<div class="empty-notif"><i class="fas fa-bell-slash"></i><br>No notifications yet</div>`;
         } else {
             snap.forEach(nDoc => {
                 const n = nDoc.data();
@@ -632,16 +652,16 @@ function loadNotifications() {
                 div.className = `notification-item ${n.read ? '' : 'unread'}`;
                 div.dataset.id = nDoc.id;
 
-                let icon = "🔔";
-                if (n.type === "like") icon = "❤️";
-                else if (n.type === "comment") icon = "💬";
-                else if (n.type === "follow") icon = "👤";
-                else if (n.type === "earning") icon = "💰";
+                let icon = "fa-bell";
+                if (n.type === "like") icon = "fa-heart";
+                else if (n.type === "comment") icon = "fa-comment";
+                else if (n.type === "follow") icon = "fa-user-plus";
+                else if (n.type === "earning") icon = "fa-dollar-sign";
 
                 const time = n.timestamp ? formatTime(n.timestamp.toDate()) : "Just now";
                 
                 div.innerHTML = `
-                    <span class="notif-icon">${icon}</span>
+                    <i class="fas ${icon} notif-icon"></i>
                     <div class="notif-content">
                         <strong>${n.title || "Notification"}</strong>
                         <small>${n.message || ""}</small><br>
