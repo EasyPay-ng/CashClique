@@ -21,15 +21,10 @@ h1{font-size:18px;font-weight:900;}
 .btn-ghost{background:#fff;border:1px solid #eaecef;color:#111827;box-shadow:0 6px 16px rgba(17,24,39,.06);}
 .btn-ghost:hover{transform:translateY(-1px);}
 .btn-ok{background:#16a34a;color:#fff;}
-.btn-ok:hover{transform:translateY(-1px);}
 .btn-no{background:#ef4444;color:#fff;}
-.btn-no:hover{transform:translateY(-1px);}
 .btn-warn{background:#f59e0b;color:#111827;}
-.btn-warn:hover{transform:translateY(-1px);}
 .btn-dark{background:#111827;color:#fff;}
-.btn-dark:hover{transform:translateY(-1px);}
 
-.grid{display:grid;grid-template-columns:1fr;gap:14px;}
 .card{background:#fff;border:1px solid #eef0f3;border-radius:18px;box-shadow:0 12px 30px rgba(17,24,39,.08);overflow:hidden;}
 .card-head{padding:14px 16px;border-bottom:1px solid #eef0f3;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
 .filters{display:flex;gap:8px;flex-wrap:wrap;}
@@ -38,7 +33,7 @@ h1{font-size:18px;font-weight:900;}
 .search{display:flex;gap:10px;align-items:center;}
 .search input{padding:10px 12px;border-radius:12px;border:1px solid #e5e7eb;outline:none;min-width:260px;}
 .search input:focus{border-color:#ff6a00;box-shadow:0 0 0 4px rgba(255,106,0,.12);}
-@media(max-width:640px){.search input{min-width:0;width:100%;}.search{width:100%;}}
+@media(max-width:640px){.search{width:100%;}.search input{min-width:0;width:100%;}}
 
 .kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;padding:14px 16px;border-bottom:1px solid #eef0f3;background:#fafafa;}
 .kpi{background:#fff;border:1px solid #eef0f3;border-radius:16px;padding:12px;}
@@ -70,10 +65,8 @@ h1{font-size:18px;font-weight:900;}
 .fill{height:100%;background:linear-gradient(90deg,#ff6a00,#ff8a00);width:0%;}
 
 .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid #eef0f3;}
-
 .link{color:#ff6a00;font-weight:900;text-decoration:none;}
 .link:hover{text-decoration:underline;}
-
 .empty{padding:52px 16px;text-align:center;color:#6b7280;}
 .empty i{font-size:44px;opacity:.25;margin-bottom:12px;}
 
@@ -94,12 +87,13 @@ textarea:focus{border-color:#ff6a00;box-shadow:0 0 0 4px rgba(255,106,0,.12);}
     <div>
       <h1>Admin • Ad Campaigns</h1>
       <div class="sub">
-        Approve, reject, pause/resume, delete campaigns and monitor analytics (views, clicks, watch, CTR, progress).
+        Allowed admin: <b>beniwealth70@gmail.com</b>. Approve/reject/pause/delete campaigns and monitor analytics.
       </div>
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
       <button class="btn btn-ghost" onclick="history.back()"><i class="fas fa-arrow-left"></i> Back</button>
       <button class="btn btn-dark" id="refreshBtn"><i class="fas fa-rotate"></i> Refresh</button>
+      <button class="btn btn-ghost" id="logoutBtn"><i class="fas fa-right-from-bracket"></i> Logout</button>
     </div>
   </div>
 
@@ -116,7 +110,7 @@ textarea:focus{border-color:#ff6a00;box-shadow:0 0 0 4px rgba(255,106,0,.12);}
 
       <div class="search">
         <i class="fas fa-magnifying-glass" style="color:#6b7280;"></i>
-        <input id="search" placeholder="Search by title, advertiser, category..." />
+        <input id="search" placeholder="Search title, advertiser, category..." />
       </div>
     </div>
 
@@ -134,22 +128,19 @@ textarea:focus{border-color:#ff6a00;box-shadow:0 0 0 4px rgba(255,106,0,.12);}
   </div>
 </div>
 
-<!-- Approve/Reject Note Modal -->
+<!-- Approve/Reject Modal -->
 <div class="modal" id="modal">
   <div class="modal-box">
     <div class="modal-head">
-      <div id="modalTitle">Review campaign</div>
+      <div id="modalTitle">Review</div>
       <button class="btn btn-ghost" onclick="closeModal()"><i class="fas fa-xmark"></i></button>
     </div>
     <div class="modal-body">
-      <div class="small" style="font-weight:900;margin-bottom:8px;color:#111827;">Admin note (optional)</div>
-      <textarea id="adminNote" placeholder="Add a note / reason..."></textarea>
+      <div class="small" style="font-weight:900;color:#111827;margin-bottom:8px;">Admin note (optional)</div>
+      <textarea id="adminNote" placeholder="Reason / note..."></textarea>
       <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap;">
         <button class="btn btn-no" id="rejectBtn"><i class="fas fa-ban"></i> Reject</button>
         <button class="btn btn-ok" id="approveBtn"><i class="fas fa-check"></i> Approve</button>
-      </div>
-      <div class="small" style="margin-top:10px;">
-        Tip: Use Reject with a clear reason. (Refunding is optional and should be implemented carefully.)
       </div>
     </div>
   </div>
@@ -157,10 +148,10 @@ textarea:focus{border-color:#ff6a00;box-shadow:0 0 0 4px rgba(255,106,0,.12);}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import {
-  getFirestore, collection, query, orderBy, onSnapshot, doc, getDoc,
-  runTransaction, serverTimestamp, deleteDoc
+  getFirestore, collection, query, orderBy, onSnapshot, doc, runTransaction,
+  serverTimestamp, deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -176,10 +167,13 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+const ALLOWED_EMAILS = ["beniwealth70@gmail.com"]; // admin allowlist
+
 const listEl = document.getElementById("list");
 const searchEl = document.getElementById("search");
 const filtersEl = document.getElementById("filters");
 const refreshBtn = document.getElementById("refreshBtn");
+const logoutBtn = document.getElementById("logoutBtn");
 
 const kCampaigns = document.getElementById("kCampaigns");
 const kViews = document.getElementById("kViews");
@@ -193,18 +187,19 @@ const modalTitle = document.getElementById("modalTitle");
 const approveBtn = document.getElementById("approveBtn");
 const rejectBtn = document.getElementById("rejectBtn");
 
-let isAdmin = false;
-let all = []; // normalized campaigns
+let all = [];
 let activeStatus = "all";
 let unsubscribe = null;
-let currentReviewId = null;
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) { window.location.href = "login.html"; return; }
 
-  const me = await getDoc(doc(db, "users", user.uid));
-  isAdmin = me.exists() && me.data().isAdmin === true;
-  if (!isAdmin) { alert("Admins only."); window.location.href = "dashboard.html"; return; }
+  const email = (user.email || "").toLowerCase();
+  if (!ALLOWED_EMAILS.includes(email)) {
+    alert("Admins only.");
+    window.location.href = "dashboard.html";
+    return;
+  }
 
   attachUI();
   startListener();
@@ -220,11 +215,16 @@ function attachUI(){
     };
   });
 
-  searchEl.addEventListener("input", () => render());
+  searchEl.addEventListener("input", render);
 
   refreshBtn.onclick = () => {
     if (unsubscribe) unsubscribe();
     startListener();
+  };
+
+  logoutBtn.onclick = async () => {
+    await signOut(auth);
+    window.location.href = "login.html";
   };
 
   modal.addEventListener("click", (e) => {
@@ -235,7 +235,6 @@ function attachUI(){
 function startListener(){
   listEl.innerHTML = `<div class="empty"><i class="fas fa-spinner fa-spin"></i><div style="margin-top:10px;">Loading campaigns...</div></div>`;
 
-  // NOTE: orderBy(createdAt) may require an index if you add where clauses. Here we do only orderBy.
   const q = query(collection(db, "opportunities"), orderBy("createdAt", "desc"));
 
   if (unsubscribe) unsubscribe();
@@ -250,14 +249,7 @@ function startListener(){
 }
 
 function normalizeOpportunity(id, d){
-  // Support both schemas you’ve used across pages
   const metrics = d.metrics || {};
-  const views = Number(d.currentViews ?? metrics.views ?? 0);
-  const clicks = Number(d.clicks ?? metrics.clicks ?? 0);
-  const watch = Number(metrics.watch ?? d.watch ?? 0);
-  const targetViews = Number(d.targetViews ?? d.viewsTarget ?? d.viewsTarget ?? 0);
-  const cost = Number(d.cost ?? d.totalCost ?? 0);
-
   return {
     id,
     title: d.title || "Campaign",
@@ -265,31 +257,32 @@ function normalizeOpportunity(id, d){
     advertiserId: d.advertiserId || d.userId || "—",
     advertiserUsername: d.advertiserUsername || d.advertiserName || "—",
     status: String(d.status || "pending").toLowerCase(),
-    destinationUrl: d.targetUrl || d.destinationUrl || d.targetUrl || "",
+
+    destinationUrl: d.targetUrl || d.destinationUrl || "",
     mediaUrl: d.mediaUrl || null,
     description: d.description || "",
-    requirements: d.requirements || {},
-    createdAt: d.createdAt || null,
 
-    targetViews,
-    views,
-    clicks,
-    watch,
-    cost,
-    raw: d
+    requirements: d.requirements || {},
+
+    targetViews: Number(d.targetViews ?? d.viewsTarget ?? 0),
+    views: Number(d.currentViews ?? metrics.views ?? 0),
+    clicks: Number(d.clicks ?? metrics.clicks ?? 0),
+    watch: Number(metrics.watch ?? d.watch ?? 0),
+    cost: Number(d.cost ?? d.totalCost ?? 0),
+    createdAt: d.createdAt || null
   };
 }
 
 function updateKPIs(items){
-  const totalViews = items.reduce((s,x)=>s + x.views, 0);
-  const totalClicks = items.reduce((s,x)=>s + x.clicks, 0);
-  const totalWatch = items.reduce((s,x)=>s + x.watch, 0);
-  const ctr = totalViews > 0 ? (totalClicks / totalViews) * 100 : 0;
+  const views = items.reduce((s,x)=>s + x.views, 0);
+  const clicks = items.reduce((s,x)=>s + x.clicks, 0);
+  const watch = items.reduce((s,x)=>s + x.watch, 0);
+  const ctr = views > 0 ? (clicks / views) * 100 : 0;
 
   kCampaigns.textContent = items.length.toLocaleString();
-  kViews.textContent = totalViews.toLocaleString();
-  kClicks.textContent = totalClicks.toLocaleString();
-  kWatch.textContent = totalWatch.toLocaleString();
+  kViews.textContent = views.toLocaleString();
+  kClicks.textContent = clicks.toLocaleString();
+  kWatch.textContent = watch.toLocaleString();
   kCtr.textContent = `${ctr.toFixed(2)}%`;
 }
 
@@ -297,10 +290,7 @@ function render(){
   const term = (searchEl.value || "").trim().toLowerCase();
 
   let items = all.slice();
-
-  if (activeStatus !== "all") {
-    items = items.filter(x => x.status === activeStatus);
-  }
+  if (activeStatus !== "all") items = items.filter(x => x.status === activeStatus);
 
   if (term) {
     items = items.filter(x =>
@@ -318,9 +308,8 @@ function render(){
 
   listEl.innerHTML = "";
   items.forEach((c) => {
-    const statusBadge = statusToBadge(c.status);
     const progress = c.targetViews > 0 ? Math.min(100, (c.views / c.targetViews) * 100) : 0;
-    const ctr = c.views > 0 ? ((c.clicks / c.views) * 100) : 0;
+    const ctr = c.views > 0 ? (c.clicks / c.views) * 100 : 0;
     const cpv = c.views > 0 ? (c.cost / c.views) : 0;
     const cpc = c.clicks > 0 ? (c.cost / c.clicks) : 0;
 
@@ -329,12 +318,9 @@ function render(){
     el.innerHTML = `
       <div class="row">
         <div style="min-width:0;flex:1;">
-          <div class="title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-            ${escapeHTML(c.title)}
-          </div>
-          <div class="small">
-            ${escapeHTML(c.category)} • Advertiser: ${escapeHTML(c.advertiserUsername)} (${escapeHTML(c.advertiserId)})
-          </div>
+          <div class="title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHTML(c.title)}</div>
+          <div class="small">${escapeHTML(c.category)} • Advertiser: ${escapeHTML(c.advertiserUsername)} (${escapeHTML(c.advertiserId)})</div>
+
           ${c.destinationUrl ? `<div class="small">URL: <a class="link" href="${escapeHTML(c.destinationUrl)}" target="_blank">Open destination</a></div>` : ``}
           ${c.mediaUrl ? `<div class="small">Creative: <a class="link" href="${escapeHTML(c.mediaUrl)}" target="_blank">Open media</a></div>` : ``}
 
@@ -346,13 +332,11 @@ function render(){
             <span class="pill"><i class="fas fa-dollar-sign"></i> Cost: $${c.cost.toFixed(2)}</span>
             <span class="pill"><i class="fas fa-chart-simple"></i> CPV: $${cpv.toFixed(4)}</span>
             <span class="pill"><i class="fas fa-bullseye"></i> Target: ${c.targetViews.toLocaleString()}</span>
+            <span class="pill"><i class="fas fa-hand-pointer"></i> CPC: $${cpc.toFixed(4)}</span>
           </div>
 
           <div class="progress">
-            <div class="progress-top">
-              <span>Progress</span>
-              <span>${progress.toFixed(1)}%</span>
-            </div>
+            <div class="progress-top"><span>Progress</span><span>${progress.toFixed(1)}%</span></div>
             <div class="bar"><div class="fill" style="width:${progress}%"></div></div>
           </div>
 
@@ -364,8 +348,8 @@ function render(){
         </div>
 
         <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-end;">
-          ${statusBadge}
-          <div class="small">CPC: $${(c.clicks > 0 ? (c.cost/c.clicks) : 0).toFixed(4)}</div>
+          ${statusToBadge(c.status)}
+          <div class="small">ID: ${escapeHTML(c.id)}</div>
         </div>
       </div>
 
@@ -418,7 +402,6 @@ async function handleAction(action, id){
   const ref = doc(db, "opportunities", id);
 
   if (action === "review"){
-    currentReviewId = id;
     adminNote.value = "";
     modalTitle.textContent = `Review campaign: ${id}`;
     modal.classList.add("active");
@@ -467,11 +450,6 @@ async function setStatus(id, status){
       if (!snap.exists()) throw new Error("Campaign not found.");
       const d = snap.data();
 
-      // Only pending can be approved/rejected (policy choice)
-      if ((status === "approved" || status === "rejected") && String(d.status||"pending") !== "pending") {
-        // allow admin to override by removing this guard if you want
-      }
-
       tx.update(ref, {
         status,
         adminNote: note,
@@ -492,7 +470,6 @@ async function setStatus(id, status){
 
 window.closeModal = function(){
   modal.classList.remove("active");
-  currentReviewId = null;
 };
 
 function escapeHTML(str){
