@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Admin • Opportunities | CashClique</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Admin • Ad Campaigns | CashClique</title>
 
 <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -11,50 +11,145 @@
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{background:#f5f6f8;color:#111827;}
-.wrap{max-width:1100px;margin:0 auto;padding:18px 14px 60px;}
-h1{font-size:18px;font-weight:900;margin-bottom:12px;}
-.card{background:#fff;border:1px solid #eef0f3;border-radius:18px;box-shadow:0 12px 30px rgba(17,24,39,.08);overflow:hidden;}
-.row{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #eef0f3;}
-.badge{padding:6px 10px;border-radius:999px;font-size:12px;font-weight:800;}
-.pending{background:rgba(245,158,11,.12);color:#b45309;border:1px solid rgba(245,158,11,.2);}
-.approved{background:rgba(34,197,94,.12);color:#15803d;border:1px solid rgba(34,197,94,.2);}
-.rejected{background:rgba(239,68,68,.12);color:#b91c1c;border:1px solid rgba(239,68,68,.2);}
-.btn{border:none;border-radius:12px;padding:10px 12px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:8px;}
+body{background:#f5f6f8;color:#111827;min-height:100vh;}
+.wrap{max-width:1200px;margin:0 auto;padding:18px 14px 70px;}
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+h1{font-size:18px;font-weight:900;}
+.sub{font-size:13px;color:#6b7280;margin-top:4px;max-width:72ch;}
+.btn{border:none;border-radius:12px;padding:10px 12px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:10px;transition:.2s;}
+.btn:disabled{opacity:.55;cursor:not-allowed;transform:none;}
+.btn-ghost{background:#fff;border:1px solid #eaecef;color:#111827;box-shadow:0 6px 16px rgba(17,24,39,.06);}
+.btn-ghost:hover{transform:translateY(-1px);}
 .btn-ok{background:#16a34a;color:#fff;}
+.btn-ok:hover{transform:translateY(-1px);}
 .btn-no{background:#ef4444;color:#fff;}
-.btn-ghost{background:#f2f3f5;color:#111827;}
-.small{color:#6b7280;font-size:12px;}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:9999;}
+.btn-no:hover{transform:translateY(-1px);}
+.btn-warn{background:#f59e0b;color:#111827;}
+.btn-warn:hover{transform:translateY(-1px);}
+.btn-dark{background:#111827;color:#fff;}
+.btn-dark:hover{transform:translateY(-1px);}
+
+.grid{display:grid;grid-template-columns:1fr;gap:14px;}
+.card{background:#fff;border:1px solid #eef0f3;border-radius:18px;box-shadow:0 12px 30px rgba(17,24,39,.08);overflow:hidden;}
+.card-head{padding:14px 16px;border-bottom:1px solid #eef0f3;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.filters{display:flex;gap:8px;flex-wrap:wrap;}
+.filter{padding:8px 12px;border-radius:999px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;font-weight:800;font-size:12px;color:#111827;}
+.filter.active{background:#ff6a00;border-color:#ff6a00;color:#fff;}
+.search{display:flex;gap:10px;align-items:center;}
+.search input{padding:10px 12px;border-radius:12px;border:1px solid #e5e7eb;outline:none;min-width:260px;}
+.search input:focus{border-color:#ff6a00;box-shadow:0 0 0 4px rgba(255,106,0,.12);}
+@media(max-width:640px){.search input{min-width:0;width:100%;}.search{width:100%;}}
+
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;padding:14px 16px;border-bottom:1px solid #eef0f3;background:#fafafa;}
+.kpi{background:#fff;border:1px solid #eef0f3;border-radius:16px;padding:12px;}
+.kpi .label{font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.7px;font-weight:800;}
+.kpi .val{font-size:18px;font-weight:900;margin-top:6px;}
+.kpi i{color:#ff6a00;margin-right:6px;}
+@media(max-width:980px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr));}}
+
+.list{padding:14px 16px;display:flex;flex-direction:column;gap:12px;}
+.item{border:1px solid #eef0f3;border-radius:18px;padding:14px;transition:.2s;box-shadow:0 10px 20px rgba(17,24,39,.06);}
+.item:hover{transform:translateY(-1px);box-shadow:0 14px 30px rgba(17,24,39,.10);}
+.row{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.title{font-weight:900;}
+.small{font-size:12px;color:#6b7280;line-height:1.35;margin-top:6px;}
+.badge{padding:7px 10px;border-radius:999px;font-size:12px;font-weight:900;display:inline-flex;align-items:center;gap:8px;}
+.pending{background:rgba(245,158,11,.12);color:#b45309;border:1px solid rgba(245,158,11,.22);}
+.approved{background:rgba(34,197,94,.12);color:#15803d;border:1px solid rgba(34,197,94,.22);}
+.rejected{background:rgba(239,68,68,.12);color:#b91c1c;border:1px solid rgba(239,68,68,.22);}
+.paused{background:rgba(59,130,246,.12);color:#1d4ed8;border:1px solid rgba(59,130,246,.22);}
+.completed{background:rgba(17,24,39,.08);color:#111827;border:1px solid rgba(17,24,39,.14);}
+
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border-radius:999px;background:#f2f3f5;border:1px solid #e5e7eb;font-size:12px;font-weight:900;color:#111827;}
+.pill i{color:#ff6a00;}
+
+.progress{margin-top:10px;}
+.progress-top{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:#6b7280;font-weight:800;}
+.bar{height:8px;border-radius:999px;background:#eef0f3;overflow:hidden;margin-top:8px;}
+.fill{height:100%;background:linear-gradient(90deg,#ff6a00,#ff8a00);width:0%;}
+
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid #eef0f3;}
+
+.link{color:#ff6a00;font-weight:900;text-decoration:none;}
+.link:hover{text-decoration:underline;}
+
+.empty{padding:52px 16px;text-align:center;color:#6b7280;}
+.empty i{font-size:44px;opacity:.25;margin-bottom:12px;}
+
+/* Modal */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:9999;padding:14px;}
 .modal.active{display:flex;}
-.modal-box{background:#fff;border-radius:16px;width:92%;max-width:520px;overflow:hidden;}
-.modal-head{padding:14px 16px;border-bottom:1px solid #eef0f3;font-weight:900;display:flex;justify-content:space-between;align-items:center;}
+.modal-box{background:#fff;border-radius:18px;width:100%;max-width:560px;overflow:hidden;}
+.modal-head{padding:14px 16px;border-bottom:1px solid #eef0f3;font-weight:900;display:flex;justify-content:space-between;align-items:center;gap:10px;}
 .modal-body{padding:16px;}
 textarea{width:100%;padding:12px;border-radius:12px;border:1px solid #e5e7eb;min-height:120px;outline:none;}
 textarea:focus{border-color:#ff6a00;box-shadow:0 0 0 4px rgba(255,106,0,.12);}
 </style>
 </head>
+
 <body>
 <div class="wrap">
-  <h1>Admin • Opportunity Submissions</h1>
-  <div class="card" id="list"></div>
+  <div class="topbar">
+    <div>
+      <h1>Admin • Ad Campaigns</h1>
+      <div class="sub">
+        Approve, reject, pause/resume, delete campaigns and monitor analytics (views, clicks, watch, CTR, progress).
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-ghost" onclick="history.back()"><i class="fas fa-arrow-left"></i> Back</button>
+      <button class="btn btn-dark" id="refreshBtn"><i class="fas fa-rotate"></i> Refresh</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="filters" id="filters">
+        <button class="filter active" data-status="all">All</button>
+        <button class="filter" data-status="pending">Pending</button>
+        <button class="filter" data-status="approved">Approved</button>
+        <button class="filter" data-status="paused">Paused</button>
+        <button class="filter" data-status="rejected">Rejected</button>
+        <button class="filter" data-status="completed">Completed</button>
+      </div>
+
+      <div class="search">
+        <i class="fas fa-magnifying-glass" style="color:#6b7280;"></i>
+        <input id="search" placeholder="Search by title, advertiser, category..." />
+      </div>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi"><div class="label"><i class="fas fa-bullhorn"></i>Campaigns</div><div class="val" id="kCampaigns">0</div></div>
+      <div class="kpi"><div class="label"><i class="fas fa-eye"></i>Views</div><div class="val" id="kViews">0</div></div>
+      <div class="kpi"><div class="label"><i class="fas fa-mouse-pointer"></i>Clicks</div><div class="val" id="kClicks">0</div></div>
+      <div class="kpi"><div class="label"><i class="fas fa-circle-play"></i>Watch</div><div class="val" id="kWatch">0</div></div>
+      <div class="kpi"><div class="label"><i class="fas fa-percent"></i>Avg CTR</div><div class="val" id="kCtr">0%</div></div>
+    </div>
+
+    <div class="list" id="list">
+      <div class="empty"><i class="fas fa-spinner fa-spin"></i><div style="margin-top:10px;">Loading campaigns...</div></div>
+    </div>
+  </div>
 </div>
 
+<!-- Approve/Reject Note Modal -->
 <div class="modal" id="modal">
   <div class="modal-box">
     <div class="modal-head">
-      <span id="modalTitle">Review</span>
+      <div id="modalTitle">Review campaign</div>
       <button class="btn btn-ghost" onclick="closeModal()"><i class="fas fa-xmark"></i></button>
     </div>
     <div class="modal-body">
-      <div class="small" style="margin-bottom:8px;">Admin note (optional)</div>
-      <textarea id="adminNote" placeholder="Reason / note..."></textarea>
-      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px;">
+      <div class="small" style="font-weight:900;margin-bottom:8px;color:#111827;">Admin note (optional)</div>
+      <textarea id="adminNote" placeholder="Add a note / reason..."></textarea>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap;">
         <button class="btn btn-no" id="rejectBtn"><i class="fas fa-ban"></i> Reject</button>
         <button class="btn btn-ok" id="approveBtn"><i class="fas fa-check"></i> Approve</button>
       </div>
       <div class="small" style="margin-top:10px;">
-        Optional: if rejected, you can refund advertiser in code (see comment in script).
+        Tip: Use Reject with a clear reason. (Refunding is optional and should be implemented carefully.)
       </div>
     </div>
   </div>
@@ -63,8 +158,9 @@ textarea:focus{border-color:#ff6a00;box-shadow:0 0 0 4px rgba(255,106,0,.12);}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { 
-  getFirestore, collection, query, orderBy, onSnapshot, doc, runTransaction, serverTimestamp, getDoc, where 
+import {
+  getFirestore, collection, query, orderBy, onSnapshot, doc, getDoc,
+  runTransaction, serverTimestamp, deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -80,110 +176,330 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const list = document.getElementById("list");
+const listEl = document.getElementById("list");
+const searchEl = document.getElementById("search");
+const filtersEl = document.getElementById("filters");
+const refreshBtn = document.getElementById("refreshBtn");
+
+const kCampaigns = document.getElementById("kCampaigns");
+const kViews = document.getElementById("kViews");
+const kClicks = document.getElementById("kClicks");
+const kWatch = document.getElementById("kWatch");
+const kCtr = document.getElementById("kCtr");
+
 const modal = document.getElementById("modal");
 const adminNote = document.getElementById("adminNote");
-let currentOppId = null;
+const modalTitle = document.getElementById("modalTitle");
+const approveBtn = document.getElementById("approveBtn");
+const rejectBtn = document.getElementById("rejectBtn");
+
+let isAdmin = false;
+let all = []; // normalized campaigns
+let activeStatus = "all";
+let unsubscribe = null;
+let currentReviewId = null;
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) { window.location.href = "login.html"; return; }
 
-  // Minimal admin gate (recommended to enforce with rules too):
   const me = await getDoc(doc(db, "users", user.uid));
-  const isAdmin = me.exists() && me.data().isAdmin === true;
+  isAdmin = me.exists() && me.data().isAdmin === true;
   if (!isAdmin) { alert("Admins only."); window.location.href = "dashboard.html"; return; }
 
-  const q = query(collection(db, "opportunities"), orderBy("createdAt", "desc"));
-  onSnapshot(q, (snap) => {
-    list.innerHTML = "";
-    if (snap.empty) {
-      list.innerHTML = `<div class="row"><div>No submissions yet.</div></div>`;
-      return;
-    }
-
-    snap.forEach((d) => {
-      const o = d.data();
-      const statusClass = o.status === "approved" ? "approved" : o.status === "rejected" ? "rejected" : "pending";
-
-      const el = document.createElement("div");
-      el.className = "row";
-      el.innerHTML = `
-        <div style="min-width:0;">
-          <div style="font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${o.title || "Opportunity"}</div>
-          <div class="small">
-            ${o.category || "Category"} • ${o.viewsTarget?.toLocaleString?.() || 0} views • Cost $${Number(o.totalCost||0).toFixed(2)}
-            • Req: ${o.requirements?.minLikes || 0}+ likes / ${o.requirements?.minFollowers || 0}+ followers
-            ${o.requirements?.verifiedRequired ? " • Verified only" : ""}
-          </div>
-          <div class="small">Advertiser: ${o.advertiserUsername || o.advertiserId}</div>
-        </div>
-        <div style="display:flex;gap:10px;align-items:center;">
-          <span class="badge ${statusClass}">${o.status || "pending"}</span>
-          <button class="btn btn-ghost" ${o.status === "pending" ? "" : "disabled"} data-id="${d.id}">
-            <i class="fas fa-pen-to-square"></i> Review
-          </button>
-        </div>
-      `;
-      list.appendChild(el);
-
-      el.querySelector("button").onclick = () => openModal(d.id, o);
-    });
-  });
+  attachUI();
+  startListener();
 });
 
-function openModal(id, o){
-  currentOppId = id;
-  adminNote.value = o.adminNote || "";
-  modal.classList.add("active");
+function attachUI(){
+  filtersEl.querySelectorAll(".filter").forEach(btn => {
+    btn.onclick = () => {
+      filtersEl.querySelectorAll(".filter").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      activeStatus = btn.dataset.status;
+      render();
+    };
+  });
 
-  document.getElementById("approveBtn").onclick = () => setStatus("approved");
-  document.getElementById("rejectBtn").onclick = () => setStatus("rejected");
+  searchEl.addEventListener("input", () => render());
+
+  refreshBtn.onclick = () => {
+    if (unsubscribe) unsubscribe();
+    startListener();
+  };
+
+  modal.addEventListener("click", (e) => {
+    if (e.target.id === "modal") closeModal();
+  });
+}
+
+function startListener(){
+  listEl.innerHTML = `<div class="empty"><i class="fas fa-spinner fa-spin"></i><div style="margin-top:10px;">Loading campaigns...</div></div>`;
+
+  // NOTE: orderBy(createdAt) may require an index if you add where clauses. Here we do only orderBy.
+  const q = query(collection(db, "opportunities"), orderBy("createdAt", "desc"));
+
+  if (unsubscribe) unsubscribe();
+  unsubscribe = onSnapshot(q, (snap) => {
+    all = snap.docs.map(d => normalizeOpportunity(d.id, d.data()));
+    updateKPIs(all);
+    render();
+  }, (err) => {
+    console.error(err);
+    listEl.innerHTML = `<div class="empty"><i class="fas fa-triangle-exclamation"></i><div style="margin-top:10px;">${escapeHTML(err.message || "Failed to load")}</div></div>`;
+  });
+}
+
+function normalizeOpportunity(id, d){
+  // Support both schemas you’ve used across pages
+  const metrics = d.metrics || {};
+  const views = Number(d.currentViews ?? metrics.views ?? 0);
+  const clicks = Number(d.clicks ?? metrics.clicks ?? 0);
+  const watch = Number(metrics.watch ?? d.watch ?? 0);
+  const targetViews = Number(d.targetViews ?? d.viewsTarget ?? d.viewsTarget ?? 0);
+  const cost = Number(d.cost ?? d.totalCost ?? 0);
+
+  return {
+    id,
+    title: d.title || "Campaign",
+    category: d.category || "—",
+    advertiserId: d.advertiserId || d.userId || "—",
+    advertiserUsername: d.advertiserUsername || d.advertiserName || "—",
+    status: String(d.status || "pending").toLowerCase(),
+    destinationUrl: d.targetUrl || d.destinationUrl || d.targetUrl || "",
+    mediaUrl: d.mediaUrl || null,
+    description: d.description || "",
+    requirements: d.requirements || {},
+    createdAt: d.createdAt || null,
+
+    targetViews,
+    views,
+    clicks,
+    watch,
+    cost,
+    raw: d
+  };
+}
+
+function updateKPIs(items){
+  const totalViews = items.reduce((s,x)=>s + x.views, 0);
+  const totalClicks = items.reduce((s,x)=>s + x.clicks, 0);
+  const totalWatch = items.reduce((s,x)=>s + x.watch, 0);
+  const ctr = totalViews > 0 ? (totalClicks / totalViews) * 100 : 0;
+
+  kCampaigns.textContent = items.length.toLocaleString();
+  kViews.textContent = totalViews.toLocaleString();
+  kClicks.textContent = totalClicks.toLocaleString();
+  kWatch.textContent = totalWatch.toLocaleString();
+  kCtr.textContent = `${ctr.toFixed(2)}%`;
+}
+
+function render(){
+  const term = (searchEl.value || "").trim().toLowerCase();
+
+  let items = all.slice();
+
+  if (activeStatus !== "all") {
+    items = items.filter(x => x.status === activeStatus);
+  }
+
+  if (term) {
+    items = items.filter(x =>
+      x.title.toLowerCase().includes(term) ||
+      x.category.toLowerCase().includes(term) ||
+      String(x.advertiserUsername || "").toLowerCase().includes(term) ||
+      String(x.advertiserId || "").toLowerCase().includes(term)
+    );
+  }
+
+  if (items.length === 0){
+    listEl.innerHTML = `<div class="empty"><i class="fas fa-folder-open"></i><div style="margin-top:10px;">No campaigns match your filters.</div></div>`;
+    return;
+  }
+
+  listEl.innerHTML = "";
+  items.forEach((c) => {
+    const statusBadge = statusToBadge(c.status);
+    const progress = c.targetViews > 0 ? Math.min(100, (c.views / c.targetViews) * 100) : 0;
+    const ctr = c.views > 0 ? ((c.clicks / c.views) * 100) : 0;
+    const cpv = c.views > 0 ? (c.cost / c.views) : 0;
+    const cpc = c.clicks > 0 ? (c.cost / c.clicks) : 0;
+
+    const el = document.createElement("div");
+    el.className = "item";
+    el.innerHTML = `
+      <div class="row">
+        <div style="min-width:0;flex:1;">
+          <div class="title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+            ${escapeHTML(c.title)}
+          </div>
+          <div class="small">
+            ${escapeHTML(c.category)} • Advertiser: ${escapeHTML(c.advertiserUsername)} (${escapeHTML(c.advertiserId)})
+          </div>
+          ${c.destinationUrl ? `<div class="small">URL: <a class="link" href="${escapeHTML(c.destinationUrl)}" target="_blank">Open destination</a></div>` : ``}
+          ${c.mediaUrl ? `<div class="small">Creative: <a class="link" href="${escapeHTML(c.mediaUrl)}" target="_blank">Open media</a></div>` : ``}
+
+          <div class="pills">
+            <span class="pill"><i class="fas fa-eye"></i> Views: ${c.views.toLocaleString()}</span>
+            <span class="pill"><i class="fas fa-mouse-pointer"></i> Clicks: ${c.clicks.toLocaleString()}</span>
+            <span class="pill"><i class="fas fa-circle-play"></i> Watch: ${c.watch.toLocaleString()}</span>
+            <span class="pill"><i class="fas fa-percent"></i> CTR: ${ctr.toFixed(2)}%</span>
+            <span class="pill"><i class="fas fa-dollar-sign"></i> Cost: $${c.cost.toFixed(2)}</span>
+            <span class="pill"><i class="fas fa-chart-simple"></i> CPV: $${cpv.toFixed(4)}</span>
+            <span class="pill"><i class="fas fa-bullseye"></i> Target: ${c.targetViews.toLocaleString()}</span>
+          </div>
+
+          <div class="progress">
+            <div class="progress-top">
+              <span>Progress</span>
+              <span>${progress.toFixed(1)}%</span>
+            </div>
+            <div class="bar"><div class="fill" style="width:${progress}%"></div></div>
+          </div>
+
+          <div class="small" style="margin-top:10px;">
+            Requirements: ${Number(c.requirements?.minLikes || 0).toLocaleString()} likes •
+            ${Number(c.requirements?.minFollowers || 0).toLocaleString()} followers •
+            Verified: ${(c.requirements?.requireVerified || c.requirements?.verifiedRequired) ? "Required" : "Not required"}
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-end;">
+          ${statusBadge}
+          <div class="small">CPC: $${(c.clicks > 0 ? (c.cost/c.clicks) : 0).toFixed(4)}</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        ${c.status === "pending" ? `
+          <button class="btn btn-ok" data-act="review" data-id="${c.id}">
+            <i class="fas fa-check"></i> Approve/Reject
+          </button>
+        ` : ``}
+
+        ${c.status === "approved" ? `
+          <button class="btn btn-warn" data-act="pause" data-id="${c.id}">
+            <i class="fas fa-pause"></i> Pause
+          </button>
+        ` : ``}
+
+        ${c.status === "paused" ? `
+          <button class="btn btn-ok" data-act="resume" data-id="${c.id}">
+            <i class="fas fa-play"></i> Resume
+          </button>
+        ` : ``}
+
+        <button class="btn btn-ghost" data-act="markCompleted" data-id="${c.id}">
+          <i class="fas fa-flag-checkered"></i> Mark Completed
+        </button>
+
+        <button class="btn btn-no" data-act="delete" data-id="${c.id}">
+          <i class="fas fa-trash"></i> Delete
+        </button>
+      </div>
+    `;
+    listEl.appendChild(el);
+
+    el.querySelectorAll("button[data-act]").forEach(btn => {
+      btn.onclick = () => handleAction(btn.dataset.act, btn.dataset.id);
+    });
+  });
+}
+
+function statusToBadge(status){
+  const s = String(status||"pending").toLowerCase();
+  if (s === "approved") return `<span class="badge approved"><i class="fas fa-circle-check"></i> APPROVED</span>`;
+  if (s === "rejected") return `<span class="badge rejected"><i class="fas fa-ban"></i> REJECTED</span>`;
+  if (s === "paused") return `<span class="badge paused"><i class="fas fa-pause"></i> PAUSED</span>`;
+  if (s === "completed") return `<span class="badge completed"><i class="fas fa-flag-checkered"></i> COMPLETED</span>`;
+  return `<span class="badge pending"><i class="fas fa-clock"></i> PENDING</span>`;
+}
+
+async function handleAction(action, id){
+  const ref = doc(db, "opportunities", id);
+
+  if (action === "review"){
+    currentReviewId = id;
+    adminNote.value = "";
+    modalTitle.textContent = `Review campaign: ${id}`;
+    modal.classList.add("active");
+    approveBtn.onclick = () => setStatus(id, "approved");
+    rejectBtn.onclick = () => setStatus(id, "rejected");
+    return;
+  }
+
+  if (action === "pause"){
+    if (!confirm("Pause this campaign?")) return;
+    await setStatus(id, "paused");
+    return;
+  }
+
+  if (action === "resume"){
+    if (!confirm("Resume this campaign?")) return;
+    await setStatus(id, "approved");
+    return;
+  }
+
+  if (action === "markCompleted"){
+    if (!confirm("Mark as completed?")) return;
+    await setStatus(id, "completed");
+    return;
+  }
+
+  if (action === "delete"){
+    if (!confirm("Delete this campaign permanently?")) return;
+    try{
+      await deleteDoc(ref);
+    }catch(e){
+      console.error(e);
+      alert(e.message || "Delete failed.");
+    }
+    return;
+  }
+}
+
+async function setStatus(id, status){
+  const ref = doc(db, "opportunities", id);
+  const note = (adminNote.value || "").trim() || null;
+
+  try{
+    await runTransaction(db, async (tx) => {
+      const snap = await tx.get(ref);
+      if (!snap.exists()) throw new Error("Campaign not found.");
+      const d = snap.data();
+
+      // Only pending can be approved/rejected (policy choice)
+      if ((status === "approved" || status === "rejected") && String(d.status||"pending") !== "pending") {
+        // allow admin to override by removing this guard if you want
+      }
+
+      tx.update(ref, {
+        status,
+        adminNote: note,
+        updatedAt: serverTimestamp(),
+        approvedAt: status === "approved" ? serverTimestamp() : (d.approvedAt || null),
+        rejectedAt: status === "rejected" ? serverTimestamp() : (d.rejectedAt || null),
+        pausedAt: status === "paused" ? serverTimestamp() : null,
+        completedAt: status === "completed" ? serverTimestamp() : null
+      });
+    });
+
+    closeModal();
+  }catch(e){
+    console.error(e);
+    alert(e.message || "Update failed.");
+  }
 }
 
 window.closeModal = function(){
   modal.classList.remove("active");
-  currentOppId = null;
+  currentReviewId = null;
 };
 
-async function setStatus(status){
-  if (!currentOppId) return;
-
-  const note = adminNote.value.trim() || null;
-  const oppRef = doc(db, "opportunities", currentOppId);
-
-  try {
-    await runTransaction(db, async (tx) => {
-      const oppSnap = await tx.get(oppRef);
-      if (!oppSnap.exists()) throw new Error("Opportunity not found.");
-      const o = oppSnap.data();
-      if (o.status !== "pending") return;
-
-      tx.update(oppRef, {
-        status,
-        adminNote: note,
-        approvedAt: status === "approved" ? serverTimestamp() : null,
-        rejectedAt: status === "rejected" ? serverTimestamp() : null
-      });
-
-      // OPTIONAL REFUND ON REJECT:
-      // If you want to refund on reject, uncomment this:
-      /*
-      if (status === "rejected") {
-        const advRef = doc(db, "users", o.advertiserId);
-        tx.update(advRef, { balance: increment(Number(o.totalCost || 0)) });
-      }
-      */
-    });
-
-    closeModal();
-  } catch (e) {
-    console.error(e);
-    alert(e.message || "Failed.");
-  }
+function escapeHTML(str){
+  return String(str||"").replace(/[&<>"']/g, (m) => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[m]));
 }
-
-// close clicking outside
-modal.addEventListener("click", (e) => { if (e.target.id === "modal") closeModal(); });
 </script>
 </body>
 </html>
