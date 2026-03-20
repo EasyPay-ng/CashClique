@@ -41,11 +41,12 @@ body{background:#f5f5f5;min-height:100vh;padding:20px;}
 
 .opp-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:15px;}
 .opp-title{font-size:18px;font-weight:600;color:#333;margin-bottom:5px;}
-.opp-category{display:inline-block;padding:4px 10px;background:#f0f0f0;border-radius:5px;font-size:12px;color:#666;}
+.opp-category{display:inline-block;padding:4px 10px;background:#f0f0f0;border-radius:5px;font-size:12px;color:#666;text-transform:capitalize;margin-left:10px;}
 .opp-status{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;}
 .status-active{background:#e8f5e9;color:#4caf50;}
 .status-pending{background:#fff3e0;color:#ff9800;}
 .status-completed{background:#e3f2fd;color:#2196f3;}
+.status-paused{background:#f3e5f5;color:#9c27b0;}
 .status-rejected{background:#ffebee;color:#f44336;}
 
 .opp-content{margin-bottom:20px;}
@@ -63,12 +64,14 @@ body{background:#f5f5f5;min-height:100vh;padding:20px;}
 .opp-stat-value{font-size:20px;font-weight:600;color:#333;}
 .opp-stat-label{font-size:12px;color:#888;margin-top:2px;}
 
-.opp-actions{display:flex;gap:10px;margin-top:20px;padding-top:20px;border-top:1px solid #f0f0f0;}
+.opp-actions{display:flex;gap:10px;margin-top:20px;padding-top:20px;border-top:1px solid #f0f0f0;flex-wrap:wrap;}
 .action-btn{padding:8px 15px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;transition:0.3s;border:none;display:flex;align-items:center;gap:5px;}
 .action-btn.primary{background:#ff6a00;color:white;}
 .action-btn.primary:hover{background:#e55d00;}
 .action-btn.secondary{background:#f0f0f0;color:#666;}
 .action-btn.secondary:hover{background:#e0e0e0;}
+.action-btn.success{background:#4caf50;color:white;}
+.action-btn.success:hover{background:#45a049;}
 .action-btn.danger{background:#ff4444;color:white;}
 .action-btn.danger:hover{background:#e03333;}
 
@@ -88,8 +91,7 @@ body{background:#f5f5f5;min-height:100vh;padding:20px;}
 .close-modal:hover{color:#666;}
 .modal-body{padding:20px;}
 
-.chart-container{height:300px;margin-bottom:30px;background:#f8f9fa;border-radius:10px;padding:20px;}
-.performance-metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;}
+.performance-metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;margin-top:20px;}
 .metric-card{padding:15px;background:#f8f9fa;border-radius:10px;}
 .metric-label{font-size:12px;color:#888;text-transform:uppercase;margin-bottom:5px;}
 .metric-value{font-size:24px;font-weight:700;color:#333;}
@@ -100,6 +102,10 @@ body{background:#f5f5f5;min-height:100vh;padding:20px;}
 .loading{text-align:center;padding:40px;color:#888;}
 .loading i{font-size:32px;color:#ff6a00;animation:spin 1s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
+
+/* Error State */
+.error-state{text-align:center;padding:40px 20px;background:white;border-radius:12px;color:#f44336;}
+.error-icon{font-size:48px;margin-bottom:15px;}
 
 /* Mobile Responsive */
 @media(max-width:768px){
@@ -155,6 +161,7 @@ body{background:#f5f5f5;min-height:100vh;padding:20px;}
     <button class="filter-btn" onclick="filterOpportunities('active', this)">Active</button>
     <button class="filter-btn" onclick="filterOpportunities('pending', this)">Pending</button>
     <button class="filter-btn" onclick="filterOpportunities('completed', this)">Completed</button>
+    <button class="filter-btn" onclick="filterOpportunities('paused', this)">Paused</button>
 </div>
 
 <!-- Opportunities List -->
@@ -183,7 +190,7 @@ body{background:#f5f5f5;min-height:100vh;padding:20px;}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc, deleteDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -208,41 +215,66 @@ onAuthStateChanged(auth, (user) => {
         return;
     }
     currentUser = user;
+    console.log("User logged in:", user.uid);
     loadOpportunities();
 });
 
 function loadOpportunities() {
+    console.log("Loading opportunities for user:", currentUser.uid);
+    
+    // Simple query without orderBy to avoid index issues
     const q = query(
         collection(db, "opportunities"),
-        where("advertiserId", "==", currentUser.uid),
-        orderBy("createdAt", "desc")
+        where("advertiserId", "==", currentUser.uid)
     );
     
-    onSnapshot(q, (snapshot) => {
-        allOpportunities = [];
-        let totalViews = 0;
-        let totalClicks = 0;
-        let activeCount = 0;
-        
-        snapshot.forEach(doc => {
-            const data = { id: doc.id, ...doc.data() };
-            allOpportunities.push(data);
+    onSnapshot(q, 
+        (snapshot) => {
+            console.log("Snapshot received, docs count:", snapshot.size);
             
-            totalViews += data.currentViews || 0;
-            totalClicks += data.clicks || 0;
-            if (data.status === 'active') activeCount++;
-        });
-        
-        // Update stats
-        document.getElementById('total-campaigns').textContent = allOpportunities.length;
-        document.getElementById('total-views').textContent = formatNumber(totalViews);
-        document.getElementById('total-clicks').textContent = formatNumber(totalClicks);
-        
-        const ctr = totalViews > 0 ? ((totalClicks / totalViews) * 100).toFixed(2) : 0;
-        document.getElementById('avg-ctr').textContent = `${ctr}%`;
-        
-        displayOpportunities();
-    });
+            allOpportunities = [];
+            let totalViews = 0;
+            let totalClicks = 0;
+            
+            snapshot.forEach(doc => {
+                const data = { id: doc.id, ...doc.data() };
+                console.log("Opportunity found:", data.title, data.status);
+                allOpportunities.push(data);
+                
+                totalViews += data.currentViews || 0;
+                totalClicks += data.clicks || 0;
+            });
+            
+            // Sort by creation date manually (newest first)
+            allOpportunities.sort((a, b) => {
+                const timeA = a.createdAt?.seconds || 0;
+                const timeB = b.createdAt?.seconds || 0;
+                return timeB - timeA;
+            });
+            
+            // Update stats
+            document.getElementById('total-campaigns').textContent = allOpportunities.length;
+            document.getElementById('total-views').textContent = formatNumber(totalViews);
+            document.getElementById('total-clicks').textContent = formatNumber(totalClicks);
+            
+            const ctr = totalViews > 0 ? ((totalClicks / totalViews) * 100).toFixed(2) : 0;
+            document.getElementById('avg-ctr').textContent = `${ctr}%`;
+            
+            displayOpportunities();
+        },
+        (error) => {
+            console.error("Error loading opportunities:", error);
+            document.getElementById('opportunities-list').innerHTML = `
+                <div class="error-state">
+                    <div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                    <h3>Error Loading Opportunities</h3>
+                    <p>${error.message}</p>
+                    <button class="create-new-btn" onclick="location.reload()">
+                        <i class="fas fa-sync"></i> Retry
+                    </button>
+                </div>`;
+        }
+    );
 }
 
 function displayOpportunities() {
@@ -253,13 +285,17 @@ function displayOpportunities() {
         filtered = allOpportunities.filter(opp => opp.status === currentFilter);
     }
     
+    console.log(`Displaying ${filtered.length} opportunities (filter: ${currentFilter})`);
+    
     if (filtered.length === 0) {
         container.innerHTML = `
             <div class="empty-state">
                 <div class="empty-icon"><i class="fas fa-bullhorn"></i></div>
                 <h3 class="empty-title">No opportunities found</h3>
                 <p class="empty-text">${currentFilter === 'all' ? 'Create your first advertising opportunity' : `No ${currentFilter} opportunities`}</p>
-                ${currentFilter === 'all' ? '<button class="create-new-btn" onclick="window.location.href=\'create-opportunity.html\'"><i class="fas fa-plus"></i> Create Opportunity</button>' : ''}
+                <button class="create-new-btn" onclick="window.location.href='create-opportunity.html'">
+                    <i class="fas fa-plus"></i> Create Opportunity
+                </button>
             </div>`;
         return;
     }
@@ -268,28 +304,29 @@ function displayOpportunities() {
     filtered.forEach(opp => {
         const progress = opp.targetViews > 0 ? (opp.currentViews / opp.targetViews) * 100 : 0;
         const ctr = opp.currentViews > 0 ? ((opp.clicks / opp.currentViews) * 100).toFixed(2) : 0;
+        const createdDate = opp.createdAt ? formatDate(opp.createdAt.toDate()) : 'Recently';
         
         const card = document.createElement('div');
         card.className = 'opportunity-card';
         card.innerHTML = `
             <div class="opp-header">
                 <div>
-                    <div class="opp-title">${opp.title}</div>
-                    <span class="opp-category">${opp.category}</span>
+                    <span class="opp-title">${opp.title || 'Untitled'}</span>
+                    <span class="opp-category">${opp.category || 'general'}</span>
                 </div>
-                <span class="opp-status status-${opp.status}">${opp.status.toUpperCase()}</span>
+                <span class="opp-status status-${opp.status || 'pending'}">${(opp.status || 'pending').toUpperCase()}</span>
             </div>
             
             <div class="opp-content">
-                <p class="opp-description">${opp.description}</p>
+                <p class="opp-description">${opp.description || 'No description'}</p>
                 <a href="${opp.targetUrl}" target="_blank" class="opp-url">${opp.targetUrl}</a>
             </div>
             
-            ${opp.status === 'active' ? `
+            ${(opp.status === 'active' || opp.status === 'completed') ? `
                 <div class="opp-progress">
                     <div class="progress-header">
                         <span>Progress</span>
-                        <span>${opp.currentViews.toLocaleString()} / ${opp.targetViews.toLocaleString()} views</span>
+                        <span>${(opp.currentViews || 0).toLocaleString()} / ${(opp.targetViews || 0).toLocaleString()} views</span>
                     </div>
                     <div class="progress-bar">
                         <div class="progress-fill" style="width:${Math.min(progress, 100)}%"></div>
@@ -311,7 +348,7 @@ function displayOpportunities() {
                     <div class="opp-stat-label">CTR</div>
                 </div>
                 <div class="opp-stat">
-                    <div class="opp-stat-value">$${opp.cost.toFixed(2)}</div>
+                    <div class="opp-stat-value">$${(opp.cost || 0).toFixed(2)}</div>
                     <div class="opp-stat-label">Cost</div>
                 </div>
             </div>
@@ -320,15 +357,23 @@ function displayOpportunities() {
                 <button class="action-btn primary" onclick="viewPerformance('${opp.id}')">
                     <i class="fas fa-chart-line"></i> View Analytics
                 </button>
+                
                 ${opp.status === 'active' ? `
                     <button class="action-btn secondary" onclick="pauseCampaign('${opp.id}')">
                         <i class="fas fa-pause"></i> Pause
                     </button>
                 ` : ''}
-                ${opp.status === 'pending' ? `
-                    <button class="action-btn danger" onclick="cancelCampaign('${opp.id}')">
-                        <i class="fas fa-times"></i> Cancel
+                
+                ${opp.status === 'paused' ? `
+                    <button class="action-btn success" onclick="resumeCampaign('${opp.id}')">
+                        <i class="fas fa-play"></i> Resume
                     </button>
+                ` : ''}
+                
+                ${opp.status === 'pending' ? `
+                    <span style="color:#ff9800;font-size:12px;padding:8px;">
+                        <i class="fas fa-clock"></i> Awaiting approval
+                    </span>
                 ` : ''}
             </div>
         `;
@@ -353,64 +398,46 @@ window.viewPerformance = function(oppId) {
     const ctr = opp.currentViews > 0 ? ((opp.clicks / opp.currentViews) * 100).toFixed(2) : 0;
     const costPerClick = opp.clicks > 0 ? (opp.cost / opp.clicks).toFixed(2) : 0;
     const costPerView = opp.currentViews > 0 ? (opp.cost / opp.currentViews).toFixed(4) : 0;
+    const completion = ((opp.currentViews / opp.targetViews) * 100).toFixed(1);
     
     modalBody.innerHTML = `
-        <div class="chart-container">
-            <canvas id="performance-chart"></canvas>
-        </div>
-        
         <div class="performance-metrics">
             <div class="metric-card">
                 <div class="metric-label">Total Impressions</div>
-                <div class="metric-value">${opp.currentViews.toLocaleString()}</div>
-                <div class="metric-change">Target: ${opp.targetViews.toLocaleString()}</div>
+                <div class="metric-value">${(opp.currentViews || 0).toLocaleString()}</div>
+                <div class="metric-change">Target: ${(opp.targetViews || 0).toLocaleString()}</div>
             </div>
             <div class="metric-card">
                 <div class="metric-label">Total Clicks</div>
-                <div class="metric-value">${opp.clicks.toLocaleString()}</div>
+                <div class="metric-value">${(opp.clicks || 0).toLocaleString()}</div>
                 <div class="metric-change">CTR: ${ctr}%</div>
             </div>
             <div class="metric-card">
                 <div class="metric-label">Cost per Click</div>
                 <div class="metric-value">$${costPerClick}</div>
-                <div class="metric-change">Total: $${opp.cost.toFixed(2)}</div>
+                <div class="metric-change">Total: $${(opp.cost || 0).toFixed(2)}</div>
             </div>
             <div class="metric-card">
-                <div class="metric-label">Cost per View</div>
-                <div class="metric-value">$${costPerView}</div>
-                <div class="metric-change">Avg: $${(opp.cost / opp.targetViews).toFixed(4)}</div>
+                <div class="metric-label">Completion</div>
+                <div class="metric-value">${completion}%</div>
+                <div class="metric-change">${opp.status}</div>
             </div>
         </div>
         
         <div style="margin-top:20px;padding:15px;background:#f8f9fa;border-radius:10px;">
             <h4 style="margin-bottom:10px;color:#333;">Campaign Details</h4>
             <div style="display:grid;gap:8px;font-size:14px;">
-                <div><strong>Status:</strong> ${opp.status.toUpperCase()}</div>
-                <div><strong>Category:</strong> ${opp.category}</div>
-                <div><strong>Created:</strong> ${formatDate(opp.createdAt?.toDate())}</div>
-                <div><strong>Requirements:</strong> ${opp.requirements.minLikes}+ likes, ${opp.requirements.minFollowers}+ followers</div>
-                <div><strong>Verified Only:</strong> ${opp.requirements.requireVerified ? 'Yes' : 'No'}</div>
+                <div><strong>Status:</strong> ${(opp.status || 'pending').toUpperCase()}</div>
+                <div><strong>Category:</strong> ${opp.category || 'general'}</div>
+                <div><strong>Created:</strong> ${opp.createdAt ? formatDate(opp.createdAt.toDate()) : 'Unknown'}</div>
+                <div><strong>Requirements:</strong> ${opp.requirements?.minLikes || 0}+ likes, ${opp.requirements?.minFollowers || 0}+ followers</div>
+                <div><strong>Verified Only:</strong> ${opp.requirements?.requireVerified ? 'Yes' : 'No'}</div>
+                <div><strong>Target URL:</strong> <a href="${opp.targetUrl}" target="_blank" style="color:#ff6a00;">${opp.targetUrl}</a></div>
             </div>
         </div>
     `;
     
     modal.classList.add('active');
-    
-    // Simple chart placeholder - you can integrate Chart.js here
-    setTimeout(() => {
-        const canvas = document.getElementById('performance-chart');
-        if (canvas) {
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#ff6a00';
-            ctx.fillRect(20, 150, 100, -100);
-            ctx.fillStyle = '#ff8a00';
-            ctx.fillRect(140, 150, 100, -50);
-            ctx.fillStyle = '#333';
-            ctx.font = '12px Poppins';
-            ctx.fillText('Views', 50, 170);
-            ctx.fillText('Clicks', 170, 170);
-        }
-    }, 100);
 };
 
 window.closePerformanceModal = function() {
@@ -418,29 +445,34 @@ window.closePerformanceModal = function() {
 };
 
 window.pauseCampaign = async function(oppId) {
-    if (!confirm('Pause this campaign?')) return;
+    if (!confirm('Pause this campaign? You can resume it anytime.')) return;
     
     try {
         await updateDoc(doc(db, "opportunities", oppId), {
             status: 'paused',
-            pausedAt: new Date()
+            pausedAt: serverTimestamp()
         });
-        alert('Campaign paused successfully');
+        alert('✅ Campaign paused successfully');
+        loadOpportunities(); // Reload to show updated status
     } catch (error) {
         console.error('Error pausing campaign:', error);
-        alert('Failed to pause campaign');
+        alert('❌ Failed to pause campaign');
     }
 };
 
-window.cancelCampaign = async function(oppId) {
-    if (!confirm('Cancel this campaign? This action cannot be undone.')) return;
+window.resumeCampaign = async function(oppId) {
+    if (!confirm('Resume this campaign?')) return;
     
     try {
-        await deleteDoc(doc(db, "opportunities", oppId));
-        alert('Campaign cancelled successfully');
+        await updateDoc(doc(db, "opportunities", oppId), {
+            status: 'active',
+            resumedAt: serverTimestamp()
+        });
+        alert('✅ Campaign resumed successfully');
+        loadOpportunities(); // Reload to show updated status
     } catch (error) {
-        console.error('Error cancelling campaign:', error);
-        alert('Failed to cancel campaign');
+        console.error('Error resuming campaign:', error);
+        alert('❌ Failed to resume campaign');
     }
 };
 
@@ -455,7 +487,9 @@ function formatDate(date) {
     return date.toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
-        year: 'numeric'
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
     });
 }
 
