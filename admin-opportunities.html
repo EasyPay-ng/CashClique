@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin • Opportunities | CashClique</title>
+
+<link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{background:#f5f6f8;color:#111827;}
+.wrap{max-width:1100px;margin:0 auto;padding:18px 14px 60px;}
+h1{font-size:18px;font-weight:900;margin-bottom:12px;}
+.card{background:#fff;border:1px solid #eef0f3;border-radius:18px;box-shadow:0 12px 30px rgba(17,24,39,.08);overflow:hidden;}
+.row{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #eef0f3;}
+.badge{padding:6px 10px;border-radius:999px;font-size:12px;font-weight:800;}
+.pending{background:rgba(245,158,11,.12);color:#b45309;border:1px solid rgba(245,158,11,.2);}
+.approved{background:rgba(34,197,94,.12);color:#15803d;border:1px solid rgba(34,197,94,.2);}
+.rejected{background:rgba(239,68,68,.12);color:#b91c1c;border:1px solid rgba(239,68,68,.2);}
+.btn{border:none;border-radius:12px;padding:10px 12px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:8px;}
+.btn-ok{background:#16a34a;color:#fff;}
+.btn-no{background:#ef4444;color:#fff;}
+.btn-ghost{background:#f2f3f5;color:#111827;}
+.small{color:#6b7280;font-size:12px;}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:9999;}
+.modal.active{display:flex;}
+.modal-box{background:#fff;border-radius:16px;width:92%;max-width:520px;overflow:hidden;}
+.modal-head{padding:14px 16px;border-bottom:1px solid #eef0f3;font-weight:900;display:flex;justify-content:space-between;align-items:center;}
+.modal-body{padding:16px;}
+textarea{width:100%;padding:12px;border-radius:12px;border:1px solid #e5e7eb;min-height:120px;outline:none;}
+textarea:focus{border-color:#ff6a00;box-shadow:0 0 0 4px rgba(255,106,0,.12);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Admin • Opportunity Submissions</h1>
+  <div class="card" id="list"></div>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span id="modalTitle">Review</span>
+      <button class="btn btn-ghost" onclick="closeModal()"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="small" style="margin-bottom:8px;">Admin note (optional)</div>
+      <textarea id="adminNote" placeholder="Reason / note..."></textarea>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px;">
+        <button class="btn btn-no" id="rejectBtn"><i class="fas fa-ban"></i> Reject</button>
+        <button class="btn btn-ok" id="approveBtn"><i class="fas fa-check"></i> Approve</button>
+      </div>
+      <div class="small" style="margin-top:10px;">
+        Optional: if rejected, you can refund advertiser in code (see comment in script).
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { 
+  getFirestore, collection, query, orderBy, onSnapshot, doc, runTransaction, serverTimestamp, getDoc, where 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
+  authDomain: "cashclique-31718.firebaseapp.com",
+  projectId: "cashclique-31718",
+  storageBucket: "cashclique-31718.firebasestorage.app",
+  messagingSenderId: "1064282591269",
+  appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const list = document.getElementById("list");
+const modal = document.getElementById("modal");
+const adminNote = document.getElementById("adminNote");
+let currentOppId = null;
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = "login.html"; return; }
+
+  // Minimal admin gate (recommended to enforce with rules too):
+  const me = await getDoc(doc(db, "users", user.uid));
+  const isAdmin = me.exists() && me.data().isAdmin === true;
+  if (!isAdmin) { alert("Admins only."); window.location.href = "dashboard.html"; return; }
+
+  const q = query(collection(db, "opportunities"), orderBy("createdAt", "desc"));
+  onSnapshot(q, (snap) => {
+    list.innerHTML = "";
+    if (snap.empty) {
+      list.innerHTML = `<div class="row"><div>No submissions yet.</div></div>`;
+      return;
+    }
+
+    snap.forEach((d) => {
+      const o = d.data();
+      const statusClass = o.status === "approved" ? "approved" : o.status === "rejected" ? "rejected" : "pending";
+
+      const el = document.createElement("div");
+      el.className = "row";
+      el.innerHTML = `
+        <div style="min-width:0;">
+          <div style="font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${o.title || "Opportunity"}</div>
+          <div class="small">
+            ${o.category || "Category"} • ${o.viewsTarget?.toLocaleString?.() || 0} views • Cost $${Number(o.totalCost||0).toFixed(2)}
+            • Req: ${o.requirements?.minLikes || 0}+ likes / ${o.requirements?.minFollowers || 0}+ followers
+            ${o.requirements?.verifiedRequired ? " • Verified only" : ""}
+          </div>
+          <div class="small">Advertiser: ${o.advertiserUsername || o.advertiserId}</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <span class="badge ${statusClass}">${o.status || "pending"}</span>
+          <button class="btn btn-ghost" ${o.status === "pending" ? "" : "disabled"} data-id="${d.id}">
+            <i class="fas fa-pen-to-square"></i> Review
+          </button>
+        </div>
+      `;
+      list.appendChild(el);
+
+      el.querySelector("button").onclick = () => openModal(d.id, o);
+    });
+  });
+});
+
+function openModal(id, o){
+  currentOppId = id;
+  adminNote.value = o.adminNote || "";
+  modal.classList.add("active");
+
+  document.getElementById("approveBtn").onclick = () => setStatus("approved");
+  document.getElementById("rejectBtn").onclick = () => setStatus("rejected");
+}
+
+window.closeModal = function(){
+  modal.classList.remove("active");
+  currentOppId = null;
+};
+
+async function setStatus(status){
+  if (!currentOppId) return;
+
+  const note = adminNote.value.trim() || null;
+  const oppRef = doc(db, "opportunities", currentOppId);
+
+  try {
+    await runTransaction(db, async (tx) => {
+      const oppSnap = await tx.get(oppRef);
+      if (!oppSnap.exists()) throw new Error("Opportunity not found.");
+      const o = oppSnap.data();
+      if (o.status !== "pending") return;
+
+      tx.update(oppRef, {
+        status,
+        adminNote: note,
+        approvedAt: status === "approved" ? serverTimestamp() : null,
+        rejectedAt: status === "rejected" ? serverTimestamp() : null
+      });
+
+      // OPTIONAL REFUND ON REJECT:
+      // If you want to refund on reject, uncomment this:
+      /*
+      if (status === "rejected") {
+        const advRef = doc(db, "users", o.advertiserId);
+        tx.update(advRef, { balance: increment(Number(o.totalCost || 0)) });
+      }
+      */
+    });
+
+    closeModal();
+  } catch (e) {
+    console.error(e);
+    alert(e.message || "Failed.");
+  }
+}
+
+// close clicking outside
+modal.addEventListener("click", (e) => { if (e.target.id === "modal") closeModal(); });
+</script>
+</body>
+</html>
