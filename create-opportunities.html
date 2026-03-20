@@ -14,9 +14,12 @@
 body{background:#f5f5f5;min-height:100vh;padding:20px;}
 
 /* Header */
-.header{background:white;border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 2px 10px rgba(0,0,0,0.05);display:flex;align-items:center;justify-content:space-between;}
+.header{background:white;border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 2px 10px rgba(0,0,0,0.05);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:15px;}
+.header-left{display:flex;align-items:center;gap:15px;}
 .back-btn{background:#ff6a00;color:white;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:500;display:flex;align-items:center;gap:8px;transition:0.3s;}
 .back-btn:hover{background:#e55d00;transform:translateX(-3px);}
+.manage-btn{background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:500;display:flex;align-items:center;gap:8px;transition:0.3s;}
+.manage-btn:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(102,126,234,0.3);}
 .header-title{font-size:24px;font-weight:700;color:#333;}
 .balance-display{background:linear-gradient(135deg,#f5f5f5,#fff);padding:10px 20px;border-radius:8px;font-weight:600;color:#333;}
 .balance-amount{color:#ff6a00;font-size:20px;}
@@ -25,11 +28,17 @@ body{background:#f5f5f5;min-height:100vh;padding:20px;}
 .container{max-width:800px;margin:0 auto;}
 .form-card{background:white;border-radius:12px;padding:30px;margin-bottom:20px;box-shadow:0 5px 15px rgba(0,0,0,0.08);}
 
-/* Section Headers */
-.section-header{display:flex;align-items:center;gap:10px;margin-bottom:20px;padding-bottom:10px;border-bottom:2px solid #f0f0f0;}
+/* Section Headers - Collapsible */
+.section-header{display:flex;align-items:center;gap:10px;margin-bottom:20px;padding-bottom:10px;border-bottom:2px solid #f0f0f0;cursor:pointer;user-select:none;transition:0.3s;}
+.section-header:hover{background:#f8f9fa;margin:-10px;padding:10px;padding-bottom:20px;border-radius:8px;}
 .section-icon{width:35px;height:35px;background:#ff6a00;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.section-content-wrapper{flex:1;}
 .section-title{font-size:18px;font-weight:600;color:#333;}
 .section-subtitle{font-size:12px;color:#888;margin-top:2px;}
+.collapse-icon{font-size:18px;color:#999;transition:0.3s;}
+.section-header.collapsed .collapse-icon{transform:rotate(-90deg);}
+.section-body{overflow:hidden;transition:max-height 0.3s ease,padding 0.3s ease;max-height:1000px;}
+.section-body.collapsed{max-height:0;padding-top:0;padding-bottom:0;}
 
 /* Form Groups */
 .form-group{margin-bottom:25px;}
@@ -37,15 +46,18 @@ body{background:#f5f5f5;min-height:100vh;padding:20px;}
 .required{color:#ff4444;}
 .form-input, .form-select, .form-textarea{width:100%;padding:12px;border:2px solid #e0e0e0;border-radius:8px;font-size:14px;transition:0.3s;outline:none;}
 .form-input:focus, .form-select:focus, .form-textarea:focus{border-color:#ff6a00;box-shadow:0 0 0 3px rgba(255,106,0,0.1);}
-.form-textarea{resize:vertical;min-height:100px;}
+.form-textarea{resize:vertical;min-height:80px;max-height:120px;}
+.char-counter{text-align:right;font-size:12px;color:#888;margin-top:5px;}
+.char-counter.warning{color:#ff9800;}
+.char-counter.danger{color:#ff4444;}
 
 /* Category Selection */
-.category-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px;}
-.category-card{padding:20px;border:2px solid #e0e0e0;border-radius:10px;text-align:center;cursor:pointer;transition:0.3s;}
+.category-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;}
+.category-card{padding:15px;border:2px solid #e0e0e0;border-radius:10px;text-align:center;cursor:pointer;transition:0.3s;}
 .category-card:hover{border-color:#ff6a00;transform:translateY(-2px);}
 .category-card.selected{background:#fff5eb;border-color:#ff6a00;}
-.category-icon{font-size:28px;color:#ff6a00;margin-bottom:8px;}
-.category-name{font-size:13px;font-weight:500;color:#333;}
+.category-icon{font-size:24px;color:#ff6a00;margin-bottom:5px;}
+.category-name{font-size:12px;font-weight:500;color:#333;}
 
 /* View Packages */
 .package-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;}
@@ -67,7 +79,7 @@ body{background:#f5f5f5;min-height:100vh;padding:20px;}
 .requirement-desc{font-size:12px;color:#666;}
 
 /* Verified Toggle */
-.verified-toggle{display:flex;align-items:center;justify-content:space-between;padding:15px;background:#f8f9fa;border-radius:10px;}
+.verified-toggle{display:flex;align-items:center;justify-content:space-between;padding:15px;background:#f8f9fa;border-radius:10px;margin-top:15px;}
 .verified-info{display:flex;align-items:center;gap:10px;}
 .verified-badge{background:#1DA1F2;color:white;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
 .verified-text{font-weight:500;color:#333;}
@@ -100,6 +112,7 @@ input:checked + .toggle-slider:before{transform:translateX(24px);}
 .alert{padding:15px;border-radius:8px;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
 .alert.warning{background:#fff3cd;color:#856404;border:1px solid #ffeaa7;}
 .alert.error{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb;}
+.alert.info{background:#d1ecf1;color:#0c5460;border:1px solid #bee5eb;}
 
 /* Loading */
 .loading{display:inline-block;width:20px;height:20px;border:3px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;}
@@ -108,7 +121,8 @@ input:checked + .toggle-slider:before{transform:translateX(24px);}
 /* Mobile Responsive */
 @media(max-width:600px){
     body{padding:10px;}
-    .header{flex-direction:column;gap:15px;text-align:center;}
+    .header{flex-direction:column;}
+    .header-left{width:100%;justify-content:space-between;}
     .form-card{padding:20px;}
     .category-grid{grid-template-columns:repeat(2,1fr);}
     .package-grid{grid-template-columns:repeat(2,1fr);}
@@ -120,9 +134,14 @@ input:checked + .toggle-slider:before{transform:translateX(24px);}
 <body>
 
 <div class="header">
-    <button class="back-btn" onclick="history.back()">
-        <i class="fas fa-arrow-left"></i> Back
-    </button>
+    <div class="header-left">
+        <button class="back-btn" onclick="history.back()">
+            <i class="fas fa-arrow-left"></i> Back
+        </button>
+        <button class="manage-btn" onclick="window.location.href='manage-opportunities.html'">
+            <i class="fas fa-tasks"></i> Manage Ads
+        </button>
+    </div>
     <h1 class="header-title">Create Opportunity</h1>
     <div class="balance-display">
         Balance: <span class="balance-amount" id="user-balance">$0.00</span>
@@ -130,199 +149,229 @@ input:checked + .toggle-slider:before{transform:translateX(24px);}
 </div>
 
 <div class="container">
+    <!-- Balance Alert -->
+    <div class="alert info" id="balance-alert" style="display:none;">
+        <i class="fas fa-info-circle"></i>
+        <div>
+            <strong>Low Balance</strong><br>
+            <span id="balance-message">Your current balance might not be sufficient.</span>
+        </div>
+    </div>
+
     <form id="opportunity-form">
         <!-- Category Selection -->
         <div class="form-card">
-            <div class="section-header">
+            <div class="section-header" onclick="toggleSection('category-section')">
                 <div class="section-icon">
                     <i class="fas fa-th-large"></i>
                 </div>
-                <div>
+                <div class="section-content-wrapper">
                     <h2 class="section-title">Select Category</h2>
                     <p class="section-subtitle">Choose the category that best fits your ad</p>
                 </div>
+                <i class="fas fa-chevron-down collapse-icon"></i>
             </div>
             
-            <div class="category-grid">
-                <div class="category-card" data-category="tech">
-                    <div class="category-icon"><i class="fas fa-laptop-code"></i></div>
-                    <div class="category-name">Technology</div>
-                </div>
-                <div class="category-card" data-category="fashion">
-                    <div class="category-icon"><i class="fas fa-tshirt"></i></div>
-                    <div class="category-name">Fashion</div>
-                </div>
-                <div class="category-card" data-category="food">
-                    <div class="category-icon"><i class="fas fa-utensils"></i></div>
-                    <div class="category-name">Food & Drink</div>
-                </div>
-                <div class="category-card" data-category="travel">
-                    <div class="category-icon"><i class="fas fa-plane"></i></div>
-                    <div class="category-name">Travel</div>
-                </div>
-                <div class="category-card" data-category="fitness">
-                    <div class="category-icon"><i class="fas fa-dumbbell"></i></div>
-                    <div class="category-name">Fitness</div>
-                </div>
-                <div class="category-card" data-category="education">
-                    <div class="category-icon"><i class="fas fa-graduation-cap"></i></div>
-                    <div class="category-name">Education</div>
+            <div class="section-body" id="category-section">
+                <div class="category-grid">
+                    <div class="category-card" data-category="tech">
+                        <div class="category-icon"><i class="fas fa-laptop-code"></i></div>
+                        <div class="category-name">Technology</div>
+                    </div>
+                    <div class="category-card" data-category="fashion">
+                        <div class="category-icon"><i class="fas fa-tshirt"></i></div>
+                        <div class="category-name">Fashion</div>
+                    </div>
+                    <div class="category-card" data-category="food">
+                        <div class="category-icon"><i class="fas fa-utensils"></i></div>
+                        <div class="category-name">Food & Drink</div>
+                    </div>
+                    <div class="category-card" data-category="travel">
+                        <div class="category-icon"><i class="fas fa-plane"></i></div>
+                        <div class="category-name">Travel</div>
+                    </div>
+                    <div class="category-card" data-category="fitness">
+                        <div class="category-icon"><i class="fas fa-dumbbell"></i></div>
+                        <div class="category-name">Fitness</div>
+                    </div>
+                    <div class="category-card" data-category="education">
+                        <div class="category-icon"><i class="fas fa-graduation-cap"></i></div>
+                        <div class="category-name">Education</div>
+                    </div>
+                    <div class="category-card" data-category="beauty">
+                        <div class="category-icon"><i class="fas fa-spa"></i></div>
+                        <div class="category-name">Beauty</div>
+                    </div>
+                    <div class="category-card" data-category="others">
+                        <div class="category-icon"><i class="fas fa-ellipsis-h"></i></div>
+                        <div class="category-name">Others</div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Ad Details -->
         <div class="form-card">
-            <div class="section-header">
+            <div class="section-header" onclick="toggleSection('details-section')">
                 <div class="section-icon">
                     <i class="fas fa-ad"></i>
                 </div>
-                <div>
+                <div class="section-content-wrapper">
                     <h2 class="section-title">Ad Details</h2>
                     <p class="section-subtitle">Provide information about your advertisement</p>
                 </div>
+                <i class="fas fa-chevron-down collapse-icon"></i>
             </div>
             
-            <div class="form-group">
-                <label class="form-label">Ad Title <span class="required">*</span></label>
-                <input type="text" class="form-input" id="ad-title" placeholder="Enter a catchy title for your ad" required>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Ad Description <span class="required">*</span></label>
-                <textarea class="form-textarea" id="ad-description" placeholder="Describe what you're advertising..." required></textarea>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label">Target URL <span class="required">*</span></label>
-                <input type="url" class="form-input" id="ad-url" placeholder="https://yourwebsite.com" required>
+            <div class="section-body" id="details-section">
+                <div class="form-group">
+                    <label class="form-label">Ad Title <span class="required">*</span></label>
+                    <input type="text" class="form-input" id="ad-title" placeholder="Enter a catchy title for your ad" maxlength="60" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Ad Description <span class="required">*</span></label>
+                    <textarea class="form-textarea" id="ad-description" placeholder="Brief description (max 150 characters)" maxlength="150" required></textarea>
+                    <div class="char-counter" id="char-counter">0 / 150</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Target URL <span class="required">*</span></label>
+                    <input type="url" class="form-input" id="ad-url" placeholder="https://yourwebsite.com" required>
+                </div>
             </div>
         </div>
 
         <!-- View Package Selection -->
         <div class="form-card">
-            <div class="section-header">
+            <div class="section-header" onclick="toggleSection('package-section')">
                 <div class="section-icon">
                     <i class="fas fa-eye"></i>
                 </div>
-                <div>
+                <div class="section-content-wrapper">
                     <h2 class="section-title">Select View Package</h2>
                     <p class="section-subtitle">Choose how many views you want for your ad</p>
                 </div>
+                <i class="fas fa-chevron-down collapse-icon"></i>
             </div>
             
-            <div class="package-grid">
-                <div class="package-card" data-views="1000" data-price="2">
-                    <div class="package-views">1K</div>
-                    <div class="package-price">$2</div>
-                </div>
-                <div class="package-card" data-views="2000" data-price="4">
-                    <div class="package-views">2K</div>
-                    <div class="package-price">$4</div>
-                </div>
-                <div class="package-card" data-views="5000" data-price="10">
-                    <div class="package-views">5K</div>
-                    <div class="package-price">$10</div>
-                </div>
-                <div class="package-card" data-views="10000" data-price="20">
-                    <div class="package-views">10K</div>
-                    <div class="package-price">$20</div>
-                </div>
-                <div class="package-card" data-views="25000" data-price="50">
-                    <div class="package-views">25K</div>
-                    <div class="package-price">$50</div>
-                </div>
-                <div class="package-card" data-views="50000" data-price="100">
-                    <div class="package-views">50K</div>
-                    <div class="package-price">$100</div>
-                </div>
-                <div class="package-card" data-views="75000" data-price="150">
-                    <div class="package-views">75K</div>
-                    <div class="package-price">$150</div>
-                </div>
-                <div class="package-card" data-views="100000" data-price="200">
-                    <div class="package-views">100K</div>
-                    <div class="package-price">$200</div>
+            <div class="section-body" id="package-section">
+                <div class="package-grid">
+                    <div class="package-card" data-views="1000" data-price="2">
+                        <div class="package-views">1K</div>
+                        <div class="package-price">$2</div>
+                    </div>
+                    <div class="package-card" data-views="2000" data-price="4">
+                        <div class="package-views">2K</div>
+                        <div class="package-price">$4</div>
+                    </div>
+                    <div class="package-card" data-views="5000" data-price="10">
+                        <div class="package-views">5K</div>
+                        <div class="package-price">$10</div>
+                    </div>
+                    <div class="package-card" data-views="10000" data-price="20">
+                        <div class="package-views">10K</div>
+                        <div class="package-price">$20</div>
+                    </div>
+                    <div class="package-card" data-views="25000" data-price="50">
+                        <div class="package-views">25K</div>
+                        <div class="package-price">$50</div>
+                    </div>
+                    <div class="package-card" data-views="50000" data-price="100">
+                        <div class="package-views">50K</div>
+                        <div class="package-price">$100</div>
+                    </div>
+                    <div class="package-card" data-views="75000" data-price="150">
+                        <div class="package-views">75K</div>
+                        <div class="package-price">$150</div>
+                    </div>
+                    <div class="package-card" data-views="100000" data-price="200">
+                        <div class="package-views">100K</div>
+                        <div class="package-price">$200</div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Creator Requirements -->
         <div class="form-card">
-            <div class="section-header">
+            <div class="section-header" onclick="toggleSection('requirements-section')">
                 <div class="section-icon">
                     <i class="fas fa-user-check"></i>
                 </div>
-                <div>
+                <div class="section-content-wrapper">
                     <h2 class="section-title">Creator Requirements</h2>
-                    <p class="section-subtitle">Set minimum requirements for creators who can promote your ad</p>
+                    <p class="section-subtitle">Set minimum requirements for creators</p>
                 </div>
+                <i class="fas fa-chevron-down collapse-icon"></i>
             </div>
             
-            <div class="requirement-options">
-                <label class="requirement-card">
-                    <input type="radio" name="requirement" class="requirement-radio" value="starter" data-likes="100" data-followers="50" checked>
-                    <div class="requirement-details">
-                        <div class="requirement-title">Starter Creators</div>
-                        <div class="requirement-desc">Minimum 100 total likes & 50 followers</div>
-                    </div>
-                </label>
-                
-                <label class="requirement-card">
-                    <input type="radio" name="requirement" class="requirement-radio" value="growing" data-likes="200" data-followers="100">
-                    <div class="requirement-details">
-                        <div class="requirement-title">Growing Creators</div>
-                        <div class="requirement-desc">Minimum 200 total likes & 100 followers</div>
-                    </div>
-                </label>
-                
-                <label class="requirement-card">
-                    <input type="radio" name="requirement" class="requirement-radio" value="established" data-likes="500" data-followers="250">
-                    <div class="requirement-details">
-                        <div class="requirement-title">Established Creators</div>
-                        <div class="requirement-desc">Minimum 500 total likes & 250 followers</div>
-                    </div>
-                </label>
-                
-                <label class="requirement-card">
-                    <input type="radio" name="requirement" class="requirement-radio" value="popular" data-likes="1000" data-followers="500">
-                    <div class="requirement-details">
-                        <div class="requirement-title">Popular Creators</div>
-                        <div class="requirement-desc">Minimum 1,000 total likes & 500 followers</div>
-                    </div>
-                </label>
-                
-                <label class="requirement-card">
-                    <input type="radio" name="requirement" class="requirement-radio" value="influencer" data-likes="5000" data-followers="2500">
-                    <div class="requirement-details">
-                        <div class="requirement-title">Influencer Level</div>
-                        <div class="requirement-desc">Minimum 5,000 total likes & 2,500 followers</div>
-                    </div>
-                </label>
-                
-                <label class="requirement-card">
-                    <input type="radio" name="requirement" class="requirement-radio" value="elite" data-likes="10000" data-followers="5000">
-                    <div class="requirement-details">
-                        <div class="requirement-title">Elite Creators</div>
-                        <div class="requirement-desc">Minimum 10,000 total likes & 5,000 followers</div>
-                    </div>
-                </label>
-            </div>
-            
-            <div class="verified-toggle" style="margin-top:20px;">
-                <div class="verified-info">
-                    <div class="verified-badge">
-                        <i class="fas fa-check"></i>
-                    </div>
-                    <div>
-                        <div class="verified-text">Require Verified Creators Only</div>
-                        <div class="verified-note">1.5x cost - Higher quality reach</div>
-                    </div>
+            <div class="section-body" id="requirements-section">
+                <div class="requirement-options">
+                    <label class="requirement-card">
+                        <input type="radio" name="requirement" class="requirement-radio" value="starter" data-likes="100" data-followers="50" checked>
+                        <div class="requirement-details">
+                            <div class="requirement-title">Starter Creators</div>
+                            <div class="requirement-desc">Minimum 100 total likes & 50 followers</div>
+                        </div>
+                    </label>
+                    
+                    <label class="requirement-card">
+                        <input type="radio" name="requirement" class="requirement-radio" value="growing" data-likes="200" data-followers="100">
+                        <div class="requirement-details">
+                            <div class="requirement-title">Growing Creators</div>
+                            <div class="requirement-desc">Minimum 200 total likes & 100 followers</div>
+                        </div>
+                    </label>
+                    
+                    <label class="requirement-card">
+                        <input type="radio" name="requirement" class="requirement-radio" value="established" data-likes="500" data-followers="250">
+                        <div class="requirement-details">
+                            <div class="requirement-title">Established Creators</div>
+                            <div class="requirement-desc">Minimum 500 total likes & 250 followers</div>
+                        </div>
+                    </label>
+                    
+                    <label class="requirement-card">
+                        <input type="radio" name="requirement" class="requirement-radio" value="popular" data-likes="1000" data-followers="500">
+                        <div class="requirement-details">
+                            <div class="requirement-title">Popular Creators</div>
+                            <div class="requirement-desc">Minimum 1,000 total likes & 500 followers</div>
+                        </div>
+                    </label>
+                    
+                    <label class="requirement-card">
+                        <input type="radio" name="requirement" class="requirement-radio" value="influencer" data-likes="5000" data-followers="2500">
+                        <div class="requirement-details">
+                            <div class="requirement-title">Influencer Level</div>
+                            <div class="requirement-desc">Minimum 5,000 total likes & 2,500 followers</div>
+                        </div>
+                    </label>
+                    
+                    <label class="requirement-card">
+                        <input type="radio" name="requirement" class="requirement-radio" value="elite" data-likes="10000" data-followers="5000">
+                        <div class="requirement-details">
+                            <div class="requirement-title">Elite Creators</div>
+                            <div class="requirement-desc">Minimum 10,000 total likes & 5,000 followers</div>
+                        </div>
+                    </label>
                 </div>
-                <label class="toggle-switch">
-                    <input type="checkbox" id="require-verified">
-                    <span class="toggle-slider"></span>
-                </label>
+                
+                <div class="verified-toggle">
+                    <div class="verified-info">
+                        <div class="verified-badge">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div>
+                            <div class="verified-text">Require Verified Creators Only</div>
+                            <div class="verified-note">1.5x cost - Higher quality reach</div>
+                        </div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="require-verified">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
             </div>
         </div>
 
@@ -332,7 +381,7 @@ input:checked + .toggle-slider:before{transform:translateX(24px);}
                 <div class="section-icon">
                     <i class="fas fa-calculator"></i>
                 </div>
-                <div>
+                <div class="section-content-wrapper">
                     <h2 class="section-title">Cost Summary</h2>
                     <p class="section-subtitle">Review your opportunity costs</p>
                 </div>
@@ -411,11 +460,50 @@ async function loadUserBalance() {
         if (userDoc.exists()) {
             userBalance = userDoc.data().balance || 0;
             document.getElementById('user-balance').textContent = `$${userBalance.toFixed(2)}`;
+            
+            // Show alert if balance is low
+            if (userBalance < 20) {
+                const alert = document.getElementById('balance-alert');
+                const message = document.getElementById('balance-message');
+                if (userBalance === 0) {
+                    message.textContent = 'You have no balance. Add funds to create opportunities.';
+                } else {
+                    message.textContent = `Your balance is low ($${userBalance.toFixed(2)}). You may need to add funds for larger packages.`;
+                }
+                alert.style.display = 'flex';
+            }
         }
     } catch (error) {
         console.error("Error loading balance:", error);
     }
 }
+
+// Toggle collapsible sections
+window.toggleSection = function(sectionId) {
+    const section = document.getElementById(sectionId);
+    const header = section.previousElementSibling;
+    section.classList.toggle('collapsed');
+    header.classList.toggle('collapsed');
+};
+
+// Character counter for description
+const descriptionInput = document.getElementById('ad-description');
+const charCounter = document.getElementById('char-counter');
+
+descriptionInput.addEventListener('input', () => {
+    const length = descriptionInput.value.length;
+    charCounter.textContent = `${length} / 150`;
+    
+    if (length > 130) {
+        charCounter.classList.add('danger');
+        charCounter.classList.remove('warning');
+    } else if (length > 100) {
+        charCounter.classList.add('warning');
+        charCounter.classList.remove('danger');
+    } else {
+        charCounter.classList.remove('warning', 'danger');
+    }
+});
 
 // Category selection
 document.querySelectorAll('.category-card').forEach(card => {
@@ -436,6 +524,7 @@ document.querySelectorAll('.package-card').forEach(card => {
             price: parseFloat(card.dataset.price)
         };
         updateCostSummary();
+        checkBalance();
     });
 });
 
@@ -449,7 +538,10 @@ document.querySelectorAll('.requirement-radio').forEach(radio => {
 });
 
 // Verified toggle
-document.getElementById('require-verified').addEventListener('change', updateCostSummary);
+document.getElementById('require-verified').addEventListener('change', () => {
+    updateCostSummary();
+    checkBalance();
+});
 
 function updateCostSummary() {
     if (!selectedPackage) {
@@ -478,6 +570,15 @@ function updateCostSummary() {
     document.getElementById('total-cost').textContent = `$${totalCost.toFixed(2)}`;
 }
 
+function checkBalance() {
+    if (totalCost > userBalance) {
+        const needed = totalCost - userBalance;
+        if (confirm(`Insufficient balance! You need $${needed.toFixed(2)} more.\n\nWould you like to deposit funds now?`)) {
+            window.location.href = 'deposit.html';
+        }
+    }
+}
+
 // Form submission
 document.getElementById('opportunity-form').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -504,7 +605,9 @@ document.getElementById('opportunity-form').addEventListener('submit', async (e)
     
     // Check balance
     if (userBalance < totalCost) {
-        alert(`Insufficient balance. You need $${(totalCost - userBalance).toFixed(2)} more.`);
+        const needed = totalCost - userBalance;
+        alert(`Insufficient balance! You need $${needed.toFixed(2)} more.`);
+        window.location.href = 'deposit.html';
         return;
     }
     
@@ -554,13 +657,13 @@ document.getElementById('opportunity-form').addEventListener('submit', async (e)
         await addDoc(collection(db, "transactions"), {
             type: 'opportunity',
             userId: currentUser.uid,
-            amount: totalCost,
+            amount: -totalCost,
             description: `Created opportunity: ${title}`,
             timestamp: serverTimestamp()
         });
         
         alert('✅ Opportunity created successfully! It will be reviewed and approved shortly.');
-        window.location.href = 'opportunities.html';
+        window.location.href = 'manage-opportunities.html';
         
     } catch (error) {
         console.error('Error creating opportunity:', error);
