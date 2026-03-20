@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Manage Opportunities | CashClique</title>
+
+<link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{background:#f5f5f5;min-height:100vh;padding:20px;}
+
+/* Header */
+.header{background:white;border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 2px 10px rgba(0,0,0,0.05);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:15px;}
+.back-btn{background:#ff6a00;color:white;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:500;display:flex;align-items:center;gap:8px;transition:0.3s;}
+.back-btn:hover{background:#e55d00;transform:translateX(-3px);}
+.header-title{font-size:24px;font-weight:700;color:#333;}
+.create-new-btn{background:linear-gradient(135deg,#ff6a00,#ff8a00);color:white;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:500;display:flex;align-items:center;gap:8px;transition:0.3s;}
+.create-new-btn:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(255,106,0,0.3);}
+
+/* Stats Overview */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:30px;}
+.stat-card{background:white;padding:20px;border-radius:12px;box-shadow:0 5px 15px rgba(0,0,0,0.08);text-align:center;}
+.stat-icon{width:50px;height:50px;background:linear-gradient(135deg,#ff6a00,#ff8a00);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 15px;font-size:20px;}
+.stat-value{font-size:28px;font-weight:700;color:#333;}
+.stat-label{font-size:13px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-top:5px;}
+
+/* Filters */
+.filters{background:white;padding:15px;border-radius:12px;margin-bottom:20px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.filter-btn{padding:8px 15px;border:2px solid #e0e0e0;background:white;border-radius:8px;cursor:pointer;font-size:14px;transition:0.3s;}
+.filter-btn:hover{border-color:#ff6a00;}
+.filter-btn.active{background:#ff6a00;color:white;border-color:#ff6a00;}
+
+/* Opportunities List */
+.opportunities-list{display:flex;flex-direction:column;gap:20px;}
+.opportunity-card{background:white;border-radius:12px;padding:25px;box-shadow:0 5px 15px rgba(0,0,0,0.08);transition:0.3s;}
+.opportunity-card:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,0,0,0.12);}
+
+.opp-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:15px;}
+.opp-title{font-size:18px;font-weight:600;color:#333;margin-bottom:5px;}
+.opp-category{display:inline-block;padding:4px 10px;background:#f0f0f0;border-radius:5px;font-size:12px;color:#666;}
+.opp-status{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;}
+.status-active{background:#e8f5e9;color:#4caf50;}
+.status-pending{background:#fff3e0;color:#ff9800;}
+.status-completed{background:#e3f2fd;color:#2196f3;}
+.status-rejected{background:#ffebee;color:#f44336;}
+
+.opp-content{margin-bottom:20px;}
+.opp-description{color:#666;font-size:14px;line-height:1.6;margin-bottom:10px;}
+.opp-url{color:#ff6a00;text-decoration:none;font-size:13px;word-break:break-all;}
+.opp-url:hover{text-decoration:underline;}
+
+.opp-progress{margin-bottom:20px;}
+.progress-header{display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px;}
+.progress-bar{height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,#ff6a00,#ff8a00);transition:width 0.3s ease;}
+
+.opp-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:15px;padding-top:20px;border-top:1px solid #f0f0f0;}
+.opp-stat{text-align:center;}
+.opp-stat-value{font-size:20px;font-weight:600;color:#333;}
+.opp-stat-label{font-size:12px;color:#888;margin-top:2px;}
+
+.opp-actions{display:flex;gap:10px;margin-top:20px;padding-top:20px;border-top:1px solid #f0f0f0;}
+.action-btn{padding:8px 15px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;transition:0.3s;border:none;display:flex;align-items:center;gap:5px;}
+.action-btn.primary{background:#ff6a00;color:white;}
+.action-btn.primary:hover{background:#e55d00;}
+.action-btn.secondary{background:#f0f0f0;color:#666;}
+.action-btn.secondary:hover{background:#e0e0e0;}
+.action-btn.danger{background:#ff4444;color:white;}
+.action-btn.danger:hover{background:#e03333;}
+
+/* Empty State */
+.empty-state{text-align:center;padding:60px 20px;background:white;border-radius:12px;}
+.empty-icon{font-size:64px;color:#ddd;margin-bottom:20px;}
+.empty-title{font-size:20px;color:#333;margin-bottom:10px;}
+.empty-text{font-size:14px;color:#888;margin-bottom:25px;}
+
+/* Performance Modal */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px;}
+.modal.active{display:flex;}
+.modal-content{background:white;border-radius:16px;width:100%;max-width:600px;max-height:85vh;overflow:auto;}
+.modal-header{padding:20px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;}
+.modal-title{font-size:20px;font-weight:600;color:#333;}
+.close-modal{background:none;border:none;font-size:24px;color:#999;cursor:pointer;}
+.close-modal:hover{color:#666;}
+.modal-body{padding:20px;}
+
+.chart-container{height:300px;margin-bottom:30px;background:#f8f9fa;border-radius:10px;padding:20px;}
+.performance-metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;}
+.metric-card{padding:15px;background:#f8f9fa;border-radius:10px;}
+.metric-label{font-size:12px;color:#888;text-transform:uppercase;margin-bottom:5px;}
+.metric-value{font-size:24px;font-weight:700;color:#333;}
+.metric-change{font-size:12px;color:#4caf50;margin-top:5px;}
+.metric-change.negative{color:#f44336;}
+
+/* Loading */
+.loading{text-align:center;padding:40px;color:#888;}
+.loading i{font-size:32px;color:#ff6a00;animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* Mobile Responsive */
+@media(max-width:768px){
+    body{padding:10px;}
+    .header{flex-direction:column;}
+    .stats-grid{grid-template-columns:repeat(2,1fr);gap:10px;}
+    .opportunity-card{padding:15px;}
+    .opp-stats{grid-template-columns:repeat(2,1fr);}
+    .modal-content{max-width:95%;}
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <button class="back-btn" onclick="window.location.href='opportunities.html'">
+        <i class="fas fa-arrow-left"></i> Back
+    </button>
+    <h1 class="header-title">Manage Opportunities</h1>
+    <button class="create-new-btn" onclick="window.location.href='create-opportunity.html'">
+        <i class="fas fa-plus"></i> Create New
+    </button>
+</div>
+
+<!-- Stats Overview -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-bullhorn"></i></div>
+        <div class="stat-value" id="total-campaigns">0</div>
+        <div class="stat-label">Total Campaigns</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-eye"></i></div>
+        <div class="stat-value" id="total-views">0</div>
+        <div class="stat-label">Total Views</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-mouse-pointer"></i></div>
+        <div class="stat-value" id="total-clicks">0</div>
+        <div class="stat-label">Total Clicks</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+        <div class="stat-value" id="avg-ctr">0%</div>
+        <div class="stat-label">Avg CTR</div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="filters">
+    <button class="filter-btn active" onclick="filterOpportunities('all', this)">All</button>
+    <button class="filter-btn" onclick="filterOpportunities('active', this)">Active</button>
+    <button class="filter-btn" onclick="filterOpportunities('pending', this)">Pending</button>
+    <button class="filter-btn" onclick="filterOpportunities('completed', this)">Completed</button>
+</div>
+
+<!-- Opportunities List -->
+<div class="opportunities-list" id="opportunities-list">
+    <div class="loading">
+        <i class="fas fa-spinner"></i><br>
+        Loading your opportunities...
+    </div>
+</div>
+
+<!-- Performance Modal -->
+<div class="modal" id="performance-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Campaign Performance</h3>
+            <button class="close-modal" onclick="closePerformanceModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body" id="modal-body">
+            <!-- Performance details will be loaded here -->
+        </div>
+    </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc, deleteDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
+    authDomain: "cashclique-31718.firebaseapp.com",
+    projectId: "cashclique-31718",
+    storageBucket: "cashclique-31718.firebasestorage.app",
+    messagingSenderId: "1064282591269",
+    appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentUser = null;
+let allOpportunities = [];
+let currentFilter = 'all';
+
+onAuthStateChanged(auth, (user) => {
+    if (!user) {
+        window.location.href = "login.html";
+        return;
+    }
+    currentUser = user;
+    loadOpportunities();
+});
+
+function loadOpportunities() {
+    const q = query(
+        collection(db, "opportunities"),
+        where("advertiserId", "==", currentUser.uid),
+        orderBy("createdAt", "desc")
+    );
+    
+    onSnapshot(q, (snapshot) => {
+        allOpportunities = [];
+        let totalViews = 0;
+        let totalClicks = 0;
+        let activeCount = 0;
+        
+        snapshot.forEach(doc => {
+            const data = { id: doc.id, ...doc.data() };
+            allOpportunities.push(data);
+            
+            totalViews += data.currentViews || 0;
+            totalClicks += data.clicks || 0;
+            if (data.status === 'active') activeCount++;
+        });
+        
+        // Update stats
+        document.getElementById('total-campaigns').textContent = allOpportunities.length;
+        document.getElementById('total-views').textContent = formatNumber(totalViews);
+        document.getElementById('total-clicks').textContent = formatNumber(totalClicks);
+        
+        const ctr = totalViews > 0 ? ((totalClicks / totalViews) * 100).toFixed(2) : 0;
+        document.getElementById('avg-ctr').textContent = `${ctr}%`;
+        
+        displayOpportunities();
+    });
+}
+
+function displayOpportunities() {
+    const container = document.getElementById('opportunities-list');
+    
+    let filtered = allOpportunities;
+    if (currentFilter !== 'all') {
+        filtered = allOpportunities.filter(opp => opp.status === currentFilter);
+    }
+    
+    if (filtered.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon"><i class="fas fa-bullhorn"></i></div>
+                <h3 class="empty-title">No opportunities found</h3>
+                <p class="empty-text">${currentFilter === 'all' ? 'Create your first advertising opportunity' : `No ${currentFilter} opportunities`}</p>
+                ${currentFilter === 'all' ? '<button class="create-new-btn" onclick="window.location.href=\'create-opportunity.html\'"><i class="fas fa-plus"></i> Create Opportunity</button>' : ''}
+            </div>`;
+        return;
+    }
+    
+    container.innerHTML = '';
+    filtered.forEach(opp => {
+        const progress = opp.targetViews > 0 ? (opp.currentViews / opp.targetViews) * 100 : 0;
+        const ctr = opp.currentViews > 0 ? ((opp.clicks / opp.currentViews) * 100).toFixed(2) : 0;
+        
+        const card = document.createElement('div');
+        card.className = 'opportunity-card';
+        card.innerHTML = `
+            <div class="opp-header">
+                <div>
+                    <div class="opp-title">${opp.title}</div>
+                    <span class="opp-category">${opp.category}</span>
+                </div>
+                <span class="opp-status status-${opp.status}">${opp.status.toUpperCase()}</span>
+            </div>
+            
+            <div class="opp-content">
+                <p class="opp-description">${opp.description}</p>
+                <a href="${opp.targetUrl}" target="_blank" class="opp-url">${opp.targetUrl}</a>
+            </div>
+            
+            ${opp.status === 'active' ? `
+                <div class="opp-progress">
+                    <div class="progress-header">
+                        <span>Progress</span>
+                        <span>${opp.currentViews.toLocaleString()} / ${opp.targetViews.toLocaleString()} views</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width:${Math.min(progress, 100)}%"></div>
+                    </div>
+                </div>
+            ` : ''}
+            
+            <div class="opp-stats">
+                <div class="opp-stat">
+                    <div class="opp-stat-value">${formatNumber(opp.currentViews || 0)}</div>
+                    <div class="opp-stat-label">Views</div>
+                </div>
+                <div class="opp-stat">
+                    <div class="opp-stat-value">${formatNumber(opp.clicks || 0)}</div>
+                    <div class="opp-stat-label">Clicks</div>
+                </div>
+                <div class="opp-stat">
+                    <div class="opp-stat-value">${ctr}%</div>
+                    <div class="opp-stat-label">CTR</div>
+                </div>
+                <div class="opp-stat">
+                    <div class="opp-stat-value">$${opp.cost.toFixed(2)}</div>
+                    <div class="opp-stat-label">Cost</div>
+                </div>
+            </div>
+            
+            <div class="opp-actions">
+                <button class="action-btn primary" onclick="viewPerformance('${opp.id}')">
+                    <i class="fas fa-chart-line"></i> View Analytics
+                </button>
+                ${opp.status === 'active' ? `
+                    <button class="action-btn secondary" onclick="pauseCampaign('${opp.id}')">
+                        <i class="fas fa-pause"></i> Pause
+                    </button>
+                ` : ''}
+                ${opp.status === 'pending' ? `
+                    <button class="action-btn danger" onclick="cancelCampaign('${opp.id}')">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                ` : ''}
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+window.filterOpportunities = function(filter, btn) {
+    currentFilter = filter;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    displayOpportunities();
+};
+
+window.viewPerformance = function(oppId) {
+    const opp = allOpportunities.find(o => o.id === oppId);
+    if (!opp) return;
+    
+    const modal = document.getElementById('performance-modal');
+    const modalBody = document.getElementById('modal-body');
+    
+    const ctr = opp.currentViews > 0 ? ((opp.clicks / opp.currentViews) * 100).toFixed(2) : 0;
+    const costPerClick = opp.clicks > 0 ? (opp.cost / opp.clicks).toFixed(2) : 0;
+    const costPerView = opp.currentViews > 0 ? (opp.cost / opp.currentViews).toFixed(4) : 0;
+    
+    modalBody.innerHTML = `
+        <div class="chart-container">
+            <canvas id="performance-chart"></canvas>
+        </div>
+        
+        <div class="performance-metrics">
+            <div class="metric-card">
+                <div class="metric-label">Total Impressions</div>
+                <div class="metric-value">${opp.currentViews.toLocaleString()}</div>
+                <div class="metric-change">Target: ${opp.targetViews.toLocaleString()}</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Total Clicks</div>
+                <div class="metric-value">${opp.clicks.toLocaleString()}</div>
+                <div class="metric-change">CTR: ${ctr}%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Cost per Click</div>
+                <div class="metric-value">$${costPerClick}</div>
+                <div class="metric-change">Total: $${opp.cost.toFixed(2)}</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Cost per View</div>
+                <div class="metric-value">$${costPerView}</div>
+                <div class="metric-change">Avg: $${(opp.cost / opp.targetViews).toFixed(4)}</div>
+            </div>
+        </div>
+        
+        <div style="margin-top:20px;padding:15px;background:#f8f9fa;border-radius:10px;">
+            <h4 style="margin-bottom:10px;color:#333;">Campaign Details</h4>
+            <div style="display:grid;gap:8px;font-size:14px;">
+                <div><strong>Status:</strong> ${opp.status.toUpperCase()}</div>
+                <div><strong>Category:</strong> ${opp.category}</div>
+                <div><strong>Created:</strong> ${formatDate(opp.createdAt?.toDate())}</div>
+                <div><strong>Requirements:</strong> ${opp.requirements.minLikes}+ likes, ${opp.requirements.minFollowers}+ followers</div>
+                <div><strong>Verified Only:</strong> ${opp.requirements.requireVerified ? 'Yes' : 'No'}</div>
+            </div>
+        </div>
+    `;
+    
+    modal.classList.add('active');
+    
+    // Simple chart placeholder - you can integrate Chart.js here
+    setTimeout(() => {
+        const canvas = document.getElementById('performance-chart');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#ff6a00';
+            ctx.fillRect(20, 150, 100, -100);
+            ctx.fillStyle = '#ff8a00';
+            ctx.fillRect(140, 150, 100, -50);
+            ctx.fillStyle = '#333';
+            ctx.font = '12px Poppins';
+            ctx.fillText('Views', 50, 170);
+            ctx.fillText('Clicks', 170, 170);
+        }
+    }, 100);
+};
+
+window.closePerformanceModal = function() {
+    document.getElementById('performance-modal').classList.remove('active');
+};
+
+window.pauseCampaign = async function(oppId) {
+    if (!confirm('Pause this campaign?')) return;
+    
+    try {
+        await updateDoc(doc(db, "opportunities", oppId), {
+            status: 'paused',
+            pausedAt: new Date()
+        });
+        alert('Campaign paused successfully');
+    } catch (error) {
+        console.error('Error pausing campaign:', error);
+        alert('Failed to pause campaign');
+    }
+};
+
+window.cancelCampaign = async function(oppId) {
+    if (!confirm('Cancel this campaign? This action cannot be undone.')) return;
+    
+    try {
+        await deleteDoc(doc(db, "opportunities", oppId));
+        alert('Campaign cancelled successfully');
+    } catch (error) {
+        console.error('Error cancelling campaign:', error);
+        alert('Failed to cancel campaign');
+    }
+};
+
+function formatNumber(num) {
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+    return num.toString();
+}
+
+function formatDate(date) {
+    if (!date) return 'Unknown';
+    return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+    });
+}
+
+// Close modal on outside click
+document.getElementById('performance-modal').addEventListener('click', (e) => {
+    if (e.target.id === 'performance-modal') {
+        closePerformanceModal();
+    }
+});
+</script>
+
+</body>
+</html>
