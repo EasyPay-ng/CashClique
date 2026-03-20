@@ -87,7 +87,7 @@ textarea:focus{border-color:#ff6a00;box-shadow:0 0 0 4px rgba(255,106,0,.12);}
     <div>
       <h1>Admin • Ad Campaigns</h1>
       <div class="sub">
-        Allowed admin: <b>beniwealth70@gmail.com</b>. Approve/reject/pause/delete campaigns and monitor analytics.
+        Admin access is restricted to <b>beniwealth70@gmail.com</b>. If it doesn't load, it's usually Firestore Rules denying reads.
       </div>
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
@@ -142,6 +142,9 @@ textarea:focus{border-color:#ff6a00;box-shadow:0 0 0 4px rgba(255,106,0,.12);}
         <button class="btn btn-no" id="rejectBtn"><i class="fas fa-ban"></i> Reject</button>
         <button class="btn btn-ok" id="approveBtn"><i class="fas fa-check"></i> Approve</button>
       </div>
+      <div class="small" style="margin-top:10px;">
+        If this page still shows “Loading campaigns…”, check DevTools console — you'll see the real Firestore error message.
+      </div>
     </div>
   </div>
 </div>
@@ -150,9 +153,17 @@ textarea:focus{border-color:#ff6a00;box-shadow:0 0 0 4px rgba(255,106,0,.12);}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import {
-  getFirestore, collection, query, orderBy, onSnapshot, doc, runTransaction,
+  getFirestore, collection, query, onSnapshot, doc, runTransaction,
   serverTimestamp, deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+/**
+ * IMPORTANT:
+ * - This script intentionally DOES NOT use orderBy("createdAt") to avoid:
+ *   (a) docs missing createdAt
+ *   (b) index issues
+ * - It includes an onSnapshot error handler so you never get “stuck loading”.
+ */
 
 const firebaseConfig = {
   apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -167,7 +178,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const ALLOWED_EMAILS = ["beniwealth70@gmail.com"]; // admin allowlist
+const ALLOWED_EMAILS = ["beniwealth70@gmail.com"];
 
 const listEl = document.getElementById("list");
 const searchEl = document.getElementById("search");
@@ -195,6 +206,8 @@ onAuthStateChanged(auth, async (user) => {
   if (!user) { window.location.href = "login.html"; return; }
 
   const email = (user.email || "").toLowerCase();
+  console.log("Admin page login:", email);
+
   if (!ALLOWED_EMAILS.includes(email)) {
     alert("Admins only.");
     window.location.href = "dashboard.html";
@@ -235,21 +248,58 @@ function attachUI(){
 function startListener(){
   listEl.innerHTML = `<div class="empty"><i class="fas fa-spinner fa-spin"></i><div style="margin-top:10px;">Loading campaigns...</div></div>`;
 
-  const q = query(collection(db, "opportunities"), orderBy("createdAt", "desc"));
+  // No orderBy => avoids missing-field and index issues
+  const q = query(collection(db, "opportunities"));
 
   if (unsubscribe) unsubscribe();
+
   unsubscribe = onSnapshot(q, (snap) => {
+    console.log("Loaded opportunities:", snap.size);
+
     all = snap.docs.map(d => normalizeOpportunity(d.id, d.data()));
+
+    // local sort newest first (works even if some docs don't have createdAt)
+    all.sort((a,b) => getSortTime(b.createdAt) - getSortTime(a.createdAt));
+
     updateKPIs(all);
     render();
+
   }, (err) => {
-    console.error(err);
-    listEl.innerHTML = `<div class="empty"><i class="fas fa-triangle-exclamation"></i><div style="margin-top:10px;">${escapeHTML(err.message || "Failed to load")}</div></div>`;
+    console.error("onSnapshot error:", err);
+
+    listEl.innerHTML = `
+      <div class="empty">
+        <i class="fas fa-triangle-exclamation"></i>
+        <div style="margin-top:10px;font-weight:900;">Failed to load campaigns</div>
+        <div style="margin-top:8px;max-width:900px;margin-left:auto;margin-right:auto;">
+          ${escapeHTML(err.message || "Unknown error")}
+        </div>
+        <div style="margin-top:16px;">
+          <button class="btn btn-dark" onclick="location.reload()"><i class="fas fa-rotate"></i> Retry</button>
+        </div>
+        <div class="small" style="margin-top:12px;">
+          If the error says <b>Missing or insufficient permissions</b>, update Firestore Rules to allow this admin email to read /opportunities.
+        </div>
+      </div>
+    `;
   });
+}
+
+function getSortTime(ts){
+  if (!ts) return 0;
+  if (typeof ts.seconds === "number") return ts.seconds * 1000;
+  if (typeof ts.toDate === "function") return ts.toDate().getTime();
+  return 0;
 }
 
 function normalizeOpportunity(id, d){
   const metrics = d.metrics || {};
+  const views = Number(d.currentViews ?? metrics.views ?? 0);
+  const clicks = Number(d.clicks ?? metrics.clicks ?? 0);
+  const watch = Number(metrics.watch ?? d.watch ?? 0);
+  const targetViews = Number(d.targetViews ?? d.viewsTarget ?? 0);
+  const cost = Number(d.cost ?? d.totalCost ?? 0);
+
   return {
     id,
     title: d.title || "Campaign",
@@ -257,19 +307,16 @@ function normalizeOpportunity(id, d){
     advertiserId: d.advertiserId || d.userId || "—",
     advertiserUsername: d.advertiserUsername || d.advertiserName || "—",
     status: String(d.status || "pending").toLowerCase(),
-
     destinationUrl: d.targetUrl || d.destinationUrl || "",
     mediaUrl: d.mediaUrl || null,
     description: d.description || "",
-
     requirements: d.requirements || {},
-
-    targetViews: Number(d.targetViews ?? d.viewsTarget ?? 0),
-    views: Number(d.currentViews ?? metrics.views ?? 0),
-    clicks: Number(d.clicks ?? metrics.clicks ?? 0),
-    watch: Number(metrics.watch ?? d.watch ?? 0),
-    cost: Number(d.cost ?? d.totalCost ?? 0),
-    createdAt: d.createdAt || null
+    createdAt: d.createdAt || null,
+    targetViews,
+    views,
+    clicks,
+    watch,
+    cost
   };
 }
 
@@ -331,8 +378,8 @@ function render(){
             <span class="pill"><i class="fas fa-percent"></i> CTR: ${ctr.toFixed(2)}%</span>
             <span class="pill"><i class="fas fa-dollar-sign"></i> Cost: $${c.cost.toFixed(2)}</span>
             <span class="pill"><i class="fas fa-chart-simple"></i> CPV: $${cpv.toFixed(4)}</span>
-            <span class="pill"><i class="fas fa-bullseye"></i> Target: ${c.targetViews.toLocaleString()}</span>
             <span class="pill"><i class="fas fa-hand-pointer"></i> CPC: $${cpc.toFixed(4)}</span>
+            <span class="pill"><i class="fas fa-bullseye"></i> Target: ${c.targetViews.toLocaleString()}</span>
           </div>
 
           <div class="progress">
