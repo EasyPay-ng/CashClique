@@ -130,6 +130,10 @@ body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;overflow-x:hidd
 .amount-wrapper span{position:absolute;left:16px;font-size:18px;font-weight:600;color:#94a3b8;}
 .amount-input{padding-left:35px;font-weight:700;}
 
+/* Naira Equiv */
+.naira-eqv {text-align:right; font-size:14px; color:#64748b; margin-top:8px; font-weight:500;}
+.naira-eqv span {color:#ff6a00; font-weight:700; font-size:16px;}
+
 /* Submit Button */
 .btn-primary{width:100%;background:linear-gradient(135deg,#ff6a00,#e55d00);color:white;border:none;padding:16px;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;transition:0.3s;margin-top:10px;}
 .btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(255,106,0,0.3);}
@@ -281,7 +285,7 @@ body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;overflow-x:hidd
         <div class="overlay-title">Withdraw Funds</div>
     </div>
     <div class="overlay-content">
-        <p style="color:#64748b; margin-bottom:20px;">Select how you want to receive your funds. Minimum withdrawal is $25.</p>
+        <p style="color:#64748b; margin-bottom:20px;">Select how you want to receive your funds. Minimum withdrawal is $1.00.</p>
 
         <button class="channel-btn" onclick="selectBank()">
             <div class="channel-left">
@@ -322,7 +326,10 @@ body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;overflow-x:hidd
             <label class="input-label">Amount to Withdraw (USD)</label>
             <div class="amount-wrapper">
                 <span>$</span>
-                <input type="number" id="wdAmount" class="form-input amount-input" placeholder="0.00" min="25">
+                <input type="number" id="wdAmount" class="form-input amount-input" placeholder="0.00" min="1" step="0.01">
+            </div>
+            <div class="naira-eqv">
+                You will receive: <span id="wdNairaOutput">₦0</span>
             </div>
         </div>
 
@@ -368,6 +375,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+const RATE = 1300;
 let currentUser = null;
 let balance = 0;
 
@@ -392,7 +400,7 @@ window.showToast = (msg) => {
 
 // Overlay Helpers
 window.openWithdrawOverlay = () => {
-    if(balance < 25) return showToast("Minimum withdrawal is $25.00.");
+    if(balance < 1) return showToast("Minimum withdrawal is $1.00.");
     document.getElementById('overlayMethod').classList.add('active');
 };
 window.closeOverlay = (id) => document.getElementById(id).classList.remove('active');
@@ -402,8 +410,18 @@ window.selectBank = () => {
     document.getElementById('overlayMethod').classList.remove('active');
     document.getElementById('formAvailBalance').innerText = `$${balance.toFixed(2)}`;
     document.getElementById('wdAmount').max = balance;
+    document.getElementById('wdAmount').value = ''; // reset on open
+    document.getElementById('wdNairaOutput').innerText = '₦0';
     document.getElementById('overlayForm').classList.add('active');
 };
+
+// Real-time Naira Converter for Withdrawal Amount
+document.getElementById('wdAmount').addEventListener('input', function(e) {
+    const usd = parseFloat(this.value) || 0;
+    const naira = usd * RATE;
+    document.getElementById('wdNairaOutput').innerText = `₦${naira.toLocaleString()}`;
+});
+
 
 // Load User Balance
 function loadUserBalance() {
@@ -411,6 +429,12 @@ function loadUserBalance() {
         if (snap.exists()) {
             balance = snap.data().balance || 0;
             document.getElementById('total-balance').textContent = `$${balance.toFixed(2)}`;
+            
+            const withdrawBtn = document.getElementById('withdraw-btn');
+            withdrawBtn.disabled = balance < 1;
+            withdrawBtn.innerHTML = balance >= 1 
+                ? `<i class="fas fa-building-columns"></i> Withdraw $${balance.toFixed(2)}` 
+                : `<i class="fas fa-building-columns"></i> Min. $1 (Need $${(1 - balance).toFixed(2)})`;
         }
     });
 }
@@ -464,7 +488,7 @@ function loadDeposits() {
     });
 }
 
-// 2. WITHDRAWALS (FIXED & FULLY WORKING)
+// 2. WITHDRAWALS
 function loadWithdrawals() {
     const q = query(collection(db, "withdrawals"), where("userId", "==", currentUser.uid));
     onSnapshot(q, (snapshot) => {
@@ -595,7 +619,7 @@ window.submitWithdrawal = async () => {
     const aName = document.getElementById('wdAccName').value.trim();
     const btn = document.getElementById('submitWdBtn');
 
-    if(!amt || amt < 25) return showToast("Minimum withdrawal is $25.");
+    if(!amt || amt < 1) return showToast("Minimum withdrawal is $1.00.");
     if(amt > balance) return showToast("Insufficient available balance.");
     if(!bName || !aNo || !aName) return showToast("Please fill in all bank details.");
 
@@ -614,7 +638,7 @@ window.submitWithdrawal = async () => {
             timestamp: serverTimestamp()
         });
         
-        // 2. Deduct the amount from user's balance safely
+        // 2. Deduct the amount from user's balance
         await updateDoc(doc(db, "users", currentUser.uid), {
             balance: increment(-amt)
         });
@@ -626,6 +650,7 @@ window.submitWithdrawal = async () => {
         document.getElementById('wdBankName').value = '';
         document.getElementById('wdAccNo').value = '';
         document.getElementById('wdAccName').value = '';
+        document.getElementById('wdNairaOutput').innerText = '₦0';
         
         btn.disabled = false;
         btn.innerHTML = 'Submit Request';
