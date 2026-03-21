@@ -7,75 +7,98 @@
 
 <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{background:#f5f5f5;min-height:100vh;color:#333;}
+body{background:#f5f6f8;min-height:100vh;color:#1e2937;overflow-x:hidden;}
 
 /* Login Overlay */
 .login-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#ff6a00,#e65100);display:flex;align-items:center;justify-content:center;z-index:9999;}
 .login-box{background:white;padding:40px;border-radius:16px;width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
 .login-title{text-align:center;margin-bottom:30px;font-size:24px;font-weight:700;color:#333;}
-.login-input{width:100%;padding:15px;margin-bottom:20px;border:2px solid #ddd;border-radius:10px;font-size:16px;}
+.login-input{width:100%;padding:15px;margin-bottom:20px;border:2px solid #ddd;border-radius:10px;font-size:16px;outline:none;}
+.login-input:focus{border-color:#ff6a00;}
 .login-btn{width:100%;background:#ff6a00;color:white;padding:15px;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;transition:0.3s;}
 .login-btn:hover{background:#d95600;}
-.error-msg{color:#d32f2f;text-align:center;margin-bottom:15px;font-size:14px;display:none;}
+.error-msg{color:#d32f2f;text-align:center;margin-bottom:15px;font-size:14px;display:none;background:#ffebee;padding:10px;border-radius:8px;}
 
 /* Admin Sidebar */
-.sidebar{width:260px;background:#2d2d2d;color:white;padding:25px;display:flex;flex-direction:column;gap:10px;position:fixed;height:100%;z-index:100;}
-.sidebar h2{font-size:22px;margin-bottom:30px;font-weight:700;color:#ff6a00;}
-.sidebar a{color:#ccc;text-decoration:none;padding:12px 15px;border-radius:8px;transition:0.3s;font-weight:500;}
+.sidebar{width:260px;background:#1e2937;color:white;padding:25px;display:flex;flex-direction:column;gap:10px;position:fixed;height:100%;z-index:100;}
+.sidebar h2{font-size:22px;margin-bottom:30px;font-weight:700;color:#ff6a00;display:flex;align-items:center;gap:10px;}
+.sidebar a{color:#cbd5e1;text-decoration:none;padding:14px 16px;border-radius:10px;transition:0.3s;font-weight:500;display:flex;align-items:center;gap:10px;}
 .sidebar a:hover, .sidebar a.active{background:#ff6a00;color:white;}
 
 /* Main Content */
 .main{margin-left:260px;padding:30px;width:calc(100% - 260px);}
-.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;padding-bottom:20px;border-bottom:2px solid #eee;}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;padding-bottom:20px;border-bottom:2px solid #e2e8f0;}
 .header h1{font-size:28px;font-weight:700;}
 
 /* Stats Grid */
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:30px;}
-.stat-card{background:white;padding:25px;border-radius:12px;box-shadow:0 5px 20px rgba(0,0,0,0.05);}
-.stat-label{font-size:13px;color:#777;text-transform:uppercase;font-weight:600;}
-.stat-value{font-size:28px;font-weight:700;color:#2d2d2d;margin-top:8px;}
-.stat-value.success{color:#4caf50;}
-
-/* Tables */
-.table-container{background:white;border-radius:12px;box-shadow:0 5px 20px rgba(0,0,0,0.05);overflow-x:auto;}
-table{width:100%;border-collapse:collapse;}
-thead th{padding:18px;text-align:left;background:#fafafa;font-weight:600;color:#555;border-bottom:2px solid #eee;font-size:14px;}
-tbody tr{border-bottom:1px solid #f5f5f5;transition:0.2s;}
-tbody tr:hover{background:#fafafa;}
-td{padding:18px;font-size:14px;}
-
-/* Buttons & Inputs */
-.btn{padding:10px 20px;border:none;border-radius:8px;font-weight:600;cursor:pointer;transition:0.2s;font-size:14px;}
-.btn-primary{background:#ff6a00;color:white;}
-.btn-success{background:#4caf50;color:white;}
-.btn-sm{padding:6px 12px;font-size:12px;}
-input[type="number"]{width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;}
-.balance-display{font-weight:700;color:#ff6a00;}
-
-/* Modal */
-.modal{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1000;}
-.modal.active{display:flex;}
-.modal-content{background:white;padding:30px;border-radius:12px;width:450px;max-width:95%;}
-.modal-title{font-size:20px;font-weight:700;margin-bottom:20px;color:#333;}
-.form-group{margin-bottom:15px;}
-.form-group label{display:block;margin-bottom:5px;font-weight:500;}
-.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
-.badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;}
-.badge-pending{background:#fff3cd;color:#856404;}
-.badge-approved{background:#d4edda;color:#155724;}
-.badge-rejected{background:#f8d7da;color:#721c24;}
+.stat-card{background:white;padding:25px;border-radius:16px;box-shadow:0 4px 15px rgba(0,0,0,0.03);border:1px solid #e2e8f0;}
+.stat-label{font-size:12px;color:#64748b;text-transform:uppercase;font-weight:700;letter-spacing:0.5px;}
+.stat-value{font-size:28px;font-weight:700;color:#1e2937;margin-top:8px;}
+.stat-value.success{color:#10b981;}
+.stat-value.warning{color:#f59e0b;}
+.stat-value.primary{color:#3b82f6;}
 
 /* Tabs */
-.tabs{display:flex;gap:5px;margin-bottom:20px;border-bottom:2px solid #eee;}
-.tab{padding:12px 25px;cursor:pointer;font-weight:500;color:#666;border-bottom:3px solid transparent;transition:0.3s;}
-.tab.active{color:#ff6a00;border-bottom-color:#ff6a00;}
+.tabs{display:flex;gap:10px;margin-bottom:20px;background:#fff;padding:8px;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,0.02);border:1px solid #e2e8f0;flex-wrap:wrap;}
+.tab{padding:12px 24px;cursor:pointer;font-weight:600;color:#64748b;border-radius:8px;transition:0.3s;font-size:14px;}
+.tab.active{background:#ff6a00;color:white;}
+
+/* Tables */
+.table-container{background:white;border-radius:16px;box-shadow:0 4px 15px rgba(0,0,0,0.03);border:1px solid #e2e8f0;overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+thead th{padding:18px;text-align:left;background:#f8fafc;font-weight:600;color:#64748b;border-bottom:1px solid #e2e8f0;font-size:13px;text-transform:uppercase;}
+tbody tr{border-bottom:1px solid #f1f5f9;transition:0.2s;}
+tbody tr:hover{background:#f8fafc;}
+td{padding:18px;font-size:14px;color:#334155;}
+.balance-display{font-weight:700;color:#ff6a00;}
+
+/* Buttons & Badges */
+.btn{padding:8px 16px;border:none;border-radius:8px;font-weight:600;cursor:pointer;transition:0.2s;font-size:13px;display:inline-flex;align-items:center;gap:6px;}
+.btn-primary{background:#ff6a00;color:white;}
+.btn-primary:hover{background:#e55d00;}
+.btn-success{background:#10b981;color:white;}
+.btn-secondary{background:#e2e8f0;color:#1e2937;}
+.btn-secondary:hover{background:#cbd5e1;}
+
+.badge{display:inline-block;padding:6px 12px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;}
+.badge-pending{background:#fef3c7;color:#b45309;}
+.badge-approved{background:#dcfce7;color:#166534;}
+.badge-rejected{background:#fee2e2;color:#991b1b;}
+
+/* Modal */
+.modal{position:fixed;inset:0;background:rgba(15,23,42,0.6);display:none;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(4px);}
+.modal.active{display:flex;}
+.modal-content{background:white;padding:30px;border-radius:20px;width:450px;max-width:95%;box-shadow:0 20px 40px rgba(0,0,0,0.2);}
+.modal-title{font-size:20px;font-weight:700;margin-bottom:20px;color:#1e2937;}
+.form-group{margin-bottom:15px;}
+.form-group label{display:block;margin-bottom:8px;font-weight:600;font-size:14px;}
+input[type="number"]{width:100%;padding:14px;border:2px solid #e2e8f0;border-radius:10px;font-size:15px;outline:none;}
+input[type="number"]:focus{border-color:#ff6a00;}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:24px;}
+
+/* Full Page Overlay (Transaction Details) */
+.page-overlay{position:fixed;inset:0;background:#f5f6f8;z-index:2000;transform:translateX(100%);transition:transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);display:flex;flex-direction:column;overflow-y:auto;}
+.page-overlay.active{transform:translateX(0);}
+.overlay-header{padding:20px;background:white;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;}
+.overlay-header-left{display:flex;align-items:center;gap:15px;}
+.back-btn{background:none;border:none;font-size:20px;color:#1e2937;cursor:pointer;}
+.overlay-title{font-weight:700;font-size:18px;}
+.overlay-content{padding:30px 20px;max-width:700px;margin:0 auto;width:100%;flex:1;}
+
+.detail-card{background:white;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.03);}
+.detail-row{padding:18px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #f1f5f9;gap:20px;}
+.detail-row:last-child{border-bottom:none;}
+.detail-label{font-size:13px;color:#64748b;font-weight:600;text-transform:uppercase;}
+.detail-value{font-size:15px;font-weight:700;color:#1e2937;text-align:right;word-break:break-word;}
 
 @media(max-width:900px){
     .sidebar{transform:translateX(-100%);transition:0.3s;}
-    .main{margin-left:0;width:100%;}
+    .main{margin-left:0;width:100%;padding:15px;}
 }
 </style>
 </head>
@@ -85,74 +108,120 @@ input[type="number"]{width:100%;padding:10px;border:1px solid #ddd;border-radius
 <!-- Login Overlay -->
 <div class="login-overlay" id="login-overlay">
     <div class="login-box">
-        <h2 class="login-title">🔒 Admin Access</h2>
-        <p class="error-msg" id="error-msg">Access Denied: Email not authorized</p>
+        <h2 class="login-title">🔒 Admin Portal</h2>
+        <div class="error-msg" id="error-msg"></div>
         <input type="email" class="login-input" id="admin-email" placeholder="Admin Email">
         <input type="password" class="login-input" id="admin-password" placeholder="Password">
         <button class="login-btn" onclick="adminLogin()">Secure Login</button>
-        <p style="text-align:center;margin-top:20px;font-size:12px;color:#888;">Only beniwealth70@gmail.com and cashclique@gmail.com allowed</p>
+        <p style="text-align:center;margin-top:20px;font-size:12px;color:#888;">Authorized Personnel Only</p>
     </div>
 </div>
 
 <!-- Admin Sidebar -->
 <div class="sidebar" id="sidebar" style="display:none;">
-    <h2>CashClique Admin</h2>
-    <a href="#" class="active" onclick="switchTab('users')">💰 Users & Balances</a>
-    <a href="#" onclick="switchTab('withdrawals')">📤 Withdrawals</a>
-    <a href="#" onclick="switchTab('posts')">📝 Posts Management</a>
-    <a href="#" onclick="adminLogout()">🚪 Logout</a>
+    <h2><i class="fas fa-shield-halved"></i> Admin</h2>
+    <a href="#" class="active"><i class="fas fa-chart-pie"></i> Dashboard</a>
+    <a href="admin-opportunities.html"><i class="fas fa-bullhorn"></i> Manage Ads</a>
+    <a href="#" onclick="adminLogout()" style="margin-top:auto;"><i class="fas fa-sign-out-alt"></i> Logout</a>
 </div>
 
 <!-- Main Content -->
 <div class="main" id="main-content" style="display:none;">
     <div class="header">
-        <h1 id="page-title">User Management</h1>
+        <h1>Dashboard Overview</h1>
     </div>
 
+    <!-- STATS GRID -->
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-label">Total Users</div>
             <div class="stat-value" id="total-users">0</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">Pending Withdrawals</div>
-            <div class="stat-value success" id="pending-withdrawals">$0.00</div>
+            <div class="stat-label">Total Distributed</div>
+            <div class="stat-value success" id="total-distributed">$0.00</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">Total Distributed</div>
-            <div class="stat-value" id="total-distributed">$0.00</div>
+            <div class="stat-label">Total Deposits</div>
+            <div class="stat-value primary" id="total-deposits">$0.00</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Pending Withdrawals</div>
+            <div class="stat-value warning" id="pending-withdrawals">$0.00</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Total Payouts</div>
+            <div class="stat-value success" id="total-payouts">$0.00</div>
         </div>
     </div>
 
+    <!-- TABS -->
     <div class="tabs">
         <div class="tab active" id="tab-users" onclick="switchTab('users')">Users & Balances</div>
-        <div class="tab" id="tab-withdrawals" onclick="switchTab('withdrawals')">Withdrawal Requests</div>
+        <div class="tab" id="tab-withdrawals" onclick="switchTab('withdrawals')">Withdrawals</div>
+        <div class="tab" id="tab-deposits" onclick="switchTab('deposits')">Deposits</div>
         <div class="tab" id="tab-posts" onclick="switchTab('posts')">Assign Earnings</div>
     </div>
 
+    <!-- TAB 1: USERS -->
     <div class="table-container" id="view-users">
-        <table id="users-table"><thead><tr><th>User</th><th>Balance</th><th>Last Update</th><th>Action</th></tr></thead><tbody></tbody></table>
+        <table id="users-table">
+            <thead><tr><th>User</th><th>Balance</th><th>Last Update</th><th>Action</th></tr></thead>
+            <tbody></tbody>
+        </table>
     </div>
 
+    <!-- TAB 2: WITHDRAWALS -->
     <div class="table-container" id="view-withdrawals" style="display:none;">
-        <table id="withdrawals-table"><thead><tr><th>User</th><th>Amount</th><th>Date</th><th>Status</th><th>Action</th></tr></thead><tbody></tbody></table>
+        <table id="withdrawals-table">
+            <thead><tr><th>User</th><th>Amount</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+            <tbody></tbody>
+        </table>
     </div>
 
+    <!-- TAB 3: DEPOSITS -->
+    <div class="table-container" id="view-deposits" style="display:none;">
+        <table id="deposits-table">
+            <thead><tr><th>Transaction ID</th><th>User</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- TAB 4: POSTS -->
     <div class="table-container" id="view-posts" style="display:none;">
-        <table id="posts-table"><thead><tr><th>Post ID</th><th>Creator</th><th>Likes</th><th>Current Earn.</th><th>Set Payout ($)</th></tr></thead><tbody></tbody></table>
+        <table id="posts-table">
+            <thead><tr><th>Post ID</th><th>Creator</th><th>Likes</th><th>Current Earn.</th><th>Action</th></tr></thead>
+            <tbody></tbody>
+        </table>
     </div>
 </div>
 
-<!-- Modals -->
+<!-- TRANSACTION DETAILS OVERLAY -->
+<div class="page-overlay" id="details-overlay">
+    <div class="overlay-header">
+        <div class="overlay-header-left">
+            <button class="back-btn" onclick="closeOverlay('details-overlay')"><i class="fas fa-arrow-left"></i></button>
+            <div class="overlay-title">Transaction Details</div>
+        </div>
+        <div id="details-action-btn"></div>
+    </div>
+    <div class="overlay-content">
+        <div class="detail-card" id="details-body">
+            <!-- Populated by JS -->
+        </div>
+    </div>
+</div>
+
+<!-- MODALS -->
 <div class="modal" id="balance-modal">
     <div class="modal-content">
         <h3 class="modal-title">Adjust User Balance</h3>
         <div class="form-group">
-            <label>Add or Subtract Amount</label>
+            <label>Add or Subtract Amount ($)</label>
             <input type="number" id="amount-adjustment" step="0.01" placeholder="e.g. 25.50 or -10.00">
         </div>
         <div class="modal-actions">
-            <button class="btn" onclick="closeModal('balance-modal')">Cancel</button>
+            <button class="btn btn-secondary" onclick="closeModal('balance-modal')">Cancel</button>
             <button class="btn btn-primary" onclick="updateBalance()">Update Balance</button>
         </div>
     </div>
@@ -166,7 +235,7 @@ input[type="number"]{width:100%;padding:10px;border:1px solid #ddd;border-radius
             <input type="number" id="post-earnings" step="0.01" min="0" placeholder="0.00">
         </div>
         <div class="modal-actions">
-            <button class="btn" onclick="closeModal('payout-modal')">Cancel</button>
+            <button class="btn btn-secondary" onclick="closeModal('payout-modal')">Cancel</button>
             <button class="btn btn-primary" onclick="assignPostEarning()">Save Earnings</button>
         </div>
     </div>
@@ -175,7 +244,7 @@ input[type="number"]{width:100%;padding:10px;border:1px solid #ddd;border-radius
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, doc, onSnapshot, query, updateDoc, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, doc, onSnapshot, query, where, updateDoc, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -191,14 +260,27 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 const ALLOWED_ADMIN_EMAILS = ["beniwealth70@gmail.com", "cashclique@gmail.com"];
-
 let currentUser = null;
+
+// Global Data Caches for Details Overlay
+let allWithdrawals = {};
+let allDeposits = {};
+
+// Safe Date Formatter
+function formatDate(ts) {
+    if (!ts || !ts.toDate) return "N/A";
+    return ts.toDate().toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+
+// Format Keys beautifully (e.g. "amountUSD" -> "Amount USD")
+function formatKey(key) {
+    return key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+}
 
 window.adminLogin = async () => {
     const email = document.getElementById("admin-email").value.trim();
     const password = document.getElementById("admin-password").value;
     const errorMsg = document.getElementById("error-msg");
-
     errorMsg.style.display = "none";
 
     if (!ALLOWED_ADMIN_EMAILS.includes(email)) {
@@ -210,7 +292,6 @@ window.adminLogin = async () => {
     try {
         await signInWithEmailAndPassword(auth, email, password);
     } catch (e) {
-        console.error(e);
         errorMsg.innerText = "Invalid email or password";
         errorMsg.style.display = "block";
     }
@@ -220,37 +301,33 @@ onAuthStateChanged(auth, (user) => {
     if (user && ALLOWED_ADMIN_EMAILS.includes(user.email)) {
         currentUser = user;
         document.getElementById("login-overlay").style.display = "none";
-        document.getElementById("sidebar").style.display = "block";
+        document.getElementById("sidebar").style.display = "flex";
         document.getElementById("main-content").style.display = "block";
-        loadDashboard();
+        loadAllData();
     }
 });
 
-function loadDashboard() {
-    loadStats();
+function loadAllData() {
     loadUsers();
     loadWithdrawals();
+    loadDeposits();
     loadPosts();
-}
-
-function loadStats() {
-    onSnapshot(collection(db, "users"), (snap) => {
-        document.getElementById("total-users").innerText = snap.size;
-    });
 }
 
 function loadUsers() {
     onSnapshot(collection(db, "users"), (snap) => {
+        document.getElementById("total-users").innerText = snap.size;
         const tbody = document.querySelector("#users-table tbody");
         tbody.innerHTML = "";
+        
         snap.forEach((docSnap) => {
             const u = docSnap.data();
             const row = document.createElement("tr");
             row.innerHTML = `
-                <td><strong>${u.username || 'Anonymous'}</strong><br><small>${u.email || ''}</small></td>
+                <td><strong>${u.username || 'Anonymous'}</strong><br><small style="color:#64748b">${u.email || ''}</small></td>
                 <td class="balance-display">$${(u.balance || 0).toFixed(2)}</td>
-                <td>${u.updatedAt ? new Date(u.updatedAt.toDate()).toLocaleDateString() : 'Never'}</td>
-                <td><button class="btn btn-primary btn-sm" onclick="openBalanceModal('${docSnap.id}')">Edit Balance</button></td>
+                <td>${formatDate(u.updatedAt)}</td>
+                <td><button class="btn btn-secondary" onclick="openBalanceModal('${docSnap.id}')"><i class="fas fa-edit"></i> Edit</button></td>
             `;
             tbody.appendChild(row);
         });
@@ -261,19 +338,74 @@ function loadWithdrawals() {
     onSnapshot(collection(db, "withdrawals"), (snap) => {
         const tbody = document.querySelector("#withdrawals-table tbody");
         tbody.innerHTML = "";
+        let pendingTotal = 0;
+        let payoutTotal = 0;
+
+        allWithdrawals = {}; // reset cache
+
         snap.forEach(docSnap => {
             const d = docSnap.data();
-            const statusClass = d.paid ? "badge-approved" : "badge-pending";
+            allWithdrawals[docSnap.id] = { id: docSnap.id, ...d };
+            
+            const isCompleted = d.paid === true || d.status === 'approved' || d.status === 'completed';
+            const amt = d.amount || 0;
+
+            if (isCompleted) payoutTotal += amt;
+            else pendingTotal += amt;
+
+            const statusClass = isCompleted ? "badge-approved" : "badge-pending";
+            
             const row = document.createElement("tr");
             row.innerHTML = `
-                <td>${d.username || 'User'}</td>
-                <td>$${(d.amount||0).toFixed(2)}</td>
-                <td>${d.timestamp ? new Date(d.timestamp.toDate()).toLocaleDateString() : '-'}</td>
-                <td><span class="badge ${statusClass}">${d.paid ? 'Paid' : 'Pending'}</span></td>
-                <td>${!d.paid ? `<button class="btn btn-success btn-sm" onclick="approveWithdrawal('${docSnap.id}', '${d.userId}', ${d.amount||0})">Approve</button>` : 'Done'}</td>
+                <td><strong>${d.username || 'User'}</strong></td>
+                <td style="font-weight:700; color:#ef4444;">-$${amt.toFixed(2)}</td>
+                <td><span class="badge ${statusClass}">${isCompleted ? 'Paid' : 'Pending'}</span></td>
+                <td>${formatDate(d.timestamp)}</td>
+                <td style="display:flex; gap:8px;">
+                    <button class="btn btn-secondary" onclick="openDetails('withdrawal', '${docSnap.id}')"><i class="fas fa-eye"></i> Details</button>
+                    ${!isCompleted ? `<button class="btn btn-success" onclick="approveWithdrawal('${docSnap.id}', ${amt})"><i class="fas fa-check"></i> Approve</button>` : ''}
+                </td>
             `;
             tbody.appendChild(row);
         });
+
+        document.getElementById("pending-withdrawals").innerText = `$${pendingTotal.toFixed(2)}`;
+        document.getElementById("total-payouts").innerText = `$${payoutTotal.toFixed(2)}`;
+    });
+}
+
+function loadDeposits() {
+    const q = query(collection(db, "transactions"), where("type", "==", "deposit"));
+    onSnapshot(q, (snap) => {
+        const tbody = document.querySelector("#deposits-table tbody");
+        tbody.innerHTML = "";
+        let depositTotal = 0;
+        
+        allDeposits = {}; // reset cache
+
+        snap.forEach(docSnap => {
+            const d = docSnap.data();
+            allDeposits[docSnap.id] = { id: docSnap.id, ...d };
+
+            const amt = d.amountUSD || d.amount || 0;
+            const isCompleted = d.status === 'completed';
+            
+            if(isCompleted) depositTotal += amt;
+
+            const statusClass = isCompleted ? "badge-approved" : "badge-pending";
+
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td><code>${(d.transactionId || docSnap.id).substring(0,10)}...</code></td>
+                <td><strong>${d.email || d.userId || 'User'}</strong></td>
+                <td style="font-weight:700; color:#10b981;">+$${amt.toFixed(2)}</td>
+                <td><span class="badge ${statusClass}">${d.status || 'completed'}</span></td>
+                <td><button class="btn btn-secondary" onclick="openDetails('deposit', '${docSnap.id}')"><i class="fas fa-eye"></i> Details</button></td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        document.getElementById("total-deposits").innerText = `$${depositTotal.toFixed(2)}`;
     });
 }
 
@@ -281,23 +413,74 @@ function loadPosts() {
     onSnapshot(collection(db, "posts"), (snap) => {
         const tbody = document.querySelector("#posts-table tbody");
         tbody.innerHTML = "";
+        let distributedTotal = 0;
+
         snap.forEach(docSnap => {
             const p = docSnap.data();
             const earned = p.earning || 0;
+            distributedTotal += earned;
+
             const row = document.createElement("tr");
             row.innerHTML = `
                 <td><code>${docSnap.id.substring(0,8)}...</code></td>
-                <td>${p.username || 'Unknown'}</td>
-                <td>${p.likes || 0}</td>
-                <td style="color:${earned > 0 ? 'green' : '#888'}">$${earned.toFixed(2)}</td>
-                <td><button class="btn btn-primary btn-sm" onclick="openPayoutModal('${docSnap.id}', '${p.userId}')">Set Pay</button></td>
+                <td><strong>${p.username || 'Unknown'}</strong></td>
+                <td><i class="fas fa-heart" style="color:#ef4444;"></i> ${p.likes || 0}</td>
+                <td style="font-weight:700; color:${earned > 0 ? '#10b981' : '#64748b'}">$${earned.toFixed(2)}</td>
+                <td><button class="btn btn-primary" onclick="openPayoutModal('${docSnap.id}', '${p.userId}')"><i class="fas fa-dollar-sign"></i> Set Pay</button></td>
             `;
             tbody.appendChild(row);
         });
+
+        document.getElementById("total-distributed").innerText = `$${distributedTotal.toFixed(2)}`;
     });
 }
 
-// === BALANCE MODAL ===
+/* ===========================
+   OVERLAY: TRANSACTION DETAILS
+   =========================== */
+window.openDetails = (type, id) => {
+    const data = type === 'withdrawal' ? allWithdrawals[id] : allDeposits[id];
+    if(!data) return alert("Data not found");
+
+    const container = document.getElementById('details-body');
+    const actionBtnContainer = document.getElementById('details-action-btn');
+    container.innerHTML = "";
+    actionBtnContainer.innerHTML = "";
+
+    // Loop through properties dynamically
+    for(let key in data) {
+        if(key === 'id') continue;
+        
+        let value = data[key];
+        
+        // Handle Timestamps
+        if(value && typeof value === 'object' && value.seconds) {
+            value = formatDate(value);
+        }
+
+        container.innerHTML += `
+            <div class="detail-row">
+                <div class="detail-label">${formatKey(key)}</div>
+                <div class="detail-value">${value}</div>
+            </div>
+        `;
+    }
+
+    // Add Approve button if it's a pending withdrawal
+    if(type === 'withdrawal' && data.paid === false) {
+        actionBtnContainer.innerHTML = `<button class="btn btn-success" onclick="approveWithdrawal('${id}', ${data.amount})"><i class="fas fa-check"></i> Approve Payout</button>`;
+    }
+
+    document.getElementById('details-overlay').classList.add('active');
+};
+
+window.closeOverlay = (id) => {
+    document.getElementById(id).classList.remove('active');
+};
+
+/* ===========================
+   ACTIONS & MODALS 
+   =========================== */
 window.openBalanceModal = (uid) => {
     window.currentEditingUserId = uid;
     document.getElementById("balance-modal").classList.add("active");
@@ -306,26 +489,15 @@ window.openBalanceModal = (uid) => {
 window.updateBalance = async () => {
     const uid = window.currentEditingUserId;
     const amount = parseFloat(document.getElementById("amount-adjustment").value);
-
-    if (!uid || isNaN(amount)) {
-        alert("Invalid input");
-        return;
-    }
+    if (!uid || isNaN(amount)) return alert("Invalid input");
 
     try {
-        await updateDoc(doc(db, "users", uid), {
-            balance: increment(amount),
-            updatedAt: serverTimestamp()
-        });
-        alert("Balance updated successfully!");
+        await updateDoc(doc(db, "users", uid), { balance: increment(amount), updatedAt: serverTimestamp() });
         closeModal("balance-modal");
-    } catch (e) {
-        console.error(e);
-        alert("Failed to update balance. Check console.");
-    }
+        document.getElementById("amount-adjustment").value = '';
+    } catch (e) { alert("Failed to update balance."); }
 };
 
-// === PAYOUT MODAL ===
 window.openPayoutModal = (postId, userId) => {
     window.currentPostId = postId;
     window.currentPostUserId = userId;
@@ -337,40 +509,22 @@ window.assignPostEarning = async () => {
     const userId = window.currentPostUserId;
     const amount = parseFloat(document.getElementById("post-earnings").value);
 
-    if (!postId || !userId || isNaN(amount) || amount < 0) {
-        alert("Please enter a valid amount");
-        return;
-    }
+    if (!postId || !userId || isNaN(amount) || amount < 0) return alert("Invalid amount");
 
     try {
-        await updateDoc(doc(db, "posts", postId), {
-            earning: amount,
-            paid: true,
-            payoutDate: serverTimestamp()
-        });
-
-        await updateDoc(doc(db, "users", userId), {
-            balance: increment(amount),
-            updatedAt: serverTimestamp()
-        });
-
-        alert(`Successfully assigned $${amount} to the post!`);
+        await updateDoc(doc(db, "posts", postId), { earning: amount, paid: true, payoutDate: serverTimestamp() });
+        await updateDoc(doc(db, "users", userId), { balance: increment(amount), updatedAt: serverTimestamp() });
         closeModal("payout-modal");
-    } catch (e) {
-        console.error("Error assigning earnings:", e);
-        alert("Failed to save. Check browser console for details.");
-    }
+        document.getElementById("post-earnings").value = '';
+    } catch (e) { alert("Failed to save."); }
 };
 
-window.approveWithdrawal = async (withdrawalId, userId, amount) => {
+window.approveWithdrawal = async (withdrawalId, amount) => {
     if (!confirm(`Mark this $${amount} withdrawal as paid?`)) return;
     try {
         await updateDoc(doc(db, "withdrawals", withdrawalId), { paid: true, status: "approved" });
-        alert("Withdrawal approved");
-    } catch (e) {
-        console.error(e);
-        alert("Failed to approve withdrawal");
-    }
+        closeOverlay('details-overlay'); // close overlay if open
+    } catch (e) { alert("Failed to approve withdrawal"); }
 };
 
 window.switchTab = (tab) => {
@@ -379,19 +533,10 @@ window.switchTab = (tab) => {
     
     document.getElementById(`tab-${tab}`).classList.add('active');
     document.getElementById(`view-${tab}`).style.display = 'block';
-    document.getElementById('page-title').innerText = tab === 'users' ? 'User Management' : 
-                                                     tab === 'withdrawals' ? 'Withdrawal Requests' : 'Assign Earnings';
 };
 
-window.closeModal = (id) => {
-    document.getElementById(id).classList.remove("active");
-};
-
-window.adminLogout = () => {
-    if (confirm("Logout from admin panel?")) {
-        signOut(auth).then(() => location.reload());
-    }
-};
+window.closeModal = (id) => document.getElementById(id).classList.remove("active");
+window.adminLogout = () => { if (confirm("Logout?")) signOut(auth).then(() => location.reload()); };
 </script>
 </body>
 </html>
