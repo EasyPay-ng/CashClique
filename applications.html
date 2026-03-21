@@ -7,7 +7,7 @@
 
 <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
 :root {
@@ -17,37 +17,29 @@
     --red: #f44336;
     --blue: #2196F3;
     --orange: #ff9800;
-    --bg-light: #f8f9fa;
-    --border-color: #e0e0e0;
-    --text-dark: #333;
-    --text-light: #666;
-    --text-super-light: #999;
+    --bg-light: #f5f6f8;
+    --border-color: #e2e8f0;
+    --text-dark: #1e2937;
+    --text-light: #64748b;
+    --text-super-light: #94a3b8;
 }
 
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{background:var(--bg-light);display:flex;min-height:100vh;}
+body{background:var(--bg-light);min-height:100vh;color:var(--text-dark);overflow-x:hidden;}
 
-/* Sidebar */
-.sidebar{width:260px;background:white;border-right:1px solid var(--border-color);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100%;}
-.sidebar-header{padding:20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border-color);}
-.sidebar-logo{width:40px;height:40px;border-radius:8px;}
-.sidebar-title{font-size:20px;font-weight:600;color:var(--text-dark);}
-.sidebar-nav{flex-grow:1;padding:20px 0;}
-.nav-item{display:flex;align-items:center;padding:12px 20px;color:var(--text-light);text-decoration:none;transition:0.3s;margin:4px 10px;border-radius:8px;}
-.nav-item i{width:30px;font-size:16px;}
-.nav-item:hover{background:var(--bg-light);color:var(--primary-color);}
-.nav-item.active{background:var(--primary-color);color:white;font-weight:500;}
+/* === NEW SIDEBAR (From your reference) === */
+.sidebar{width:260px;background:#1e2937;color:white;padding:25px;display:flex;flex-direction:column;gap:10px;position:fixed;height:100%;z-index:100;transition:transform 0.3s ease;}
+.sidebar h2{font-size:22px;margin-bottom:30px;font-weight:700;color:#ff6a00;display:flex;align-items:center;gap:10px;}
+.sidebar a{color:#cbd5e1;text-decoration:none;padding:14px 16px;border-radius:10px;transition:0.3s;font-weight:500;display:flex;align-items:center;gap:10px;}
+.sidebar a:hover, .sidebar a.active{background:#ff6a00;color:white;}
 
-.sidebar-footer{padding:20px;border-top:1px solid var(--border-color);}
-.logout-btn{width:100%;background:#fbe9e7;color:#e64a19;border:none;padding:12px;border-radius:8px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
-.logout-btn:hover{background:#ffccbc;}
-
-/* Main Content */
-.main-content{margin-left:260px;flex-grow:1;padding:30px;}
+/* === MAIN CONTENT === */
+.main-content{margin-left:260px;padding:30px;min-height:100vh;}
 .page-header{margin-bottom:30px;}
 .page-title{font-size:28px;font-weight:700;color:var(--text-dark);margin-bottom:10px;}
-.stats-overview{display:flex;gap:15px;flex-wrap:wrap;}
-.stat-box{background:white;padding:15px 20px;border-radius:10px;display:flex;align-items:center;gap:15px;border:1px solid var(--border-color);}
+
+.stats-overview{display:flex;gap:15px;flex-wrap:wrap;margin-bottom:20px;}
+.stat-box{background:white;padding:15px 20px;border-radius:10px;display:flex;align-items:center;gap:15px;border:1px solid var(--border-color);flex:1;min-width:200px;}
 .stat-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:16px;}
 .stat-icon.pending{background:var(--orange);}
 .stat-icon.approved{background:var(--green);}
@@ -94,7 +86,6 @@ body{background:var(--bg-light);display:flex;min-height:100vh;}
 .approved-tag{background:#e8f5e9;color:var(--green);}
 .rejected-tag{background:#ffebee;color:var(--red);}
 
-
 /* Empty States & Loading */
 .state-container{grid-column:1/-1;text-align:center;padding:60px 20px;background:white;border-radius:12px;border:1px solid var(--border-color);}
 .state-icon{font-size:64px;margin-bottom:20px;opacity:0.3;color:var(--text-super-light);}
@@ -102,12 +93,13 @@ body{background:var(--bg-light);display:flex;min-height:100vh;}
 .state-text{font-size:14px;color:var(--text-light);}
 
 /* Rejection Modal */
-.modal{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:2000;padding:20px;}
+.modal{position:fixed;inset:0;background:rgba(15,23,42,0.6);display:none;align-items:center;justify-content:center;z-index:2000;padding:20px;backdrop-filter:blur(4px);}
 .modal.active{display:flex;}
-.modal-content{background:white;border-radius:16px;padding:30px;max-width:450px;width:100%;}
-.modal-title{font-size:20px;font-weight:600;color:var(--text-dark);margin-bottom:15px;}
+.modal-content{background:white;border-radius:16px;padding:30px;max-width:450px;width:100%;box-shadow:0 20px 40px rgba(0,0,0,0.2);}
+.modal-title{font-size:20px;font-weight:700;color:var(--text-dark);margin-bottom:15px;}
 .modal-text{font-size:14px;color:var(--text-light);margin-bottom:20px;}
-.modal-form textarea{width:100%;min-height:100px;border-radius:8px;border:1px solid var(--border-color);padding:10px;font-family:'Poppins',sans-serif;font-size:14px;margin-bottom:20px;}
+.modal-form textarea{width:100%;min-height:100px;border-radius:8px;border:2px solid var(--border-color);padding:10px;font-family:'Poppins',sans-serif;font-size:14px;margin-bottom:20px;outline:none;}
+.modal-form textarea:focus{border-color:var(--primary-color);}
 .modal-actions{display:flex;gap:10px;justify-content:flex-end;}
 .modal-btn{padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;border:none;}
 .cancel-btn{background:var(--bg-light);color:var(--text-light);}
@@ -115,52 +107,27 @@ body{background:var(--bg-light);display:flex;min-height:100vh;}
 
 /* Mobile Responsive */
 @media(max-width:900px){
-    .sidebar{transform:translateX(-100%);z-index:1000;} /* Hidden by default on mobile */
-    .main-content{margin-left:0;}
+    .sidebar{transform:translateX(-100%);}
+    .main-content{margin-left:0;padding:20px;}
 }
 @media(max-width:500px){
-    .main-content{padding:15px;}
     .stats-overview{flex-direction:column;align-items:stretch;}
+    .creator-info{flex-direction:column;align-items:flex-start;}
 }
 </style>
 </head>
 
 <body>
-<!-- Sidebar Navigation -->
-<aside class="sidebar">
-    <div class="sidebar-header">
-        <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg" alt="Logo" class="sidebar-logo">
-        <h1 class="sidebar-title">Admin</h1>
-    </div>
-    <nav class="sidebar-nav">
-        <a href="#" class="nav-item">
-            <i class="fas fa-tachometer-alt"></i>
-            <span>Dashboard</span>
-        </a>
-        <a href="#" class="nav-item">
-            <i class="fas fa-users"></i>
-            <span>Manage Users</span>
-        </a>
-        <a href="#" class="nav-item active">
-            <i class="fas fa-clipboard-check"></i>
-            <span>Review Applications</span>
-        </a>
-        <a href="#" class="nav-item">
-            <i class="fas fa-bullhorn"></i>
-            <span>Opportunities</span>
-        </a>
-        <a href="#" class="nav-item">
-            <i class="fas fa-cog"></i>
-            <span>Settings</span>
-        </a>
-    </nav>
-    <div class="sidebar-footer">
-        <button class="logout-btn" onclick="auth.signOut()">
-            <i class="fas fa-sign-out-alt"></i>
-            <span>Logout</span>
-        </button>
-    </div>
-</aside>
+
+<!-- Sidebar Navigation (Updated Design) -->
+<div class="sidebar" id="sidebar">
+    <h2><i class="fas fa-shield-halved"></i> Admin</h2>
+    <a href="#"><i class="fas fa-chart-pie"></i> Dashboard</a>
+    <a href="#"><i class="fas fa-users"></i> Manage Users</a>
+    <a href="#" class="active"><i class="fas fa-file"></i> Review applicants</a>
+    <a href="#"><i class="fas fa-bullhorn"></i> Opportunities</a>
+    <a href="#" onclick="handleLogout()" style="margin-top:auto;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+</div>
 
 <!-- Main Content Area -->
 <main class="main-content">
@@ -206,10 +173,9 @@ body{background:var(--bg-light);display:flex;min-height:100vh;}
 
     <!-- Applications List -->
     <div class="applications-container" id="applications-container">
-        <!-- Application cards will be dynamically inserted here -->
         <div class="state-container">
             <div class="state-icon"><i class="fas fa-spinner fa-spin"></i></div>
-            <h3 class="state-title">Loading Applications...</h3>
+            <h3 class="state-title">Verifying Access & Loading...</h3>
         </div>
     </div>
 </main>
@@ -229,11 +195,10 @@ body{background:var(--bg-light);display:flex;min-height:100vh;}
     </div>
 </div>
 
-
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, collection, query, where, onSnapshot, doc, getDoc, updateDoc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, query, onSnapshot, doc, updateDoc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -245,31 +210,40 @@ body{background:var(--bg-light);display:flex;min-height:100vh;}
     };
 
     const app = initializeApp(firebaseConfig);
-    window.auth = getAuth(app);
+    const auth = getAuth(app);
+    window.auth = auth; // Expose for inline logout
     const db = getFirestore(app);
 
-    // 🔒 EMAIL WHITELIST
     const ALLOWED_ADMIN_EMAILS = ['beniwealth70@gmail.com', 'baasituoppor01@gmail.com'];
-
     let allApplications = [];
     let currentFilter = 'pending';
+    let isAuthReady = false; // 🔑 Fixes the redirect loop
+
+    // 🔒 Secure Logout Handler
+    window.handleLogout = async () => {
+        if(confirm('Are you sure you want to logout?')) {
+            await signOut(auth);
+            window.location.href = "login.html";
+        }
+    };
 
     onAuthStateChanged(auth, async (user) => {
+        // Prevent redirect on initial null state before Firebase resolves session
         if (!user) {
-            window.location.href = "login.html";
+            if (isAuthReady) window.location.href = "login.html";
             return;
         }
-        
-        // --- EMAIL WHITELIST CHECK ---
-        const userEmail = user.email?.toLowerCase();
+
+        isAuthReady = true;
+        const userEmail = user.email?.trim().toLowerCase();
+
         if (!ALLOWED_ADMIN_EMAILS.includes(userEmail)) {
-            alert("Access Denied. You are not authorized to access this admin panel.");
             await signOut(auth);
             window.location.href = "login.html";
             return;
         }
 
-        // Authorized: load data
+        // Authorized: Load data
         loadAllApplications();
     });
 
@@ -279,12 +253,19 @@ body{background:var(--bg-light);display:flex;min-height:100vh;}
         onSnapshot(q, (snapshot) => {
             allApplications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             
-            // Update stats
             document.getElementById('pending-count').textContent = allApplications.filter(app => app.status === 'pending').length;
             document.getElementById('approved-count').textContent = allApplications.filter(app => app.status === 'approved').length;
             document.getElementById('rejected-count').textContent = allApplications.filter(app => app.status === 'rejected').length;
 
             displayApplications();
+        }, (error) => {
+            console.error("Firestore listener error:", error);
+            document.getElementById('applications-container').innerHTML = `
+                <div class="state-container">
+                    <div class="state-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                    <h3 class="state-title">Failed to load applications</h3>
+                    <p class="state-text">Check console for details.</p>
+                </div>`;
         });
     }
 
@@ -324,22 +305,19 @@ body{background:var(--bg-light);display:flex;min-height:100vh;}
 
             card.innerHTML = `
                 <div class="card-main">
-                    <!-- Opportunity Section -->
                     <div class="card-section">
                         <div class="section-title">Opportunity</div>
                         <div class="opportunity-info">
-                            <div class="title">${app.opportunityTitle}</div>
+                            <div class="title">${app.opportunityTitle || 'Untitled Opportunity'}</div>
                             <div class="advertiser">by ${app.advertiserName || 'Advertiser'}</div>
                         </div>
                     </div>
-                    
-                    <!-- Creator Section -->
                     <div class="card-section">
                         <div class="section-title">Applicant</div>
                         <div class="creator-info">
                             <div class="creator-details">
                                 <div class="name">
-                                    ${app.creatorName}
+                                    ${app.creatorName || 'Unknown Creator'}
                                     ${stats.isVerified ? '<i class="fas fa-check-circle" title="Verified Creator"></i>' : ''}
                                 </div>
                                 <a href="#" class="profile-link">View Profile</a>
@@ -360,13 +338,10 @@ body{background:var(--bg-light);display:flex;min-height:100vh;}
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Application Details Section -->
                     <div class="card-section">
                          <div class="application-details">Applied on: ${appliedDate}</div>
                     </div>
                 </div>
-                
                 <div class="card-actions">
                     ${actionButtonsHTML}
                 </div>
@@ -376,19 +351,16 @@ body{background:var(--bg-light);display:flex;min-height:100vh;}
     }
 
     // --- Actions ---
-
     window.approveApplication = async function(appId) {
         if (!confirm('Are you sure you want to approve this application?')) return;
         try {
-            const appRef = doc(db, "applications", appId);
-            await updateDoc(appRef, {
+            await updateDoc(doc(db, "applications", appId), {
                 status: 'approved',
                 reviewedAt: serverTimestamp(),
-                notes: '' // Clear any previous rejection notes
+                notes: ''
             });
-            console.log(`Application ${appId} approved.`);
         } catch (error) {
-            console.error("Error approving application:", error);
+            console.error("Error approving:", error);
             alert('Failed to approve application.');
         }
     };
@@ -396,9 +368,7 @@ body{background:var(--bg-light);display:flex;min-height:100vh;}
     window.openRejectModal = function(appId) {
         const modal = document.getElementById('rejection-modal');
         modal.classList.add('active');
-        document.getElementById('rejection-reason').value = ''; // Clear previous text
-        
-        // Use .onclick to avoid attaching multiple listeners
+        document.getElementById('rejection-reason').value = '';
         document.getElementById('confirm-reject-btn').onclick = () => rejectApplication(appId);
     };
 
@@ -412,24 +382,18 @@ body{background:var(--bg-light);display:flex;min-height:100vh;}
             alert('Please provide a reason for rejection.');
             return;
         }
-
         try {
-            const appRef = doc(db, "applications", appId);
-            await updateDoc(appRef, {
+            await updateDoc(doc(db, "applications", appId), {
                 status: 'rejected',
                 reviewedAt: serverTimestamp(),
                 notes: reason
             });
-            console.log(`Application ${appId} rejected with reason.`);
             closeRejectModal();
         } catch (error) {
-            console.error("Error rejecting application:", error);
+            console.error("Error rejecting:", error);
             alert('Failed to reject application.');
         }
     }
-
-
-    // --- UI Helpers ---
 
     window.filterApplications = function(filter, btn) {
         currentFilter = filter;
@@ -444,6 +408,5 @@ body{background:var(--bg-light);display:flex;min-height:100vh;}
         return (num || 0).toString();
     }
 </script>
-
 </body>
 </html>
