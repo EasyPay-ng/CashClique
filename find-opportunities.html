@@ -343,11 +343,11 @@ onAuthStateChanged(auth, async (user) => {
 // Load user stats
 async function loadUserStats() {
     try {
+        let userData = {};
         const userDoc = await getDoc(doc(db, "users", currentUser.uid));
         if (userDoc.exists()) {
-            const userData = userDoc.data();
-            userStats.isVerified = userData.isVerified || false;
-            userStats.followers = userData.followersCount || userData.followers?.length || 0;
+            userData = userDoc.data();
+            userStats.isVerified = userData.isVerified || userData.verified || false;
             
             const verifiedStatus = document.getElementById('verified-status');
             if (userStats.isVerified) {
@@ -356,21 +356,33 @@ async function loadUserStats() {
             }
         }
         
+        // --- THE FIX ---
+        // 1. Calculate Real Followers + Purchased Followers
+        const realFollowers = userData.followers?.length || 0;
+        const boostedFollowers = userData.followersCount || 0;
+        userStats.followers = realFollowers + boostedFollowers;
+
+        // 2. Fetch all real post stats
         const postsQuery = query(collection(db, "posts"), where("userId", "==", currentUser.uid));
         const postsSnapshot = await getDocs(postsQuery);
         
         userStats.posts = postsSnapshot.size;
-        let totalLikes = 0;
-        let totalViews = 0;
+        let calculatedLikes = 0;
+        let calculatedViews = 0;
         
         postsSnapshot.forEach(doc => {
             const post = doc.data();
-            totalLikes += post.likes || 0;
-            totalViews += post.views || 0;
+            calculatedLikes += post.likes || 0;
+            calculatedViews += post.views || 0;
         });
-        
-        userStats.likes = totalLikes;
-        userStats.views = totalViews;
+
+        // 3. Add any purchased profile likes/views to the calculated total
+        const boostedLikes = userData.totalLikes || userData.likes || 0;
+        const boostedViews = userData.totalViews || userData.views || 0;
+
+        userStats.likes = calculatedLikes + boostedLikes;
+        userStats.views = calculatedViews + boostedViews;
+        // ---------------
         
         document.getElementById('my-likes').textContent = formatNumber(userStats.likes);
         document.getElementById('my-followers').textContent = formatNumber(userStats.followers);
@@ -384,7 +396,6 @@ async function loadUserStats() {
 
 // Load opportunities
 function loadOpportunities() {
-    // ✅ NOW SHOWS BOTH ACTIVE AND APPROVED OPPORTUNITIES
     const q = query(collection(db, "opportunities"), where("status", "in", ["active", "approved"]));
     
     onSnapshot(q, (snapshot) => {
@@ -535,6 +546,7 @@ async function displayOpportunities() {
 }
 
 function getProgress(current, required){
+    if (!required) return { percent: 100, className: 'progress-green' };
     const percent = Math.min(100, Math.round((current / required) * 100));
     let className = 'progress-red';
     if(percent >= 100) className = 'progress-green';
@@ -545,13 +557,13 @@ function getProgress(current, required){
 // Check eligibility
 function checkEligibility(opportunity) {
     const req = opportunity.requirements;
-    const hasEnoughLikes = userStats.likes >= req.minLikes;
-    const hasEnoughFollowers = userStats.followers >= req.minFollowers;
+    const hasEnoughLikes = userStats.likes >= (req.minLikes || 0);
+    const hasEnoughFollowers = userStats.followers >= (req.minFollowers || 0);
     const meetsVerification = !req.requireVerified || userStats.isVerified;
 
-    const likesProgress = Math.min(100, userStats.likes / req.minLikes);
-    const followersProgress = Math.min(100, userStats.followers / req.minFollowers);
-    const verificationProgress = meetsVerification ? 1 : 0;
+    const likesProgress = req.minLikes ? Math.min(100, (userStats.likes / req.minLikes) * 100) : 100;
+    const followersProgress = req.minFollowers ? Math.min(100, (userStats.followers / req.minFollowers) * 100) : 100;
+    const verificationProgress = meetsVerification ? 100 : 0;
 
     let totalRequirements = 2;
     let totalProgress = likesProgress + followersProgress;
@@ -561,7 +573,7 @@ function checkEligibility(opportunity) {
         totalProgress += verificationProgress;
     }
 
-    totalProgress = Math.round((totalProgress / totalRequirements) * 100);
+    totalProgress = Math.round(totalProgress / totalRequirements);
     
     const isEligible = hasEnoughLikes && hasEnoughFollowers && meetsVerification;
     const partiallyEligible = (hasEnoughLikes || hasEnoughFollowers) && meetsVerification;
@@ -637,6 +649,7 @@ function loadMyApplications() {
             badge.style.display = 'none';
         }
         
+        displayOpportunities();
         displayApplications();
     });
 }
@@ -704,7 +717,7 @@ function displayApplications() {
                 ` : ''}
                 <div class="app-detail">
                     <i class="fas fa-chart-line"></i>
-                    ${app.creatorStats.likes} likes, ${app.creatorStats.followers} followers
+                    ${formatNumber(app.creatorStats.likes)} likes, ${formatNumber(app.creatorStats.followers)} followers
                 </div>
             </div>
             
