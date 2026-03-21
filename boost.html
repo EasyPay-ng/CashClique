@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Boost Profile & Content | CashClique</title>
+
+<link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;overflow-x:hidden;}
+
+/* Mobile Header */
+.mobile-header{display:none;background:#1e2937;color:white;padding:15px 20px;align-items:center;gap:15px;position:sticky;top:0;z-index:100;}
+.mobile-header h1{font-size:18px;font-weight:600;flex:1;}
+.menu-btn{background:none;border:none;color:white;font-size:24px;cursor:pointer;padding:5px;}
+
+/* Sidebar */
+.sidebar{width:240px;background:#1e2937;color:white;padding:20px;display:flex;flex-direction:column;gap:20px;position:fixed;height:100%;z-index:999;transition:0.3s;transform:translateX(0);}
+.sidebar h2{font-size:20px;font-weight:700;color:#ff6a00;display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.sidebar a{color:#cbd5e1;text-decoration:none;padding:12px 15px;border-radius:10px;transition:0.3s;font-weight:500;display:flex;align-items:center;gap:10px;}
+.sidebar a:hover, .sidebar a.active{background:#ff6a00;color:white;}
+
+/* Main Content */
+.main{margin-left:240px;padding:30px;transition:0.3s;}
+.header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:30px;flex-wrap:wrap;gap:15px;}
+.header h1{font-size:28px;font-weight:700;color:#0f172a;}
+.sub{font-size:14px;color:#64748b;margin-top:4px;}
+
+/* Top Cards */
+.top-cards { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:20px; margin-bottom:30px; }
+.balance-card { background:linear-gradient(135deg, #ff6a00, #e55d00); color:white; padding:25px; border-radius:16px; box-shadow:0 10px 25px rgba(255,106,0,0.2); }
+.balance-card h3 { font-size:14px; font-weight:600; opacity:0.9; text-transform:uppercase; letter-spacing:1px; }
+.balance-card .bal { font-size:40px; font-weight:700; margin-top:5px; }
+
+.info-card { background:white; border:1px solid #e2e8f0; padding:25px; border-radius:16px; display:flex; align-items:center; gap:20px; }
+.info-icon { width:60px; height:60px; background:#f8fafc; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:24px; color:#ff6a00; }
+.info-text h3 { font-size:18px; font-weight:700; color:#1e2937; }
+.info-text p { font-size:13px; color:#64748b; margin-top:4px; }
+
+/* Boost Form Layout */
+.content-grid { display:grid; grid-template-columns:1fr 1.5fr; gap:25px; align-items:start; }
+@media(max-width:980px) { .content-grid { grid-template-columns:1fr; } }
+
+/* Form Card */
+.form-card { background:white; border:1px solid #e2e8f0; border-radius:16px; padding:25px; box-shadow:0 4px 15px rgba(0,0,0,0.02); }
+.form-card h2 { font-size:18px; font-weight:700; margin-bottom:20px; padding-bottom:15px; border-bottom:1px solid #f1f5f9; }
+
+.input-group { margin-bottom:20px; }
+.input-label { display:block; font-size:13px; font-weight:700; color:#334155; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px;}
+.form-input, .form-select { width:100%; padding:14px; border:2px solid #e2e8f0; border-radius:12px; font-size:15px; outline:none; transition:0.3s; font-family:'Poppins', sans-serif; background:#f8fafc; }
+.form-input:focus, .form-select:focus { border-color:#ff6a00; background:white; box-shadow:0 0 0 4px rgba(255,106,0,0.1); }
+
+.price-box { background:#f8fafc; border:2px dashed #e2e8f0; border-radius:12px; padding:20px; text-align:center; margin-bottom:20px; }
+.price-label { font-size:13px; color:#64748b; font-weight:600; }
+.price-val { font-size:32px; font-weight:700; color:#10b981; margin-top:5px; }
+
+.btn-submit { width:100%; padding:16px; background:linear-gradient(135deg, #1e2937, #0f172a); color:white; border:none; border-radius:12px; font-size:16px; font-weight:700; cursor:pointer; transition:0.3s; display:flex; align-items:center; justify-content:center; gap:10px; }
+.btn-submit:hover { transform:translateY(-2px); box-shadow:0 10px 20px rgba(0,0,0,0.15); }
+.btn-submit:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+
+/* History Table */
+.history-card { background:white; border:1px solid #e2e8f0; border-radius:16px; overflow:hidden; box-shadow:0 4px 15px rgba(0,0,0,0.02); }
+.history-header { padding:20px 25px; border-bottom:1px solid #e2e8f0; background:#f8fafc; font-weight:700; font-size:16px; }
+.table-wrapper { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; }
+thead th { padding:15px 25px; text-align:left; font-size:12px; text-transform:uppercase; color:#64748b; border-bottom:1px solid #e2e8f0; }
+tbody tr { border-bottom:1px solid #f1f5f9; transition:0.2s; }
+tbody tr:hover { background:#f8fafc; }
+td { padding:16px 25px; font-size:14px; color:#334155; }
+
+.badge { padding:6px 12px; border-radius:20px; font-size:11px; font-weight:700; text-transform:uppercase; display:inline-block; }
+.b-pending { background:#fef3c7; color:#b45309; }
+.b-active { background:#e0f2fe; color:#1d4ed8; }
+.b-completed { background:#dcfce7; color:#166534; }
+
+.empty-state { text-align:center; padding:50px 20px; color:#64748b; }
+.empty-state i { font-size:40px; color:#cbd5e1; margin-bottom:15px; }
+
+/* Toast */
+.toast { position:fixed; bottom:-100px; left:50%; transform:translateX(-50%); background:#1e2937; color:white; padding:14px 24px; border-radius:99px; font-size:14px; font-weight:500; transition:0.4s; z-index:10000; display:flex; align-items:center; gap:10px; }
+.toast.show { bottom:30px; }
+
+/* Mobile */
+@media(max-width:900px){
+  .mobile-header{display:flex;}
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.active{transform:translateX(0);}
+  .main{margin-left:0;padding:15px;}
+}
+</style>
+</head>
+
+<body>
+
+<!-- Mobile Header -->
+<div class="mobile-header">
+  <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
+  <h1>Boost Profile</h1>
+</div>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <h2><i class="fas fa-bolt" style="color:#ff6a00;"></i> CashClique</h2>
+    <a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+    <a href="my-content.html"><i class="fas fa-file-alt"></i> My Content</a>
+    <a href="earnings.html"><i class="fas fa-wallet"></i> Wallet</a>
+    <a href="opportunities.html"><i class="fas fa-fire"></i> Opportunities</a>
+    <a href="boost.html" class="active"><i class="fas fa-rocket"></i> Boost Profile</a>
+    <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+    <a href="#" id="logoutBtn" style="margin-top:auto;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+</div>
+
+<div class="main">
+    <div class="header">
+        <div>
+            <h1>Boost Your Profile</h1>
+            <div class="sub">Get real likes, views, and followers instantly to grow your account.</div>
+        </div>
+    </div>
+
+    <!-- Top Cards -->
+    <div class="top-cards">
+        <div class="balance-card">
+            <h3>Available Balance</h3>
+            <div class="bal" id="wallet-balance">$0.00</div>
+            <div style="font-size:13px; margin-top:10px; opacity:0.9;"><i class="fas fa-info-circle"></i> Funds will be deducted from here.</div>
+        </div>
+        <div class="info-card">
+            <div class="info-icon"><i class="fas fa-bolt"></i></div>
+            <div class="info-text">
+                <h3>Fast Delivery</h3>
+                <p>Orders start processing within minutes of submission.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-grid">
+        <!-- Purchase Form -->
+        <div class="form-card">
+            <h2><i class="fas fa-plus-circle" style="color:#ff6a00;"></i> New Campaign</h2>
+
+            <div class="input-group">
+                <label class="input-label">Select Service</label>
+                <select class="form-select" id="service-type">
+                    <option value="followers" data-rate="0.01">Followers ($0.01 per 1)</option>
+                    <option value="likes" data-rate="0.005">Post Likes ($0.005 per 1)</option>
+                    <option value="views" data-rate="0.001">Post Views ($0.001 per 1)</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">Target Link</label>
+                <input type="text" class="form-input" id="target-link" placeholder="Enter Post URL or Profile Link">
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">Quantity</label>
+                <input type="number" class="form-input" id="quantity" placeholder="e.g. 1000" min="50">
+                <div style="font-size:12px; color:#64748b; margin-top:6px;">Minimum order: 50</div>
+            </div>
+
+            <div class="price-box">
+                <div class="price-label">Total Cost</div>
+                <div class="price-val" id="total-cost">$0.00</div>
+            </div>
+
+            <button class="btn-submit" id="submitBtn" onclick="submitBoost()">
+                <i class="fas fa-rocket"></i> Launch Campaign
+            </button>
+        </div>
+
+        <!-- History Table -->
+        <div class="history-card">
+            <div class="history-header">My Boost Campaigns</div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Service</th>
+                            <th>Quantity</th>
+                            <th>Cost</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-body">
+                        <tr><td colspan="4"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading history...</p></div></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toastBox">
+    <i class="fas fa-info-circle"></i> <span id="toastMsg">Message</span>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc, increment, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
+    authDomain: "cashclique-31718.firebaseapp.com",
+    projectId: "cashclique-31718",
+    storageBucket: "cashclique-31718.firebasestorage.app",
+    messagingSenderId: "1064282591269",
+    appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentUser = null;
+let currentBalance = 0;
+let currentCost = 0;
+
+// UI Elements
+const serviceSelect = document.getElementById('service-type');
+const qtyInput = document.getElementById('quantity');
+const costDisplay = document.getElementById('total-cost');
+const submitBtn = document.getElementById('submitBtn');
+
+onAuthStateChanged(auth, (user) => {
+    if (!user) { window.location.href = "login.html"; return; }
+    currentUser = user;
+    loadBalance();
+    loadHistory();
+});
+
+// Toast Notifier
+window.showToast = (msg) => {
+    const toast = document.getElementById('toastBox');
+    document.getElementById('toastMsg').innerText = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+};
+
+// Calculate Price in Real-time
+function calculatePrice() {
+    const option = serviceSelect.options[serviceSelect.selectedIndex];
+    const rate = parseFloat(option.getAttribute('data-rate'));
+    const qty = parseInt(qtyInput.value) || 0;
+    
+    currentCost = rate * qty;
+    costDisplay.innerText = `$${currentCost.toFixed(2)}`;
+
+    // Optional: Turn price red if they don't have enough funds
+    if(currentCost > currentBalance && currentCost > 0) {
+        costDisplay.style.color = '#ef4444'; 
+    } else {
+        costDisplay.style.color = '#10b981';
+    }
+}
+
+serviceSelect.addEventListener('change', calculatePrice);
+qtyInput.addEventListener('input', calculatePrice);
+
+// Load Balance
+function loadBalance() {
+    onSnapshot(doc(db, "users", currentUser.uid), (snap) => {
+        if (snap.exists()) {
+            currentBalance = snap.data().balance || 0;
+            document.getElementById('wallet-balance').innerText = `$${currentBalance.toFixed(2)}`;
+            calculatePrice(); // Recheck color validation
+        }
+    });
+}
+
+// Load History
+function loadHistory() {
+    const q = query(collection(db, "boosts"), where("userId", "==", currentUser.uid));
+    onSnapshot(q, (snapshot) => {
+        const tbody = document.getElementById('history-body');
+        
+        if(snapshot.empty) {
+            tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><i class="fas fa-folder-open"></i><p>No active campaigns found.</p></div></td></tr>`;
+            return;
+        }
+
+        let docs = snapshot.docs.map(d => d.data());
+        // Sort descending locally
+        docs.sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+
+        let html = '';
+        docs.forEach(data => {
+            let statClass = data.status === 'completed' ? 'b-completed' : (data.status === 'active' ? 'b-active' : 'b-pending');
+            html += `
+                <tr>
+                    <td><strong>${data.service.charAt(0).toUpperCase() + data.service.slice(1)}</strong><br><small style="color:#64748b">${data.target.substring(0,25)}...</small></td>
+                    <td>${data.quantity.toLocaleString()}</td>
+                    <td>$${data.cost.toFixed(2)}</td>
+                    <td><span class="badge ${statClass}">${data.status}</span></td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+    });
+}
+
+// Submit Order
+window.submitBoost = async () => {
+    const service = serviceSelect.value;
+    const target = document.getElementById('target-link').value.trim();
+    const qty = parseInt(qtyInput.value);
+
+    if(!target) return showToast("Please enter a target link.");
+    if(!qty || qty < 50) return showToast("Minimum quantity is 50.");
+    if(currentCost > currentBalance) return showToast("Insufficient balance. Please deposit funds.");
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+    try {
+        // 1. Deduct Balance
+        await updateDoc(doc(db, "users", currentUser.uid), {
+            balance: increment(-currentCost)
+        });
+
+        // 2. Create Order
+        await addDoc(collection(db, "boosts"), {
+            userId: currentUser.uid,
+            email: currentUser.email,
+            service: service,
+            target: target,
+            quantity: qty,
+            cost: currentCost,
+            status: "pending", // admin can change this to active/completed later
+            timestamp: serverTimestamp()
+        });
+
+        showToast("Campaign launched successfully!");
+        
+        // Reset form
+        document.getElementById('target-link').value = '';
+        qtyInput.value = '';
+        calculatePrice();
+
+    } catch (error) {
+        console.error("Order Failed: ", error);
+        showToast("An error occurred. Please try again.");
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-rocket"></i> Launch Campaign';
+    }
+};
+
+// Sidebar Toggle & Logout
+window.toggleMenu = () => document.getElementById('sidebar').classList.toggle('active');
+document.getElementById('logoutBtn').onclick = async () => {
+    if(confirm("Logout?")) {
+        await signOut(auth);
+        window.location.href = "login.html";
+    }
+};
+</script>
+</body>
+</html>
