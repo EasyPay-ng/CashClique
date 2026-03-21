@@ -115,7 +115,7 @@ td { padding:16px 25px; font-size:14px; color:#334155; }
 <div class="main">
     <div class="header">
         <div>
-            <h1>Boost Your Profile Stats</h1>
+            <h1>Boost Your Profile & Content</h1>
             <div class="sub">Instantly increase your CashClique followers, likes, or views to qualify for premium Ad Campaigns.</div>
         </div>
     </div>
@@ -131,7 +131,7 @@ td { padding:16px 25px; font-size:14px; color:#334155; }
             <div class="info-icon"><i class="fas fa-bolt"></i></div>
             <div class="info-text">
                 <h3>Instant Delivery</h3>
-                <p>Stats are added to your profile immediately upon purchase.</p>
+                <p>Stats are added to your profile and posts immediately upon purchase.</p>
             </div>
         </div>
     </div>
@@ -145,8 +145,16 @@ td { padding:16px 25px; font-size:14px; color:#334155; }
                 <label class="input-label">Select Stat to Boost</label>
                 <select class="form-select" id="service-type">
                     <option value="followers" data-rate="0.01">Profile Followers ($0.01 per 1)</option>
-                    <option value="likes" data-rate="0.005">Total Profile Likes ($0.005 per 1)</option>
-                    <option value="views" data-rate="0.001">Total Profile Views ($0.001 per 1)</option>
+                    <option value="likes" data-rate="0.005">Post Likes ($0.005 per 1)</option>
+                    <option value="views" data-rate="0.001">Post Views ($0.001 per 1)</option>
+                </select>
+            </div>
+
+            <!-- Dynamic Post Selector (Hidden by default for Followers) -->
+            <div class="input-group" id="post-selection-group" style="display:none;">
+                <label class="input-label">Select Post</label>
+                <select class="form-select" id="target-post">
+                    <option value="">-- Select a post to boost --</option>
                 </select>
             </div>
 
@@ -196,7 +204,7 @@ td { padding:16px 25px; font-size:14px; color:#334155; }
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc, increment, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, query, where, onSnapshot, getDocs, doc, updateDoc, increment, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -217,6 +225,8 @@ let currentCost = 0;
 
 // UI Elements
 const serviceSelect = document.getElementById('service-type');
+const postSelectGroup = document.getElementById('post-selection-group');
+const postSelect = document.getElementById('target-post');
 const qtyInput = document.getElementById('quantity');
 const costDisplay = document.getElementById('total-cost');
 const submitBtn = document.getElementById('submitBtn');
@@ -225,6 +235,7 @@ onAuthStateChanged(auth, (user) => {
     if (!user) { window.location.href = "login.html"; return; }
     currentUser = user;
     loadBalance();
+    loadUserPosts();
     loadHistory();
 });
 
@@ -235,6 +246,16 @@ window.showToast = (msg) => {
     toast.classList.add('show');
     setTimeout(() => toast.classList.remove('show'), 3000);
 };
+
+// Handle Dropdown changes (Show/Hide Post selector)
+serviceSelect.addEventListener('change', () => {
+    calculatePrice();
+    if(serviceSelect.value === 'followers') {
+        postSelectGroup.style.display = 'none';
+    } else {
+        postSelectGroup.style.display = 'block';
+    }
+});
 
 // Calculate Price in Real-time
 function calculatePrice() {
@@ -252,8 +273,6 @@ function calculatePrice() {
         costDisplay.style.color = '#10b981';
     }
 }
-
-serviceSelect.addEventListener('change', calculatePrice);
 qtyInput.addEventListener('input', calculatePrice);
 
 // Load Balance
@@ -264,6 +283,25 @@ function loadBalance() {
             document.getElementById('wallet-balance').innerText = `$${currentBalance.toFixed(2)}`;
             calculatePrice();
         }
+    });
+}
+
+// Fetch User's Posts for Dropdown
+async function loadUserPosts() {
+    const q = query(collection(db, "posts"), where("userId", "==", currentUser.uid));
+    const querySnapshot = await getDocs(q);
+    
+    postSelect.innerHTML = '<option value="">-- Select a post to boost --</option>';
+    
+    if(querySnapshot.empty) {
+        postSelect.innerHTML = '<option value="">No posts found. Create a post first.</option>';
+        return;
+    }
+
+    querySnapshot.forEach((doc) => {
+        let text = doc.data().content || "Media/Video Post";
+        if(text.length > 40) text = text.substring(0, 40) + "...";
+        postSelect.innerHTML += `<option value="${doc.id}">${text}</option>`;
     });
 }
 
@@ -296,11 +334,14 @@ function loadHistory() {
     });
 }
 
-// Submit Order (Instant Account Update)
+// Submit Order (Instant DB Update)
 window.submitBoost = async () => {
     const service = serviceSelect.value;
+    const postId = postSelect.value;
     const qty = parseInt(qtyInput.value);
 
+    // Validations
+    if((service === 'likes' || service === 'views') && !postId) return showToast("Please select a post to boost.");
     if(!qty || qty < 50) return showToast("Minimum quantity is 50.");
     if(currentCost > currentBalance) return showToast("Insufficient balance. Please deposit funds.");
 
@@ -310,33 +351,44 @@ window.submitBoost = async () => {
     try {
         const userRef = doc(db, "users", currentUser.uid);
         
-        // 1. Setup the update object dynamically based on what they bought
-        let updateData = {
-            balance: increment(-currentCost) // Deduct money
-        };
+        // 1. Deduct Balance
+        await updateDoc(userRef, { balance: increment(-currentCost) });
 
-        // Add the corresponding stat boost to the update object
-        if(service === 'followers') updateData.followersCount = increment(qty);
-        if(service === 'likes') updateData.totalLikes = increment(qty);
-        if(service === 'views') updateData.totalViews = increment(qty); // Adding views just in case you use totalViews in eligibility
+        // 2. Apply Stats based on selection
+        if(service === 'followers') {
+            await updateDoc(userRef, { followersCount: increment(qty) });
+        } 
+        else if (service === 'likes') {
+            const postRef = doc(db, "posts", postId);
+            await updateDoc(postRef, { likes: increment(qty) });
+            // Also update global account totalLikes for eligibility!
+            await updateDoc(userRef, { 
+                totalLikes: increment(qty),
+                likes: increment(qty) // Catch-all for schema consistency
+            }); 
+        } 
+        else if (service === 'views') {
+            const postRef = doc(db, "posts", postId);
+            await updateDoc(postRef, { views: increment(qty) });
+            await updateDoc(userRef, { totalViews: increment(qty) }); 
+        }
 
-        // 2. Perform the update on their CashClique profile
-        await updateDoc(userRef, updateData);
-
-        // 3. Log the purchase in the history table
+        // 3. Log the purchase in history
         await addDoc(collection(db, "boosts"), {
             userId: currentUser.uid,
             service: service,
+            postId: postId || "Profile", // Save ID if it was a post
             quantity: qty,
             cost: currentCost,
             status: "completed",
             timestamp: serverTimestamp()
         });
 
-        showToast(`Successfully added ${qty.toLocaleString()} ${service} to your profile!`);
+        showToast(`Successfully added ${qty.toLocaleString()} ${service}!`);
         
         // Reset form
         qtyInput.value = '';
+        postSelect.value = '';
         calculatePrice();
 
     } catch (error) {
