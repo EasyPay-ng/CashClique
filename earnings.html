@@ -81,7 +81,7 @@ body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;overflow-x:hidd
 .status{padding:6px 12px;border-radius:20px;font-size:11px;font-weight:700;text-align:center;text-transform:uppercase;display:inline-block;}
 .status.completed{background:#dcfce7;color:#166534;}
 .status.pending{background:#fef9c3;color:#92400e;}
-.status.failed{background:#fee2e2;color:#991b1b;}
+.status.rejected{background:#fee2e2;color:#991b1b;}
 
 /* Date Time */
 .date-time{font-size:13px;color:#64748b;}
@@ -488,7 +488,7 @@ function loadDeposits() {
     });
 }
 
-// 2. WITHDRAWALS
+// 2. WITHDRAWALS (FIXED: Properly handles "rejected" status)
 function loadWithdrawals() {
     const q = query(collection(db, "withdrawals"), where("userId", "==", currentUser.uid));
     onSnapshot(q, (snapshot) => {
@@ -510,11 +510,16 @@ function loadWithdrawals() {
             const data = doc.data();
             const amt = data.amount || 0;
             
-            const isCompleted = data.paid === true || data.status === 'approved' || data.status === 'completed';
-            const stat = isCompleted ? 'completed' : 'pending';
+            // Default to pending if not explicitly stated
+            let stat = (data.status || 'pending').toLowerCase();
             
-            if (isCompleted) tWithdrawn += amt;
-            else pAmount += amt;
+            // Legacy catch for "paid" boolean
+            if (data.paid === true) stat = 'completed';
+            if (stat === 'approved') stat = 'completed';
+
+            // Only add to totals if NOT rejected
+            if (stat === 'completed') tWithdrawn += amt;
+            else if (stat === 'pending') pAmount += amt;
 
             html += `
                 <div class="table-row grid-layout">
