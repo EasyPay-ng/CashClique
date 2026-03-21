@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Deposit Funds | CashClique</title>
+
+<link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+body { background:#f5f6f8; color:#1e2937; min-height:100vh; overflow-x:hidden; }
+
+/* Main Container */
+.container { max-width:500px; margin:0 auto; padding:40px 20px; text-align:center; }
+.logo { width:140px; margin-bottom:30px; }
+
+/* Titles */
+h2 { font-size:22px; font-weight:700; margin-bottom:10px; color:#0f172a; }
+p.sub { font-size:14px; color:#64748b; margin-bottom:30px; }
+
+/* Channel Buttons */
+.channel-btn {
+    width:100%; background:white; border:2px solid #e2e8f0; border-radius:16px;
+    padding:20px; display:flex; align-items:center; justify-content:space-between;
+    cursor:pointer; margin-bottom:15px; transition:0.3s; text-align:left;
+}
+.channel-btn:hover { border-color:#ff6a00; transform:translateY(-2px); box-shadow:0 10px 20px rgba(255,106,0,0.1); }
+.channel-left { display:flex; align-items:center; gap:15px; }
+.channel-icon { width:45px; height:45px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px; }
+.icon-bank { background:#fff7ed; color:#ff6a00; }
+.icon-crypto { background:#f1f5f9; color:#475569; }
+.channel-text h3 { font-size:16px; font-weight:600; color:#1e2937; }
+.channel-text span { font-size:13px; color:#64748b; }
+
+/* Full Page Overlays (App-like slide in) */
+.page-overlay {
+    position:fixed; inset:0; background:white; z-index:100;
+    transform:translateX(100%); transition:transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display:flex; flex-direction:column; overflow-y:auto;
+}
+.page-overlay.active { transform:translateX(0); }
+
+/* Overlay Header */
+.overlay-header {
+    padding:20px; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; gap:15px;
+    background:rgba(255,255,255,0.9); backdrop-filter:blur(10px); position:sticky; top:0; z-index:10;
+}
+.back-btn { background:none; border:none; font-size:20px; color:#1e2937; cursor:pointer; }
+.overlay-title { font-weight:600; font-size:18px; }
+
+/* Content Padding */
+.overlay-content { padding:24px 20px; max-width:500px; margin:0 auto; width:100%; flex:1; }
+
+/* User Badge */
+.user-badge {
+    display:flex; align-items:center; gap:10px; background:#f8fafc; padding:12px 16px;
+    border-radius:12px; margin-bottom:20px; border:1px solid #e2e8f0;
+}
+.user-badge i { color:#ff6a00; font-size:20px; }
+.user-email { font-size:14px; font-weight:600; color:#334155; }
+
+/* Notice Box */
+.notice-box {
+    background:#fff7ed; border-left:4px solid #ff6a00; padding:16px;
+    border-radius:0 12px 12px 0; margin-bottom:24px; font-size:13px; color:#9a3412; line-height:1.6;
+}
+.notice-box strong { font-weight:700; }
+
+/* Amount Input */
+.input-group { margin-bottom:20px; }
+.input-label { display:block; font-size:14px; font-weight:600; margin-bottom:8px; color:#334155; }
+.amount-wrapper { position:relative; display:flex; align-items:center; }
+.amount-wrapper span { position:absolute; left:16px; font-size:20px; font-weight:600; color:#94a3b8; }
+.amount-input {
+    width:100%; padding:16px 16px 16px 40px; font-size:24px; font-weight:700;
+    border:2px solid #e2e8f0; border-radius:16px; outline:none; transition:0.3s;
+}
+.amount-input:focus { border-color:#ff6a00; box-shadow:0 0 0 4px rgba(255,106,0,0.1); }
+.naira-eqv { text-align:right; font-size:14px; color:#64748b; margin-top:8px; font-weight:500; }
+.naira-eqv span { color:#ff6a00; font-weight:700; font-size:16px; }
+
+/* Primary Button */
+.btn-primary {
+    width:100%; background:linear-gradient(135deg, #ff6a00, #e55d00); color:white;
+    border:none; padding:16px; border-radius:16px; font-size:16px; font-weight:700;
+    cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px;
+    box-shadow:0 10px 25px rgba(255,106,0,0.3); transition:0.3s; margin-top:20px;
+}
+.btn-primary:hover { transform:translateY(-2px); box-shadow:0 15px 30px rgba(255,106,0,0.4); }
+
+/* Payment Details (Step 3) */
+.timer-box {
+    background:#fef2f2; color:#b91c1c; text-align:center; padding:12px;
+    border-radius:12px; font-weight:700; font-size:18px; margin-bottom:24px;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.details-card { background:white; border:1px solid #e2e8f0; border-radius:16px; overflow:hidden; margin-bottom:24px; }
+.detail-row {
+    padding:16px; display:flex; justify-content:space-between; align-items:center;
+    border-bottom:1px solid #f1f5f9;
+}
+.detail-row:last-child { border-bottom:none; }
+.detail-label { font-size:13px; color:#64748b; display:block; margin-bottom:4px; }
+.detail-value { font-size:15px; font-weight:700; color:#1e2937; }
+.copy-btn {
+    background:#f1f5f9; border:none; width:36px; height:36px; border-radius:10px;
+    color:#ff6a00; cursor:pointer; transition:0.2s; display:flex; align-items:center; justify-content:center;
+}
+.copy-btn:hover { background:#ff6a00; color:white; }
+
+/* Full Screen Loader */
+.loader-overlay {
+    position:fixed; inset:0; background:rgba(255,255,255,0.9); z-index:9999;
+    display:none; flex-direction:column; align-items:center; justify-content:center; backdrop-filter:blur(5px);
+}
+.loader-overlay.active { display:flex; }
+.spinner { font-size:45px; color:#ff6a00; animation:spin 1s linear infinite; margin-bottom:15px; }
+
+/* Success Modal */
+.success-modal {
+    position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:10000;
+    display:none; align-items:center; justify-content:center; backdrop-filter:blur(5px);
+}
+.success-modal.active { display:flex; }
+.success-box {
+    background:white; padding:40px 30px; border-radius:24px; text-align:center;
+    width:90%; max-width:350px; transform:scale(0.8); transition:0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.success-modal.active .success-box { transform:scale(1); }
+.success-icon {
+    width:80px; height:80px; background:#ecfdf5; color:#10b981; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; font-size:40px; margin:0 auto 20px;
+}
+
+/* Toast */
+.toast {
+    position:fixed; bottom:-100px; left:50%; transform:translateX(-50%);
+    background:#1e2937; color:white; padding:14px 24px; border-radius:99px;
+    font-size:14px; font-weight:500; transition:0.4s; z-index:10000; display:flex; align-items:center; gap:10px;
+}
+.toast.show { bottom:30px; }
+
+@keyframes spin { 100% { transform:rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- MAIN PAGE: Select Channel -->
+<div class="container">
+    <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg" alt="CashClique" class="logo">
+    <h2>Deposit Funds</h2>
+    <p class="sub">Select a payment channel to fund your wallet.</p>
+
+    <button class="channel-btn" onclick="selectBank()">
+        <div class="channel-left">
+            <div class="channel-icon icon-bank"><i class="fas fa-building-columns"></i></div>
+            <div class="channel-text">
+                <h3>Bank Transfer</h3>
+                <span>Instant deposit via NGN</span>
+            </div>
+        </div>
+        <i class="fas fa-chevron-right" style="color:#cbd5e1;"></i>
+    </button>
+
+    <button class="channel-btn" onclick="selectCrypto()">
+        <div class="channel-left">
+            <div class="channel-icon icon-crypto"><i class="fab fa-bitcoin"></i></div>
+            <div class="channel-text">
+                <h3>Cryptocurrency</h3>
+                <span>USDT, BTC, ETH</span>
+            </div>
+        </div>
+        <i class="fas fa-chevron-right" style="color:#cbd5e1;"></i>
+    </button>
+</div>
+
+<!-- OVERLAY 1: Enter Amount -->
+<div class="page-overlay" id="overlayAmount">
+    <div class="overlay-header">
+        <button class="back-btn" onclick="closeOverlay('overlayAmount')"><i class="fas fa-arrow-left"></i></button>
+        <div class="overlay-title">Enter Amount</div>
+    </div>
+    <div class="overlay-content">
+        <div class="user-badge">
+            <i class="fas fa-circle-user"></i>
+            <span class="user-email" id="displayEmail">Loading user...</span>
+        </div>
+
+        <div class="notice-box">
+            <i class="fas fa-circle-info" style="margin-right:5px;"></i>
+            <strong>Important Notice:</strong><br>
+            • Minimum deposit is <strong>$0.1</strong><br>
+            • Exchange Rate: <strong>₦1,300 per $1</strong><br>
+            • Deposits confirmed within 1 minute.<br>
+            • You must input the provided <strong>Remark</strong> when transferring.<br>
+            • Encountered an issue? <a href="#" style="color:#ff6a00;">Contact Support</a>.
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">Amount (USD)</label>
+            <div class="amount-wrapper">
+                <span>$</span>
+                <input type="number" class="amount-input" id="amountInput" placeholder="0.00" min="0.1" step="0.1">
+            </div>
+            <div class="naira-eqv">You will pay: <span id="nairaOutput">₦0</span></div>
+        </div>
+
+        <button class="btn-primary" onclick="proceedToPayment()">Continue to Payment <i class="fas fa-arrow-right"></i></button>
+    </div>
+</div>
+
+<!-- OVERLAY 2: Bank Details -->
+<div class="page-overlay" id="overlayPayment">
+    <div class="overlay-header">
+        <button class="back-btn" onclick="closeOverlay('overlayPayment')"><i class="fas fa-arrow-left"></i></button>
+        <div class="overlay-title">Make Transfer</div>
+    </div>
+    <div class="overlay-content">
+        
+        <div class="timer-box">
+            <i class="fas fa-stopwatch"></i> <span id="countdown">30:00</span>
+        </div>
+
+        <p style="font-size:14px; color:#64748b; margin-bottom:15px; text-align:center;">Transfer exactly the amount below to this account.</p>
+
+        <div class="details-card">
+            <div class="detail-row">
+                <div>
+                    <span class="detail-label">Bank Name</span>
+                    <span class="detail-value">PalmPay Limited</span>
+                </div>
+                <button class="copy-btn" onclick="copyText('PalmPay Limited')"><i class="far fa-copy"></i></button>
+            </div>
+            <div class="detail-row">
+                <div>
+                    <span class="detail-label">Account Number</span>
+                    <span class="detail-value">8037402826</span>
+                </div>
+                <button class="copy-btn" onclick="copyText('8037402826')"><i class="far fa-copy"></i></button>
+            </div>
+            <div class="detail-row">
+                <div>
+                    <span class="detail-label">Account Name</span>
+                    <span class="detail-value">Muhammad Nasir</span>
+                </div>
+            </div>
+            <div class="detail-row" style="background:#fff7ed;">
+                <div>
+                    <span class="detail-label">Amount to Pay</span>
+                    <span class="detail-value" style="color:#ff6a00; font-size:18px;">₦<span id="finalNaira">0</span></span>
+                </div>
+                <button class="copy-btn" onclick="copyText(document.getElementById('finalNaira').innerText)"><i class="far fa-copy"></i></button>
+            </div>
+            <div class="detail-row">
+                <div>
+                    <span class="detail-label">Transfer Remark (Required)</span>
+                    <span class="detail-value" id="generatedRemark">CC-XXXXXX</span>
+                </div>
+                <button class="copy-btn" onclick="copyText(document.getElementById('generatedRemark').innerText)"><i class="far fa-copy"></i></button>
+            </div>
+        </div>
+
+        <button class="btn-primary" onclick="proceedToVerification()">I Have Sent The Money</button>
+    </div>
+</div>
+
+<!-- OVERLAY 3: Verify Transaction -->
+<div class="page-overlay" id="overlayVerify">
+    <div class="overlay-header">
+        <button class="back-btn" onclick="closeOverlay('overlayVerify')"><i class="fas fa-arrow-left"></i></button>
+        <div class="overlay-title">Verify Payment</div>
+    </div>
+    <div class="overlay-content" style="text-align:center; padding-top:40px;">
+        
+        <i class="fas fa-shield-halved" style="font-size:60px; color:#e2e8f0; margin-bottom:20px;"></i>
+        <h3 style="font-size:20px; font-weight:700; margin-bottom:10px;">Input Session/Transaction ID</h3>
+        <p style="font-size:14px; color:#64748b; margin-bottom:30px;">Please enter the 24-digit transaction number from your bank receipt to verify this payment.</p>
+
+        <input type="number" id="transactionId" class="amount-input" style="text-align:center; padding:16px; font-size:18px;" placeholder="e.g. 090123456789012345678901">
+
+        <button class="btn-primary" onclick="verifyPayment()" style="margin-top:30px;">Verify Payment <i class="fas fa-check-circle"></i></button>
+    </div>
+</div>
+
+<!-- GLOBAL COMPONENTS -->
+<div class="loader-overlay" id="mainLoader">
+    <i class="fas fa-spinner spinner"></i>
+    <p style="font-weight:600; color:#1e2937;" id="loaderText">Processing...</p>
+</div>
+
+<div class="success-modal" id="successModal">
+    <div class="success-box">
+        <div class="success-icon"><i class="fas fa-check"></i></div>
+        <h3 style="font-size:22px; font-weight:700; color:#1e2937; margin-bottom:10px;">Payment Successful</h3>
+        <p style="font-size:14px; color:#64748b; margin-bottom:24px;">Your wallet will be credited shortly.</p>
+        <button class="btn-primary" onclick="window.location.href='dashboard.html'">Go to Dashboard</button>
+    </div>
+</div>
+
+<div class="toast" id="toastBox">
+    <i class="fas fa-info-circle"></i> <span id="toastMsg">Message</span>
+</div>
+
+<!-- FIREBASE & LOGIC -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
+    authDomain: "cashclique-31718.firebaseapp.com",
+    projectId: "cashclique-31718",
+    storageBucket: "cashclique-31718.firebasestorage.app",
+    messagingSenderId: "1064282591269",
+    appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+const RATE = 1300;
+let userNairaAmount = 0;
+let timerInterval;
+
+// Check Auth
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        document.getElementById('displayEmail').innerText = user.email;
+    } else {
+        window.location.href = "login.html";
+    }
+});
+
+// UI Functions
+window.showLoader = (text, duration, callback) => {
+    document.getElementById('loaderText').innerText = text;
+    const loader = document.getElementById('mainLoader');
+    loader.classList.add('active');
+    setTimeout(() => {
+        loader.classList.remove('active');
+        if(callback) callback();
+    }, duration);
+};
+
+window.showToast = (msg) => {
+    const toast = document.getElementById('toastBox');
+    document.getElementById('toastMsg').innerText = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+};
+
+window.closeOverlay = (id) => {
+    document.getElementById(id).classList.remove('active');
+};
+
+// Step 1 logic
+window.selectCrypto = () => showToast("This deposit channel is temporarily unavailable.");
+
+window.selectBank = () => {
+    showLoader("Connecting to Bank...", 1500, () => {
+        document.getElementById('overlayAmount').classList.add('active');
+    });
+};
+
+// Step 2 Logic (Amount Calc)
+document.getElementById('amountInput').addEventListener('input', function(e) {
+    const usd = parseFloat(this.value) || 0;
+    userNairaAmount = usd * RATE;
+    document.getElementById('nairaOutput').innerText = `₦${userNairaAmount.toLocaleString()}`;
+});
+
+window.proceedToPayment = () => {
+    const usd = parseFloat(document.getElementById('amountInput').value);
+    if (!usd || usd < 0.1) return showToast("Minimum deposit is $0.1");
+
+    showLoader("Generating Payment Details...", 2000, () => {
+        // Set values
+        document.getElementById('finalNaira').innerText = userNairaAmount.toLocaleString();
+        
+        // Generate Remark (CC-RANDOM-NUMBERS)
+        const randomStr = Math.random().toString(36).substr(2, 4).toUpperCase();
+        const randomNum = Math.floor(1000 + Math.random() * 9000);
+        document.getElementById('generatedRemark').innerText = `CC-${randomStr}-${randomNum}`;
+        
+        document.getElementById('overlayPayment').classList.add('active');
+        startTimer();
+    });
+};
+
+// Step 3 Logic (Timer & Details)
+function startTimer() {
+    clearInterval(timerInterval);
+    let time = 1800; // 30 mins in seconds
+    const display = document.getElementById('countdown');
+    
+    timerInterval = setInterval(() => {
+        const min = Math.floor(time / 60);
+        const sec = time % 60;
+        display.innerText = `${min}:${sec < 10 ? '0' : ''}${sec}`;
+        if (time-- <= 0) {
+            clearInterval(timerInterval);
+            alert("Payment session expired.");
+            window.location.reload();
+        }
+    }, 1000);
+}
+
+window.copyText = (text) => {
+    const rawText = text.replace(/,/g, ''); // clean formatting if amount
+    navigator.clipboard.writeText(rawText);
+    showToast("Copied to clipboard!");
+};
+
+window.proceedToVerification = () => {
+    showLoader("Securing session...", 1500, () => {
+        document.getElementById('overlayVerify').classList.add('active');
+    });
+};
+
+// Step 4 Logic (Validation)
+window.verifyPayment = () => {
+    const val = document.getElementById('transactionId').value.trim();
+    
+    // Strict Regex: Exactly 24 Digits
+    if (!/^\d{24}$/.test(val)) {
+        showLoader("Verifying...", 2000, () => {
+            alert("Payment failed: Invalid Transaction Number. It must be exactly 24 numbers.");
+            window.location.href = "deposit.html"; // Redirect/reload as requested
+        });
+        return;
+    }
+
+    showLoader("Verifying Payment...", 3000, () => {
+        document.getElementById('successModal').classList.add('active');
+        // Here you would normally push the data to Firestore
+    });
+};
+</script>
+</body>
+</html>
