@@ -11,75 +11,142 @@
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{background:#f5f6f8;color:#111827;min-height:100vh;}
-.wrap{max-width:1100px;margin:0 auto;padding:18px 14px 70px;}
-.topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
-h1{font-size:18px;font-weight:900;}
-.sub{font-size:13px;color:#6b7280;margin-top:4px;max-width:80ch;}
-.btn{border:none;border-radius:12px;padding:10px 12px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:10px;transition:.2s;}
-.btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
-.btn-ghost{background:#fff;border:1px solid #eaecef;color:#111827;box-shadow:0 6px 16px rgba(17,24,39,.06);}
-.btn-ghost:hover{transform:translateY(-1px);}
-.btn-primary{background:linear-gradient(135deg,#ff6a00,#e55d00);color:#fff;box-shadow:0 10px 25px rgba(255,106,0,.22);}
-.btn-primary:hover{transform:translateY(-1px);}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+body{
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  color:#0f172a;
+  min-height:100vh;
+}
+.wrap{max-width:1140px;margin:0 auto;padding:24px 16px 100px;}
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+h1{font-size:22px;font-weight:700;letter-spacing:-0.3px;}
+.sub{font-size:14px;color:#64748b;margin-top:6px;max-width:80ch;line-height:1.5;}
+.btn{border:none;border-radius:14px;padding:11px 16px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:all .2s ease;font-size:14px;}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.btn-ghost{background:#fff;border:1px solid #e2e8f0;color:#334155;box-shadow:0 4px 12px rgba(15,23,42,.04);}
+.btn-ghost:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(15,23,42,.08);background:#f8fafc;}
+.btn-primary{background:linear-gradient(135deg,#ff6a00,#e95d00);color:#fff;box-shadow:0 8px 20px rgba(255,106,0,.25);}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(255,106,0,.35);}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
 @media(max-width:900px){.grid{grid-template-columns:1fr;}}
-.card{background:#fff;border:1px solid #eef0f3;border-radius:18px;box-shadow:0 12px 30px rgba(17,24,39,.08);overflow:hidden;}
-.card-head{padding:14px 16px;border-bottom:1px solid #eef0f3;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
-.list{padding:14px 16px;display:flex;flex-direction:column;gap:12px;}
-.opp{border:1px solid #eef0f3;border-radius:16px;padding:14px;transition:.2s;box-shadow:0 10px 20px rgba(17,24,39,.06);}
-.opp:hover{transform:translateY(-1px);box-shadow:0 14px 30px rgba(17,24,39,.10);}
+
+.card{
+  background:#fff;
+  border:1px solid #e2e8f0;
+  border-radius:20px;
+  box-shadow:0 12px 32px rgba(15,23,42,.06);
+  overflow:hidden;
+  transition:all .2s ease;
+}
+.card:hover{
+  box-shadow:0 16px 40px rgba(15,23,42,.09);
+}
+.card-head{
+  padding:16px 20px;
+  border-bottom:1px solid #f1f5f9;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+  font-weight:600;
+  font-size:15px;
+}
+.list{padding:16px;display:flex;flex-direction:column;gap:12px;}
+.opp{
+  border:1px solid #e2e8f0;
+  border-radius:16px;
+  padding:16px;
+  transition:all .25s ease;
+  box-shadow:0 4px 12px rgba(15,23,42,.04);
+  background:#fff;
+}
+.opp:hover{
+  transform:translateY(-2px);
+  box-shadow:0 12px 24px rgba(15,23,42,.08);
+  border-color:#cbd5e1;
+}
 .row{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;}
-.title{font-weight:900;}
-.small{font-size:12px;color:#6b7280;line-height:1.35;margin-top:6px;}
-.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
-.pill{display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border-radius:999px;background:#f2f3f5;border:1px solid #e5e7eb;font-size:12px;font-weight:900;color:#111827;}
-.pill i{color:#ff6a00;}
-.badge{padding:7px 10px;border-radius:999px;font-size:12px;font-weight:900;display:inline-flex;align-items:center;gap:8px;}
-.ok{background:rgba(34,197,94,.12);color:#15803d;border:1px solid rgba(34,197,94,.22);}
-.no{background:rgba(239,68,68,.12);color:#b91c1c;border:1px solid rgba(239,68,68,.22);}
-.pending{background:rgba(245,158,11,.12);color:#b45309;border:1px solid rgba(245,158,11,.22);}
-.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
-.viewlink{background:#fff;border:1px solid #eaecef;color:#111827;}
-.viewlink:hover{transform:translateY(-1px);}
-.empty{padding:50px 16px;text-align:center;color:#6b7280;}
-.empty i{font-size:44px;opacity:.25;margin-bottom:12px;}
-hr.sep{border:none;border-top:1px solid #eef0f3;margin:10px 0;}
+.title{font-weight:600;font-size:15px;}
+.small{font-size:13px;color:#64748b;line-height:1.4;margin-top:6px;}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.pill{
+  display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:10px;
+  background:#f8fafc;border:1px solid #f1f5f9;font-size:12px;font-weight:500;color:#475569;
+}
+.pill i{color:#ff6a00;font-size:11px;}
+.badge{
+  padding:6px 10px;border-radius:10px;font-size:12px;font-weight:600;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.ok{background:rgba(34,197,94,.12);color:#16a34a;border:1px solid rgba(34,197,94,.2);}
+.no{background:rgba(239,68,68,.12);color:#dc2626;border:1px solid rgba(239,68,68,.2);}
+.pending{background:rgba(245,158,11,.12);color:#d97706;border:1px solid rgba(245,158,11,.2);}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+.viewlink{background:#f8fafc;border:1px solid #e2e8f0;color:#334155;}
+.viewlink:hover{transform:translateY(-1px);background:#fff;}
+.empty{padding:60px 16px;text-align:center;color:#94a3b8;}
+.empty i{font-size:48px;opacity:.25;margin-bottom:16px;}
+hr.sep{border:none;border-top:1px solid #f1f5f9;margin:12px 0;}
 
 /* Side icon */
 .side-panel-btn{
   position:fixed;
-  right:14px;
+  right:16px;
   top:50%;
   transform:translateY(-50%);
-  width:52px;height:52px;
-  border:none;border-radius:16px;
-  background:#111827;color:#fff;
-  box-shadow:0 12px 28px rgba(17,24,39,.2);
+  width:56px;height:56px;
+  border:none;border-radius:18px;
+  background:#0f172a;color:#fff;
+  box-shadow:0 12px 28px rgba(15,23,42,.25);
   cursor:pointer;
   display:flex;align-items:center;justify-content:center;
   z-index:1000;
+  transition:all .2s ease;
+  font-size:18px;
 }
-.side-panel-btn:hover{transform:translateY(-50%) scale(1.03);}
+.side-panel-btn:hover{
+  transform:translateY(-50%) scale(1.06);
+  box-shadow:0 16px 32px rgba(15,23,42,.3);
+}
 .side-panel-btn .dot{
   position:absolute;top:8px;right:8px;
   min-width:18px;height:18px;border-radius:999px;
   background:#ff6a00;color:#fff;font-size:11px;
   display:none;align-items:center;justify-content:center;
-  padding:0 6px;font-weight:900;
+  padding:0 6px;font-weight:700;
 }
 
 /* Full page overlay */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);display:none;z-index:2000;}
-.overlay.active{display:block;}
-.overlay-inner{position:absolute;inset:0;background:#f5f6f8;display:flex;flex-direction:column;}
-.overlay-head{background:#fff;border-bottom:1px solid #eef0f3;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
-.overlay-title{font-weight:900;}
-.overlay-body{padding:14px 16px;overflow:auto;flex:1;}
-.app-item{background:#fff;border:1px solid #eef0f3;border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 10px 22px rgba(17,24,39,.06);}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);opacity:0;visibility:hidden;z-index:2000;transition:all .2s ease;}
+.overlay.active{opacity:1;visibility:visible;}
+.overlay-inner{
+  position:absolute;
+  right:0;
+  top:0;
+  bottom:0;
+  width:100%;
+  max-width:520px;
+  background:#f8fafc;
+  display:flex;flex-direction:column;
+  transform:translateX(100%);
+  transition:all .25s cubic-bezier(.2,.8,.2,1);
+  box-shadow:-10px 0 40px rgba(0,0,0,.2);
+}
+.overlay.active .overlay-inner{transform:translateX(0);}
+.overlay-head{background:#fff;border-bottom:1px solid #e2e8f0;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.overlay-title{font-weight:600;font-size:16px;}
+.overlay-body{padding:16px;overflow:auto;flex:1;}
+.app-item{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 6px 16px rgba(15,23,42,.05);}
 .app-item .top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;}
-.link{color:#ff6a00;font-weight:900;text-decoration:none;}
+.link{color:#ff6a00;font-weight:600;text-decoration:none;}
 .link:hover{text-decoration:underline;}
+
+@media(max-width:768px){
+  .wrap{padding:16px 12px 90px;}
+  .side-panel-btn{bottom:16px;top:auto;transform:none;right:16px;width:52px;height:52px;border-radius:16px;}
+  .side-panel-btn:hover{transform:scale(1.06);}
+}
 </style>
 </head>
 
@@ -102,7 +169,7 @@ hr.sep{border:none;border-top:1px solid #eef0f3;margin:10px 0;}
   <div class="grid">
     <div class="card">
       <div class="card-head">
-        <div style="font-weight:900;">Opportunities</div>
+        <div>Opportunities</div>
         <div class="pill"><i class="fas fa-circle-check"></i> Approved</div>
       </div>
       <div class="list" id="oppList">
@@ -112,7 +179,7 @@ hr.sep{border:none;border-top:1px solid #eef0f3;margin:10px 0;}
 
     <div class="card">
       <div class="card-head">
-        <div style="font-weight:900;">Your Eligibility</div>
+        <div>Your Eligibility</div>
         <div class="pill"><i class="fas fa-user-check"></i> Live</div>
       </div>
       <div class="list" id="eligibilityBox">
@@ -149,18 +216,6 @@ import {
   serverTimestamp, runTransaction
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-/**
- * FULL FIX:
- * - Your admin page sets status = "approved" (this page includes it).
- * - Some of your older pages used status = "active" (this page includes it too).
- * - We use TWO listeners (approved + active) and merge results.
- * - We also show Firestore errors instead of "loading forever".
- *
- * IMPORTANT:
- * This page checks eligibility based on:
- * users/{uid}.totalLikes, users/{uid}.followersCount (or followers array length), users/{uid}.verified
- */
-
 const firebaseConfig = {
   apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
   authDomain: "cashclique-31718.firebaseapp.com",
@@ -184,40 +239,45 @@ const refreshBtn = document.getElementById("refreshBtn");
 
 let currentUser = null;
 let myStats = { totalLikes: 0, followersCount: 0, verified: false, username: "User" };
-let myAppsMap = new Map(); // opportunityId -> application
-let approvedMap = new Map(); // oppId -> opp
-let activeMap = new Map();   // oppId -> opp
+let myAppsMap = new Map();
+let approvedMap = new Map();
+let activeMap = new Map();
 let unsubApproved = null;
 let unsubActive = null;
 let unsubApps = null;
+let unsubUser = null;
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) { window.location.href = "login.html"; return; }
   currentUser = user;
 
-  await loadMyStats();
-  renderMyStatsBox();
-
+  listenMyStats();
   listenMyApplications();
   listenApprovedAndActive();
 });
 
 refreshBtn.onclick = () => {
-  // force re-render; listeners are live already
   renderOpportunities();
 };
 
-async function loadMyStats(){
-  const snap = await getDoc(doc(db, "users", currentUser.uid));
-  if (!snap.exists()) return;
+// ✅ FIXED: Live realtime stats, will update automatically forever
+function listenMyStats(){
+  if(unsubUser) unsubUser();
 
-  const d = snap.data();
-  myStats = {
-    totalLikes: Number(d.totalLikes || 0),
-    followersCount: Number(d.followersCount || (d.followers?.length || 0)),
-    verified: !!d.verified,
-    username: d.username || currentUser.email?.split("@")[0] || "User",
-  };
+  unsubUser = onSnapshot(doc(db, "users", currentUser.uid), (snap) => {
+    if (!snap.exists()) return;
+
+    const d = snap.data();
+    myStats = {
+      totalLikes: Number(d.totalLikes || 0),
+      followersCount: Number(d.followersCount || (d.followers?.length || 0)),
+      verified: !!d.verified,
+      username: d.username || currentUser.email?.split("@")[0] || "User",
+    };
+
+    renderMyStatsBox();
+    renderOpportunities();
+  });
 }
 
 function renderMyStatsBox(){
@@ -247,16 +307,14 @@ function renderMyStatsBox(){
 }
 
 function listenApprovedAndActive(){
-  // Clean up old listeners
   if (unsubApproved) unsubApproved();
   if (unsubActive) unsubActive();
 
   approvedMap = new Map();
   activeMap = new Map();
 
-  // ✅ Most important: we filter for status === "approved"
   const qApproved = query(collection(db, "opportunities"), where("status", "==", "approved"));
-  const qActive = query(collection(db, "opportunities"), where("status", "==", "active")); // optional compatibility
+  const qActive = query(collection(db, "opportunities"), where("status", "==", "active"));
 
   unsubApproved = onSnapshot(qApproved, (snap) => {
     approvedMap.clear();
@@ -276,7 +334,7 @@ function showOppError(err){
   oppList.innerHTML = `
     <div class="empty">
       <i class="fas fa-triangle-exclamation"></i>
-      <div style="margin-top:10px;font-weight:900;">Failed to load opportunities</div>
+      <div style="margin-top:10px;font-weight:600;">Failed to load opportunities</div>
       <div style="margin-top:8px;max-width:820px;margin-left:auto;margin-right:auto;">
         ${escapeHTML(err.message || "Unknown error")}
       </div>
@@ -288,7 +346,6 @@ function showOppError(err){
 }
 
 function renderOpportunities(){
-  // merge maps (approved takes priority)
   const merged = new Map();
   approvedMap.forEach((v,k) => merged.set(k,v));
   activeMap.forEach((v,k) => { if (!merged.has(k)) merged.set(k,v); });
@@ -349,7 +406,7 @@ function renderOpportunities(){
         <span class="pill"><i class="fas fa-shield-halved"></i> Verified: ${opp.requirements.requireVerified ? "Required" : "Not required"}</span>
       </div>
 
-      ${eligible ? "" : `<div class="small" style="margin-top:10px;color:#b91c1c;font-weight:900;">
+      ${eligible ? "" : `<div class="small" style="margin-top:10px;color:#dc2626;font-weight:600;">
         <i class="fas fa-circle-exclamation"></i> ${escapeHTML(reason)}
       </div>`}
 
@@ -372,7 +429,6 @@ function renderOpportunities(){
 }
 
 function normalizeOpp(id, d){
-  // supports both schemas
   const metrics = d.metrics || {};
   const targetViews = Number(d.targetViews ?? d.viewsTarget ?? d.targetViews ?? 0);
   const cost = Number(d.cost ?? d.totalCost ?? 0);
@@ -483,13 +539,13 @@ function listenMyApplications(){
     appsDot.textContent = pendingCount > 99 ? "99+" : String(pendingCount);
 
     renderMyApplications(apps);
-    renderOpportunities(); // refresh badges/buttons
+    renderOpportunities();
   }, (err) => {
     console.error("Applications load error:", err);
     appsList.innerHTML = `
       <div class="empty">
         <i class="fas fa-triangle-exclamation"></i>
-        <div style="margin-top:10px;font-weight:900;">Failed to load applications</div>
+        <div style="margin-top:10px;font-weight:600;">Failed to load applications</div>
         <div style="margin-top:8px;">${escapeHTML(err.message || "Unknown error")}</div>
       </div>
     `;
@@ -546,12 +602,10 @@ function openOpportunityLink(opp){
   window.open(url, "_blank");
 }
 
-// overlay handlers
 appsBtn.addEventListener("click", () => overlay.classList.add("active"));
 window.closeOverlay = function(){ overlay.classList.remove("active"); };
 overlay.addEventListener("click", (e) => { if (e.target.id === "overlay") closeOverlay(); });
 
-// helpers
 function fmt(n){ return Number(n||0).toLocaleString(); }
 function getSortTime(ts){
   if (!ts) return 0;
