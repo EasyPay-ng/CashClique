@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Boost Profile & Content | CashClique</title>
+<title>Boost Profile | CashClique</title>
 
 <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -73,8 +73,6 @@ tbody tr:hover { background:#f8fafc; }
 td { padding:16px 25px; font-size:14px; color:#334155; }
 
 .badge { padding:6px 12px; border-radius:20px; font-size:11px; font-weight:700; text-transform:uppercase; display:inline-block; }
-.b-pending { background:#fef3c7; color:#b45309; }
-.b-active { background:#e0f2fe; color:#1d4ed8; }
 .b-completed { background:#dcfce7; color:#166534; }
 
 .empty-state { text-align:center; padding:50px 20px; color:#64748b; }
@@ -117,8 +115,8 @@ td { padding:16px 25px; font-size:14px; color:#334155; }
 <div class="main">
     <div class="header">
         <div>
-            <h1>Boost Your Profile</h1>
-            <div class="sub">Get real likes, views, and followers instantly to grow your account.</div>
+            <h1>Boost Your Profile Stats</h1>
+            <div class="sub">Instantly increase your CashClique followers, likes, or views to qualify for premium Ad Campaigns.</div>
         </div>
     </div>
 
@@ -132,8 +130,8 @@ td { padding:16px 25px; font-size:14px; color:#334155; }
         <div class="info-card">
             <div class="info-icon"><i class="fas fa-bolt"></i></div>
             <div class="info-text">
-                <h3>Fast Delivery</h3>
-                <p>Orders start processing within minutes of submission.</p>
+                <h3>Instant Delivery</h3>
+                <p>Stats are added to your profile immediately upon purchase.</p>
             </div>
         </div>
     </div>
@@ -141,24 +139,19 @@ td { padding:16px 25px; font-size:14px; color:#334155; }
     <div class="content-grid">
         <!-- Purchase Form -->
         <div class="form-card">
-            <h2><i class="fas fa-plus-circle" style="color:#ff6a00;"></i> New Campaign</h2>
+            <h2><i class="fas fa-plus-circle" style="color:#ff6a00;"></i> Purchase Stats</h2>
 
             <div class="input-group">
-                <label class="input-label">Select Service</label>
+                <label class="input-label">Select Stat to Boost</label>
                 <select class="form-select" id="service-type">
-                    <option value="followers" data-rate="0.01">Followers ($0.01 per 1)</option>
-                    <option value="likes" data-rate="0.005">Post Likes ($0.005 per 1)</option>
-                    <option value="views" data-rate="0.001">Post Views ($0.001 per 1)</option>
+                    <option value="followers" data-rate="0.01">Profile Followers ($0.01 per 1)</option>
+                    <option value="likes" data-rate="0.005">Total Profile Likes ($0.005 per 1)</option>
+                    <option value="views" data-rate="0.001">Total Profile Views ($0.001 per 1)</option>
                 </select>
             </div>
 
             <div class="input-group">
-                <label class="input-label">Target Link</label>
-                <input type="text" class="form-input" id="target-link" placeholder="Enter Post URL or Profile Link">
-            </div>
-
-            <div class="input-group">
-                <label class="input-label">Quantity</label>
+                <label class="input-label">Amount (Quantity)</label>
                 <input type="number" class="form-input" id="quantity" placeholder="e.g. 1000" min="50">
                 <div style="font-size:12px; color:#64748b; margin-top:6px;">Minimum order: 50</div>
             </div>
@@ -169,18 +162,18 @@ td { padding:16px 25px; font-size:14px; color:#334155; }
             </div>
 
             <button class="btn-submit" id="submitBtn" onclick="submitBoost()">
-                <i class="fas fa-rocket"></i> Launch Campaign
+                <i class="fas fa-rocket"></i> Buy & Boost Now
             </button>
         </div>
 
         <!-- History Table -->
         <div class="history-card">
-            <div class="history-header">My Boost Campaigns</div>
+            <div class="history-header">My Purchase History</div>
             <div class="table-wrapper">
                 <table>
                     <thead>
                         <tr>
-                            <th>Service</th>
+                            <th>Stat Boosted</th>
                             <th>Quantity</th>
                             <th>Cost</th>
                             <th>Status</th>
@@ -252,7 +245,7 @@ function calculatePrice() {
     currentCost = rate * qty;
     costDisplay.innerText = `$${currentCost.toFixed(2)}`;
 
-    // Optional: Turn price red if they don't have enough funds
+    // Text turns red if not enough balance
     if(currentCost > currentBalance && currentCost > 0) {
         costDisplay.style.color = '#ef4444'; 
     } else {
@@ -269,7 +262,7 @@ function loadBalance() {
         if (snap.exists()) {
             currentBalance = snap.data().balance || 0;
             document.getElementById('wallet-balance').innerText = `$${currentBalance.toFixed(2)}`;
-            calculatePrice(); // Recheck color validation
+            calculatePrice();
         }
     });
 }
@@ -281,23 +274,21 @@ function loadHistory() {
         const tbody = document.getElementById('history-body');
         
         if(snapshot.empty) {
-            tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><i class="fas fa-folder-open"></i><p>No active campaigns found.</p></div></td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><i class="fas fa-folder-open"></i><p>No purchases yet.</p></div></td></tr>`;
             return;
         }
 
         let docs = snapshot.docs.map(d => d.data());
-        // Sort descending locally
         docs.sort((a,b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
 
         let html = '';
         docs.forEach(data => {
-            let statClass = data.status === 'completed' ? 'b-completed' : (data.status === 'active' ? 'b-active' : 'b-pending');
             html += `
                 <tr>
-                    <td><strong>${data.service.charAt(0).toUpperCase() + data.service.slice(1)}</strong><br><small style="color:#64748b">${data.target.substring(0,25)}...</small></td>
-                    <td>${data.quantity.toLocaleString()}</td>
+                    <td><strong>${data.service.charAt(0).toUpperCase() + data.service.slice(1)}</strong></td>
+                    <td>+${data.quantity.toLocaleString()}</td>
                     <td>$${data.cost.toFixed(2)}</td>
-                    <td><span class="badge ${statClass}">${data.status}</span></td>
+                    <td><span class="badge b-completed"><i class="fas fa-check"></i> Success</span></td>
                 </tr>
             `;
         });
@@ -305,13 +296,11 @@ function loadHistory() {
     });
 }
 
-// Submit Order
+// Submit Order (Instant Account Update)
 window.submitBoost = async () => {
     const service = serviceSelect.value;
-    const target = document.getElementById('target-link').value.trim();
     const qty = parseInt(qtyInput.value);
 
-    if(!target) return showToast("Please enter a target link.");
     if(!qty || qty < 50) return showToast("Minimum quantity is 50.");
     if(currentCost > currentBalance) return showToast("Insufficient balance. Please deposit funds.");
 
@@ -319,36 +308,43 @@ window.submitBoost = async () => {
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
 
     try {
-        // 1. Deduct Balance
-        await updateDoc(doc(db, "users", currentUser.uid), {
-            balance: increment(-currentCost)
-        });
+        const userRef = doc(db, "users", currentUser.uid);
+        
+        // 1. Setup the update object dynamically based on what they bought
+        let updateData = {
+            balance: increment(-currentCost) // Deduct money
+        };
 
-        // 2. Create Order
+        // Add the corresponding stat boost to the update object
+        if(service === 'followers') updateData.followersCount = increment(qty);
+        if(service === 'likes') updateData.totalLikes = increment(qty);
+        if(service === 'views') updateData.totalViews = increment(qty); // Adding views just in case you use totalViews in eligibility
+
+        // 2. Perform the update on their CashClique profile
+        await updateDoc(userRef, updateData);
+
+        // 3. Log the purchase in the history table
         await addDoc(collection(db, "boosts"), {
             userId: currentUser.uid,
-            email: currentUser.email,
             service: service,
-            target: target,
             quantity: qty,
             cost: currentCost,
-            status: "pending", // admin can change this to active/completed later
+            status: "completed",
             timestamp: serverTimestamp()
         });
 
-        showToast("Campaign launched successfully!");
+        showToast(`Successfully added ${qty.toLocaleString()} ${service} to your profile!`);
         
         // Reset form
-        document.getElementById('target-link').value = '';
         qtyInput.value = '';
         calculatePrice();
 
     } catch (error) {
-        console.error("Order Failed: ", error);
+        console.error("Purchase Failed: ", error);
         showToast("An error occurred. Please try again.");
     } finally {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-rocket"></i> Launch Campaign';
+        submitBtn.innerHTML = '<i class="fas fa-rocket"></i> Buy & Boost Now';
     }
 };
 
