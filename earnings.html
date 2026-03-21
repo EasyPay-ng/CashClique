@@ -29,7 +29,7 @@ body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;}
 /* Main Content */
 .main{margin-left:240px;padding:20px;transition:0.3s;}
 .container{background:white;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.04);overflow:hidden;}
-.header{padding:30px;text-align:center;background:linear-gradient(135deg,#ff6a00,#ff8a00);color:white;}
+.header{padding:30px;text-align:center;background:linear-gradient(135deg,#ff6a00,#e55d00);color:white;}
 .header h1{font-size:26px;font-weight:700;margin-bottom:8px;}
 .balance-display{font-size:48px;font-weight:700;letter-spacing:-1px;}
 .balance-label{font-size:14px;opacity:0.9;margin-top:5px;}
@@ -229,7 +229,7 @@ body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;}
       <div>Post</div>
       <div>Revenue</div>
       <div>Likes</div>
-      <div>Date</div>
+      <div>Date Paid</div>
     </div>
     <div id="revenue-content"><div class="loading"><i class="fas fa-spinner"></i><br>Loading revenue...</div></div>
   </div>
@@ -240,7 +240,7 @@ body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, query, where, onSnapshot, doc, getDoc, updateDoc, serverTimestamp, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc, serverTimestamp, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -284,40 +284,43 @@ function loadUserBalance() {
                 ? `<i class="fas fa-building-columns"></i> Withdraw $${balance.toFixed(2)}` 
                 : `<i class="fas fa-building-columns"></i> Min. $25 (Need $${(25 - balance).toFixed(2)})`;
         }
+    }, (error) => {
+        console.error("Balance Error:", error);
     });
 }
 
-// Format Date
-function formatDate(date) {
-    if(!date) return "Recently";
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour:'2-digit', minute:'2-digit' });
+// Format Date safely
+function formatDate(timestamp) {
+    if(!timestamp || !timestamp.toDate) return "Recently";
+    return timestamp.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-// Helper to sort Firebase Snapshots without complex Index requirements
+// Safely sort documents to prevent missing index errors
 function sortDocs(docs) {
     return docs.sort((a, b) => {
-        const timeA = a.data().timestamp?.seconds || 0;
-        const timeB = b.data().timestamp?.seconds || 0;
+        const timeA = a.data().timestamp?.seconds || a.data().payoutDate?.seconds || 0;
+        const timeB = b.data().timestamp?.seconds || b.data().payoutDate?.seconds || 0;
         return timeB - timeA;
     });
 }
 
-// 1. Load Deposits (NEW)
+// 1. Load Deposits
 function loadDeposits() {
-    const q = query(collection(db, "transactions"), where("userId", "==", currentUser.uid), where("type", "==", "deposit"));
+    const q = query(collection(db, "transactions"), where("userId", "==", currentUser.uid));
     
     onSnapshot(q, (snapshot) => {
         const content = document.getElementById('deposits-content');
-        if (snapshot.empty) {
+        const docs = sortDocs(snapshot.docs.filter(d => d.data().type === "deposit"));
+
+        if (docs.length === 0) {
             content.innerHTML = `<div class="empty-state"><div class="empty-icon"><i class="fas fa-arrow-down"></i></div><h3>No deposits yet</h3><p>Fund your wallet to get started</p></div>`;
             return;
         }
+        
         content.innerHTML = '';
-        const docs = sortDocs([...snapshot.docs]);
-
         docs.forEach(doc => {
             const data = doc.data();
-            const date = data.timestamp ? formatDate(data.timestamp.toDate()) : 'Pending';
+            const date = formatDate(data.timestamp);
             const statClass = data.status === 'completed' ? 'completed' : 'pending';
             
             content.innerHTML += `
@@ -334,10 +337,10 @@ function loadDeposits() {
                     <div class="date-time"><span class="mobile-label">Date:</span>${date}</div>
                 </div>`;
         });
-    });
+    }, (err) => console.error("Deposits Error:", err));
 }
 
-// 2. Load Withdrawals (FIXED)
+// 2. Load Withdrawals (FIXED: Checks 'paid' boolean from admin panel)
 function loadWithdrawals() {
     const q = query(collection(db, "withdrawals"), where("userId", "==", currentUser.uid));
     
@@ -359,20 +362,23 @@ function loadWithdrawals() {
         docs.forEach(doc => {
             const data = doc.data();
             const amt = data.amount || 0;
-            const stat = data.status || 'pending';
             
-            if (stat === 'completed') totalWithdrawn += amt;
-            if (stat === 'pending') pendingAmount += amt;
+            // Checks if Admin marked it as paid or approved
+            const isCompleted = data.paid === true || data.status === 'approved' || data.status === 'completed';
+            const stat = isCompleted ? 'completed' : 'pending';
+            
+            if (isCompleted) totalWithdrawn += amt;
+            else pendingAmount += amt;
 
-            const date = data.timestamp ? formatDate(data.timestamp.toDate()) : 'Pending';
-            const statClass = stat === 'completed' ? 'completed' : stat === 'pending' ? 'pending' : 'failed';
+            const date = formatDate(data.timestamp);
+            const statClass = isCompleted ? 'completed' : 'pending';
             
             content.innerHTML += `
                 <div class="table-row grid-layout">
                     <div class="transaction-type">
                         <div class="type-icon withdrawal"><i class="fas fa-building-columns"></i></div>
                         <div class="type-info">
-                            <div class="type-title">${data.method || 'Bank/PayPal'}</div>
+                            <div class="type-title">${data.method || 'Payout'}</div>
                             <div class="type-subtitle">#${doc.id.substring(0,8).toUpperCase()}</div>
                         </div>
                     </div>
@@ -384,31 +390,33 @@ function loadWithdrawals() {
 
         document.getElementById('total-withdrawn').textContent = `$${totalWithdrawn.toFixed(2)}`;
         document.getElementById('pending-amount').textContent = `$${pendingAmount.toFixed(2)}`;
+    }, (err) => {
+        console.error("Withdrawals Error:", err);
+        document.getElementById('withdrawals-content').innerHTML = `<div class="empty-state">Error loading withdrawals.</div>`;
     });
 }
 
-// 3. Load Tips (FIXED)
+// 3. Load Tips
 function loadTips() {
-    // Queries all transactions sent TO this user of type 'tip'
-    const q = query(collection(db, "transactions"), where("to", "==", currentUser.uid), where("type", "==", "tip"));
+    const q = query(collection(db, "transactions"), where("to", "==", currentUser.uid));
     
     onSnapshot(q, (snapshot) => {
         const content = document.getElementById('tips-content');
+        const docs = sortDocs(snapshot.docs.filter(d => d.data().type === "tip"));
+        
         let totalTips = 0;
 
-        if (snapshot.empty) {
+        if (docs.length === 0) {
             content.innerHTML = `<div class="empty-state"><div class="empty-icon"><i class="fas fa-hand-holding-dollar"></i></div><h3>No tips received yet</h3></div>`;
             document.getElementById('total-tips').textContent = '$0.00';
             return;
         }
 
         content.innerHTML = '';
-        const docs = sortDocs([...snapshot.docs]);
-
         docs.forEach(doc => {
             const data = doc.data();
             totalTips += data.amount || 0;
-            const date = data.timestamp ? formatDate(data.timestamp.toDate()) : 'Just now';
+            const date = formatDate(data.timestamp);
             
             content.innerHTML += `
                 <div class="table-row grid-layout">
@@ -426,30 +434,32 @@ function loadTips() {
         });
 
         document.getElementById('total-tips').textContent = `$${totalTips.toFixed(2)}`;
-    });
+    }, (err) => console.error("Tips Error:", err));
 }
 
-// 4. Load Post Revenue
+// 4. Load Post Revenue (FIXED: Checks 'earning' from Admin assignment)
 function loadRevenue() {
-    const q = query(collection(db, "posts"), where("userId", "==", currentUser.uid), where("earning", ">", 0));
+    const q = query(collection(db, "posts"), where("userId", "==", currentUser.uid));
     
     onSnapshot(q, (snapshot) => {
         const content = document.getElementById('revenue-content');
+        
+        // Filter out posts that haven't been assigned earnings by admin
+        const docs = sortDocs(snapshot.docs.filter(d => (d.data().earning || 0) > 0));
+        
         let totalRev = 0;
 
-        if (snapshot.empty) {
-            content.innerHTML = `<div class="empty-state"><div class="empty-icon"><i class="fas fa-chart-line"></i></div><h3>No post revenue yet</h3></div>`;
+        if (docs.length === 0) {
+            content.innerHTML = `<div class="empty-state"><div class="empty-icon"><i class="fas fa-chart-line"></i></div><h3>No post revenue yet</h3><p>Keep creating to earn from the admin.</p></div>`;
             document.getElementById('total-revenue').textContent = '$0.00';
             return;
         }
 
         content.innerHTML = '';
-        const docs = sortDocs([...snapshot.docs]);
-
         docs.forEach(doc => {
             const post = doc.data();
             totalRev += post.earning || 0;
-            const date = post.timestamp ? formatDate(post.timestamp.toDate()) : 'Unknown';
+            const date = formatDate(post.payoutDate || post.timestamp);
             
             content.innerHTML += `
                 <div class="table-row grid-layout">
@@ -462,12 +472,12 @@ function loadRevenue() {
                     </div>
                     <div class="amount credit"><span class="mobile-label">Revenue:</span>+$${(post.earning||0).toFixed(2)}</div>
                     <div><span class="mobile-label">Likes:</span><i class="fas fa-heart" style="color:#ef4444;"></i> ${post.likes||0}</div>
-                    <div class="date-time"><span class="mobile-label">Date:</span>${date}</div>
+                    <div class="date-time"><span class="mobile-label">Date Paid:</span>${date}</div>
                 </div>`;
         });
 
         document.getElementById('total-revenue').textContent = `$${totalRev.toFixed(2)}`;
-    });
+    }, (err) => console.error("Revenue Error:", err));
 }
 
 // Tab Switching
@@ -492,14 +502,16 @@ withdrawBtn.onclick = async () => {
     try {
         await addDoc(collection(db, "withdrawals"), {
             userId: currentUser.uid,
+            username: currentUser.email.split('@')[0],
             amount: balance,
             method: method,
             status: 'pending',
+            paid: false,
             timestamp: serverTimestamp()
         });
         
         await updateDoc(doc(db, "users", currentUser.uid), { balance: 0 });
-        alert('Withdrawal request submitted!');
+        alert('Withdrawal request submitted! It will appear in your log shortly.');
     } catch (e) {
         alert('Failed to submit. Try again.');
         withdrawBtn.disabled = false;
