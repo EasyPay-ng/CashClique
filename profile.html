@@ -255,8 +255,7 @@ const firebaseConfig = {
     projectId: "cashclique-31718",
     storageBucket: "cashclique-31718.firebasestorage.app",
     messagingSenderId: "1064282591269",
-    appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc",
-    measurementId: "G-V5WHJB6LS0"
+    appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -304,12 +303,17 @@ function loadProfile() {
         document.getElementById("profile-username").innerText = `@${profileData.username || 'user'}`;
         document.getElementById("profile-bio").innerText = profileData.bio || "No bio yet";
         
-        // Stats
-        document.getElementById("followers-count").innerText = formatNumber(profileData.followers?.length || 0);
+        // --- THIS IS THE FIX ---
+        // We add the length of the real followers array PLUS the purchased 'followersCount'
+        const realFollowers = profileData.followers?.length || 0;
+        const boostedFollowers = profileData.followersCount || 0;
+        document.getElementById("followers-count").innerText = formatNumber(realFollowers + boostedFollowers);
+        // -----------------------
+
         document.getElementById("following-count").innerText = formatNumber(profileData.following?.length || 0);
         
         // Verified badge
-        if (profileData.isVerified) {
+        if (profileData.isVerified || profileData.verified) {
             document.getElementById("verified-badge").style.display = "flex";
         }
 
@@ -323,7 +327,7 @@ function loadProfile() {
                 <button class="action-btn edit-btn" onclick="window.location.href='settings.html'">
                     <i class="fas fa-edit"></i> Edit Profile
                 </button>
-                ${!profileData.isVerified ? `
+                ${(!profileData.isVerified && !profileData.verified) ? `
                     <button class="action-btn verify-btn" onclick="openVerifyModal()">
                         <i class="fas fa-check-circle"></i> Get Verified
                     </button>
@@ -494,6 +498,7 @@ window.purchaseVerification = async function() {
             transaction.update(userRef, {
                 balance: increment(-5),
                 isVerified: true,
+                verified: true, // catch-all for schema mismatch
                 verifiedDate: serverTimestamp()
             });
             
