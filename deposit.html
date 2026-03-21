@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Deposit Funds | CashClique</title>
 
-<link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
+<link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1774094269/logo2_ago4ay.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
@@ -14,8 +14,14 @@
 body { background:#f5f6f8; color:#1e2937; min-height:100vh; overflow-x:hidden; }
 
 /* Main Container */
-.container { max-width:500px; margin:0 auto; padding:40px 20px; text-align:center; }
-.logo { width:140px; margin-bottom:30px; }
+.container { max-width:500px; margin:0 auto; padding:20px 20px 40px; text-align:center; }
+
+/* Top Navigation */
+.top-nav { display:flex; align-items:center; justify-content:flex-start; margin-bottom:20px; }
+.nav-back-btn { background:white; border:1px solid #e2e8f0; border-radius:12px; padding:10px 16px; font-size:14px; font-weight:600; color:#1e2937; cursor:pointer; display:flex; align-items:center; gap:8px; transition:0.3s; box-shadow:0 4px 6px rgba(0,0,0,0.02); }
+.nav-back-btn:hover { border-color:#ff6a00; color:#ff6a00; transform:translateX(-2px); }
+
+.logo { width:140px; margin-bottom:20px; border-radius:12px; }
 
 /* Titles */
 h2 { font-size:22px; font-weight:700; margin-bottom:10px; color:#0f172a; }
@@ -150,7 +156,13 @@ p.sub { font-size:14px; color:#64748b; margin-bottom:30px; }
 
 <!-- MAIN PAGE: Select Channel -->
 <div class="container">
-    <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg" alt="CashClique" class="logo">
+    <div class="top-nav">
+        <button class="nav-back-btn" onclick="window.location.href='dashboard.html'">
+            <i class="fas fa-arrow-left"></i> Back
+        </button>
+    </div>
+
+    <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1774094269/logo2_ago4ay.jpg" alt="CashClique" class="logo">
     <h2>Deposit Funds</h2>
     <p class="sub">Select a payment channel to fund your wallet.</p>
 
@@ -276,10 +288,11 @@ p.sub { font-size:14px; color:#64748b; margin-bottom:30px; }
     <div class="overlay-content" style="text-align:center; padding-top:40px;">
         
         <i class="fas fa-shield-halved" style="font-size:60px; color:#e2e8f0; margin-bottom:20px;"></i>
-        <h3 style="font-size:20px; font-weight:700; margin-bottom:10px;">Input Session/Transaction ID</h3>
-        <p style="font-size:14px; color:#64748b; margin-bottom:30px;">Please enter the 24-digit transaction number from your bank receipt to verify this payment.</p>
+        <h3 style="font-size:20px; font-weight:700; margin-bottom:10px;">Input Transaction ID</h3>
+        <p style="font-size:14px; color:#64748b; margin-bottom:30px;">Please enter the transaction number from your bank receipt to verify this payment.</p>
 
-        <input type="number" id="transactionId" class="amount-input" style="text-align:center; padding:16px; font-size:18px;" placeholder="e.g. 090123456789012345678901">
+        <!-- No mention of 24 digits in the placeholder -->
+        <input type="number" id="transactionId" class="amount-input" style="text-align:center; padding:16px; font-size:18px;" placeholder="Enter Transaction ID">
 
         <button class="btn-primary" onclick="verifyPayment()" style="margin-top:30px;">Verify Payment <i class="fas fa-check-circle"></i></button>
     </div>
@@ -295,7 +308,7 @@ p.sub { font-size:14px; color:#64748b; margin-bottom:30px; }
     <div class="success-box">
         <div class="success-icon"><i class="fas fa-check"></i></div>
         <h3 style="font-size:22px; font-weight:700; color:#1e2937; margin-bottom:10px;">Payment Successful</h3>
-        <p style="font-size:14px; color:#64748b; margin-bottom:24px;">Your wallet will be credited shortly.</p>
+        <p style="font-size:14px; color:#64748b; margin-bottom:24px;">Your wallet has been credited.</p>
         <button class="btn-primary" onclick="window.location.href='dashboard.html'">Go to Dashboard</button>
     </div>
 </div>
@@ -308,6 +321,7 @@ p.sub { font-size:14px; color:#64748b; margin-bottom:30px; }
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, updateDoc, increment, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -320,6 +334,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
 const RATE = 1300;
 let userNairaAmount = 0;
@@ -377,7 +392,6 @@ window.proceedToPayment = () => {
     if (!usd || usd < 0.1) return showToast("Minimum deposit is $0.1");
 
     showLoader("Generating Payment Details...", 2000, () => {
-        // Set values
         document.getElementById('finalNaira').innerText = userNairaAmount.toLocaleString();
         
         // Generate Remark (CC-RANDOM-NUMBERS)
@@ -393,7 +407,7 @@ window.proceedToPayment = () => {
 // Step 3 Logic (Timer & Details)
 function startTimer() {
     clearInterval(timerInterval);
-    let time = 1800; // 30 mins in seconds
+    let time = 1800; // 30 mins
     const display = document.getElementById('countdown');
     
     timerInterval = setInterval(() => {
@@ -409,7 +423,7 @@ function startTimer() {
 }
 
 window.copyText = (text) => {
-    const rawText = text.replace(/,/g, ''); // clean formatting if amount
+    const rawText = text.replace(/,/g, ''); 
     navigator.clipboard.writeText(rawText);
     showToast("Copied to clipboard!");
 };
@@ -420,22 +434,51 @@ window.proceedToVerification = () => {
     });
 };
 
-// Step 4 Logic (Validation)
+// Step 4 Logic (Validation & Firebase Credit)
 window.verifyPayment = () => {
     const val = document.getElementById('transactionId').value.trim();
     
-    // Strict Regex: Exactly 24 Digits
+    // Strict Regex: Exactly 24 Digits (Silently checked)
     if (!/^\d{24}$/.test(val)) {
         showLoader("Verifying...", 2000, () => {
-            alert("Payment failed: Invalid Transaction Number. It must be exactly 24 numbers.");
-            window.location.href = "deposit.html"; // Redirect/reload as requested
+            alert("Payment failed: Invalid Transaction Number."); // No mention of 24 digits
+            window.location.href = "deposit.html"; // Redirect to start
         });
         return;
     }
 
-    showLoader("Verifying Payment...", 3000, () => {
+    const usdAmount = parseFloat(document.getElementById('amountInput').value);
+
+    // Show Loader and Process Firebase Upload
+    document.getElementById('loaderText').innerText = "Verifying Payment & Crediting Wallet...";
+    document.getElementById('mainLoader').classList.add('active');
+
+    // Credit user's wallet
+    const userRef = doc(db, "users", auth.currentUser.uid);
+    
+    updateDoc(userRef, {
+        balance: increment(usdAmount)
+    }).then(() => {
+        // Also log the transaction for admin records
+        return addDoc(collection(db, "transactions"), {
+            userId: auth.currentUser.uid,
+            email: auth.currentUser.email,
+            type: "deposit",
+            amountUSD: usdAmount,
+            amountNGN: userNairaAmount,
+            transactionId: val,
+            remark: document.getElementById('generatedRemark').innerText,
+            status: "completed",
+            timestamp: serverTimestamp()
+        });
+    }).then(() => {
+        // Stop loader and show success
+        document.getElementById('mainLoader').classList.remove('active');
         document.getElementById('successModal').classList.add('active');
-        // Here you would normally push the data to Firestore
+    }).catch((error) => {
+        console.error("Error crediting wallet:", error);
+        document.getElementById('mainLoader').classList.remove('active');
+        alert("An error occurred connecting to the server. Please try again or contact support.");
     });
 };
 </script>
