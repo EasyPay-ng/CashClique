@@ -248,6 +248,9 @@ body{background:var(--bg-light);display:flex;min-height:100vh;}
     window.auth = getAuth(app);
     const db = getFirestore(app);
 
+    // 🔒 EMAIL WHITELIST
+    const ALLOWED_ADMIN_EMAILS = ['beniwealth70@gmail.com', 'baasituoppor01@gmail.com'];
+
     let allApplications = [];
     let currentFilter = 'pending';
 
@@ -257,15 +260,16 @@ body{background:var(--bg-light);display:flex;min-height:100vh;}
             return;
         }
         
-        // --- ADMIN ROLE CHECK ---
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (!userDoc.exists() || userDoc.data().role !== 'admin') {
-            alert("Access Denied. You do not have admin privileges.");
-            signOut(auth);
+        // --- EMAIL WHITELIST CHECK ---
+        const userEmail = user.email?.toLowerCase();
+        if (!ALLOWED_ADMIN_EMAILS.includes(userEmail)) {
+            alert("Access Denied. You are not authorized to access this admin panel.");
+            await signOut(auth);
             window.location.href = "login.html";
             return;
         }
 
+        // Authorized: load data
         loadAllApplications();
     });
 
