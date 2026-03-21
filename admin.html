@@ -48,6 +48,12 @@ body{background:#f5f6f8;min-height:100vh;color:#1e2937;overflow-x:hidden;}
 .tab{padding:12px 24px;cursor:pointer;font-weight:600;color:#64748b;border-radius:8px;transition:0.3s;font-size:14px;}
 .tab.active{background:#ff6a00;color:white;}
 
+/* Search Bar */
+.search-container { margin-bottom:20px; position:relative; }
+.search-input { width:100%; max-width:400px; padding:14px 14px 14px 45px; border:2px solid #e2e8f0; border-radius:12px; font-size:15px; outline:none; transition:0.3s; }
+.search-input:focus { border-color:#ff6a00; box-shadow:0 0 0 4px rgba(255,106,0,0.1); }
+.search-icon { position:absolute; left:16px; top:50%; transform:translateY(-50%); color:#94a3b8; font-size:16px; }
+
 /* Tables */
 .table-container{background:white;border-radius:16px;box-shadow:0 4px 15px rgba(0,0,0,0.03);border:1px solid #e2e8f0;overflow-x:auto;}
 table{width:100%;border-collapse:collapse;}
@@ -62,6 +68,9 @@ td{padding:18px;font-size:14px;color:#334155;}
 .btn-primary{background:#ff6a00;color:white;}
 .btn-primary:hover{background:#e55d00;}
 .btn-success{background:#10b981;color:white;}
+.btn-success:hover{background:#059669;}
+.btn-danger{background:#ef4444;color:white;}
+.btn-danger:hover{background:#dc2626;}
 .btn-secondary{background:#e2e8f0;color:#1e2937;}
 .btn-secondary:hover{background:#cbd5e1;}
 
@@ -71,7 +80,7 @@ td{padding:18px;font-size:14px;color:#334155;}
 .badge-rejected{background:#fee2e2;color:#991b1b;}
 
 /* Modal */
-.modal{position:fixed;inset:0;background:rgba(15,23,42,0.6);display:none;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(4px);}
+.modal{position:fixed;inset:0;background:rgba(15,23,42,0.6);display:none;align-items:center;justify-content:center;z-index:3000;backdrop-filter:blur(4px);}
 .modal.active{display:flex;}
 .modal-content{background:white;padding:30px;border-radius:20px;width:450px;max-width:95%;box-shadow:0 20px 40px rgba(0,0,0,0.2);}
 .modal-title{font-size:20px;font-weight:700;margin-bottom:20px;color:#1e2937;}
@@ -81,7 +90,7 @@ input[type="number"]{width:100%;padding:14px;border:2px solid #e2e8f0;border-rad
 input[type="number"]:focus{border-color:#ff6a00;}
 .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:24px;}
 
-/* Full Page Overlay (Transaction Details) */
+/* Full Page Overlay */
 .page-overlay{position:fixed;inset:0;background:#f5f6f8;z-index:2000;transform:translateX(100%);transition:transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);display:flex;flex-direction:column;overflow-y:auto;}
 .page-overlay.active{transform:translateX(0);}
 .overlay-header{padding:20px;background:white;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;}
@@ -164,11 +173,17 @@ input[type="number"]:focus{border-color:#ff6a00;}
     </div>
 
     <!-- TAB 1: USERS -->
-    <div class="table-container" id="view-users">
-        <table id="users-table">
-            <thead><tr><th>User</th><th>Balance</th><th>Last Update</th><th>Action</th></tr></thead>
-            <tbody></tbody>
-        </table>
+    <div id="view-users">
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="user-search" class="search-input" placeholder="Search by ID, Username, or Email..." onkeyup="filterUsers()">
+        </div>
+        <div class="table-container">
+            <table id="users-table">
+                <thead><tr><th>User Info</th><th>Balance</th><th>User ID</th><th>Action</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
 
     <!-- TAB 2: WITHDRAWALS -->
@@ -196,14 +211,14 @@ input[type="number"]:focus{border-color:#ff6a00;}
     </div>
 </div>
 
-<!-- TRANSACTION DETAILS OVERLAY -->
+<!-- TRANSACTION/USER DETAILS OVERLAY -->
 <div class="page-overlay" id="details-overlay">
     <div class="overlay-header">
         <div class="overlay-header-left">
             <button class="back-btn" onclick="closeOverlay('details-overlay')"><i class="fas fa-arrow-left"></i></button>
-            <div class="overlay-title">Transaction Details</div>
+            <div class="overlay-title" id="overlay-main-title">Details</div>
         </div>
-        <div id="details-action-btn"></div>
+        <div id="details-action-btn" style="display:flex; gap:10px;"></div>
     </div>
     <div class="overlay-content">
         <div class="detail-card" id="details-body">
@@ -262,7 +277,8 @@ const db = getFirestore(app);
 const ALLOWED_ADMIN_EMAILS = ["beniwealth70@gmail.com", "cashclique@gmail.com"];
 let currentUser = null;
 
-// Global Data Caches for Details Overlay
+// Global Data Caches
+let allUsers = {};
 let allWithdrawals = {};
 let allDeposits = {};
 
@@ -272,7 +288,7 @@ function formatDate(ts) {
     return ts.toDate().toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit' });
 }
 
-// Format Keys beautifully (e.g. "amountUSD" -> "Amount USD")
+// Format Keys
 function formatKey(key) {
     return key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
 }
@@ -289,12 +305,8 @@ window.adminLogin = async () => {
         return;
     }
 
-    try {
-        await signInWithEmailAndPassword(auth, email, password);
-    } catch (e) {
-        errorMsg.innerText = "Invalid email or password";
-        errorMsg.style.display = "block";
-    }
+    try { await signInWithEmailAndPassword(auth, email, password); } 
+    catch (e) { errorMsg.innerText = "Invalid email or password"; errorMsg.style.display = "block"; }
 };
 
 onAuthStateChanged(auth, (user) => {
@@ -314,56 +326,74 @@ function loadAllData() {
     loadPosts();
 }
 
+/* ====================
+   USERS & SEARCH
+==================== */
 function loadUsers() {
     onSnapshot(collection(db, "users"), (snap) => {
         document.getElementById("total-users").innerText = snap.size;
-        const tbody = document.querySelector("#users-table tbody");
-        tbody.innerHTML = "";
-        
+        allUsers = {};
         snap.forEach((docSnap) => {
-            const u = docSnap.data();
-            const row = document.createElement("tr");
-            row.innerHTML = `
-                <td><strong>${u.username || 'Anonymous'}</strong><br><small style="color:#64748b">${u.email || ''}</small></td>
-                <td class="balance-display">$${(u.balance || 0).toFixed(2)}</td>
-                <td>${formatDate(u.updatedAt)}</td>
-                <td><button class="btn btn-secondary" onclick="openBalanceModal('${docSnap.id}')"><i class="fas fa-edit"></i> Edit</button></td>
-            `;
-            tbody.appendChild(row);
+            allUsers[docSnap.id] = { id: docSnap.id, ...docSnap.data() };
         });
+        filterUsers(); // Render table
     });
 }
 
+window.filterUsers = () => {
+    const query = document.getElementById('user-search').value.toLowerCase();
+    const tbody = document.querySelector("#users-table tbody");
+    tbody.innerHTML = "";
+
+    Object.values(allUsers).forEach(u => {
+        const matchStr = `${u.id} ${u.username} ${u.email}`.toLowerCase();
+        
+        if(matchStr.includes(query)) {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td><strong>${u.username || 'Anonymous'}</strong><br><small style="color:#64748b">${u.email || 'No email'}</small></td>
+                <td class="balance-display">$${(u.balance || 0).toFixed(2)}</td>
+                <td><code style="background:#f1f5f9;padding:4px 6px;border-radius:6px;font-size:12px;">${u.id}</code></td>
+                <td><button class="btn btn-secondary" onclick="openDetails('user', '${u.id}')"><i class="fas fa-user-circle"></i> View Profile</button></td>
+            `;
+            tbody.appendChild(row);
+        }
+    });
+};
+
+/* ====================
+   WITHDRAWALS
+==================== */
 function loadWithdrawals() {
     onSnapshot(collection(db, "withdrawals"), (snap) => {
         const tbody = document.querySelector("#withdrawals-table tbody");
         tbody.innerHTML = "";
         let pendingTotal = 0;
         let payoutTotal = 0;
-
-        allWithdrawals = {}; // reset cache
+        allWithdrawals = {};
 
         snap.forEach(docSnap => {
             const d = docSnap.data();
             allWithdrawals[docSnap.id] = { id: docSnap.id, ...d };
             
-            const isCompleted = d.paid === true || d.status === 'approved' || d.status === 'completed';
             const amt = d.amount || 0;
+            const stat = d.status || (d.paid ? 'approved' : 'pending');
 
-            if (isCompleted) payoutTotal += amt;
-            else pendingTotal += amt;
+            if (stat === 'approved' || stat === 'completed') payoutTotal += amt;
+            else if (stat === 'pending') pendingTotal += amt;
 
-            const statusClass = isCompleted ? "badge-approved" : "badge-pending";
+            const statusClass = stat === 'pending' ? 'badge-pending' : (stat === 'rejected' ? 'badge-rejected' : 'badge-approved');
             
             const row = document.createElement("tr");
             row.innerHTML = `
                 <td><strong>${d.username || 'User'}</strong></td>
                 <td style="font-weight:700; color:#ef4444;">-$${amt.toFixed(2)}</td>
-                <td><span class="badge ${statusClass}">${isCompleted ? 'Paid' : 'Pending'}</span></td>
+                <td><span class="badge ${statusClass}">${stat}</span></td>
                 <td>${formatDate(d.timestamp)}</td>
                 <td style="display:flex; gap:8px;">
                     <button class="btn btn-secondary" onclick="openDetails('withdrawal', '${docSnap.id}')"><i class="fas fa-eye"></i> Details</button>
-                    ${!isCompleted ? `<button class="btn btn-success" onclick="approveWithdrawal('${docSnap.id}', ${amt})"><i class="fas fa-check"></i> Approve</button>` : ''}
+                    ${stat === 'pending' ? `<button class="btn btn-success" onclick="approveWithdrawal('${docSnap.id}')"><i class="fas fa-check"></i></button>
+                    <button class="btn btn-danger" onclick="rejectWithdrawal('${docSnap.id}', '${d.userId}', ${amt})"><i class="fas fa-times"></i></button>` : ''}
                 </td>
             `;
             tbody.appendChild(row);
@@ -374,37 +404,48 @@ function loadWithdrawals() {
     });
 }
 
+window.approveWithdrawal = async (id) => {
+    if (!confirm("Approve this withdrawal?")) return;
+    try { await updateDoc(doc(db, "withdrawals", id), { paid: true, status: "approved" }); closeOverlay('details-overlay'); } 
+    catch (e) { alert("Failed to approve"); }
+};
+
+window.rejectWithdrawal = async (id, userId, amt) => {
+    if (!confirm(`Reject this $${amt} withdrawal and refund the user?`)) return;
+    try {
+        await updateDoc(doc(db, "withdrawals", id), { paid: false, status: "rejected" });
+        await updateDoc(doc(db, "users", userId), { balance: increment(amt) });
+        closeOverlay('details-overlay');
+        alert("Rejected and refunded successfully.");
+    } catch (e) { alert("Failed to reject"); }
+};
+
+/* ====================
+   DEPOSITS & POSTS
+==================== */
 function loadDeposits() {
-    const q = query(collection(db, "transactions"), where("type", "==", "deposit"));
-    onSnapshot(q, (snap) => {
+    onSnapshot(query(collection(db, "transactions"), where("type", "==", "deposit")), (snap) => {
         const tbody = document.querySelector("#deposits-table tbody");
         tbody.innerHTML = "";
         let depositTotal = 0;
-        
-        allDeposits = {}; // reset cache
+        allDeposits = {};
 
         snap.forEach(docSnap => {
             const d = docSnap.data();
             allDeposits[docSnap.id] = { id: docSnap.id, ...d };
-
             const amt = d.amountUSD || d.amount || 0;
-            const isCompleted = d.status === 'completed';
-            
-            if(isCompleted) depositTotal += amt;
-
-            const statusClass = isCompleted ? "badge-approved" : "badge-pending";
+            if(d.status === 'completed') depositTotal += amt;
 
             const row = document.createElement("tr");
             row.innerHTML = `
                 <td><code>${(d.transactionId || docSnap.id).substring(0,10)}...</code></td>
                 <td><strong>${d.email || d.userId || 'User'}</strong></td>
                 <td style="font-weight:700; color:#10b981;">+$${amt.toFixed(2)}</td>
-                <td><span class="badge ${statusClass}">${d.status || 'completed'}</span></td>
+                <td><span class="badge badge-approved">${d.status || 'completed'}</span></td>
                 <td><button class="btn btn-secondary" onclick="openDetails('deposit', '${docSnap.id}')"><i class="fas fa-eye"></i> Details</button></td>
             `;
             tbody.appendChild(row);
         });
-
         document.getElementById("total-deposits").innerText = `$${depositTotal.toFixed(2)}`;
     });
 }
@@ -430,57 +471,62 @@ function loadPosts() {
             `;
             tbody.appendChild(row);
         });
-
         document.getElementById("total-distributed").innerText = `$${distributedTotal.toFixed(2)}`;
     });
 }
 
 /* ===========================
-   OVERLAY: TRANSACTION DETAILS
-   =========================== */
+   OVERLAY: DYNAMIC DETAILS
+=========================== */
 window.openDetails = (type, id) => {
-    const data = type === 'withdrawal' ? allWithdrawals[id] : allDeposits[id];
-    if(!data) return alert("Data not found");
-
-    const container = document.getElementById('details-body');
+    let data;
+    let title = "Transaction Details";
     const actionBtnContainer = document.getElementById('details-action-btn');
-    container.innerHTML = "";
     actionBtnContainer.innerHTML = "";
 
-    // Loop through properties dynamically
-    for(let key in data) {
-        if(key === 'id') continue;
-        
-        let value = data[key];
-        
-        // Handle Timestamps
-        if(value && typeof value === 'object' && value.seconds) {
-            value = formatDate(value);
+    if(type === 'user') {
+        data = allUsers[id];
+        title = "User Profile";
+        actionBtnContainer.innerHTML = `<button class="btn btn-primary" onclick="openBalanceModal('${id}')"><i class="fas fa-edit"></i> Edit Balance</button>`;
+    } else if (type === 'withdrawal') {
+        data = allWithdrawals[id];
+        title = "Withdrawal Details";
+        if(data.status === 'pending' || !data.paid) {
+            actionBtnContainer.innerHTML = `
+                <button class="btn btn-success" onclick="approveWithdrawal('${id}')"><i class="fas fa-check"></i> Approve</button>
+                <button class="btn btn-danger" onclick="rejectWithdrawal('${id}', '${data.userId}', ${data.amount})"><i class="fas fa-times"></i> Reject</button>
+            `;
         }
-
-        container.innerHTML += `
-            <div class="detail-row">
-                <div class="detail-label">${formatKey(key)}</div>
-                <div class="detail-value">${value}</div>
-            </div>
-        `;
+    } else {
+        data = allDeposits[id];
+        title = "Deposit Details";
     }
 
-    // Add Approve button if it's a pending withdrawal
-    if(type === 'withdrawal' && data.paid === false) {
-        actionBtnContainer.innerHTML = `<button class="btn btn-success" onclick="approveWithdrawal('${id}', ${data.amount})"><i class="fas fa-check"></i> Approve Payout</button>`;
+    if(!data) return alert("Data not found");
+    document.getElementById('overlay-main-title').innerText = title;
+
+    const container = document.getElementById('details-body');
+    container.innerHTML = "";
+
+    for(let key in data) {
+        if(key === 'id') continue;
+        let value = data[key];
+        
+        // Format Timestamps & Objects
+        if(value && typeof value === 'object' && value.seconds) value = formatDate(value);
+        else if(typeof value === 'object') value = JSON.stringify(value);
+
+        container.innerHTML += `<div class="detail-row"><div class="detail-label">${formatKey(key)}</div><div class="detail-value">${value}</div></div>`;
     }
 
     document.getElementById('details-overlay').classList.add('active');
 };
 
-window.closeOverlay = (id) => {
-    document.getElementById(id).classList.remove('active');
-};
+window.closeOverlay = (id) => document.getElementById(id).classList.remove('active');
 
 /* ===========================
-   ACTIONS & MODALS 
-   =========================== */
+   MODALS & MISC 
+=========================== */
 window.openBalanceModal = (uid) => {
     window.currentEditingUserId = uid;
     document.getElementById("balance-modal").classList.add("active");
@@ -495,6 +541,10 @@ window.updateBalance = async () => {
         await updateDoc(doc(db, "users", uid), { balance: increment(amount), updatedAt: serverTimestamp() });
         closeModal("balance-modal");
         document.getElementById("amount-adjustment").value = '';
+        if(document.getElementById('details-overlay').classList.contains('active')) {
+            // Re-open details to show updated data
+            setTimeout(() => openDetails('user', uid), 500); 
+        }
     } catch (e) { alert("Failed to update balance."); }
 };
 
@@ -519,17 +569,9 @@ window.assignPostEarning = async () => {
     } catch (e) { alert("Failed to save."); }
 };
 
-window.approveWithdrawal = async (withdrawalId, amount) => {
-    if (!confirm(`Mark this $${amount} withdrawal as paid?`)) return;
-    try {
-        await updateDoc(doc(db, "withdrawals", withdrawalId), { paid: true, status: "approved" });
-        closeOverlay('details-overlay'); // close overlay if open
-    } catch (e) { alert("Failed to approve withdrawal"); }
-};
-
 window.switchTab = (tab) => {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.table-container').forEach(c => c.style.display = 'none');
+    document.querySelectorAll('.table-container, .search-container').forEach(c => c.style.display = 'none');
     
     document.getElementById(`tab-${tab}`).classList.add('active');
     document.getElementById(`view-${tab}`).style.display = 'block';
