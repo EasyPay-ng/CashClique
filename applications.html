@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Review Applications | CashClique Admin</title>
+
+<link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root {
+    --primary-color: #ff6a00;
+    --primary-hover: #e55d00;
+    --green: #4caf50;
+    --red: #f44336;
+    --blue: #2196F3;
+    --orange: #ff9800;
+    --bg-light: #f8f9fa;
+    --border-color: #e0e0e0;
+    --text-dark: #333;
+    --text-light: #666;
+    --text-super-light: #999;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{background:var(--bg-light);display:flex;min-height:100vh;}
+
+/* Sidebar */
+.sidebar{width:260px;background:white;border-right:1px solid var(--border-color);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100%;}
+.sidebar-header{padding:20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border-color);}
+.sidebar-logo{width:40px;height:40px;border-radius:8px;}
+.sidebar-title{font-size:20px;font-weight:600;color:var(--text-dark);}
+.sidebar-nav{flex-grow:1;padding:20px 0;}
+.nav-item{display:flex;align-items:center;padding:12px 20px;color:var(--text-light);text-decoration:none;transition:0.3s;margin:4px 10px;border-radius:8px;}
+.nav-item i{width:30px;font-size:16px;}
+.nav-item:hover{background:var(--bg-light);color:var(--primary-color);}
+.nav-item.active{background:var(--primary-color);color:white;font-weight:500;}
+
+.sidebar-footer{padding:20px;border-top:1px solid var(--border-color);}
+.logout-btn{width:100%;background:#fbe9e7;color:#e64a19;border:none;padding:12px;border-radius:8px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
+.logout-btn:hover{background:#ffccbc;}
+
+/* Main Content */
+.main-content{margin-left:260px;flex-grow:1;padding:30px;}
+.page-header{margin-bottom:30px;}
+.page-title{font-size:28px;font-weight:700;color:var(--text-dark);margin-bottom:10px;}
+.stats-overview{display:flex;gap:15px;flex-wrap:wrap;}
+.stat-box{background:white;padding:15px 20px;border-radius:10px;display:flex;align-items:center;gap:15px;border:1px solid var(--border-color);}
+.stat-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:16px;}
+.stat-icon.pending{background:var(--orange);}
+.stat-icon.approved{background:var(--green);}
+.stat-icon.rejected{background:var(--red);}
+.stat-details .value{font-size:22px;font-weight:700;color:var(--text-dark);}
+.stat-details .label{font-size:12px;color:var(--text-light);}
+
+/* Filters */
+.filters{background:white;padding:15px;border-radius:12px;margin-bottom:20px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;border:1px solid var(--border-color);}
+.filter-btn{padding:8px 15px;border:1px solid var(--border-color);background:white;border-radius:8px;cursor:pointer;font-size:14px;transition:0.3s;display:flex;align-items:center;gap:5px;}
+.filter-btn:hover{border-color:var(--primary-color);}
+.filter-btn.active{background:var(--primary-color);color:white;border-color:var(--primary-color);}
+
+/* Applications Container */
+.applications-container{display:grid;grid-template-columns:1fr;gap:20px;}
+.review-card{background:white;border-radius:12px;border:1px solid var(--border-color);transition:0.3s;overflow:hidden;}
+.review-card:hover{box-shadow:0 8px 25px rgba(0,0,0,0.08);transform:translateY(-3px);}
+
+.card-main{padding:20px;}
+.card-section{padding:15px 0;}
+.card-section:not(:last-child){border-bottom:1px solid var(--bg-light);}
+.section-title{font-size:12px;font-weight:600;color:var(--text-super-light);text-transform:uppercase;margin-bottom:10px;letter-spacing:0.5px;}
+
+.opportunity-info .title{font-size:18px;font-weight:600;color:var(--text-dark);}
+.opportunity-info .advertiser{font-size:13px;color:var(--text-light);margin-top:4px;}
+
+.creator-info{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+.creator-details .name{font-size:16px;font-weight:600;color:var(--text-dark);display:flex;align-items:center;gap:8px;}
+.creator-details .name i{color:var(--blue);}
+.creator-details .profile-link{font-size:13px;color:var(--primary-color);text-decoration:none;}
+.creator-stats{display:flex;gap:20px;text-align:center;}
+.creator-stat .value{font-weight:600;font-size:16px;}
+.creator-stat .label{font-size:11px;color:var(--text-light);}
+
+.application-details{font-size:13px;color:var(--text-light);}
+
+.card-actions{background:var(--bg-light);padding:15px 20px;display:flex;gap:10px;justify-content:flex-end;}
+.action-btn{padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:0.2s;border:none;display:flex;align-items:center;gap:8px;}
+.approve-btn{background:var(--green);color:white;}
+.approve-btn:hover{background:#45a049;}
+.reject-btn{background:var(--red);color:white;}
+.reject-btn:hover{background:#e03333;}
+.approved-tag, .rejected-tag{padding:10px 20px;border-radius:8px;font-weight:600;font-size:14px;}
+.approved-tag{background:#e8f5e9;color:var(--green);}
+.rejected-tag{background:#ffebee;color:var(--red);}
+
+
+/* Empty States & Loading */
+.state-container{grid-column:1/-1;text-align:center;padding:60px 20px;background:white;border-radius:12px;border:1px solid var(--border-color);}
+.state-icon{font-size:64px;margin-bottom:20px;opacity:0.3;color:var(--text-super-light);}
+.state-title{font-size:20px;color:var(--text-dark);margin-bottom:10px;}
+.state-text{font-size:14px;color:var(--text-light);}
+
+/* Rejection Modal */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:2000;padding:20px;}
+.modal.active{display:flex;}
+.modal-content{background:white;border-radius:16px;padding:30px;max-width:450px;width:100%;}
+.modal-title{font-size:20px;font-weight:600;color:var(--text-dark);margin-bottom:15px;}
+.modal-text{font-size:14px;color:var(--text-light);margin-bottom:20px;}
+.modal-form textarea{width:100%;min-height:100px;border-radius:8px;border:1px solid var(--border-color);padding:10px;font-family:'Poppins',sans-serif;font-size:14px;margin-bottom:20px;}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;}
+.modal-btn{padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;border:none;}
+.cancel-btn{background:var(--bg-light);color:var(--text-light);}
+.confirm-reject-btn{background:var(--red);color:white;}
+
+/* Mobile Responsive */
+@media(max-width:900px){
+    .sidebar{transform:translateX(-100%);z-index:1000;} /* Hidden by default on mobile */
+    .main-content{margin-left:0;}
+}
+@media(max-width:500px){
+    .main-content{padding:15px;}
+    .stats-overview{flex-direction:column;align-items:stretch;}
+}
+</style>
+</head>
+
+<body>
+<!-- Sidebar Navigation -->
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg" alt="Logo" class="sidebar-logo">
+        <h1 class="sidebar-title">Admin</h1>
+    </div>
+    <nav class="sidebar-nav">
+        <a href="#" class="nav-item">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-users"></i>
+            <span>Manage Users</span>
+        </a>
+        <a href="#" class="nav-item active">
+            <i class="fas fa-clipboard-check"></i>
+            <span>Review Applications</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-bullhorn"></i>
+            <span>Opportunities</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+        </a>
+    </nav>
+    <div class="sidebar-footer">
+        <button class="logout-btn" onclick="auth.signOut()">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </button>
+    </div>
+</aside>
+
+<!-- Main Content Area -->
+<main class="main-content">
+    <div class="page-header">
+        <h2 class="page-title">Review Applications</h2>
+        <div class="stats-overview">
+            <div class="stat-box">
+                <div class="stat-icon pending"><i class="fas fa-clock"></i></div>
+                <div class="stat-details">
+                    <div class="value" id="pending-count">0</div>
+                    <div class="label">Pending Review</div>
+                </div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-icon approved"><i class="fas fa-check"></i></div>
+                <div class="stat-details">
+                    <div class="value" id="approved-count">0</div>
+                    <div class="label">Approved</div>
+                </div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-icon rejected"><i class="fas fa-times"></i></div>
+                <div class="stat-details">
+                    <div class="value" id="rejected-count">0</div>
+                    <div class="label">Rejected</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+        <button class="filter-btn active" onclick="filterApplications('pending', this)">
+            <i class="fas fa-clock"></i> Pending
+        </button>
+        <button class="filter-btn" onclick="filterApplications('approved', this)">
+            <i class="fas fa-check-circle"></i> Approved
+        </button>
+        <button class="filter-btn" onclick="filterApplications('rejected', this)">
+            <i class="fas fa-times-circle"></i> Rejected
+        </button>
+    </div>
+
+    <!-- Applications List -->
+    <div class="applications-container" id="applications-container">
+        <!-- Application cards will be dynamically inserted here -->
+        <div class="state-container">
+            <div class="state-icon"><i class="fas fa-spinner fa-spin"></i></div>
+            <h3 class="state-title">Loading Applications...</h3>
+        </div>
+    </div>
+</main>
+
+<!-- Rejection Modal -->
+<div class="modal" id="rejection-modal">
+    <div class="modal-content">
+        <h3 class="modal-title">Reject Application</h3>
+        <p class="modal-text">Please provide a reason for rejecting this application. This will be visible to the creator.</p>
+        <div class="modal-form">
+            <textarea id="rejection-reason" placeholder="e.g., Your account stats do not meet the minimum requirements at this time."></textarea>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn cancel-btn" onclick="closeRejectModal()">Cancel</button>
+            <button class="modal-btn confirm-reject-btn" id="confirm-reject-btn">Confirm Rejection</button>
+        </div>
+    </div>
+</div>
+
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, collection, query, where, onSnapshot, doc, getDoc, updateDoc, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
+        authDomain: "cashclique-31718.firebaseapp.com",
+        projectId: "cashclique-31718",
+        storageBucket: "cashclique-31718.firebasestorage.app",
+        messagingSenderId: "1064282591269",
+        appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    window.auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let allApplications = [];
+    let currentFilter = 'pending';
+
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+            window.location.href = "login.html";
+            return;
+        }
+        
+        // --- ADMIN ROLE CHECK ---
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (!userDoc.exists() || userDoc.data().role !== 'admin') {
+            alert("Access Denied. You do not have admin privileges.");
+            signOut(auth);
+            window.location.href = "login.html";
+            return;
+        }
+
+        loadAllApplications();
+    });
+
+    function loadAllApplications() {
+        const q = query(collection(db, "applications"), orderBy("appliedAt", "desc"));
+        
+        onSnapshot(q, (snapshot) => {
+            allApplications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            
+            // Update stats
+            document.getElementById('pending-count').textContent = allApplications.filter(app => app.status === 'pending').length;
+            document.getElementById('approved-count').textContent = allApplications.filter(app => app.status === 'approved').length;
+            document.getElementById('rejected-count').textContent = allApplications.filter(app => app.status === 'rejected').length;
+
+            displayApplications();
+        });
+    }
+
+    function displayApplications() {
+        const container = document.getElementById('applications-container');
+        const filteredApps = allApplications.filter(app => app.status === currentFilter);
+        
+        if (filteredApps.length === 0) {
+            container.innerHTML = `
+                <div class="state-container">
+                    <div class="state-icon"><i class="fas fa-folder-open"></i></div>
+                    <h3 class="state-title">No ${currentFilter} applications</h3>
+                    <p class="state-text">Check back later or select a different filter.</p>
+                </div>`;
+            return;
+        }
+
+        container.innerHTML = '';
+        filteredApps.forEach(app => {
+            const card = document.createElement('div');
+            card.className = 'review-card';
+            
+            const stats = app.creatorStats || {};
+            const appliedDate = app.appliedAt ? app.appliedAt.toDate().toLocaleDateString() : 'N/A';
+
+            let actionButtonsHTML = '';
+            if (app.status === 'pending') {
+                actionButtonsHTML = `
+                    <button class="action-btn reject-btn" onclick="openRejectModal('${app.id}')"><i class="fas fa-times"></i> Reject</button>
+                    <button class="action-btn approve-btn" onclick="approveApplication('${app.id}')"><i class="fas fa-check"></i> Approve</button>
+                `;
+            } else if (app.status === 'approved') {
+                 actionButtonsHTML = `<div class="approved-tag"><i class="fas fa-check-circle"></i> Approved</div>`;
+            } else if (app.status === 'rejected') {
+                 actionButtonsHTML = `<div class="rejected-tag"><i class="fas fa-times-circle"></i> Rejected</div>`;
+            }
+
+            card.innerHTML = `
+                <div class="card-main">
+                    <!-- Opportunity Section -->
+                    <div class="card-section">
+                        <div class="section-title">Opportunity</div>
+                        <div class="opportunity-info">
+                            <div class="title">${app.opportunityTitle}</div>
+                            <div class="advertiser">by ${app.advertiserName || 'Advertiser'}</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Creator Section -->
+                    <div class="card-section">
+                        <div class="section-title">Applicant</div>
+                        <div class="creator-info">
+                            <div class="creator-details">
+                                <div class="name">
+                                    ${app.creatorName}
+                                    ${stats.isVerified ? '<i class="fas fa-check-circle" title="Verified Creator"></i>' : ''}
+                                </div>
+                                <a href="#" class="profile-link">View Profile</a>
+                            </div>
+                            <div class="creator-stats">
+                                <div class="creator-stat">
+                                    <div class="value">${formatNumber(stats.followers || 0)}</div>
+                                    <div class="label">Followers</div>
+                                </div>
+                                <div class="creator-stat">
+                                    <div class="value">${formatNumber(stats.likes || 0)}</div>
+                                    <div class="label">Total Likes</div>
+                                </div>
+                                <div class="creator-stat">
+                                    <div class="value">${formatNumber(stats.posts || 0)}</div>
+                                    <div class="label">Posts</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Application Details Section -->
+                    <div class="card-section">
+                         <div class="application-details">Applied on: ${appliedDate}</div>
+                    </div>
+                </div>
+                
+                <div class="card-actions">
+                    ${actionButtonsHTML}
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    // --- Actions ---
+
+    window.approveApplication = async function(appId) {
+        if (!confirm('Are you sure you want to approve this application?')) return;
+        try {
+            const appRef = doc(db, "applications", appId);
+            await updateDoc(appRef, {
+                status: 'approved',
+                reviewedAt: serverTimestamp(),
+                notes: '' // Clear any previous rejection notes
+            });
+            console.log(`Application ${appId} approved.`);
+        } catch (error) {
+            console.error("Error approving application:", error);
+            alert('Failed to approve application.');
+        }
+    };
+
+    window.openRejectModal = function(appId) {
+        const modal = document.getElementById('rejection-modal');
+        modal.classList.add('active');
+        document.getElementById('rejection-reason').value = ''; // Clear previous text
+        
+        // Use .onclick to avoid attaching multiple listeners
+        document.getElementById('confirm-reject-btn').onclick = () => rejectApplication(appId);
+    };
+
+    window.closeRejectModal = function() {
+        document.getElementById('rejection-modal').classList.remove('active');
+    };
+    
+    async function rejectApplication(appId) {
+        const reason = document.getElementById('rejection-reason').value;
+        if (!reason.trim()) {
+            alert('Please provide a reason for rejection.');
+            return;
+        }
+
+        try {
+            const appRef = doc(db, "applications", appId);
+            await updateDoc(appRef, {
+                status: 'rejected',
+                reviewedAt: serverTimestamp(),
+                notes: reason
+            });
+            console.log(`Application ${appId} rejected with reason.`);
+            closeRejectModal();
+        } catch (error) {
+            console.error("Error rejecting application:", error);
+            alert('Failed to reject application.');
+        }
+    }
+
+
+    // --- UI Helpers ---
+
+    window.filterApplications = function(filter, btn) {
+        currentFilter = filter;
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        displayApplications();
+    };
+
+    function formatNumber(num) {
+        if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+        if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+        return (num || 0).toString();
+    }
+</script>
+
+</body>
+</html>
