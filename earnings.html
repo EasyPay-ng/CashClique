@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Earnings | CashClique</title>
+<title>Earnings & Wallet | CashClique</title>
 
 <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -11,7 +11,7 @@
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;}
+body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;overflow-x:hidden;}
 
 /* Mobile Header */
 .mobile-header{display:none;background:#ff6a00;color:white;padding:15px 20px;align-items:center;gap:15px;position:sticky;top:0;z-index:100;}
@@ -59,8 +59,6 @@ body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;}
 .table-row{display:grid;padding:15px;border-bottom:1px solid #f1f5f9;transition:0.2s;align-items:center;}
 .table-row:hover{background:#f8fafc;}
 .table-row:last-child{border:none;}
-
-/* Table Layouts */
 .grid-layout{grid-template-columns:1.5fr 1fr 1fr 1fr;}
 
 /* Transaction Types */
@@ -93,7 +91,6 @@ body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;}
 .action-btn{border:none;padding:14px 28px;border-radius:12px;font-weight:600;font-size:15px;cursor:pointer;transition:0.3s;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 12px rgba(0,0,0,0.05);}
 .action-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,0.1);}
 .action-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
-
 .btn-withdraw{background:linear-gradient(135deg,#1e2937,#0f172a);color:white;}
 .btn-deposit{background:linear-gradient(135deg,#ff6a00,#e55d00);color:white;box-shadow:0 4px 12px rgba(255,106,0,0.2);}
 
@@ -105,6 +102,46 @@ body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;}
 .loading{text-align:center;padding:50px;color:#64748b;}
 .loading i{font-size:36px;color:#ff6a00;animation:spin 1s linear infinite;margin-bottom:10px;}
 @keyframes spin{to{transform:rotate(360deg);}}
+
+/* OVERLAYS (Sleek App-like) */
+.page-overlay{position:fixed;inset:0;background:#f5f6f8;z-index:2000;transform:translateX(100%);transition:transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);display:flex;flex-direction:column;overflow-y:auto;}
+.page-overlay.active{transform:translateX(0);}
+.overlay-header{padding:20px;background:white;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;gap:15px;position:sticky;top:0;z-index:10;}
+.back-btn{background:none;border:none;font-size:20px;color:#1e2937;cursor:pointer;}
+.overlay-title{font-weight:700;font-size:18px;}
+.overlay-content{padding:24px 20px;max-width:500px;margin:0 auto;width:100%;flex:1;}
+
+/* Channels */
+.channel-btn{width:100%;background:white;border:2px solid #e2e8f0;border-radius:16px;padding:20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:15px;transition:0.3s;text-align:left;}
+.channel-btn:hover{border-color:#ff6a00;transform:translateY(-2px);box-shadow:0 10px 20px rgba(255,106,0,0.1);}
+.channel-left{display:flex;align-items:center;gap:15px;}
+.channel-icon{width:45px;height:45px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.icon-bank{background:#fff7ed;color:#ff6a00;}
+.icon-crypto{background:#f1f5f9;color:#475569;}
+.channel-text h3{font-size:16px;font-weight:600;color:#1e2937;}
+.channel-text span{font-size:13px;color:#64748b;}
+
+/* Form Inputs */
+.input-group{margin-bottom:20px;}
+.input-label{display:block;font-size:14px;font-weight:600;margin-bottom:8px;color:#334155;}
+.form-input{width:100%;padding:14px 16px;font-size:15px;border:2px solid #e2e8f0;border-radius:12px;outline:none;transition:0.3s;background:white;}
+.form-input:focus{border-color:#ff6a00;box-shadow:0 0 0 4px rgba(255,106,0,0.1);}
+.amount-wrapper{position:relative;display:flex;align-items:center;}
+.amount-wrapper span{position:absolute;left:16px;font-size:18px;font-weight:600;color:#94a3b8;}
+.amount-input{padding-left:35px;font-weight:700;}
+
+/* Submit Button */
+.btn-primary{width:100%;background:linear-gradient(135deg,#ff6a00,#e55d00);color:white;border:none;padding:16px;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;transition:0.3s;margin-top:10px;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(255,106,0,0.3);}
+.btn-primary:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+
+/* Toast */
+.toast {
+    position:fixed; bottom:-100px; left:50%; transform:translateX(-50%);
+    background:#1e2937; color:white; padding:14px 24px; border-radius:99px;
+    font-size:14px; font-weight:500; transition:0.4s; z-index:10000; display:flex; align-items:center; gap:10px;
+}
+.toast.show { bottom:30px; }
 
 /* Mobile Responsive */
 @media(max-width:900px){
@@ -177,7 +214,7 @@ body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;}
     <button class="action-btn btn-deposit" onclick="window.location.href='deposit.html'">
       <i class="fas fa-plus-circle"></i> Deposit Funds
     </button>
-    <button class="action-btn btn-withdraw" id="withdraw-btn" disabled>
+    <button class="action-btn btn-withdraw" id="withdraw-btn" onclick="openWithdrawOverlay()">
       <i class="fas fa-building-columns"></i> Withdraw Earnings
     </button>
   </div>
@@ -237,10 +274,86 @@ body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;}
 </div>
 </div>
 
+<!-- WITHDRAWAL OVERLAY 1: Select Channel -->
+<div class="page-overlay" id="overlayMethod">
+    <div class="overlay-header">
+        <button class="back-btn" onclick="closeOverlay('overlayMethod')"><i class="fas fa-arrow-left"></i></button>
+        <div class="overlay-title">Withdraw Funds</div>
+    </div>
+    <div class="overlay-content">
+        <p style="color:#64748b; margin-bottom:20px;">Select how you want to receive your funds. Minimum withdrawal is $25.</p>
+
+        <button class="channel-btn" onclick="selectBank()">
+            <div class="channel-left">
+                <div class="channel-icon icon-bank"><i class="fas fa-building-columns"></i></div>
+                <div class="channel-text">
+                    <h3>Bank Transfer</h3>
+                    <span>Direct deposit to your bank account</span>
+                </div>
+            </div>
+            <i class="fas fa-chevron-right" style="color:#cbd5e1;"></i>
+        </button>
+
+        <button class="channel-btn" onclick="selectCrypto()">
+            <div class="channel-left">
+                <div class="channel-icon icon-crypto"><i class="fab fa-bitcoin"></i></div>
+                <div class="channel-text">
+                    <h3>Cryptocurrency</h3>
+                    <span>USDT, BTC, ETH</span>
+                </div>
+            </div>
+            <i class="fas fa-chevron-right" style="color:#cbd5e1;"></i>
+        </button>
+    </div>
+</div>
+
+<!-- WITHDRAWAL OVERLAY 2: Bank Details Form -->
+<div class="page-overlay" id="overlayForm">
+    <div class="overlay-header">
+        <button class="back-btn" onclick="closeOverlay('overlayForm'); document.getElementById('overlayMethod').classList.add('active');"><i class="fas fa-arrow-left"></i></button>
+        <div class="overlay-title">Bank Details</div>
+    </div>
+    <div class="overlay-content">
+        <div style="background:#fff7ed; padding:15px; border-radius:12px; margin-bottom:20px; border-left:4px solid #ff6a00;">
+            <strong style="color:#9a3412;">Available Balance: <span id="formAvailBalance">$0.00</span></strong>
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">Amount to Withdraw (USD)</label>
+            <div class="amount-wrapper">
+                <span>$</span>
+                <input type="number" id="wdAmount" class="form-input amount-input" placeholder="0.00" min="25">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">Bank Name</label>
+            <input type="text" id="wdBankName" class="form-input" placeholder="e.g. Chase Bank, PalmPay">
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">Account Number</label>
+            <input type="number" id="wdAccNo" class="form-input" placeholder="Enter account number">
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">Account Name</label>
+            <input type="text" id="wdAccName" class="form-input" placeholder="Exact name on the account">
+        </div>
+
+        <button class="btn-primary" id="submitWdBtn" onclick="submitWithdrawal()">Submit Request</button>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toastBox">
+    <i class="fas fa-info-circle"></i> <span id="toastMsg">Message</span>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc, serverTimestamp, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc, serverTimestamp, addDoc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -254,9 +367,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-
-const totalBalanceEl = document.getElementById('total-balance');
-const withdrawBtn = document.getElementById('withdraw-btn');
 
 let currentUser = null;
 let balance = 0;
@@ -272,30 +382,46 @@ onAuthStateChanged(auth, async (user) => {
     loadRevenue();
 });
 
-// Load user balance
+// Toast Helper
+window.showToast = (msg) => {
+    const toast = document.getElementById('toastBox');
+    document.getElementById('toastMsg').innerText = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+};
+
+// Overlay Helpers
+window.openWithdrawOverlay = () => {
+    if(balance < 25) return showToast("Minimum withdrawal is $25.00.");
+    document.getElementById('overlayMethod').classList.add('active');
+};
+window.closeOverlay = (id) => document.getElementById(id).classList.remove('active');
+
+window.selectCrypto = () => showToast("This withdrawal channel is temporarily unavailable.");
+window.selectBank = () => {
+    document.getElementById('overlayMethod').classList.remove('active');
+    document.getElementById('formAvailBalance').innerText = `$${balance.toFixed(2)}`;
+    document.getElementById('wdAmount').max = balance;
+    document.getElementById('overlayForm').classList.add('active');
+};
+
+// Load User Balance
 function loadUserBalance() {
     onSnapshot(doc(db, "users", currentUser.uid), (snap) => {
         if (snap.exists()) {
             balance = snap.data().balance || 0;
-            totalBalanceEl.textContent = `$${balance.toFixed(2)}`;
-            
-            withdrawBtn.disabled = balance < 25;
-            withdrawBtn.innerHTML = balance >= 25 
-                ? `<i class="fas fa-building-columns"></i> Withdraw $${balance.toFixed(2)}` 
-                : `<i class="fas fa-building-columns"></i> Min. $25 (Need $${(25 - balance).toFixed(2)})`;
+            document.getElementById('total-balance').textContent = `$${balance.toFixed(2)}`;
         }
-    }, (error) => {
-        console.error("Balance Error:", error);
     });
 }
 
-// Format Date safely
+// Safely format dates
 function formatDate(timestamp) {
     if(!timestamp || !timestamp.toDate) return "Recently";
     return timestamp.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-// Safely sort documents to prevent missing index errors
+// Sort docs descending securely
 function sortDocs(docs) {
     return docs.sort((a, b) => {
         const timeA = a.data().timestamp?.seconds || a.data().payoutDate?.seconds || 0;
@@ -304,26 +430,23 @@ function sortDocs(docs) {
     });
 }
 
-// 1. Load Deposits
+// 1. DEPOSITS
 function loadDeposits() {
     const q = query(collection(db, "transactions"), where("userId", "==", currentUser.uid));
-    
     onSnapshot(q, (snapshot) => {
         const content = document.getElementById('deposits-content');
         const docs = sortDocs(snapshot.docs.filter(d => d.data().type === "deposit"));
 
         if (docs.length === 0) {
-            content.innerHTML = `<div class="empty-state"><div class="empty-icon"><i class="fas fa-arrow-down"></i></div><h3>No deposits yet</h3><p>Fund your wallet to get started</p></div>`;
+            content.innerHTML = `<div class="empty-state"><div class="empty-icon"><i class="fas fa-arrow-down"></i></div><h3>No deposits yet</h3></div>`;
             return;
         }
         
-        content.innerHTML = '';
+        let html = '';
         docs.forEach(doc => {
             const data = doc.data();
-            const date = formatDate(data.timestamp);
             const statClass = data.status === 'completed' ? 'completed' : 'pending';
-            
-            content.innerHTML += `
+            html += `
                 <div class="table-row grid-layout">
                     <div class="transaction-type">
                         <div class="type-icon deposit"><i class="fas fa-arrow-down"></i></div>
@@ -334,20 +457,20 @@ function loadDeposits() {
                     </div>
                     <div class="amount credit"><span class="mobile-label">Amount:</span>+$${(data.amountUSD || data.amount || 0).toFixed(2)}</div>
                     <div><span class="mobile-label">Status:</span><span class="status ${statClass}">${data.status || 'completed'}</span></div>
-                    <div class="date-time"><span class="mobile-label">Date:</span>${date}</div>
+                    <div class="date-time"><span class="mobile-label">Date:</span>${formatDate(data.timestamp)}</div>
                 </div>`;
         });
-    }, (err) => console.error("Deposits Error:", err));
+        content.innerHTML = html;
+    });
 }
 
-// 2. Load Withdrawals (FIXED: Checks 'paid' boolean from admin panel)
+// 2. WITHDRAWALS (FIXED & FULLY WORKING)
 function loadWithdrawals() {
     const q = query(collection(db, "withdrawals"), where("userId", "==", currentUser.uid));
-    
     onSnapshot(q, (snapshot) => {
         const content = document.getElementById('withdrawals-content');
-        let totalWithdrawn = 0;
-        let pendingAmount = 0;
+        let tWithdrawn = 0;
+        let pAmount = 0;
 
         if (snapshot.empty) {
             content.innerHTML = `<div class="empty-state"><div class="empty-icon"><i class="fas fa-arrow-up"></i></div><h3>No withdrawals yet</h3></div>`;
@@ -356,55 +479,47 @@ function loadWithdrawals() {
             return;
         }
 
-        content.innerHTML = '';
+        let html = '';
         const docs = sortDocs([...snapshot.docs]);
 
         docs.forEach(doc => {
             const data = doc.data();
             const amt = data.amount || 0;
             
-            // Checks if Admin marked it as paid or approved
             const isCompleted = data.paid === true || data.status === 'approved' || data.status === 'completed';
             const stat = isCompleted ? 'completed' : 'pending';
             
-            if (isCompleted) totalWithdrawn += amt;
-            else pendingAmount += amt;
+            if (isCompleted) tWithdrawn += amt;
+            else pAmount += amt;
 
-            const date = formatDate(data.timestamp);
-            const statClass = isCompleted ? 'completed' : 'pending';
-            
-            content.innerHTML += `
+            html += `
                 <div class="table-row grid-layout">
                     <div class="transaction-type">
                         <div class="type-icon withdrawal"><i class="fas fa-building-columns"></i></div>
                         <div class="type-info">
-                            <div class="type-title">${data.method || 'Payout'}</div>
+                            <div class="type-title">${data.method ? data.method.split('|')[0] : 'Bank'}</div>
                             <div class="type-subtitle">#${doc.id.substring(0,8).toUpperCase()}</div>
                         </div>
                     </div>
                     <div class="amount debit"><span class="mobile-label">Amount:</span>-$${amt.toFixed(2)}</div>
-                    <div><span class="mobile-label">Status:</span><span class="status ${statClass}">${stat}</span></div>
-                    <div class="date-time"><span class="mobile-label">Date:</span>${date}</div>
+                    <div><span class="mobile-label">Status:</span><span class="status ${stat}">${stat}</span></div>
+                    <div class="date-time"><span class="mobile-label">Date:</span>${formatDate(data.timestamp)}</div>
                 </div>`;
         });
-
-        document.getElementById('total-withdrawn').textContent = `$${totalWithdrawn.toFixed(2)}`;
-        document.getElementById('pending-amount').textContent = `$${pendingAmount.toFixed(2)}`;
-    }, (err) => {
-        console.error("Withdrawals Error:", err);
-        document.getElementById('withdrawals-content').innerHTML = `<div class="empty-state">Error loading withdrawals.</div>`;
+        
+        content.innerHTML = html;
+        document.getElementById('total-withdrawn').textContent = `$${tWithdrawn.toFixed(2)}`;
+        document.getElementById('pending-amount').textContent = `$${pAmount.toFixed(2)}`;
     });
 }
 
-// 3. Load Tips
+// 3. TIPS
 function loadTips() {
     const q = query(collection(db, "transactions"), where("to", "==", currentUser.uid));
-    
     onSnapshot(q, (snapshot) => {
         const content = document.getElementById('tips-content');
         const docs = sortDocs(snapshot.docs.filter(d => d.data().type === "tip"));
-        
-        let totalTips = 0;
+        let tTips = 0;
 
         if (docs.length === 0) {
             content.innerHTML = `<div class="empty-state"><div class="empty-icon"><i class="fas fa-hand-holding-dollar"></i></div><h3>No tips received yet</h3></div>`;
@@ -412,13 +527,11 @@ function loadTips() {
             return;
         }
 
-        content.innerHTML = '';
+        let html = '';
         docs.forEach(doc => {
             const data = doc.data();
-            totalTips += data.amount || 0;
-            const date = formatDate(data.timestamp);
-            
-            content.innerHTML += `
+            tTips += data.amount || 0;
+            html += `
                 <div class="table-row grid-layout">
                     <div class="transaction-type">
                         <div class="type-icon tip"><i class="fas fa-gift"></i></div>
@@ -429,39 +542,33 @@ function loadTips() {
                     </div>
                     <div class="amount credit"><span class="mobile-label">Amount:</span>+$${(data.amount||0).toFixed(2)}</div>
                     <div><span class="mobile-label">Type:</span><span class="status completed">Tip</span></div>
-                    <div class="date-time"><span class="mobile-label">Date:</span>${date}</div>
+                    <div class="date-time"><span class="mobile-label">Date:</span>${formatDate(data.timestamp)}</div>
                 </div>`;
         });
-
-        document.getElementById('total-tips').textContent = `$${totalTips.toFixed(2)}`;
-    }, (err) => console.error("Tips Error:", err));
+        content.innerHTML = html;
+        document.getElementById('total-tips').textContent = `$${tTips.toFixed(2)}`;
+    });
 }
 
-// 4. Load Post Revenue (FIXED: Checks 'earning' from Admin assignment)
+// 4. REVENUE
 function loadRevenue() {
     const q = query(collection(db, "posts"), where("userId", "==", currentUser.uid));
-    
     onSnapshot(q, (snapshot) => {
         const content = document.getElementById('revenue-content');
-        
-        // Filter out posts that haven't been assigned earnings by admin
         const docs = sortDocs(snapshot.docs.filter(d => (d.data().earning || 0) > 0));
-        
-        let totalRev = 0;
+        let tRev = 0;
 
         if (docs.length === 0) {
-            content.innerHTML = `<div class="empty-state"><div class="empty-icon"><i class="fas fa-chart-line"></i></div><h3>No post revenue yet</h3><p>Keep creating to earn from the admin.</p></div>`;
+            content.innerHTML = `<div class="empty-state"><div class="empty-icon"><i class="fas fa-chart-line"></i></div><h3>No post revenue yet</h3></div>`;
             document.getElementById('total-revenue').textContent = '$0.00';
             return;
         }
 
-        content.innerHTML = '';
+        let html = '';
         docs.forEach(doc => {
             const post = doc.data();
-            totalRev += post.earning || 0;
-            const date = formatDate(post.payoutDate || post.timestamp);
-            
-            content.innerHTML += `
+            tRev += post.earning || 0;
+            html += `
                 <div class="table-row grid-layout">
                     <div class="transaction-type">
                         <div class="type-icon revenue"><i class="fas fa-file-alt"></i></div>
@@ -472,54 +579,74 @@ function loadRevenue() {
                     </div>
                     <div class="amount credit"><span class="mobile-label">Revenue:</span>+$${(post.earning||0).toFixed(2)}</div>
                     <div><span class="mobile-label">Likes:</span><i class="fas fa-heart" style="color:#ef4444;"></i> ${post.likes||0}</div>
-                    <div class="date-time"><span class="mobile-label">Date Paid:</span>${date}</div>
+                    <div class="date-time"><span class="mobile-label">Date Paid:</span>${formatDate(post.payoutDate || post.timestamp)}</div>
                 </div>`;
         });
-
-        document.getElementById('total-revenue').textContent = `$${totalRev.toFixed(2)}`;
-    }, (err) => console.error("Revenue Error:", err));
+        content.innerHTML = html;
+        document.getElementById('total-revenue').textContent = `$${tRev.toFixed(2)}`;
+    });
 }
 
-// Tab Switching
-window.switchTab = function(tab, el) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    el.classList.add('active');
-    
-    ['deposits', 'withdrawals', 'tips', 'revenue'].forEach(id => {
-        document.getElementById(`${id}-table`).style.display = (id === tab) ? 'block' : 'none';
-    });
-};
+// Form Submission Logic
+window.submitWithdrawal = async () => {
+    const amt = parseFloat(document.getElementById('wdAmount').value);
+    const bName = document.getElementById('wdBankName').value.trim();
+    const aNo = document.getElementById('wdAccNo').value.trim();
+    const aName = document.getElementById('wdAccName').value.trim();
+    const btn = document.getElementById('submitWdBtn');
 
-// Withdraw logic
-withdrawBtn.onclick = async () => {
-    if (balance < 25) return alert("Minimum withdrawal is $25.");
-    const method = prompt("Enter payout details (Bank Acct/PayPal email):");
-    if (!method) return;
-    
-    withdrawBtn.disabled = true;
-    withdrawBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-    
+    if(!amt || amt < 25) return showToast("Minimum withdrawal is $25.");
+    if(amt > balance) return showToast("Insufficient available balance.");
+    if(!bName || !aNo || !aName) return showToast("Please fill in all bank details.");
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
     try {
+        // 1. Create the withdrawal request
         await addDoc(collection(db, "withdrawals"), {
             userId: currentUser.uid,
             username: currentUser.email.split('@')[0],
-            amount: balance,
-            method: method,
+            amount: amt,
+            method: `${bName} | Acc: ${aNo} | Name: ${aName}`,
             status: 'pending',
             paid: false,
             timestamp: serverTimestamp()
         });
         
-        await updateDoc(doc(db, "users", currentUser.uid), { balance: 0 });
-        alert('Withdrawal request submitted! It will appear in your log shortly.');
+        // 2. Deduct the amount from user's balance safely
+        await updateDoc(doc(db, "users", currentUser.uid), {
+            balance: increment(-amt)
+        });
+
+        showToast("Withdrawal Request Submitted Successfully!");
+        
+        // Reset and close
+        document.getElementById('wdAmount').value = '';
+        document.getElementById('wdBankName').value = '';
+        document.getElementById('wdAccNo').value = '';
+        document.getElementById('wdAccName').value = '';
+        
+        btn.disabled = false;
+        btn.innerHTML = 'Submit Request';
+        closeOverlay('overlayForm');
+
     } catch (e) {
-        alert('Failed to submit. Try again.');
-        withdrawBtn.disabled = false;
-        withdrawBtn.innerHTML = `<i class="fas fa-building-columns"></i> Withdraw $${balance.toFixed(2)}`;
+        console.error("Submit Error: ", e);
+        showToast("Failed to submit request. Please try again.");
+        btn.disabled = false;
+        btn.innerHTML = 'Submit Request';
     }
 };
 
-// Mobile menu & Logout
+// Tabs, Menu & Auth
+window.switchTab = function(tab, el) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    ['deposits', 'withdrawals', 'tips', 'revenue'].forEach(id => {
+        document.getElementById(`${id}-table`).style.display = (id === tab) ? 'block' : 'none';
+    });
+};
 window.toggleMenu = () => document.getElementById('sidebar').classList.toggle('active');
 document.getElementById('logout').onclick = async () => { await signOut(auth); window.location.href = "login.html"; };
 </script>
