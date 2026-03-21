@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>Creator • Available Opportunities | CashClique</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Opportunities | CashClique</title>
 
 <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -11,537 +11,744 @@
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{
-  background:#f8f9fa;
-  color:#1f2937;
-  min-height:100vh;
-}
-.wrap{max-width:1140px;margin:0 auto;padding:24px 16px 100px;}
-.topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:28px;}
-h1{font-size:22px;font-weight:600;letter-spacing:-0.2px;}
-.sub{font-size:14px;color:#6b7280;margin-top:6px;max-width:80ch;line-height:1.5;}
-.btn{border:none;border-radius:12px;padding:11px 16px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:all .2s ease;font-size:14px;}
-.btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
-.btn-ghost{background:#fff;border:1px solid #e5e7eb;color:#374151;box-shadow:0 1px 2px rgba(0,0,0,.05);}
-.btn-ghost:hover{transform:translateY(-1px);box-shadow:0 4px 8px rgba(0,0,0,.08);}
-.btn-primary{background:#ff6a00;color:#fff;box-shadow:0 4px 12px rgba(255,106,0,.25);}
-.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(255,106,0,.35);}
+body{background:#f5f5f5;min-height:100vh;padding:20px;}
 
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-@media(max-width:900px){.grid{grid-template-columns:1fr;}}
+/* Header */
+.header{background:white;border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 2px 10px rgba(0,0,0,0.05);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:15px;}
+.header-left{display:flex;align-items:center;gap:15px;}
+.back-btn{background:#ff6a00;color:white;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:500;display:flex;align-items:center;gap:8px;transition:0.3s;}
+.back-btn:hover{background:#e55d00;transform:translateX(-3px);}
+.header-title{font-size:24px;font-weight:700;color:#333;}
+.header-actions{display:flex;gap:10px;}
+.advertise-btn{background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:500;display:flex;align-items:center;gap:8px;transition:0.3s;}
+.advertise-btn:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(102,126,234,0.3);}
 
-.card{
-  background:#fff;
-  border:1px solid #e5e7eb;
-  border-radius:16px;
-  box-shadow:0 4px 12px rgba(0,0,0,.05);
-  overflow:hidden;
-}
-.card-head{
-  padding:16px 20px;
-  border-bottom:1px solid #f3f4f6;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  flex-wrap:wrap;
-  font-weight:600;
-  font-size:15px;
-}
-.list{padding:16px;display:flex;flex-direction:column;gap:12px;}
-.opp{
-  border:1px solid #e5e7eb;
-  border-radius:14px;
-  padding:16px;
-  transition:all .2s ease;
-  background:#fff;
-}
-.opp:hover{
-  transform:translateY(-1px);
-  box-shadow:0 6px 16px rgba(0,0,0,.07);
-  border-color:#d1d5db;
-}
-.row{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;}
-.title{font-weight:600;font-size:15px;}
-.small{font-size:13px;color:#6b7280;line-height:1.4;margin-top:6px;}
-.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
-.pill{
-  display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:8px;
-  background:#f9fafb;border:1px solid #f3f4f6;font-size:12px;font-weight:500;color:#4b5563;
-}
-.pill i{color:#ff6a00;font-size:11px;}
-.badge{
-  padding:6px 10px;border-radius:8px;font-size:12px;font-weight:500;
-  display:inline-flex;align-items:center;gap:6px;
-}
-.ok{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;}
-.no{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;}
-.pending{background:#fffbeb;color:#b45309;border:1px solid #fde68a;}
-.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
-.viewlink{background:#f9fafb;border:1px solid #e5e7eb;color:#374151;}
-.viewlink:hover{transform:translateY(-1px);background:#fff;}
-.empty{padding:60px 16px;text-align:center;color:#9ca3af;}
-.empty i{font-size:48px;opacity:.25;margin-bottom:16px;}
-hr.sep{border:none;border-top:1px solid #f3f4f6;margin:12px 0;}
+/* My Stats Card */
+.stats-banner{background:linear-gradient(135deg,#ff6a00,#ff8a00);color:white;padding:20px;border-radius:12px;margin-bottom:20px;box-shadow:0 5px 15px rgba(255,106,0,0.2);}
+.stats-banner-title{font-size:16px;font-weight:600;margin-bottom:15px;display:flex;align-items:center;gap:8px;}
+.stats-banner-content{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:15px;}
+.stat-item{background:rgba(255,255,255,0.2);padding:12px;border-radius:8px;text-align:center;}
+.stat-value{font-size:20px;font-weight:700;}
+.stat-label{font-size:11px;opacity:0.9;text-transform:uppercase;letter-spacing:0.5px;margin-top:3px;}
+.verified-status{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.2);padding:6px 12px;border-radius:20px;font-size:12px;margin-top:10px;}
+.verified-status i{font-size:14px;}
 
-/* Side icon */
-.side-panel-btn{
-  position:fixed;
-  right:16px;
-  top:50%;
-  transform:translateY(-50%);
-  width:56px;height:56px;
-  border:none;border-radius:14px;
-  background:#ff6a00;color:#fff;
-  box-shadow:0 8px 20px rgba(255,106,0,.35);
-  cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  z-index:1000;
-  transition:all .2s ease;
-  font-size:18px;
-}
-.side-panel-btn:hover{
-  transform:translateY(-50%) scale(1.06);
-  box-shadow:0 10px 24px rgba(255,106,0,.45);
-}
-.side-panel-btn .dot{
-  position:absolute;top:8px;right:8px;
-  min-width:18px;height:18px;border-radius:999px;
-  background:#1f2937;color:#fff;font-size:11px;
-  display:none;align-items:center;justify-content:center;
-  padding:0 6px;font-weight:600;
-}
+/* Filters */
+.filters{background:white;padding:15px;border-radius:12px;margin-bottom:20px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.filter-btn{padding:8px 15px;border:2px solid #e0e0e0;background:white;border-radius:8px;cursor:pointer;font-size:14px;transition:0.3s;display:flex;align-items:center;gap:5px;}
+.filter-btn:hover{border-color:#ff6a00;}
+.filter-btn.active{background:#ff6a00;color:white;border-color:#ff6a00;}
+.filter-btn i{font-size:12px;}
 
-/* Full page overlay */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);opacity:0;visibility:hidden;z-index:2000;transition:all .2s ease;}
-.overlay.active{opacity:1;visibility:visible;}
-.overlay-inner{
-  position:absolute;
-  right:0;
-  top:0;
-  bottom:0;
-  width:100%;
-  max-width:520px;
-  background:#f8f9fa;
-  display:flex;flex-direction:column;
-  transform:translateX(100%);
-  transition:all .25s cubic-bezier(.2,.8,.2,1);
-  box-shadow:-10px 0 40px rgba(0,0,0,.15);
-}
-.overlay.active .overlay-inner{transform:translateX(0);}
-.overlay-head{background:#fff;border-bottom:1px solid #e5e7eb;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
-.overlay-title{font-weight:600;font-size:16px;}
-.overlay-body{padding:16px;overflow:auto;flex:1;}
-.app-item{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.05);}
-.app-item .top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+/* Opportunities Grid */
+.opportunities-container{display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:20px;}
+.opportunity-card{background:white;border-radius:12px;overflow:hidden;box-shadow:0 5px 15px rgba(0,0,0,0.08);transition:0.3s;position:relative;}
+.opportunity-card:hover{transform:translateY(-5px);box-shadow:0 10px 25px rgba(0,0,0,0.12);}
 
+/* Eligibility Badge */
+.eligibility-badge{position:absolute;top:10px;right:10px;padding:6px 12px;border-radius:20px;font-size:11px;font-weight:600;z-index:10;}
+.badge-eligible{background:#e8f5e9;color:#4caf50;}
+.badge-partial{background:#fff3e0;color:#ff9800;}
+.badge-ineligible{background:#ffebee;color:#f44336;}
+
+/* Category Badge */
+.category-badge{position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.7);color:white;padding:6px 12px;border-radius:20px;font-size:11px;font-weight:500;text-transform:capitalize;}
+
+/* Card Header */
+.card-header{padding:20px;border-bottom:1px solid #f0f0f0;}
+.card-title{font-size:18px;font-weight:600;color:#333;margin-bottom:8px;}
+.card-description{font-size:14px;color:#666;line-height:1.5;}
+.card-advertiser{font-size:12px;color:#999;margin-top:8px;display:flex;align-items:center;gap:5px;}
+.card-advertiser i{color:#ff6a00;}
+
+/* Requirements Section */
+.requirements{padding:15px 20px;background:#f8f9fa;}
+.requirements-title{font-size:13px;font-weight:600;color:#333;margin-bottom:10px;}
+.requirement-list{display:flex;flex-direction:column;gap:8px;}
+.requirement-item{display:flex;align-items:center;gap:8px;font-size:13px;color:#666;}
+.requirement-item i{width:16px;text-align:center;}
+.requirement-item.met{color:#4caf50;}
+.requirement-item.met i{color:#4caf50;}
+.requirement-item.not-met{color:#f44336;}
+.requirement-item.not-met i{color:#f44336;}
+
+/* Card Stats */
+.card-stats{padding:15px 20px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;border-top:1px solid #f0f0f0;}
+.card-stat{text-align:center;}
+.card-stat-value{font-size:16px;font-weight:600;color:#333;}
+.card-stat-label{font-size:11px;color:#888;text-transform:uppercase;margin-top:2px;}
+
+/* Card Actions */
+.card-actions{padding:15px 20px;border-top:1px solid #f0f0f0;}
+.apply-btn{width:100%;padding:12px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:0.3s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.apply-btn.eligible{background:#ff6a00;color:white;}
+.apply-btn.eligible:hover{background:#e55d00;}
+.apply-btn.ineligible{background:#f0f0f0;color:#999;cursor:not-allowed;}
+.apply-btn.applied{background:#4caf50;color:white;}
+.apply-btn.pending{background:#ff9800;color:white;}
+.apply-btn.rejected{background:#f44336;color:white;}
+.apply-btn i{font-size:14px;}
+
+/* My Applications Floating Button */
+.applications-btn{position:fixed;right:20px;bottom:20px;background:#ff6a00;color:white;width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 5px 15px rgba(255,106,0,0.3);cursor:pointer;transition:0.3s;z-index:100;}
+.applications-btn:hover{transform:scale(1.1);box-shadow:0 8px 20px rgba(255,106,0,0.4);}
+.applications-btn i{font-size:24px;}
+.applications-badge{position:absolute;top:-5px;right:-5px;background:#f44336;color:white;min-width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;}
+
+/* Full Page Overlay - My Applications */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:none;z-index:1000;overflow:auto;}
+.overlay.active{display:block;}
+.overlay-content{background:white;min-height:100vh;max-width:900px;margin:0 auto;position:relative;animation:slideUp 0.3s ease;}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+
+.overlay-header{background:linear-gradient(135deg,#ff6a00,#ff8a00);color:white;padding:20px;position:sticky;top:0;z-index:10;}
+.overlay-title{font-size:20px;font-weight:600;display:flex;align-items:center;justify-content:space-between;}
+.close-overlay{background:rgba(255,255,255,0.2);color:white;border:none;width:35px;height:35px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:0.3s;}
+.close-overlay:hover{background:rgba(255,255,255,0.3);}
+
+/* Application Filters */
+.app-filters{padding:20px;background:#f8f9fa;border-bottom:1px solid #e0e0e0;display:flex;gap:10px;flex-wrap:wrap;}
+.app-filter{padding:6px 12px;background:white;border:1px solid #e0e0e0;border-radius:6px;font-size:13px;cursor:pointer;transition:0.2s;}
+.app-filter:hover{border-color:#ff6a00;}
+.app-filter.active{background:#ff6a00;color:white;border-color:#ff6a00;}
+
+/* Applications List */
+.applications-list{padding:20px;}
+.application-item{background:#f8f9fa;border-radius:12px;padding:20px;margin-bottom:15px;transition:0.3s;}
+.application-item:hover{transform:translateX(5px);box-shadow:0 5px 15px rgba(0,0,0,0.1);}
+
+.app-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:15px;flex-wrap:wrap;gap:10px;}
+.app-title{font-size:16px;font-weight:600;color:#333;}
+.app-status{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;}
+.status-pending{background:#fff3e0;color:#ff9800;}
+.status-approved{background:#e8f5e9;color:#4caf50;}
+.status-rejected{background:#ffebee;color:#f44336;}
+
+.app-details{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px;margin-top:15px;padding-top:15px;border-top:1px solid #e0e0e0;}
+.app-detail{display:flex;align-items:center;gap:8px;font-size:13px;color:#666;}
+.app-detail i{color:#ff6a00;width:16px;}
+
+.app-actions{display:flex;gap:10px;margin-top:15px;padding-top:15px;border-top:1px solid #e0e0e0;}
+.app-action-btn{padding:8px 15px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;transition:0.2s;border:none;display:flex;align-items:center;gap:5px;}
+.view-opp-btn{background:#ff6a00;color:white;}
+.view-opp-btn:hover{background:#e55d00;}
+.cancel-app-btn{background:#f44336;color:white;}
+.cancel-app-btn:hover{background:#e03333;}
+
+/* Empty States */
+.empty-state{text-align:center;padding:60px 20px;color:#888;}
+.empty-icon{font-size:64px;margin-bottom:20px;opacity:0.3;}
+.empty-title{font-size:20px;color:#333;margin-bottom:10px;}
+.empty-text{font-size:14px;margin-bottom:25px;}
+
+/* Loading */
+.loading{text-align:center;padding:60px 20px;color:#888;}
+.loading i{font-size:32px;color:#ff6a00;animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* Success Modal */
+.success-modal{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:2000;}
+.success-modal.active{display:flex;}
+.success-content{background:white;border-radius:16px;padding:30px;text-align:center;max-width:400px;}
+.success-icon{width:80px;height:80px;background:#e8f5e9;color:#4caf50;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:40px;}
+.success-title{font-size:20px;font-weight:600;color:#333;margin-bottom:10px;}
+.success-text{font-size:14px;color:#666;margin-bottom:20px;}
+.success-btn{background:#ff6a00;color:white;border:none;padding:12px 30px;border-radius:8px;font-weight:600;cursor:pointer;transition:0.3s;}
+.success-btn:hover{background:#e55d00;}
+
+/* Mobile Responsive */
 @media(max-width:768px){
-  .wrap{padding:16px 12px 90px;}
-  .side-panel-btn{bottom:16px;top:auto;transform:none;right:16px;width:52px;height:52px;border-radius:14px;}
-  .side-panel-btn:hover{transform:scale(1.06);}
+    body{padding:10px;}
+    .header{flex-direction:column;}
+    .opportunities-container{grid-template-columns:1fr;}
+    .card-stats{grid-template-columns:repeat(3,1fr);font-size:12px;}
+    .stats-banner-content{grid-template-columns:repeat(2,1fr);}
+    .overlay-content{border-radius:0;}
 }
 </style>
 </head>
 
 <body>
-<div class="wrap">
-  <div class="topbar">
-    <div>
-      <h1>Available Opportunities</h1>
-      <div class="sub">
-        This page shows approved ad campaigns you can apply to.
-      </div>
-    </div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <button class="btn btn-ghost" onclick="history.back()"><i class="fas fa-arrow-left"></i> Back</button>
-      <button class="btn btn-ghost" id="refreshBtn"><i class="fas fa-rotate"></i> Refresh</button>
-    </div>
-  </div>
 
-  <div class="grid">
-    <div class="card">
-      <div class="card-head">
-        <div>Opportunities</div>
-        <div class="pill"><i class="fas fa-circle-check"></i> Approved</div>
-      </div>
-      <div class="list" id="oppList">
-        <div class="empty"><i class="fas fa-spinner fa-spin"></i><div style="margin-top:10px;">Loading opportunities...</div></div>
-      </div>
+<!-- Header -->
+<div class="header">
+    <div class="header-left">
+        <button class="back-btn" onclick="window.location.href='dashboard.html'">
+            <i class="fas fa-arrow-left"></i> Back
+        </button>
+        <h1 class="header-title">Opportunities</h1>
     </div>
-
-    <div class="card">
-      <div class="card-head">
-        <div>Your Eligibility</div>
-        <div class="pill"><i class="fas fa-user-check"></i> Live</div>
-      </div>
-      <div class="list" id="eligibilityBox">
-        <div class="empty"><i class="fas fa-spinner fa-spin"></i><div style="margin-top:10px;">Loading your stats...</div></div>
-      </div>
+    <div class="header-actions">
+        <button class="advertise-btn" onclick="window.location.href='create-opportunity.html'">
+            <i class="fas fa-bullhorn"></i> Advertise
+        </button>
     </div>
-  </div>
 </div>
 
-<button class="side-panel-btn" id="appsBtn" title="My Applications">
-  <i class="fas fa-inbox"></i>
-  <span class="dot" id="appsDot">0</span>
-</button>
+<!-- My Stats Banner -->
+<div class="stats-banner">
+    <div class="stats-banner-title">
+        <i class="fas fa-user-circle"></i> Your Creator Stats
+    </div>
+    <div class="stats-banner-content">
+        <div class="stat-item">
+            <div class="stat-value" id="my-likes">0</div>
+            <div class="stat-label">Total Likes</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="my-followers">0</div>
+            <div class="stat-label">Followers</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="my-posts">0</div>
+            <div class="stat-label">Posts</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="my-views">0</div>
+            <div class="stat-label">Total Views</div>
+        </div>
+    </div>
+    <div style="text-align:center;">
+        <span class="verified-status" id="verified-status">
+            <i class="fas fa-times-circle"></i> Not Verified
+        </span>
+    </div>
+</div>
 
-<div class="overlay" id="overlay">
-  <div class="overlay-inner">
-    <div class="overlay-head">
-      <div class="overlay-title"><i class="fas fa-inbox"></i> My Applications</div>
-      <button class="btn btn-ghost" onclick="closeOverlay()"><i class="fas fa-xmark"></i> Close</button>
+<!-- Filters -->
+<div class="filters">
+    <button class="filter-btn active" onclick="filterOpportunities('all', this)">
+        <i class="fas fa-th"></i> All
+    </button>
+    <button class="filter-btn" onclick="filterOpportunities('eligible', this)">
+        <i class="fas fa-check-circle"></i> Eligible
+    </button>
+    <button class="filter-btn" onclick="filterOpportunities('tech', this)">
+        <i class="fas fa-laptop-code"></i> Tech
+    </button>
+    <button class="filter-btn" onclick="filterOpportunities('fashion', this)">
+        <i class="fas fa-tshirt"></i> Fashion
+    </button>
+    <button class="filter-btn" onclick="filterOpportunities('food', this)">
+        <i class="fas fa-utensils"></i> Food
+    </button>
+    <button class="filter-btn" onclick="filterOpportunities('travel', this)">
+        <i class="fas fa-plane"></i> Travel
+    </button>
+    <button class="filter-btn" onclick="filterOpportunities('fitness', this)">
+        <i class="fas fa-dumbbell"></i> Fitness
+    </button>
+    <button class="filter-btn" onclick="filterOpportunities('others', this)">
+        <i class="fas fa-ellipsis-h"></i> Others
+    </button>
+</div>
+
+<!-- Opportunities Grid -->
+<div class="opportunities-container" id="opportunities-container">
+    <div class="loading">
+        <i class="fas fa-spinner"></i><br>
+        Loading opportunities...
     </div>
-    <div class="overlay-body" id="appsList">
-      <div class="empty"><i class="fas fa-spinner fa-spin"></i><div style="margin-top:10px;">Loading your applications...</div></div>
+</div>
+
+<!-- My Applications Button -->
+<div class="applications-btn" onclick="openApplicationsOverlay()">
+    <i class="fas fa-clipboard-list"></i>
+    <span class="applications-badge" id="app-badge" style="display:none;">0</span>
+</div>
+
+<!-- My Applications Overlay -->
+<div class="overlay" id="applications-overlay">
+    <div class="overlay-content">
+        <div class="overlay-header">
+            <div class="overlay-title">
+                <span><i class="fas fa-clipboard-list"></i> My Applications</span>
+                <button class="close-overlay" onclick="closeApplicationsOverlay()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="app-filters">
+            <button class="app-filter active" onclick="filterApplications('all', this)">All</button>
+            <button class="app-filter" onclick="filterApplications('pending', this)">Pending</button>
+            <button class="app-filter" onclick="filterApplications('approved', this)">Approved</button>
+            <button class="app-filter" onclick="filterApplications('rejected', this)">Rejected</button>
+        </div>
+        
+        <div class="applications-list" id="applications-list">
+            <div class="loading">
+                <i class="fas fa-spinner"></i><br>
+                Loading your applications...
+            </div>
+        </div>
     </div>
-  </div>
+</div>
+
+<!-- Success Modal -->
+<div class="success-modal" id="success-modal">
+    <div class="success-content">
+        <div class="success-icon">
+            <i class="fas fa-check"></i>
+        </div>
+        <h3 class="success-title">Application Submitted!</h3>
+        <p class="success-text">Your application has been submitted successfully. You'll be notified once it's reviewed.</p>
+        <button class="success-btn" onclick="closeSuccessModal()">Got it</button>
+    </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import {
-  getFirestore, collection, query, where, onSnapshot, doc,
-  serverTimestamp, runTransaction
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, query, where, onSnapshot, doc, getDoc, addDoc, updateDoc, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
-  authDomain: "cashclique-31718.firebaseapp.com",
-  projectId: "cashclique-31718",
-  storageBucket: "cashclique-31718.firebasestorage.app",
-  messagingSenderId: "1064282591269",
-  appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc"
+    apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
+    authDomain: "cashclique-31718.firebaseapp.com",
+    projectId: "cashclique-31718",
+    storageBucket: "cashclique-31718.firebasestorage.app",
+    messagingSenderId: "1064282591269",
+    appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const oppList = document.getElementById("oppList");
-const eligibilityBox = document.getElementById("eligibilityBox");
-const appsBtn = document.getElementById("appsBtn");
-const appsDot = document.getElementById("appsDot");
-const overlay = document.getElementById("overlay");
-const appsList = document.getElementById("appsList");
-const refreshBtn = document.getElementById("refreshBtn");
-
 let currentUser = null;
-let myStats = { totalLikes: 0, followersCount: 0, verified: false, username: "User" };
-let myAppsMap = new Map();
-let opportunitiesMap = new Map();
-
-let unsubOpp = null;
-let unsubApps = null;
-let unsubUser = null;
+let userStats = {
+    likes: 0,
+    followers: 0,
+    posts: 0,
+    views: 0,
+    isVerified: false
+};
+let allOpportunities = [];
+let myApplications = [];
+let currentFilter = 'all';
+let currentAppFilter = 'all';
 
 onAuthStateChanged(auth, async (user) => {
-  if (!user) { window.location.href = "login.html"; return; }
-  currentUser = user;
-
-  listenMyStats();
-  listenMyApplications();
-  listenOpportunities();
-
-  // ✅ Fail safe: if Firestore hangs after 8 seconds show error
-  setTimeout(() => {
-    if(oppList.innerHTML.includes("Loading opportunities")){
-      showOppError(new Error("No response from server. This is almost always a Firestore permissions issue."));
+    if (!user) {
+        window.location.href = "login.html";
+        return;
     }
-  }, 8000);
+    currentUser = user;
+    await loadUserStats();
+    loadOpportunities();
+    loadMyApplications();
 });
 
-refreshBtn.onclick = () => renderOpportunities();
-
-function listenMyStats(){
-  if(unsubUser) unsubUser();
-  unsubUser = onSnapshot(doc(db, "users", currentUser.uid), (snap) => {
-    if (!snap.exists()) return;
-    const d = snap.data();
-
-    myStats = {
-      totalLikes: Number(d.totalLikes || 0),
-      followersCount: Number(d.followersCount || (d.followers?.length || 0)),
-      verified: !!d.verified,
-      username: d.username || currentUser.email?.split("@")[0] || "User",
-    };
-
-    renderMyStatsBox();
-    renderOpportunities();
-  });
-}
-
-function renderMyStatsBox(){
-  eligibilityBox.innerHTML = `
-    <div class="opp">
-      <div class="row">
-        <div>
-          <div class="title">${escapeHTML(myStats.username)}</div>
-          <div class="small">Eligibility is checked automatically in realtime.</div>
-        </div>
-        <span class="badge ${myStats.verified ? 'ok' : 'pending'}">
-          <i class="fas ${myStats.verified ? 'fa-circle-check' : 'fa-circle-minus'}"></i>
-          ${myStats.verified ? 'Verified' : 'Not verified'}
-        </span>
-      </div>
-
-      <div class="pills">
-        <span class="pill"><i class="fas fa-heart"></i> Total likes: ${fmt(myStats.totalLikes)}</span>
-        <span class="pill"><i class="fas fa-user-group"></i> Followers: ${fmt(myStats.followersCount)}</span>
-      </div>
-    </div>
-  `;
-}
-
-function listenOpportunities(){
-  if (unsubOpp) unsubOpp();
-  opportunitiesMap = new Map();
-
-  const q = query(collection(db, "opportunities"), where("status", "in", ["approved", "active"]));
-
-  unsubOpp = onSnapshot(q, (snap) => {
-    opportunitiesMap.clear();
-    snap.forEach(d => opportunitiesMap.set(d.id, normalizeOpp(d.id, d.data())));
-    renderOpportunities();
-  }, (err) => showOppError(err));
-}
-
-function showOppError(err){
-  console.error("Load error:", err);
-  oppList.innerHTML = `
-    <div class="empty">
-      <i class="fas fa-triangle-exclamation"></i>
-      <div style="margin-top:10px;font-weight:600;">Failed to load opportunities</div>
-      <div style="margin-top:8px;">${escapeHTML(err.message)}</div>
-      <div class="small" style="margin-top:12px;">
-        You need to add this rule to Firestore rules:<br>
-        <code>allow read: if request.auth != null && resource.data.status in ["approved", "active"];</code>
-      </div>
-    </div>
-  `;
-}
-
-function renderOpportunities(){
-  const items = Array.from(opportunitiesMap.values())
-    .sort((a,b) => getSortTime(b.createdAt) - getSortTime(a.createdAt));
-
-  if (items.length === 0){
-    oppList.innerHTML = `<div class="empty"><i class="fas fa-bullhorn"></i><div style="margin-top:10px;">No opportunities available right now.</div></div>`;
-    return;
-  }
-
-  oppList.innerHTML = "";
-  items.forEach((opp) => {
-    const { eligible, reason } = checkEligibility(opp);
-    const app = myAppsMap.get(opp.id);
-    const alreadyApplied = !!app;
-
-    const appBadge = alreadyApplied
-      ? `<span class="badge ${app.status === 'approved' ? 'ok' : app.status === 'rejected' ? 'no' : 'pending'}">
-           <i class="fas ${app.status === 'approved' ? 'fa-check' : app.status === 'rejected' ? 'fa-ban' : 'fa-clock'}"></i>
-           ${String(app.status || "pending").toUpperCase()}
-         </span>`
-      : "";
-
-    const disabled = alreadyApplied || !eligible;
-
-    const el = document.createElement("div");
-    el.className = "opp";
-    el.innerHTML = `
-      <div class="row">
-        <div style="min-width:0;">
-          <div class="title">${escapeHTML(opp.title || "Opportunity")}</div>
-          <div class="small">
-            Category: ${escapeHTML(opp.category || "—")}
-            • Payout: $${Number(opp.cost || 0).toFixed(2)}
-          </div>
-        </div>
-
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
-          ${appBadge}
-          <span class="badge ${eligible ? 'ok' : 'no'}">
-            <i class="fas ${eligible ? 'fa-circle-check' : 'fa-circle-xmark'}"></i>
-            ${eligible ? 'Eligible' : 'Not eligible'}
-          </span>
-        </div>
-      </div>
-
-      ${opp.description ? `<div class="small" style="margin-top:10px;">${escapeHTML(opp.description)}</div>` : ""}
-
-      <div class="pills">
-        <span class="pill"><i class="fas fa-heart"></i> Min likes: ${fmt(opp.requirements.minLikes)}</span>
-        <span class="pill"><i class="fas fa-user-group"></i> Min followers: ${fmt(opp.requirements.minFollowers)}</span>
-        <span class="pill"><i class="fas fa-shield-halved"></i> Verified: ${opp.requirements.requireVerified ? "Required" : "Any"}</span>
-      </div>
-
-      ${eligible ? "" : `<div class="small" style="margin-top:10px;color:#b91c1c;font-weight:500;">
-        <i class="fas fa-circle-exclamation"></i> ${escapeHTML(reason)}
-      </div>`}
-
-      <div class="actions">
-        <button class="btn btn-primary apply-btn" ${disabled ? "disabled" : ""} data-id="${opp.id}">
-          <i class="fas ${alreadyApplied ? 'fa-check' : 'fa-paper-plane'}"></i>
-          ${alreadyApplied ? "Applied" : "Apply"}
-        </button>
-        <button class="btn viewlink" data-open="${opp.id}">
-          <i class="fas fa-arrow-up-right-from-square"></i> View details
-        </button>
-      </div>
-    `;
-
-    el.querySelector(".apply-btn").onclick = () => applyToOpportunity(opp, eligible, alreadyApplied);
-    el.querySelector("[data-open]").onclick = () => openOpportunityLink(opp);
-
-    oppList.appendChild(el);
-  });
-}
-
-function normalizeOpp(id, d){
-  const req = d.requirements || {};
-  return {
-    id,
-    title: d.title || "Opportunity",
-    category: d.category || "—",
-    description: d.description || "",
-    advertiserId: d.advertiserId || "—",
-    destinationUrl: d.targetUrl || d.destinationUrl || "",
-    createdAt: d.createdAt || null,
-    cost: Number(d.cost ?? d.totalCost ?? 0),
-    requirements: {
-      minLikes: Number(req.minLikes || 0),
-      minFollowers: Number(req.minFollowers || 0),
-      requireVerified: !!(req.requireVerified || req.verifiedRequired)
+// Load user stats
+async function loadUserStats() {
+    try {
+        // Get user data
+        const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+        if (userDoc.exists()) {
+            const userData = userDoc.data();
+            userStats.isVerified = userData.isVerified || false;
+            userStats.followers = userData.followers?.length || 0;
+            
+            // Update verified status display
+            const verifiedStatus = document.getElementById('verified-status');
+            if (userStats.isVerified) {
+                verifiedStatus.innerHTML = '<i class="fas fa-check-circle"></i> Verified Creator';
+                verifiedStatus.style.background = 'rgba(29,161,242,0.2)';
+            }
+        }
+        
+        // Get posts stats
+        const postsQuery = query(collection(db, "posts"), where("userId", "==", currentUser.uid));
+        const postsSnapshot = await getDocs(postsQuery);
+        
+        userStats.posts = postsSnapshot.size;
+        let totalLikes = 0;
+        let totalViews = 0;
+        
+        postsSnapshot.forEach(doc => {
+            const post = doc.data();
+            totalLikes += post.likes || 0;
+            totalViews += post.views || 0;
+        });
+        
+        userStats.likes = totalLikes;
+        userStats.views = totalViews;
+        
+        // Update display
+        document.getElementById('my-likes').textContent = formatNumber(userStats.likes);
+        document.getElementById('my-followers').textContent = formatNumber(userStats.followers);
+        document.getElementById('my-posts').textContent = formatNumber(userStats.posts);
+        document.getElementById('my-views').textContent = formatNumber(userStats.views);
+        
+    } catch (error) {
+        console.error("Error loading user stats:", error);
     }
-  };
 }
 
-function checkEligibility(opp){
-  const minLikes = opp.requirements.minLikes;
-  const minFollowers = opp.requirements.minFollowers;
-  const requireVerified = opp.requirements.requireVerified;
-
-  if (myStats.totalLikes < minLikes) return { eligible:false, reason:`You need ${fmt(minLikes)} total likes.` };
-  if (myStats.followersCount < minFollowers) return { eligible:false, reason:`You need ${fmt(minFollowers)} followers.` };
-  if (requireVerified && !myStats.verified) return { eligible:false, reason:`Verified creators only.` };
-  return { eligible:true, reason:"" };
-}
-
-async function applyToOpportunity(opp, eligible, alreadyApplied){
-  if (!eligible || alreadyApplied) return;
-  if (!confirm(`Apply to "${opp.title}"?`)) return;
-
-  try {
-    const appId = `${currentUser.uid}_${opp.id}`;
-    const appRef = doc(db, "opportunityApplications", appId);
-
-    await runTransaction(db, async (tx) => {
-      const existing = await tx.get(appRef);
-      if (existing.exists()) return;
-
-      tx.set(appRef, {
-        opportunityId: opp.id,
-        advertiserId: opp.advertiserId,
-        creatorId: currentUser.uid,
-        creatorUsername: myStats.username,
-        status: "pending",
-        adminNote: null,
-        requirements: opp.requirements,
-        creatorStats: myStats,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      });
+// Load opportunities
+function loadOpportunities() {
+    const q = query(collection(db, "opportunities"), where("status", "==", "active"));
+    
+    onSnapshot(q, (snapshot) => {
+        allOpportunities = [];
+        
+        snapshot.forEach(doc => {
+            const data = { id: doc.id, ...doc.data() };
+            allOpportunities.push(data);
+        });
+        
+        displayOpportunities();
     });
-
-    alert("Applied successfully!");
-  } catch (e) {
-    alert(e.message);
-  }
 }
 
-function listenMyApplications(){
-  if (unsubApps) unsubApps();
+// Display opportunities
+async function displayOpportunities() {
+    const container = document.getElementById('opportunities-container');
+    
+    let filtered = allOpportunities;
+    
+    if (currentFilter === 'eligible') {
+        filtered = allOpportunities.filter(opp => checkEligibility(opp).isEligible);
+    } else if (currentFilter !== 'all') {
+        filtered = allOpportunities.filter(opp => opp.category === currentFilter);
+    }
+    
+    if (filtered.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state" style="grid-column:1/-1;">
+                <div class="empty-icon"><i class="fas fa-bullhorn"></i></div>
+                <h3 class="empty-title">No opportunities found</h3>
+                <p class="empty-text">Check back later for new opportunities</p>
+            </div>`;
+        return;
+    }
+    
+    container.innerHTML = '';
+    
+    for (const opp of filtered) {
+        const eligibility = checkEligibility(opp);
+        const application = myApplications.find(app => app.opportunityId === opp.id);
+        
+        const card = document.createElement('div');
+        card.className = 'opportunity-card';
+        
+        // Determine eligibility badge
+        let badgeClass = 'badge-eligible';
+        let badgeText = 'Eligible';
+        if (!eligibility.isEligible) {
+            if (eligibility.partiallyEligible) {
+                badgeClass = 'badge-partial';
+                badgeText = 'Partially Eligible';
+            } else {
+                badgeClass = 'badge-ineligible';
+                badgeText = 'Not Eligible';
+            }
+        }
+        
+        // Determine button state
+        let buttonHTML = '';
+        if (application) {
+            const status = application.status || 'pending';
+            if (status === 'approved') {
+                buttonHTML = `<button class="apply-btn applied" disabled><i class="fas fa-check-circle"></i> Approved</button>`;
+            } else if (status === 'rejected') {
+                buttonHTML = `<button class="apply-btn rejected" disabled><i class="fas fa-times-circle"></i> Rejected</button>`;
+            } else {
+                buttonHTML = `<button class="apply-btn pending" disabled><i class="fas fa-clock"></i> Application Pending</button>`;
+            }
+        } else if (eligibility.isEligible) {
+            buttonHTML = `<button class="apply-btn eligible" onclick="applyForOpportunity('${opp.id}')"><i class="fas fa-paper-plane"></i> Apply Now</button>`;
+        } else {
+            buttonHTML = `<button class="apply-btn ineligible" disabled><i class="fas fa-lock"></i> Requirements Not Met</button>`;
+        }
+        
+        card.innerHTML = `
+            <span class="eligibility-badge ${badgeClass}">${badgeText}</span>
+            <span class="category-badge">${opp.category || 'general'}</span>
+            
+            <div class="card-header">
+                <h3 class="card-title">${opp.title}</h3>
+                <p class="card-description">${opp.description}</p>
+                <div class="card-advertiser">
+                    <i class="fas fa-user"></i>
+                    ${opp.advertiserName || 'Advertiser'}
+                </div>
+            </div>
+            
+            <div class="requirements">
+                <div class="requirements-title">Requirements</div>
+                <div class="requirement-list">
+                    <div class="requirement-item ${eligibility.hasEnoughLikes ? 'met' : 'not-met'}">
+                        <i class="fas fa-${eligibility.hasEnoughLikes ? 'check' : 'times'}"></i>
+                        ${opp.requirements.minLikes}+ total likes (You have: ${userStats.likes})
+                    </div>
+                    <div class="requirement-item ${eligibility.hasEnoughFollowers ? 'met' : 'not-met'}">
+                        <i class="fas fa-${eligibility.hasEnoughFollowers ? 'check' : 'times'}"></i>
+                        ${opp.requirements.minFollowers}+ followers (You have: ${userStats.followers})
+                    </div>
+                    ${opp.requirements.requireVerified ? `
+                        <div class="requirement-item ${eligibility.meetsVerification ? 'met' : 'not-met'}">
+                            <i class="fas fa-${eligibility.meetsVerification ? 'check' : 'times'}"></i>
+                            Verified account required
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+            
+            <div class="card-stats">
+                <div class="card-stat">
+                    <div class="card-stat-value">${formatNumber(opp.targetViews)}</div>
+                    <div class="card-stat-label">Target Views</div>
+                </div>
+                <div class="card-stat">
+                    <div class="card-stat-value">$${opp.cost.toFixed(2)}</div>
+                    <div class="card-stat-label">Budget</div>
+                </div>
+                <div class="card-stat">
+                    <div class="card-stat-value">${formatNumber(opp.currentViews || 0)}</div>
+                    <div class="card-stat-label">Current</div>
+                </div>
+            </div>
+            
+            <div class="card-actions">
+                ${buttonHTML}
+            </div>
+        `;
+        
+        container.appendChild(card);
+    }
+}
 
-  const qApps = query(collection(db, "opportunityApplications"), where("creatorId", "==", currentUser.uid));
+// Check eligibility
+function checkEligibility(opportunity) {
+    const req = opportunity.requirements;
+    const hasEnoughLikes = userStats.likes >= req.minLikes;
+    const hasEnoughFollowers = userStats.followers >= req.minFollowers;
+    const meetsVerification = !req.requireVerified || userStats.isVerified;
+    
+    const isEligible = hasEnoughLikes && hasEnoughFollowers && meetsVerification;
+    const partiallyEligible = (hasEnoughLikes || hasEnoughFollowers) && meetsVerification;
+    
+    return {
+        isEligible,
+        partiallyEligible,
+        hasEnoughLikes,
+        hasEnoughFollowers,
+        meetsVerification
+    };
+}
 
-  unsubApps = onSnapshot(qApps, (snap) => {
-    myAppsMap = new Map();
-    let pendingCount = 0;
-    const apps = [];
+// Apply for opportunity
+window.applyForOpportunity = async function(opportunityId) {
+    const opportunity = allOpportunities.find(opp => opp.id === opportunityId);
+    if (!opportunity) return;
+    
+    if (!confirm(`Apply for "${opportunity.title}"?\n\nMake sure you're ready to promote this opportunity if approved.`)) {
+        return;
+    }
+    
+    try {
+        // Create application
+        await addDoc(collection(db, "applications"), {
+            opportunityId: opportunityId,
+            opportunityTitle: opportunity.title,
+            advertiserId: opportunity.advertiserId,
+            advertiserName: opportunity.advertiserName,
+            creatorId: currentUser.uid,
+            creatorName: currentUser.displayName || currentUser.email?.split('@')[0] || 'Creator',
+            creatorStats: {
+                likes: userStats.likes,
+                followers: userStats.followers,
+                posts: userStats.posts,
+                isVerified: userStats.isVerified
+            },
+            status: 'pending',
+            appliedAt: serverTimestamp(),
+            reviewedAt: null,
+            notes: ''
+        });
+        
+        // Show success modal
+        document.getElementById('success-modal').classList.add('active');
+        
+        // Reload applications
+        loadMyApplications();
+        
+        // Update the button immediately
+        displayOpportunities();
+        
+    } catch (error) {
+        console.error("Error applying for opportunity:", error);
+        alert("Failed to submit application. Please try again.");
+    }
+};
 
-    snap.forEach((d) => {
-      const a = { id: d.id, ...d.data() };
-      apps.push(a);
-      myAppsMap.set(a.opportunityId, a);
-      if (String(a.status || "pending") === "pending") pendingCount++;
+// Load my applications
+function loadMyApplications() {
+    const q = query(collection(db, "applications"), where("creatorId", "==", currentUser.uid));
+    
+    onSnapshot(q, (snapshot) => {
+        myApplications = [];
+        let pendingCount = 0;
+        
+        snapshot.forEach(doc => {
+            const data = { id: doc.id, ...doc.data() };
+            myApplications.push(data);
+            if (data.status === 'pending') pendingCount++;
+        });
+        
+        // Update badge
+        const badge = document.getElementById('app-badge');
+        if (pendingCount > 0) {
+            badge.textContent = pendingCount;
+            badge.style.display = 'flex';
+        } else {
+            badge.style.display = 'none';
+        }
+        
+        displayApplications();
     });
-
-    appsDot.style.display = pendingCount > 0 ? "flex" : "none";
-    appsDot.textContent = pendingCount > 99 ? "99+" : String(pendingCount);
-
-    renderMyApplications(apps);
-    renderOpportunities();
-  });
 }
 
-function renderMyApplications(apps){
-  apps.sort((a,b) => getSortTime(b.createdAt) - getSortTime(a.createdAt));
-
-  if (apps.length === 0){
-    appsList.innerHTML = `<div class="empty"><i class="fas fa-inbox"></i><div style="margin-top:10px;">No applications yet.</div></div>`;
-    return;
-  }
-
-  appsList.innerHTML = "";
-  apps.forEach((a) => {
-    const status = String(a.status || "pending").toLowerCase();
-    const statusClass = status === "approved" ? "ok" : status === "rejected" ? "no" : "pending";
-
-    const el = document.createElement("div");
-    el.className = "app-item";
-    el.innerHTML = `
-      <div class="top">
-        <div>
-          <div class="title">${escapeHTML(a.opportunityTitle || "Opportunity")}</div>
-          <div class="small">Applied: ${fmtTime(a.createdAt)}</div>
-        </div>
-        <span class="badge ${statusClass}">
-          <i class="fas ${status === 'approved' ? 'fa-check' : status === 'rejected' ? 'fa-ban' : 'fa-clock'}"></i>
-          ${status.toUpperCase()}
-        </span>
-      </div>
-    `;
-    appsList.appendChild(el);
-  });
+// Display applications
+function displayApplications() {
+    const container = document.getElementById('applications-list');
+    
+    let filtered = myApplications;
+    if (currentAppFilter !== 'all') {
+        filtered = myApplications.filter(app => app.status === currentAppFilter);
+    }
+    
+    // Sort by date (newest first)
+    filtered.sort((a, b) => {
+        const timeA = a.appliedAt?.seconds || 0;
+        const timeB = b.appliedAt?.seconds || 0;
+        return timeB - timeA;
+    });
+    
+    if (filtered.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon"><i class="fas fa-clipboard-list"></i></div>
+                <h3 class="empty-title">No applications</h3>
+                <p class="empty-text">${currentAppFilter === 'all' ? 'You haven\'t applied for any opportunities yet' : `No ${currentAppFilter} applications`}</p>
+            </div>`;
+        return;
+    }
+    
+    container.innerHTML = '';
+    
+    filtered.forEach(app => {
+        const appliedDate = app.appliedAt ? formatDate(app.appliedAt.toDate()) : 'Recently';
+        
+        const item = document.createElement('div');
+        item.className = 'application-item';
+        item.innerHTML = `
+            <div class="app-header">
+                <div>
+                    <h3 class="app-title">${app.opportunityTitle}</h3>
+                    <div style="font-size:12px;color:#999;margin-top:5px;">
+                        <i class="fas fa-user"></i> ${app.advertiserName}
+                    </div>
+                </div>
+                <span class="app-status status-${app.status}">${app.status.toUpperCase()}</span>
+            </div>
+            
+            ${app.notes ? `
+                <div style="padding:10px;background:#f0f0f0;border-radius:8px;margin:10px 0;">
+                    <strong style="font-size:12px;color:#666;">Note from advertiser:</strong>
+                    <p style="font-size:13px;color:#333;margin-top:5px;">${app.notes}</p>
+                </div>
+            ` : ''}
+            
+            <div class="app-details">
+                <div class="app-detail">
+                    <i class="fas fa-calendar"></i>
+                    Applied ${appliedDate}
+                </div>
+                ${app.reviewedAt ? `
+                    <div class="app-detail">
+                        <i class="fas fa-check-circle"></i>
+                        Reviewed ${formatDate(app.reviewedAt.toDate())}
+                    </div>
+                ` : ''}
+                <div class="app-detail">
+                    <i class="fas fa-chart-line"></i>
+                    ${app.creatorStats.likes} likes, ${app.creatorStats.followers} followers
+                </div>
+            </div>
+            
+            ${app.status === 'approved' ? `
+                <div class="app-actions">
+                    <button class="app-action-btn view-opp-btn" onclick="viewOpportunity('${app.opportunityId}')">
+                        <i class="fas fa-eye"></i> View Campaign
+                    </button>
+                </div>
+            ` : ''}
+        `;
+        container.appendChild(item);
+    });
 }
 
-function openOpportunityLink(opp){
-  const url = opp.destinationUrl;
-  if (!url) return alert("No link provided for this opportunity.");
-  window.open(url, "_blank");
+// Filter opportunities
+window.filterOpportunities = function(filter, btn) {
+    currentFilter = filter;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    displayOpportunities();
+};
+
+// Filter applications
+window.filterApplications = function(filter, btn) {
+    currentAppFilter = filter;
+    document.querySelectorAll('.app-filter').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    displayApplications();
+};
+
+// View opportunity
+window.viewOpportunity = function(opportunityId) {
+    // You can redirect to opportunity details or open in modal
+    alert('View opportunity details: ' + opportunityId);
+};
+
+// Overlay functions
+window.openApplicationsOverlay = function() {
+    document.getElementById('applications-overlay').classList.add('active');
+};
+
+window.closeApplicationsOverlay = function() {
+    document.getElementById('applications-overlay').classList.remove('active');
+};
+
+window.closeSuccessModal = function() {
+    document.getElementById('success-modal').classList.remove('active');
+};
+
+// Format number
+function formatNumber(num) {
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+    return num.toString();
 }
 
-appsBtn.addEventListener("click", () => overlay.classList.add("active"));
-window.closeOverlay = function(){ overlay.classList.remove("active"); };
-overlay.addEventListener("click", (e) => { if (e.target.id === "overlay") closeOverlay(); });
-
-function fmt(n){ return Number(n||0).toLocaleString(); }
-function getSortTime(ts){
-  if (!ts) return 0;
-  if (typeof ts.seconds === "number") return ts.seconds * 1000;
-  if (typeof ts.toDate === "function") return ts.toDate().getTime();
-  return 0;
-}
-function escapeHTML(str){
-  return String(str||"").replace(/[&<>"']/g, (m) => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-  }[m]));
-}
-function fmtTime(ts){
-  const d = ts?.toDate ? ts.toDate() : null;
-  if (!d) return "—";
-  return d.toLocaleString([], { month:"short", day:"numeric", hour:"numeric", minute:"2-digit" });
+// Format date
+function formatDate(date) {
+    const now = new Date();
+    const diff = Math.floor((now - date) / 1000);
+    
+    if (diff < 60) return "Just now";
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+    if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
+    
+    return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+    });
 }
 </script>
+
 </body>
 </html>
