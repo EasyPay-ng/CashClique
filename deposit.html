@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Deposit Funds | CashClique</title>
 
-<!-- TESSERACT JS FOR AI RECEIPT SCANNING -->
+<!-- TESSERACT JS FOR RECEIPT SCANNING -->
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1774094269/logo2_ago4ay.jpg">
@@ -131,8 +131,8 @@ p.sub { font-size:14px; color:#64748b; margin-bottom:30px; }
             <strong>Important Notice:</strong><br>
             • Minimum deposit is <strong>$0.1</strong><br>
             • Exchange Rate: <strong>₦1,300 per $1</strong><br>
-            • You MUST upload a screenshot of your successful receipt for AI verification.<br>
-            • You MUST include the generated <strong>Remark</strong> when transferring.
+            • You MUST upload a clear screenshot of your receipt.<br>
+            • The system will check the <strong>Amount, Account Name, Transfer Remark, and Time.</strong>
         </div>
 
         <div class="input-group">
@@ -185,7 +185,7 @@ p.sub { font-size:14px; color:#64748b; margin-bottom:30px; }
     </div>
 </div>
 
-<!-- OVERLAY 3: Verify Transaction with OCR -->
+<!-- OVERLAY 3: Verify Transaction with STRICT OCR -->
 <div class="page-overlay" id="overlayVerify">
     <div class="overlay-header">
         <button class="back-btn" onclick="closeOverlay('overlayVerify')"><i class="fas fa-arrow-left"></i></button>
@@ -195,16 +195,16 @@ p.sub { font-size:14px; color:#64748b; margin-bottom:30px; }
         
         <i class="fas fa-shield-halved" style="font-size:50px; color:#e2e8f0; margin-bottom:15px;"></i>
         <h3 style="font-size:18px; font-weight:700; margin-bottom:10px;">Submit Proof of Payment</h3>
-        <p style="font-size:13px; color:#64748b; margin-bottom:20px;">Enter your transaction ID and upload a screenshot of the successful receipt. Our AI will verify the amount instantly.</p>
+        <p style="font-size:13px; color:#64748b; margin-bottom:20px;">Upload a screenshot of the successful receipt. The system will verify the Name, Amount, Remark, and Time instantly.</p>
 
         <input type="number" id="transactionId" class="amount-input" style="text-align:center; padding:14px; font-size:16px; margin-bottom:15px;" placeholder="Transaction ID (from receipt)">
 
-        <!-- AI Image Upload Area -->
+        <!-- Image Upload Area -->
         <div class="upload-box">
             <input type="file" id="receiptImage" accept="image/*" style="opacity:0; position:absolute; inset:0; cursor:pointer;" onchange="handleReceiptUpload(event)">
             <i class="fas fa-cloud-upload-alt" style="font-size:30px; color:#ff6a00; margin-bottom:10px;"></i>
             <div id="uploadText" style="font-size:14px; font-weight:600; color:#334155;">Tap to upload Receipt</div>
-            <div id="uploadStatus" style="font-size:12px; color:#64748b; margin-top:5px;">Must clearly show the amount & success status</div>
+            <div id="uploadStatus" style="font-size:12px; color:#64748b; margin-top:5px; line-height:1.5;">Must show Amount, Muhammad Nasir, Remark, & Transfer Time.</div>
         </div>
 
         <!-- Hidden preview to hold base64 data -->
@@ -307,7 +307,7 @@ window.proceedToPayment = () => {
 
 window.proceedToVerification = () => document.getElementById('overlayVerify').classList.add('active');
 
-// IMAGE COMPRESSION & AI OCR SCANNING
+// STRICT IMAGE COMPRESSION & OCR SCANNING
 window.handleReceiptUpload = async function(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -318,7 +318,7 @@ window.handleReceiptUpload = async function(event) {
     const preview = document.getElementById('receiptPreview');
 
     uploadText.innerText = "Scanning receipt...";
-    uploadStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Reading text with AI...';
+    uploadStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> System reading receipt. Please wait...';
     verifyBtn.disabled = true;
 
     const reader = new FileReader();
@@ -344,26 +344,72 @@ window.handleReceiptUpload = async function(event) {
                 const extractedText = ret.data.text.toLowerCase();
                 await worker.terminate();
 
+                // 1. Check Exact Amount
                 const expectedNaira = userNairaAmount.toLocaleString(); 
                 const cleanExpectedNaira = userNairaAmount.toString(); 
-                
-                // Validate AI output
-                const isValid = extractedText.includes(expectedNaira) || extractedText.includes(cleanExpectedNaira) || extractedText.includes("successful") || extractedText.includes("success");
+                const isAmountValid = extractedText.includes(expectedNaira) || extractedText.includes(cleanExpectedNaira);
 
-                if (isValid) {
+                // 2. Check Name
+                const hasName = extractedText.includes("muhammad") || extractedText.includes("nasir");
+
+                // 3. Check Exact Dynamic Remark
+                const rawRemark = document.getElementById('generatedRemark').innerText.toLowerCase();
+                const normalizeString = (str) => str.replace(/-/g, '').replace(/[0o]/g, 'o').replace(/[1il]/g, 'i').replace(/[5s]/g, 's');
+                const cleanRemark = normalizeString(rawRemark);
+                const cleanExtracted = normalizeString(extractedText);
+                const hasRemark = cleanExtracted.includes(cleanRemark);
+
+                // 4. Check Time (GMT+1 within 30 mins)
+                let hasValidTime = false;
+                const timeRegex = /\b([01]?[0-9]|2[0-3])[:.]([0-5][0-9])(?:\s?([aA][pP][mM]))?\b/g;
+                let match;
+                
+                const now = new Date();
+                const gmtPlus1 = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (3600000));
+                const currentMins = gmtPlus1.getHours() * 60 + gmtPlus1.getMinutes();
+
+                while ((match = timeRegex.exec(extractedText)) !== null) {
+                    let hrs = parseInt(match[1]);
+                    let mins = parseInt(match[2]);
+                    let ampm = match[3] ? match[3].toLowerCase() : null;
+
+                    if (ampm === 'pm' && hrs < 12) hrs += 12;
+                    if (ampm === 'am' && hrs === 12) hrs = 0;
+
+                    let receiptMins = hrs * 60 + mins;
+                    let diff = currentMins - receiptMins;
+                    
+                    if (diff < -720) diff += 1440;
+                    if (diff > 720) diff -= 1440;
+
+                    // Allows receipt time to be 30 mins in past, or up to 5 mins in future (clock mismatch)
+                    if (diff >= -5 && diff <= 35) {
+                        hasValidTime = true;
+                        break;
+                    }
+                }
+
+                // Validation Result Compilation
+                let errors = [];
+                if (!isAmountValid) errors.push("Exact Naira Amount");
+                if (!hasName) errors.push("Account Name");
+                if (!hasRemark) errors.push("Transfer Remark");
+                if (!hasValidTime) errors.push("Valid Time (Within 30 mins)");
+
+                if (errors.length === 0) {
                     uploadText.innerText = "Receipt Verified!";
                     uploadText.style.color = "#10b981";
-                    uploadStatus.innerText = "Image attached securely.";
+                    uploadStatus.innerHTML = "All details matched perfectly! <i class='fas fa-check-circle' style='color:#10b981'></i>";
                     verifyBtn.disabled = false;
                 } else {
                     uploadText.innerText = "Scan Failed!";
                     uploadText.style.color = "#ef4444";
-                    uploadStatus.innerText = "Couldn't detect correct amount or success status. Upload a clearer receipt.";
+                    uploadStatus.innerHTML = `<span style="color:#ef4444;">Missing or incorrect: <b>${errors.join(', ')}</b>. Please upload a clear receipt.</span>`;
                     base64Receipt = null;
                 }
             } catch (err) {
                 console.error("OCR Error:", err);
-                uploadStatus.innerText = "AI scan failed. Please try a different image.";
+                uploadStatus.innerText = "System scan failed. Please try a different image.";
             }
         };
         img.src = e.target.result;
