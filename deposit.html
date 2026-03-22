@@ -2,120 +2,242 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Submit Deposit | CashClique</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Deposit Funds | CashClique</title>
 
-<link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<!-- TESSERACT JS FOR AI RECEIPT SCANNING -->
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
+<link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1774094269/logo2_ago4ay.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 <style>
-:root {
-    --primary: #ff6a00;
-    --primary-hover: #e55d00;
-    --bg: #f5f6f8;
-    --card-bg: #ffffff;
-    --border: #e2e8f0;
-    --text-dark: #1e2937;
-    --text-light: #64748b;
-    --success: #10b981;
-    --warning: #f59e0b;
-    --danger: #ef4444;
-}
-
 * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
-body { background:var(--bg); min-height:100vh; color:var(--text-dark); overflow-x:hidden; }
+body { background:#f5f6f8; color:#1e2937; min-height:100vh; overflow-x:hidden; }
 
-/* Sidebar */
-.sidebar { width:260px; background:#1e2937; color:white; padding:25px; display:flex; flex-direction:column; gap:10px; position:fixed; height:100%; z-index:100; transition:transform 0.3s ease; }
-.sidebar h2 { font-size:22px; margin-bottom:30px; font-weight:700; color:var(--primary); display:flex; align-items:center; gap:10px; }
-.sidebar a { color:#cbd5e1; text-decoration:none; padding:14px 16px; border-radius:10px; transition:0.3s; font-weight:500; display:flex; align-items:center; gap:10px; }
-.sidebar a:hover, .sidebar a.active { background:var(--primary); color:white; }
+.container { max-width:500px; margin:0 auto; padding:20px 20px 40px; text-align:center; }
+.top-nav { display:flex; align-items:center; justify-content:flex-start; margin-bottom:20px; }
+.nav-back-btn { background:white; border:1px solid #e2e8f0; border-radius:12px; padding:10px 16px; font-size:14px; font-weight:600; color:#1e2937; cursor:pointer; display:flex; align-items:center; gap:8px; transition:0.3s; }
+.nav-back-btn:hover { border-color:#ff6a00; color:#ff6a00; }
+.logo { width:140px; margin-bottom:20px; border-radius:12px; }
+h2 { font-size:22px; font-weight:700; margin-bottom:10px; color:#0f172a; }
+p.sub { font-size:14px; color:#64748b; margin-bottom:30px; }
 
-/* Main Content */
-.main-content { margin-left:260px; padding:30px; min-height:100vh; }
-.page-header { margin-bottom:30px; }
-.page-title { font-size:28px; font-weight:700; color:var(--text-dark); margin-bottom:8px; }
-.page-subtitle { font-size:14px; color:var(--text-light); }
+/* Channel Buttons */
+.channel-btn { width:100%; background:white; border:2px solid #e2e8f0; border-radius:16px; padding:20px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; margin-bottom:15px; transition:0.3s; text-align:left; }
+.channel-btn:hover { border-color:#ff6a00; transform:translateY(-2px); box-shadow:0 10px 20px rgba(255,106,0,0.1); }
+.channel-left { display:flex; align-items:center; gap:15px; }
+.channel-icon { width:45px; height:45px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px; }
+.icon-bank { background:#fff7ed; color:#ff6a00; }
+.icon-crypto { background:#f1f5f9; color:#475569; }
+.channel-text h3 { font-size:16px; font-weight:600; color:#1e2937; }
+.channel-text span { font-size:13px; color:#64748b; }
 
-/* Form Card */
-.deposit-card { background:var(--card-bg); border-radius:16px; border:1px solid var(--border); padding:30px; max-width:600px; box-shadow:0 4px 15px rgba(0,0,0,0.03); }
-.form-group { margin-bottom:20px; }
-.form-group label { display:block; margin-bottom:8px; font-weight:600; font-size:14px; color:var(--text-dark); }
-.form-input { width:100%; padding:12px 14px; border:2px solid var(--border); border-radius:10px; font-size:15px; outline:none; transition:0.3s; background:#fafbfc; }
-.form-input:focus { border-color:var(--primary); background:white; }
-.form-input[readonly] { background:#f1f5f9; cursor:not-allowed; }
-.form-hint { font-size:12px; color:var(--text-light); margin-top:6px; }
+/* Overlays */
+.page-overlay { position:fixed; inset:0; background:white; z-index:100; transform:translateX(100%); transition:transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); display:flex; flex-direction:column; overflow-y:auto; }
+.page-overlay.active { transform:translateX(0); }
+.overlay-header { padding:20px; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; gap:15px; background:rgba(255,255,255,0.9); backdrop-filter:blur(10px); position:sticky; top:0; z-index:10; }
+.back-btn { background:none; border:none; font-size:20px; color:#1e2937; cursor:pointer; }
+.overlay-title { font-weight:600; font-size:18px; }
+.overlay-content { padding:24px 20px; max-width:500px; margin:0 auto; width:100%; flex:1; }
 
-.submit-btn { width:100%; background:var(--primary); color:white; padding:14px; border:none; border-radius:10px; font-size:16px; font-weight:600; cursor:pointer; transition:0.3s; display:flex; align-items:center; justify-content:center; gap:8px; }
-.submit-btn:hover:not(:disabled) { background:var(--primary-hover); }
-.submit-btn:disabled { opacity:0.6; cursor:not-allowed; }
+/* Inputs & Details */
+.notice-box { background:#fff7ed; border-left:4px solid #ff6a00; padding:16px; border-radius:0 12px 12px 0; margin-bottom:24px; font-size:13px; color:#9a3412; line-height:1.6; }
+.input-group { margin-bottom:20px; }
+.input-label { display:block; font-size:14px; font-weight:600; margin-bottom:8px; color:#334155; }
+.amount-wrapper { position:relative; display:flex; align-items:center; }
+.amount-wrapper span { position:absolute; left:16px; font-size:20px; font-weight:600; color:#94a3b8; }
+.amount-input { width:100%; padding:16px 16px 16px 40px; font-size:24px; font-weight:700; border:2px solid #e2e8f0; border-radius:16px; outline:none; transition:0.3s; }
+.amount-input:focus { border-color:#ff6a00; box-shadow:0 0 0 4px rgba(255,106,0,0.1); }
+.naira-eqv { text-align:right; font-size:14px; color:#64748b; margin-top:8px; font-weight:500; }
+.naira-eqv span { color:#ff6a00; font-weight:700; font-size:16px; }
 
-/* Status Box */
-.status-box { margin-top:20px; padding:15px; border-radius:10px; font-size:14px; display:none; }
-.status-box.show { display:block; }
-.status-box.success { background:#ecfdf5; border:1px solid #a7f3d0; color:#065f46; }
-.status-box.error { background:#fef2f2; border:1px solid #fecaca; color:#991b1b; }
-.status-box.info { background:#eff6ff; border:1px solid #bfdbfe; color:#1e40af; }
-.status-line { margin:4px 0; display:flex; align-items:center; gap:6px; }
+/* Buttons */
+.btn-primary { width:100%; background:linear-gradient(135deg, #ff6a00, #e55d00); color:white; border:none; padding:16px; border-radius:16px; font-size:16px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; transition:0.3s; margin-top:10px; }
+.btn-primary:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 10px 25px rgba(255,106,0,0.3); }
+.btn-primary:disabled { opacity:0.6; cursor:not-allowed; }
 
-/* Responsive */
-@media(max-width:900px) {
-    .sidebar { transform:translateX(-100%); }
-    .main-content { margin-left:0; padding:20px; }
-}
+/* Upload Box */
+.upload-box { background:#f8fafc; border:2px dashed #cbd5e1; border-radius:12px; padding:20px; position:relative; cursor:pointer; transition:0.3s; margin-bottom:15px; }
+.upload-box:hover { border-color:#ff6a00; background:#fff7ed; }
+
+/* Timer & Details */
+.timer-box { background:#fef2f2; color:#b91c1c; text-align:center; padding:12px; border-radius:12px; font-weight:700; font-size:18px; margin-bottom:24px; }
+.details-card { background:white; border:1px solid #e2e8f0; border-radius:16px; overflow:hidden; margin-bottom:24px; text-align:left; }
+.detail-row { padding:16px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f1f5f9; }
+.detail-label { font-size:13px; color:#64748b; display:block; margin-bottom:4px; }
+.detail-value { font-size:15px; font-weight:700; color:#1e2937; }
+.copy-btn { background:#f1f5f9; border:none; width:36px; height:36px; border-radius:10px; color:#ff6a00; cursor:pointer; transition:0.2s; display:flex; align-items:center; justify-content:center; }
+
+/* Modals & Loaders */
+.loader-overlay { position:fixed; inset:0; background:rgba(255,255,255,0.9); z-index:9999; display:none; flex-direction:column; align-items:center; justify-content:center; backdrop-filter:blur(5px); }
+.loader-overlay.active { display:flex; }
+.spinner { font-size:45px; color:#ff6a00; animation:spin 1s linear infinite; margin-bottom:15px; }
+.success-modal { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:10000; display:none; align-items:center; justify-content:center; backdrop-filter:blur(5px); }
+.success-modal.active { display:flex; }
+.success-box { background:white; padding:40px 30px; border-radius:24px; text-align:center; width:90%; max-width:350px; transform:scale(0.8); transition:0.3s; }
+.success-modal.active .success-box { transform:scale(1); }
+.success-icon { width:80px; height:80px; background:#ecfdf5; color:#10b981; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:40px; margin:0 auto 20px; }
+.toast { position:fixed; bottom:-100px; left:50%; transform:translateX(-50%); background:#1e2937; color:white; padding:14px 24px; border-radius:99px; font-size:14px; font-weight:500; transition:0.4s; z-index:10000; display:flex; align-items:center; gap:10px; }
+.toast.show { bottom:30px; }
+@keyframes spin { 100% { transform:rotate(360deg); } }
 </style>
 </head>
-
 <body>
 
-<!-- Sidebar -->
-<div class="sidebar">
-    <h2><i class="fas fa-shield-halved"></i> CashClique</h2>
-    <a href="dashboard.html"><i class="fas fa-chart-pie"></i> Dashboard</a>
-    <a href="#" class="active"><i class="fas fa-wallet"></i> Make Deposit</a>
-    <a href="withdraw.html"><i class="fas fa-money-bill-wave"></i> Withdraw</a>
-    <a href="#" onclick="handleLogout()" style="margin-top:auto;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+<!-- MAIN PAGE: Select Channel -->
+<div class="container">
+    <div class="top-nav">
+        <button class="nav-back-btn" onclick="window.location.href='dashboard.html'"><i class="fas fa-arrow-left"></i> Back</button>
+    </div>
+
+    <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1774094269/logo2_ago4ay.jpg" alt="CashClique" class="logo">
+    <h2>Deposit Funds</h2>
+    <p class="sub">Select a payment channel to fund your wallet.</p>
+
+    <button class="channel-btn" onclick="selectBank()">
+        <div class="channel-left">
+            <div class="channel-icon icon-bank"><i class="fas fa-building-columns"></i></div>
+            <div class="channel-text">
+                <h3>Bank Transfer</h3>
+                <span>Instant deposit via NGN</span>
+            </div>
+        </div>
+        <i class="fas fa-chevron-right" style="color:#cbd5e1;"></i>
+    </button>
+
+    <button class="channel-btn" onclick="selectCrypto()">
+        <div class="channel-left">
+            <div class="channel-icon icon-crypto"><i class="fab fa-bitcoin"></i></div>
+            <div class="channel-text">
+                <h3>Cryptocurrency</h3>
+                <span>USDT, BTC, ETH</span>
+            </div>
+        </div>
+        <i class="fas fa-chevron-right" style="color:#cbd5e1;"></i>
+    </button>
 </div>
 
-<!-- Main Content -->
-<main class="main-content">
-    <div class="page-header">
-        <h1 class="page-title">Submit Deposit</h1>
-        <p class="page-subtitle">Upload your transfer receipt for automatic verification</p>
+<!-- OVERLAY 1: Enter Amount -->
+<div class="page-overlay" id="overlayAmount">
+    <div class="overlay-header">
+        <button class="back-btn" onclick="closeOverlay('overlayAmount')"><i class="fas fa-arrow-left"></i></button>
+        <div class="overlay-title">Enter Amount</div>
     </div>
-
-    <div class="deposit-card">
-        <div class="form-group">
-            <label>Deposit Amount</label>
-            <input type="number" id="expected-amount" class="form-input" step="0.01" placeholder="e.g. 5000.00" required>
+    <div class="overlay-content">
+        <div class="notice-box">
+            <i class="fas fa-circle-info" style="margin-right:5px;"></i>
+            <strong>Important Notice:</strong><br>
+            • Minimum deposit is <strong>$0.1</strong><br>
+            • Exchange Rate: <strong>₦1,300 per $1</strong><br>
+            • You MUST upload a screenshot of your successful receipt for AI verification.<br>
+            • You MUST include the generated <strong>Remark</strong> when transferring.
         </div>
 
-        <div class="form-group">
-            <label>Transaction Remark</label>
-            <input type="text" id="expected-remark" class="form-input" placeholder="e.g. CQ-8F9X2P" required style="font-family:monospace; letter-spacing:1px;">
-            <div class="form-hint">Must match exactly what appears on your bank receipt. Do not add extra text.</div>
+        <div class="input-group">
+            <label class="input-label">Amount (USD)</label>
+            <div class="amount-wrapper">
+                <span>$</span>
+                <input type="number" class="amount-input" id="amountInput" placeholder="0.00" min="0.1" step="0.1">
+            </div>
+            <div class="naira-eqv">You will pay: <span id="nairaOutput">₦0</span></div>
         </div>
 
-        <div class="form-group">
-            <label>Receipt Screenshot</label>
-            <input type="file" id="receipt-file" class="form-input" accept="image/*" required style="padding:10px;">
-            <div class="form-hint">Ensure timestamp, amount, and remark are clearly visible. Max size: ~700KB after compression.</div>
-        </div>
-
-        <button id="submit-btn" class="submit-btn" onclick="processReceipt()">
-            <i class="fas fa-check-circle"></i> Validate & Submit
-        </button>
-
-        <div id="status-box" class="status-box"></div>
+        <button class="btn-primary" onclick="proceedToPayment()">Continue to Payment <i class="fas fa-arrow-right"></i></button>
     </div>
-</main>
+</div>
 
+<!-- OVERLAY 2: Bank Details -->
+<div class="page-overlay" id="overlayPayment">
+    <div class="overlay-header">
+        <button class="back-btn" onclick="closeOverlay('overlayPayment')"><i class="fas fa-arrow-left"></i></button>
+        <div class="overlay-title">Make Transfer</div>
+    </div>
+    <div class="overlay-content">
+        
+        <div class="timer-box"><i class="fas fa-stopwatch"></i> <span id="countdown">30:00</span></div>
+        <p style="font-size:14px; color:#64748b; margin-bottom:15px; text-align:center;">Transfer exactly the amount below to this account.</p>
+
+        <div class="details-card">
+            <div class="detail-row">
+                <div><span class="detail-label">Bank Name</span><span class="detail-value">PalmPay Limited</span></div>
+                <button class="copy-btn" onclick="copyText('PalmPay Limited')"><i class="far fa-copy"></i></button>
+            </div>
+            <div class="detail-row">
+                <div><span class="detail-label">Account Number</span><span class="detail-value">8037402826</span></div>
+                <button class="copy-btn" onclick="copyText('8037402826')"><i class="far fa-copy"></i></button>
+            </div>
+            <div class="detail-row">
+                <div><span class="detail-label">Account Name</span><span class="detail-value">Muhammad Nasir</span></div>
+            </div>
+            <div class="detail-row" style="background:#fff7ed;">
+                <div><span class="detail-label">Amount to Pay</span><span class="detail-value" style="color:#ff6a00; font-size:18px;">₦<span id="finalNaira">0</span></span></div>
+                <button class="copy-btn" onclick="copyText(document.getElementById('finalNaira').innerText)"><i class="far fa-copy"></i></button>
+            </div>
+            <div class="detail-row">
+                <div><span class="detail-label">Transfer Remark (Required)</span><span class="detail-value" id="generatedRemark">CC-XXXXXX</span></div>
+                <button class="copy-btn" onclick="copyText(document.getElementById('generatedRemark').innerText)"><i class="far fa-copy"></i></button>
+            </div>
+        </div>
+
+        <button class="btn-primary" onclick="proceedToVerification()">I Have Sent The Money</button>
+    </div>
+</div>
+
+<!-- OVERLAY 3: Verify Transaction with OCR -->
+<div class="page-overlay" id="overlayVerify">
+    <div class="overlay-header">
+        <button class="back-btn" onclick="closeOverlay('overlayVerify')"><i class="fas fa-arrow-left"></i></button>
+        <div class="overlay-title">Verify Payment</div>
+    </div>
+    <div class="overlay-content" style="text-align:center;">
+        
+        <i class="fas fa-shield-halved" style="font-size:50px; color:#e2e8f0; margin-bottom:15px;"></i>
+        <h3 style="font-size:18px; font-weight:700; margin-bottom:10px;">Submit Proof of Payment</h3>
+        <p style="font-size:13px; color:#64748b; margin-bottom:20px;">Enter your transaction ID and upload a screenshot of the successful receipt. Our AI will verify the amount instantly.</p>
+
+        <input type="number" id="transactionId" class="amount-input" style="text-align:center; padding:14px; font-size:16px; margin-bottom:15px;" placeholder="Transaction ID (from receipt)">
+
+        <!-- AI Image Upload Area -->
+        <div class="upload-box">
+            <input type="file" id="receiptImage" accept="image/*" style="opacity:0; position:absolute; inset:0; cursor:pointer;" onchange="handleReceiptUpload(event)">
+            <i class="fas fa-cloud-upload-alt" style="font-size:30px; color:#ff6a00; margin-bottom:10px;"></i>
+            <div id="uploadText" style="font-size:14px; font-weight:600; color:#334155;">Tap to upload Receipt</div>
+            <div id="uploadStatus" style="font-size:12px; color:#64748b; margin-top:5px;">Must clearly show the amount & success status</div>
+        </div>
+
+        <!-- Hidden preview to hold base64 data -->
+        <img id="receiptPreview" style="display:none; width:100%; max-height:200px; object-fit:contain; margin-bottom:15px; border-radius:12px; border:1px solid #e2e8f0;">
+
+        <button class="btn-primary" id="verifyBtn" onclick="verifyPayment()" disabled>Verify Payment <i class="fas fa-check-circle"></i></button>
+    </div>
+</div>
+
+<!-- GLOBAL COMPONENTS -->
+<div class="loader-overlay" id="mainLoader">
+    <i class="fas fa-spinner spinner"></i>
+    <p style="font-weight:600; color:#1e2937;" id="loaderText">Processing...</p>
+</div>
+
+<div class="success-modal" id="successModal">
+    <div class="success-box">
+        <div class="success-icon"><i class="fas fa-check"></i></div>
+        <h3 style="font-size:22px; font-weight:700; color:#1e2937; margin-bottom:10px;">Payment Successful</h3>
+        <p style="font-size:14px; color:#64748b; margin-bottom:24px;">Your wallet has been credited.</p>
+        <button class="btn-primary" onclick="window.location.href='dashboard.html'">Go to Dashboard</button>
+    </div>
+</div>
+
+<div class="toast" id="toastBox">
+    <i class="fas fa-info-circle"></i> <span id="toastMsg">Message</span>
+</div>
+
+<!-- FIREBASE & LOGIC -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, updateDoc, increment, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -130,219 +252,164 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-let isAuthReady = false;
+const RATE = 1300;
+let userNairaAmount = 0;
+let timerInterval;
+let base64Receipt = null;
 
-// 🔐 Auth Guard
-onAuthStateChanged(auth, (user) => {
-    if (!user) {
-        if (isAuthReady) window.location.href = "login.html";
-        return;
-    }
-    isAuthReady = true;
-    // Pre-fill email if needed, or just allow form access
-});
-
-window.handleLogout = async () => {
-    if (confirm('Logout of your account?')) {
-        await signOut(auth);
-        window.location.href = "login.html";
-    }
+// UI Helpers
+window.showLoader = (text, duration, callback) => {
+    document.getElementById('loaderText').innerText = text;
+    const loader = document.getElementById('mainLoader');
+    loader.classList.add('active');
+    setTimeout(() => { loader.classList.remove('active'); if(callback) callback(); }, duration);
 };
 
-// 🌍 GMT+1 Helper
-function getGMT1Now() {
-    const now = new Date();
-    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-    return new Date(utc + 3600000); // UTC + 1 hour
-}
+window.showToast = (msg) => {
+    const toast = document.getElementById('toastBox');
+    document.getElementById('toastMsg').innerText = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+};
 
-// 🗜️ Compress & Base64
-function compressAndConvertToBase64(file) {
-    return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const img = new Image();
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const maxWidth = 700;
-                const scale = Math.min(1, maxWidth / img.width);
-                canvas.width = img.width * scale;
-                canvas.height = img.height * scale;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                resolve(canvas.toDataURL('image/jpeg', 0.65));
-            };
-            img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
+window.closeOverlay = (id) => document.getElementById(id).classList.remove('active');
+window.selectCrypto = () => showToast("This deposit channel is temporarily unavailable.");
+window.selectBank = () => { showLoader("Connecting...", 1000, () => document.getElementById('overlayAmount').classList.add('active')); };
+window.copyText = (text) => { navigator.clipboard.writeText(text.replace(/,/g, '')); showToast("Copied to clipboard!"); };
+
+// Amount Calculation
+document.getElementById('amountInput').addEventListener('input', function(e) {
+    const usd = parseFloat(this.value) || 0;
+    userNairaAmount = usd * RATE;
+    document.getElementById('nairaOutput').innerText = `₦${userNairaAmount.toLocaleString()}`;
+});
+
+window.proceedToPayment = () => {
+    const usd = parseFloat(document.getElementById('amountInput').value);
+    if (!usd || usd < 0.1) return showToast("Minimum deposit is $0.1");
+
+    showLoader("Generating Payment Details...", 1500, () => {
+        document.getElementById('finalNaira').innerText = userNairaAmount.toLocaleString();
+        const rand = Math.random().toString(36).substr(2, 4).toUpperCase();
+        document.getElementById('generatedRemark').innerText = `CC-${rand}-${Math.floor(1000+Math.random()*9000)}`;
+        document.getElementById('overlayPayment').classList.add('active');
+        
+        // Timer
+        clearInterval(timerInterval);
+        let time = 1800; 
+        timerInterval = setInterval(() => {
+            const min = Math.floor(time / 60), sec = time % 60;
+            document.getElementById('countdown').innerText = `${min}:${sec < 10 ? '0' : ''}${sec}`;
+            if (time-- <= 0) { clearInterval(timerInterval); alert("Session expired."); window.location.reload(); }
+        }, 1000);
     });
-}
+};
 
-// 🔍 Parse OCR Data
-function parseReceiptData(text, expectedAmount, expectedRemark) {
-    // Time
-    const timeMatch = text.match(/\b(\d{1,2}:\d{2}(?::\d{2})?)\b/);
-    let receiptTime = null;
-    if (timeMatch) {
-        const [h, m, s] = timeMatch[1].split(':').map(Number);
-        const gmt1Now = getGMT1Now();
-        receiptTime = new Date(gmt1Now);
-        receiptTime.setHours(h, m, s || 0, 0);
-    }
+window.proceedToVerification = () => document.getElementById('overlayVerify').classList.add('active');
 
-    // Amount (closest match)
-    const numMatches = text.match(/[\d,]+\.?\d*/g) || [];
-    let detectedAmount = null;
-    let minDiff = Infinity;
-    for (let m of numMatches) {
-        const val = parseFloat(m.replace(/,/g, ''));
-        if (!isNaN(val) && val > 0) {
-            const diff = Math.abs(val - expectedAmount);
-            if (diff < minDiff) {
-                minDiff = diff;
-                detectedAmount = val;
+// IMAGE COMPRESSION & AI OCR SCANNING
+window.handleReceiptUpload = async function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const uploadText = document.getElementById('uploadText');
+    const uploadStatus = document.getElementById('uploadStatus');
+    const verifyBtn = document.getElementById('verifyBtn');
+    const preview = document.getElementById('receiptPreview');
+
+    uploadText.innerText = "Scanning receipt...";
+    uploadStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Reading text with AI...';
+    verifyBtn.disabled = true;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = new Image();
+        img.onload = async function() {
+            // Compress Image
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 800;
+            let width = img.width, height = img.height;
+            if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+            canvas.width = width; canvas.height = height;
+            canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+            
+            base64Receipt = canvas.toDataURL('image/jpeg', 0.6);
+            preview.src = base64Receipt;
+            preview.style.display = 'block';
+
+            // Run OCR
+            try {
+                const worker = await Tesseract.createWorker('eng');
+                const ret = await worker.recognize(base64Receipt);
+                const extractedText = ret.data.text.toLowerCase();
+                await worker.terminate();
+
+                const expectedNaira = userNairaAmount.toLocaleString(); 
+                const cleanExpectedNaira = userNairaAmount.toString(); 
+                
+                // Validate AI output
+                const isValid = extractedText.includes(expectedNaira) || extractedText.includes(cleanExpectedNaira) || extractedText.includes("successful") || extractedText.includes("success");
+
+                if (isValid) {
+                    uploadText.innerText = "Receipt Verified!";
+                    uploadText.style.color = "#10b981";
+                    uploadStatus.innerText = "Image attached securely.";
+                    verifyBtn.disabled = false;
+                } else {
+                    uploadText.innerText = "Scan Failed!";
+                    uploadText.style.color = "#ef4444";
+                    uploadStatus.innerText = "Couldn't detect correct amount or success status. Upload a clearer receipt.";
+                    base64Receipt = null;
+                }
+            } catch (err) {
+                console.error("OCR Error:", err);
+                uploadStatus.innerText = "AI scan failed. Please try a different image.";
             }
-        }
-    }
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+};
 
-    // Remark (OCR-tolerant exact match)
-    const normalize = str => str.replace(/[^a-z0-9]/gi, '').toLowerCase();
-    const normExpected = normalize(expectedRemark);
-    const normText = normalize(text);
-    const remarkMatch = normText.includes(normExpected);
-
-    return { receiptTime, detectedAmount, remarkMatch, rawText: text };
-}
-
-// ✅ Validation
-function validateSubmission(data, expectedAmount) {
-    const flags = { success: [], warnings: [], blockers: [] };
-
-    // Time
-    if (data.receiptTime) {
-        const gmt1Now = getGMT1Now();
-        const diffMins = Math.abs((gmt1Now - data.receiptTime) / 60000);
-        if (diffMins > 30) {
-            flags.blockers.push(`Timestamp is >30 mins old (GMT+1)`);
-        } else {
-            flags.success.push(`Time verified within 30 mins`);
-        }
-    } else {
-        flags.blockers.push(`Could not detect timestamp on receipt`);
-    }
-
-    // Amount
-    if (data.detectedAmount !== null) {
-        const diff = Math.abs(data.detectedAmount - expectedAmount);
-        if (diff <= 1.0) {
-            flags.success.push(`Amount matches (${data.detectedAmount.toFixed(2)})`);
-        } else {
-            flags.blockers.push(`Amount mismatch: Expected ${expectedAmount.toFixed(2)}, found ${data.detectedAmount.toFixed(2)}`);
-        }
-    } else {
-        flags.blockers.push(`Could not detect amount on receipt`);
-    }
-
-    // Remark
-    if (data.remarkMatch) {
-        flags.success.push(`Transaction remark matches exactly`);
-    } else {
-        flags.blockers.push(`Remark not found or mismatched`);
-    }
-
-    return flags;
-}
-
-function showStatus(flags, type = 'info') {
-    const box = document.getElementById('status-box');
-    box.className = `status-box show ${type}`;
-    let html = '';
-    flags.success.forEach(s => html += `<div class="status-line"><i class="fas fa-check-circle" style="color:var(--success)"></i> ${s}</div>`);
-    flags.warnings.forEach(w => html += `<div class="status-line"><i class="fas fa-info-circle" style="color:var(--warning)"></i> ${w}</div>`);
-    flags.blockers.forEach(b => html += `<div class="status-line"><i class="fas fa-times-circle" style="color:var(--danger)"></i> ${b}</div>`);
-    box.innerHTML = html;
-}
-
-// 🚀 Main Process
-window.processReceipt = async function() {
-    const fileInput = document.getElementById('receipt-file');
-    const submitBtn = document.getElementById('submit-btn');
-    const statusBox = document.getElementById('status-box');
+// VERIFY & PUSH TO FIREBASE
+window.verifyPayment = async () => {
+    const val = document.getElementById('transactionId').value.trim();
     
-    const expectedAmount = parseFloat(document.getElementById('expected-amount').value);
-    const expectedRemark = document.getElementById('expected-remark').value.trim();
-
-    if (!fileInput.files[0] || isNaN(expectedAmount) || !expectedRemark) {
-        showStatus({ blockers: ['Please fill all fields and select a receipt.'] }, 'error');
+    if (!/^\d{24}$/.test(val)) {
+        alert("Payment failed: Invalid Transaction Number.");
+        window.location.reload();
         return;
     }
+    if (!base64Receipt) return showToast("Please upload a valid receipt first.");
 
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-    statusBox.className = 'status-box';
+    const usdAmount = parseFloat(document.getElementById('amountInput').value);
+
+    document.getElementById('loaderText').innerText = "Verifying Payment & Crediting Wallet...";
+    document.getElementById('mainLoader').classList.add('active');
 
     try {
-        // 1. Compress
-        statusBox.className = 'status-box show info';
-        statusBox.innerHTML = '<div class="status-line"><i class="fas fa-compress"></i> Compressing image...</div>';
-        const base64Image = await compressAndConvertToBase64(fileInput.files[0]);
-        
-        const base64SizeKB = Math.round((base64Image.length * 0.75) / 1024);
-        if (base64SizeKB > 700) {
-            showStatus({ blockers: [`Image too large (${base64SizeKB}KB). Crop unnecessary UI and try again.`] }, 'error');
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Validate & Submit';
-            return;
-        }
+        const userRef = doc(db, "users", auth.currentUser.uid);
+        await updateDoc(userRef, { balance: increment(usdAmount) });
 
-        // 2. OCR
-        statusBox.innerHTML = '<div class="status-line"><i class="fas fa-search"></i> Scanning receipt... (5-10s)</div>';
-        const { data: { text } } = await Tesseract.recognize(base64Image, 'eng', {
-            logger: m => {
-                if (m.status === 'recognizing text') {
-                    statusBox.innerHTML = `<div class="status-line"><i class="fas fa-search"></i> Scanning... ${Math.round(m.progress * 100)}%</div>`;
-                }
-            }
+        await addDoc(collection(db, "transactions"), {
+            userId: auth.currentUser.uid,
+            email: auth.currentUser.email,
+            type: "deposit",
+            amountUSD: usdAmount,
+            amountNGN: userNairaAmount,
+            transactionId: val,
+            receiptImage: base64Receipt, // Saves the compressed image
+            remark: document.getElementById('generatedRemark').innerText,
+            status: "completed",
+            timestamp: serverTimestamp()
         });
 
-        // 3. Parse & Validate
-        const extracted = parseReceiptData(text, expectedAmount, expectedRemark);
-        const validation = validateSubmission(extracted, expectedAmount);
-        
-        if (validation.blockers.length > 0) {
-            showStatus(validation, 'error');
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Validate & Submit';
-            return;
-        }
-
-        // 4. Save to Firestore
-        statusBox.innerHTML = '<div class="status-line"><i class="fas fa-cloud-upload-alt"></i> Saving to database...</div>';
-        const depositData = {
-            userId: auth.currentUser.uid,
-            userEmail: auth.currentUser.email,
-            amount: expectedAmount,
-            remark: expectedRemark,
-            proofBase64: base64Image,
-            status: 'pending',
-            validationFlags: validation,
-            extractedPreview: text.substring(0, 400),
-            submittedAt: serverTimestamp()
-        };
-
-        await addDoc(collection(db, "deposits"), depositData);
-
-        showStatus({ success: ['Deposit submitted successfully! Pending admin review.'] }, 'success');
-        fileInput.value = '';
-        document.getElementById('expected-amount').value = '';
-        document.getElementById('expected-remark').value = '';
-
-    } catch (err) {
-        console.error('Processing failed:', err);
-        showStatus({ blockers: ['Failed to process receipt. Try a clearer, well-lit screenshot.'] }, 'error');
-    } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Validate & Submit';
+        document.getElementById('mainLoader').classList.remove('active');
+        document.getElementById('successModal').classList.add('active');
+    } catch (error) {
+        console.error("Error:", error);
+        document.getElementById('mainLoader').classList.remove('active');
+        alert("Server error. Please try again.");
     }
 };
 </script>
