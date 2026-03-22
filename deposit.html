@@ -5,9 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Deposit Funds | CashClique</title>
 
-<!-- TESSERACT JS FOR RECEIPT SCANNING -->
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-
 <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1774094269/logo2_ago4ay.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -63,6 +60,14 @@ p.sub { font-size:14px; color:#64748b; margin-bottom:30px; }
 /* Content Padding */
 .overlay-content { padding:24px 20px; max-width:500px; margin:0 auto; width:100%; flex:1; }
 
+/* User Badge */
+.user-badge {
+    display:flex; align-items:center; gap:10px; background:#f8fafc; padding:12px 16px;
+    border-radius:12px; margin-bottom:20px; border:1px solid #e2e8f0;
+}
+.user-badge i { color:#ff6a00; font-size:20px; }
+.user-email { font-size:14px; font-weight:600; color:#334155; }
+
 /* Notice Box */
 .notice-box {
     background:#fff7ed; border-left:4px solid #ff6a00; padding:16px;
@@ -90,10 +95,9 @@ p.sub { font-size:14px; color:#64748b; margin-bottom:30px; }
     cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px;
     box-shadow:0 10px 25px rgba(255,106,0,0.3); transition:0.3s; margin-top:20px;
 }
-.btn-primary:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 15px 30px rgba(255,106,0,0.4); }
-.btn-primary:disabled { opacity:0.6; cursor:not-allowed; box-shadow:none; }
+.btn-primary:hover { transform:translateY(-2px); box-shadow:0 15px 30px rgba(255,106,0,0.4); }
 
-/* Payment Details */
+/* Payment Details (Step 3) */
 .timer-box {
     background:#fef2f2; color:#b91c1c; text-align:center; padding:12px;
     border-radius:12px; font-weight:700; font-size:18px; margin-bottom:24px;
@@ -112,10 +116,6 @@ p.sub { font-size:14px; color:#64748b; margin-bottom:30px; }
     color:#ff6a00; cursor:pointer; transition:0.2s; display:flex; align-items:center; justify-content:center;
 }
 .copy-btn:hover { background:#ff6a00; color:white; }
-
-/* Upload Box */
-.upload-box { background:#f8fafc; border:2px dashed #cbd5e1; border-radius:16px; padding:25px 20px; position:relative; cursor:pointer; transition:0.3s; margin-bottom:15px; text-align:center; }
-.upload-box:hover { border-color:#ff6a00; background:#fff7ed; }
 
 /* Full Screen Loader */
 .loader-overlay {
@@ -157,7 +157,9 @@ p.sub { font-size:14px; color:#64748b; margin-bottom:30px; }
 <!-- MAIN PAGE: Select Channel -->
 <div class="container">
     <div class="top-nav">
-        <button class="nav-back-btn" onclick="window.location.href='dashboard.html'"><i class="fas fa-arrow-left"></i> Back</button>
+        <button class="nav-back-btn" onclick="window.location.href='dashboard.html'">
+            <i class="fas fa-arrow-left"></i> Back
+        </button>
     </div>
 
     <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1774094269/logo2_ago4ay.jpg" alt="CashClique" class="logo">
@@ -194,13 +196,19 @@ p.sub { font-size:14px; color:#64748b; margin-bottom:30px; }
         <div class="overlay-title">Enter Amount</div>
     </div>
     <div class="overlay-content">
+        <div class="user-badge">
+            <i class="fas fa-circle-user"></i>
+            <span class="user-email" id="displayEmail">Loading user...</span>
+        </div>
+
         <div class="notice-box">
             <i class="fas fa-circle-info" style="margin-right:5px;"></i>
             <strong>Important Notice:</strong><br>
             • Minimum deposit is <strong>$0.1</strong><br>
             • Exchange Rate: <strong>₦1,300 per $1</strong><br>
-            • You MUST upload a clear screenshot of your receipt.<br>
-            • The system will verify the <strong>Amount</strong> and <strong>Transfer Remark</strong>.
+            • Deposits confirmed within 1 minute.<br>
+            • You must input the provided <strong>Remark</strong> when transferring.<br>
+            • Encountered an issue? <a href="#" style="color:#ff6a00;">Contact Support</a>.
         </div>
 
         <div class="input-group">
@@ -224,27 +232,45 @@ p.sub { font-size:14px; color:#64748b; margin-bottom:30px; }
     </div>
     <div class="overlay-content">
         
-        <div class="timer-box"><i class="fas fa-stopwatch"></i> <span id="countdown">30:00</span></div>
+        <div class="timer-box">
+            <i class="fas fa-stopwatch"></i> <span id="countdown">30:00</span>
+        </div>
+
         <p style="font-size:14px; color:#64748b; margin-bottom:15px; text-align:center;">Transfer exactly the amount below to this account.</p>
 
         <div class="details-card">
             <div class="detail-row">
-                <div><span class="detail-label">Bank Name</span><span class="detail-value">PalmPay Limited</span></div>
+                <div>
+                    <span class="detail-label">Bank Name</span>
+                    <span class="detail-value">PalmPay Limited</span>
+                </div>
                 <button class="copy-btn" onclick="copyText('PalmPay Limited')"><i class="far fa-copy"></i></button>
             </div>
             <div class="detail-row">
-                <div><span class="detail-label">Account Number</span><span class="detail-value">8037402826</span></div>
+                <div>
+                    <span class="detail-label">Account Number</span>
+                    <span class="detail-value">8037402826</span>
+                </div>
                 <button class="copy-btn" onclick="copyText('8037402826')"><i class="far fa-copy"></i></button>
             </div>
             <div class="detail-row">
-                <div><span class="detail-label">Account Name</span><span class="detail-value">Muhammad Nasir</span></div>
+                <div>
+                    <span class="detail-label">Account Name</span>
+                    <span class="detail-value">Muhammad Nasir</span>
+                </div>
             </div>
             <div class="detail-row" style="background:#fff7ed;">
-                <div><span class="detail-label">Amount to Pay</span><span class="detail-value" style="color:#ff6a00; font-size:18px;">₦<span id="finalNaira">0</span></span></div>
+                <div>
+                    <span class="detail-label">Amount to Pay</span>
+                    <span class="detail-value" style="color:#ff6a00; font-size:18px;">₦<span id="finalNaira">0</span></span>
+                </div>
                 <button class="copy-btn" onclick="copyText(document.getElementById('finalNaira').innerText)"><i class="far fa-copy"></i></button>
             </div>
             <div class="detail-row">
-                <div><span class="detail-label">Transfer Remark (Required)</span><span class="detail-value" id="generatedRemark">CC-XXXXXX</span></div>
+                <div>
+                    <span class="detail-label">Transfer Remark (Required)</span>
+                    <span class="detail-value" id="generatedRemark">CC-XXXXXX</span>
+                </div>
                 <button class="copy-btn" onclick="copyText(document.getElementById('generatedRemark').innerText)"><i class="far fa-copy"></i></button>
             </div>
         </div>
@@ -259,27 +285,16 @@ p.sub { font-size:14px; color:#64748b; margin-bottom:30px; }
         <button class="back-btn" onclick="closeOverlay('overlayVerify')"><i class="fas fa-arrow-left"></i></button>
         <div class="overlay-title">Verify Payment</div>
     </div>
-    <div class="overlay-content" style="text-align:center;">
+    <div class="overlay-content" style="text-align:center; padding-top:40px;">
         
-        <i class="fas fa-shield-halved" style="font-size:50px; color:#e2e8f0; margin-bottom:15px;"></i>
-        <h3 style="font-size:18px; font-weight:700; margin-bottom:10px;">Submit Proof of Payment</h3>
-        <p style="font-size:13px; color:#64748b; margin-bottom:20px;">Upload a screenshot of the successful receipt. The system will verify it instantly.</p>
+        <i class="fas fa-shield-halved" style="font-size:60px; color:#e2e8f0; margin-bottom:20px;"></i>
+        <h3 style="font-size:20px; font-weight:700; margin-bottom:10px;">Input Transaction ID</h3>
+        <p style="font-size:14px; color:#64748b; margin-bottom:30px;">Please enter the transaction number from your bank receipt to verify this payment.</p>
 
-        <!-- Changed type to text to allow letters, minimum 12 chars regex handled in JS -->
-        <input type="text" id="transactionId" class="amount-input" style="text-align:center; padding:14px; font-size:16px; margin-bottom:15px; font-family:monospace;" placeholder="Transaction ID (Min 12 chars)">
+        <!-- No mention of 24 digits in the placeholder -->
+        <input type="number" id="transactionId" class="amount-input" style="text-align:center; padding:16px; font-size:18px;" placeholder="Enter Transaction ID">
 
-        <!-- Image Upload Area -->
-        <div class="upload-box">
-            <input type="file" id="receiptImage" accept="image/*" style="opacity:0; position:absolute; inset:0; cursor:pointer;" onchange="handleReceiptUpload(event)">
-            <i class="fas fa-cloud-upload-alt" style="font-size:30px; color:#ff6a00; margin-bottom:10px;"></i>
-            <div id="uploadText" style="font-size:14px; font-weight:600; color:#334155;">Tap to upload Receipt</div>
-            <div id="uploadStatus" style="font-size:12px; color:#64748b; margin-top:5px;">Must clearly show Amount & Transfer Remark.</div>
-        </div>
-
-        <!-- Hidden preview to hold base64 data -->
-        <img id="receiptPreview" style="display:none; width:100%; max-height:200px; object-fit:contain; margin-bottom:15px; border-radius:12px; border:1px solid #e2e8f0;">
-
-        <button class="btn-primary" id="verifyBtn" onclick="verifyPayment()">Verify Payment <i class="fas fa-check-circle"></i></button>
+        <button class="btn-primary" onclick="verifyPayment()" style="margin-top:30px;">Verify Payment <i class="fas fa-check-circle"></i></button>
     </div>
 </div>
 
@@ -324,29 +339,48 @@ const db = getFirestore(app);
 const RATE = 1300;
 let userNairaAmount = 0;
 let timerInterval;
-let base64Receipt = null;
 
-// UI Helpers
+// Check Auth
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        document.getElementById('displayEmail').innerText = user.email;
+    } else {
+        window.location.href = "login.html";
+    }
+});
+
+// UI Functions
 window.showLoader = (text, duration, callback) => {
     document.getElementById('loaderText').innerText = text;
     const loader = document.getElementById('mainLoader');
     loader.classList.add('active');
-    setTimeout(() => { loader.classList.remove('active'); if(callback) callback(); }, duration);
+    setTimeout(() => {
+        loader.classList.remove('active');
+        if(callback) callback();
+    }, duration);
 };
 
 window.showToast = (msg) => {
     const toast = document.getElementById('toastBox');
     document.getElementById('toastMsg').innerText = msg;
     toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 3500);
+    setTimeout(() => toast.classList.remove('show'), 3000);
 };
 
-window.closeOverlay = (id) => document.getElementById(id).classList.remove('active');
-window.selectCrypto = () => showToast("This deposit channel is temporarily unavailable.");
-window.selectBank = () => { showLoader("Connecting...", 1000, () => document.getElementById('overlayAmount').classList.add('active')); };
-window.copyText = (text) => { navigator.clipboard.writeText(text.replace(/,/g, '')); showToast("Copied to clipboard!"); };
+window.closeOverlay = (id) => {
+    document.getElementById(id).classList.remove('active');
+};
 
-// Amount Calculation
+// Step 1 logic
+window.selectCrypto = () => showToast("This deposit channel is temporarily unavailable.");
+
+window.selectBank = () => {
+    showLoader("Connecting to Bank...", 1500, () => {
+        document.getElementById('overlayAmount').classList.add('active');
+    });
+};
+
+// Step 2 Logic (Amount Calc)
 document.getElementById('amountInput').addEventListener('input', function(e) {
     const usd = parseFloat(this.value) || 0;
     userNairaAmount = usd * RATE;
@@ -357,113 +391,57 @@ window.proceedToPayment = () => {
     const usd = parseFloat(document.getElementById('amountInput').value);
     if (!usd || usd < 0.1) return showToast("Minimum deposit is $0.1");
 
-    showLoader("Generating Payment Details...", 1500, () => {
+    showLoader("Generating Payment Details...", 2000, () => {
         document.getElementById('finalNaira').innerText = userNairaAmount.toLocaleString();
-        const rand = Math.random().toString(36).substr(2, 4).toUpperCase();
-        document.getElementById('generatedRemark').innerText = `CC-${rand}-${Math.floor(1000+Math.random()*9000)}`;
-        document.getElementById('overlayPayment').classList.add('active');
         
-        // Timer
-        clearInterval(timerInterval);
-        let time = 1800; 
-        timerInterval = setInterval(() => {
-            const min = Math.floor(time / 60), sec = time % 60;
-            document.getElementById('countdown').innerText = `${min}:${sec < 10 ? '0' : ''}${sec}`;
-            if (time-- <= 0) { clearInterval(timerInterval); alert("Session expired."); window.location.reload(); }
-        }, 1000);
+        // Generate Remark (CC-RANDOM-NUMBERS)
+        const randomStr = Math.random().toString(36).substr(2, 4).toUpperCase();
+        const randomNum = Math.floor(1000 + Math.random() * 9000);
+        document.getElementById('generatedRemark').innerText = `CC-${randomStr}-${randomNum}`;
+        
+        document.getElementById('overlayPayment').classList.add('active');
+        startTimer();
     });
 };
 
-window.proceedToVerification = () => document.getElementById('overlayVerify').classList.add('active');
+// Step 3 Logic (Timer & Details)
+function startTimer() {
+    clearInterval(timerInterval);
+    let time = 1800; // 30 mins
+    const display = document.getElementById('countdown');
+    
+    timerInterval = setInterval(() => {
+        const min = Math.floor(time / 60);
+        const sec = time % 60;
+        display.innerText = `${min}:${sec < 10 ? '0' : ''}${sec}`;
+        if (time-- <= 0) {
+            clearInterval(timerInterval);
+            alert("Payment session expired.");
+            window.location.reload();
+        }
+    }, 1000);
+}
 
-// STRICT IMAGE COMPRESSION & OCR SCANNING (Amount & Remark Only)
-window.handleReceiptUpload = async function(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const uploadText = document.getElementById('uploadText');
-    const uploadStatus = document.getElementById('uploadStatus');
-    const preview = document.getElementById('receiptPreview');
-    const verifyBtn = document.getElementById('verifyBtn');
-
-    uploadText.innerText = "Scanning receipt...";
-    uploadStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> System reading receipt. Please wait...';
-    verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Reading image...';
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const img = new Image();
-        img.onload = async function() {
-            // Compress Image
-            const canvas = document.createElement('canvas');
-            const MAX_WIDTH = 800;
-            let width = img.width, height = img.height;
-            if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
-            canvas.width = width; canvas.height = height;
-            canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-            
-            base64Receipt = canvas.toDataURL('image/jpeg', 0.6);
-            preview.src = base64Receipt;
-            preview.style.display = 'block';
-
-            // Run OCR
-            try {
-                const worker = await Tesseract.createWorker('eng');
-                const ret = await worker.recognize(base64Receipt);
-                const extractedText = ret.data.text.toLowerCase();
-                await worker.terminate();
-
-                // 1. Check Exact Amount
-                const expectedNaira = userNairaAmount.toLocaleString(); 
-                const cleanExpectedNaira = userNairaAmount.toString(); 
-                const isAmountValid = extractedText.includes(expectedNaira) || extractedText.includes(cleanExpectedNaira);
-
-                // 2. Check Exact Dynamic Remark (Normalized for AI text misreads like 0/o or 1/i)
-                const rawRemark = document.getElementById('generatedRemark').innerText.toLowerCase();
-                const normalizeString = (str) => str.replace(/-/g, '').replace(/[0o]/g, 'o').replace(/[1il]/g, 'i').replace(/[5s]/g, 's');
-                const cleanRemark = normalizeString(rawRemark);
-                const cleanExtracted = normalizeString(extractedText);
-                const hasRemark = cleanExtracted.includes(cleanRemark);
-
-                if (isAmountValid && hasRemark) {
-                    uploadText.innerText = "Receipt Verified!";
-                    uploadText.style.color = "#10b981";
-                    uploadStatus.innerHTML = "System accepted receipt. <i class='fas fa-check-circle' style='color:#10b981'></i>";
-                } else {
-                    uploadText.innerText = "Scan Failed!";
-                    uploadText.style.color = "#ef4444";
-                    // Hidden failure reasoning for security
-                    uploadStatus.innerHTML = "System could not verify this receipt. Please upload a clear valid receipt.";
-                    base64Receipt = null; // Clear it so they fail validation if they submit
-                }
-            } catch (err) {
-                console.error("OCR Error:", err);
-                uploadStatus.innerText = "System scan failed. Please try a different image.";
-            } finally {
-                verifyBtn.innerHTML = 'Verify Payment <i class="fas fa-check-circle"></i>';
-            }
-        };
-        img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
+window.copyText = (text) => {
+    const rawText = text.replace(/,/g, ''); 
+    navigator.clipboard.writeText(rawText);
+    showToast("Copied to clipboard!");
 };
 
-// VERIFY & PUSH TO FIREBASE (Updated to kick back to start on fail)
-window.verifyPayment = async () => {
+window.proceedToVerification = () => {
+    showLoader("Securing session...", 1500, () => {
+        document.getElementById('overlayVerify').classList.add('active');
+    });
+};
+
+// Step 4 Logic (Validation & Firebase Credit)
+window.verifyPayment = () => {
     const val = document.getElementById('transactionId').value.trim();
     
-    // Strict Regex: Minimum 12 characters, Alphanumeric
-    if (!/^[a-zA-Z0-9]{12,}$/.test(val)) {
+    // Strict Regex: Exactly 24 Digits (Silently checked)
+    if (!/^\d{24}$/.test(val)) {
         showLoader("Verifying...", 2000, () => {
-            alert("Payment failed: Invalid Transaction Number."); 
-            window.location.href = "deposit.html"; // Redirect to start
-        });
-        return;
-    }
-
-    if (!base64Receipt) {
-        showLoader("Verifying...", 2000, () => {
-            alert("Payment failed: Invalid or missing receipt image.");
+            alert("Payment failed: Invalid Transaction Number."); // No mention of 24 digits
             window.location.href = "deposit.html"; // Redirect to start
         });
         return;
@@ -471,33 +449,37 @@ window.verifyPayment = async () => {
 
     const usdAmount = parseFloat(document.getElementById('amountInput').value);
 
-    document.getElementById('loaderText').innerText = "Securing transaction...";
+    // Show Loader and Process Firebase Upload
+    document.getElementById('loaderText').innerText = "Verifying Payment & Crediting Wallet...";
     document.getElementById('mainLoader').classList.add('active');
 
-    try {
-        const userRef = doc(db, "users", auth.currentUser.uid);
-        await updateDoc(userRef, { balance: increment(usdAmount) });
-
-        await addDoc(collection(db, "transactions"), {
+    // Credit user's wallet
+    const userRef = doc(db, "users", auth.currentUser.uid);
+    
+    updateDoc(userRef, {
+        balance: increment(usdAmount)
+    }).then(() => {
+        // Also log the transaction for admin records
+        return addDoc(collection(db, "transactions"), {
             userId: auth.currentUser.uid,
             email: auth.currentUser.email,
             type: "deposit",
             amountUSD: usdAmount,
             amountNGN: userNairaAmount,
             transactionId: val,
-            receiptImage: base64Receipt, // Saves the compressed image
             remark: document.getElementById('generatedRemark').innerText,
             status: "completed",
             timestamp: serverTimestamp()
         });
-
+    }).then(() => {
+        // Stop loader and show success
         document.getElementById('mainLoader').classList.remove('active');
         document.getElementById('successModal').classList.add('active');
-    } catch (error) {
-        console.error("Error:", error);
+    }).catch((error) => {
+        console.error("Error crediting wallet:", error);
         document.getElementById('mainLoader').classList.remove('active');
-        alert("Server error. Please try again.");
-    }
+        alert("An error occurred connecting to the server. Please try again or contact support.");
+    });
 };
 </script>
 </body>
