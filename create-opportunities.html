@@ -51,6 +51,18 @@ body{background:#f5f5f5;min-height:100vh;padding:20px;}
 .char-counter.warning{color:#ff9800;}
 .char-counter.danger{color:#ff4444;}
 
+/* Flyer Upload */
+.upload-area{border:2px dashed #e0e0e0;border-radius:10px;padding:30px;text-align:center;cursor:pointer;transition:0.3s;}
+.upload-area:hover{border-color:#ff6a00;background:#fff5eb;}
+.upload-area.dragover{border-color:#ff6a00;background:#fff5eb;transform:scale(1.01);}
+.upload-icon{font-size:40px;color:#aaa;margin-bottom:10px;}
+.upload-text{font-size:14px;color:#666;margin-bottom:5px;}
+.upload-note{font-size:11px;color:#999;}
+.flyer-preview{margin-top:15px;position:relative;display:none;}
+.flyer-preview img{width:100%;max-height:300px;object-fit:contain;border-radius:8px;border:2px solid #e0e0e0;}
+.remove-flyer{position:absolute;top:10px;right:10px;background:#ff4444;color:white;border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;transition:0.2s;}
+.remove-flyer:hover{transform:scale(1.1);}
+
 /* Category Selection */
 .category-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;}
 .category-card{padding:15px;border:2px solid #e0e0e0;border-radius:10px;text-align:center;cursor:pointer;transition:0.3s;}
@@ -233,6 +245,22 @@ input:checked + .toggle-slider:before{transform:translateX(24px);}
                     <label class="form-label">Ad Description <span class="required">*</span></label>
                     <textarea class="form-textarea" id="ad-description" placeholder="Brief description (max 150 characters)" maxlength="150" required></textarea>
                     <div class="char-counter" id="char-counter">0 / 150</div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Ad Flyer / Image</label>
+                    <input type="file" id="flyer-input" accept="image/*" hidden>
+                    
+                    <div class="upload-area" id="upload-area">
+                        <div class="upload-icon"><i class="fas fa-image"></i></div>
+                        <div class="upload-text">Click or drag an image here to upload</div>
+                        <div class="upload-note">Recommended: 1080x1080px, Max 700KB</div>
+                    </div>
+
+                    <div class="flyer-preview" id="flyer-preview">
+                        <button type="button" class="remove-flyer" id="remove-flyer"><i class="fas fa-times"></i></button>
+                        <img id="preview-image">
+                    </div>
                 </div>
                 
                 <div class="form-group">
@@ -443,6 +471,7 @@ let userBalance = 0;
 let selectedCategory = null;
 let selectedPackage = null;
 let selectedRequirement = 'starter';
+let flyerBase64 = null;
 let totalCost = 0;
 
 onAuthStateChanged(auth, async (user) => {
@@ -504,6 +533,68 @@ descriptionInput.addEventListener('input', () => {
         charCounter.classList.remove('warning', 'danger');
     }
 });
+
+// Flyer Upload Logic
+const uploadArea = document.getElementById('upload-area');
+const flyerInput = document.getElementById('flyer-input');
+const flyerPreview = document.getElementById('flyer-preview');
+const previewImage = document.getElementById('preview-image');
+const removeFlyer = document.getElementById('remove-flyer');
+
+uploadArea.addEventListener('click', () => flyerInput.click());
+
+flyerInput.addEventListener('change', handleFileSelect);
+
+// Drag and drop handlers
+uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.classList.add('dragover');
+});
+
+uploadArea.addEventListener('dragleave', () => {
+    uploadArea.classList.remove('dragover');
+});
+
+uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('dragover');
+    if (e.dataTransfer.files.length) {
+        handleFileSelect({target: {files: e.dataTransfer.files}});
+    }
+});
+
+removeFlyer.addEventListener('click', () => {
+    flyerBase64 = null;
+    flyerInput.value = '';
+    flyerPreview.style.display = 'none';
+    uploadArea.style.display = 'block';
+});
+
+function handleFileSelect(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+    }
+
+    // Validate file size - 700KB limit for base64 to stay under Firestore 1MB limit
+    if (file.size > 700 * 1024) {
+        alert('Image is too large. Please use an image smaller than 700KB');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        flyerBase64 = event.target.result;
+        previewImage.src = flyerBase64;
+        uploadArea.style.display = 'none';
+        flyerPreview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+}
 
 // Category selection
 document.querySelectorAll('.category-card').forEach(card => {
@@ -631,6 +722,7 @@ document.getElementById('opportunity-form').addEventListener('submit', async (e)
             category: selectedCategory,
             title: title,
             description: description,
+            flyer: flyerBase64,
             targetUrl: url,
             targetViews: selectedPackage.views,
             currentViews: 0,
