@@ -3,305 +3,256 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Opportunities | CashClique</title>
+<title>Dashboard | CashClique</title>
 
 <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{background:#f5f5f5;min-height:100vh;padding:20px;}
+body{background:#f5f6f8;display:flex;min-height:100vh;}
+.sidebar{width:240px;background:#ff6a00;color:white;padding:20px;display:flex;flex-direction:column;gap:20px;position:fixed;height:100%;transition:0.3s;z-index:999;}
+.sidebar img{width:45px;border-radius:10px;}
+.logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:18px;}
+.sidebar a{color:white;text-decoration:none;padding:12px;border-radius:8px;transition:0.3s;display:flex;align-items:center;gap:10px;}
+.sidebar a:hover{background:rgba(255,255,255,0.2);}
+.sidebar a.active{background:rgba(255,255,255,0.2);}
+.sidebar i{width:20px;text-align:center;}
 
-/* Header */
-.header{background:white;border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 2px 10px rgba(0,0,0,0.05);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:15px;}
-.header-left{display:flex;align-items:center;gap:15px;}
-.back-btn{background:#ff6a00;color:white;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:500;display:flex;align-items:center;gap:8px;transition:0.3s;}
-.back-btn:hover{background:#e55d00;transform:translateX(-3px);}
-.header-title{font-size:24px;font-weight:700;color:#333;}
-.header-actions{display:flex;gap:10px;}
-.advertise-btn{background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:500;display:flex;align-items:center;gap:8px;transition:0.3s;}
-.advertise-btn:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(102,126,234,0.3);}
+.main{margin-left:240px;width:calc(100% - 240px);padding:20px 32px;max-width:none;margin-right:0;}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.header-right{display:flex;align-items:center;gap:15px;}
+.user{display:flex;align-items:center;gap:10px;cursor:pointer;padding:8px 12px;border-radius:25px;transition:0.2s;}
+.user:hover{background:rgba(0,0,0,0.05);}
+.user img{width:35px;height:35px;border-radius:50%;object-fit:cover;}
+.user-info{display:flex;align-items:center;gap:5px;}
 
-/* My Stats Card */
-.stats-banner{background:linear-gradient(135deg,#ff6a00,#ff8a00);color:white;padding:20px;border-radius:12px;margin-bottom:20px;box-shadow:0 5px 15px rgba(255,106,0,0.2);}
-.stats-banner-title{font-size:16px;font-weight:600;margin-bottom:15px;display:flex;align-items:center;gap:8px;}
-.stats-banner-content{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:15px;}
-.stat-item{background:rgba(255,255,255,0.2);padding:12px;border-radius:8px;text-align:center;}
-.stat-value{font-size:20px;font-weight:700;}
-.stat-label{font-size:11px;opacity:0.9;text-transform:uppercase;letter-spacing:0.5px;margin-top:3px;}
-.verified-status{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.2);padding:6px 12px;border-radius:20px;font-size:12px;margin-top:10px;}
-.verified-status i{font-size:14px;}
+.verified-badge{background:#1DA1F2;color:white;width:16px;height:16px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;margin-left:3px;}
+.verified-badge-post{background:#1DA1F2;color:white;width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;margin-left:5px;vertical-align:middle;}
 
-/* Filters */
-.filters{background:white;padding:15px;border-radius:12px;margin-bottom:20px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
-.filter-btn{padding:8px 15px;border:2px solid #e0e0e0;background:white;border-radius:8px;cursor:pointer;font-size:14px;transition:0.3s;display:flex;align-items:center;gap:5px;}
-.filter-btn:hover{border-color:#ff6a00;}
-.filter-btn.active{background:#ff6a00;color:white;border-color:#ff6a00;}
-.filter-btn i{font-size:12px;}
+.notification-bell{position:relative;cursor:pointer;font-size:20px;padding:8px;transition:0.2s;color:#333;}
+.notification-bell:hover{color:#ff6a00;}
+.badge{position:absolute;top:0;right:0;background:#ff0000;color:white;font-size:10px;min-width:16px;height:16px;padding:2px 4px;border-radius:50%;font-weight:600;display:none;text-align:center;line-height:12px;}
 
-/* Opportunities Grid */
-.opportunities-container{display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:20px;}
-.opportunity-card{background:white;border-radius:12px;overflow:hidden;box-shadow:0 5px 15px rgba(0,0,0,0.08);transition:0.3s;position:relative;}
-.opportunity-card:hover{transform:translateY(-5px);box-shadow:0 10px 25px rgba(0,0,0,0.12);}
+.controls-section { background:white; padding:15px 20px; border-radius:16px; box-shadow:0 4px 15px rgba(0,0,0,0.03); margin-bottom:25px; border:1px solid #e2e8f0; display:flex; flex-direction:column; gap:15px; }
+.search-bar { display:flex; align-items:center; background:#f8fafc; border-radius:12px; padding:12px 16px; border:2px solid #e2e8f0; transition:0.3s; }
+.search-bar:focus-within { border-color:#ff6a00; background:white; box-shadow:0 0 0 4px rgba(255,106,0,0.1); }
+.search-bar i { color:#94a3b8; margin-right:12px; font-size:16px; }
+.search-bar input { border:none; background:transparent; outline:none; width:100%; font-size:14px; font-family:'Poppins', sans-serif; color:#1e2937; }
+.search-bar input::placeholder { color:#94a3b8; }
 
-/* Eligibility Badge */
-.eligibility-badge{position:absolute;top:10px;right:10px;padding:6px 12px;border-radius:20px;font-size:11px;font-weight:600;z-index:10;}
-.badge-eligible{background:#e8f5e9;color:#4caf50;}
-.badge-partial{background:#fff3e0;color:#ff9800;}
-.badge-ineligible{background:#ffebee;color:#f44336;}
+.feed-tabs { display:flex; gap:15px; border-bottom:2px solid #f1f5f9; width:100%; }
+.feed-tab { flex:1; text-align:center; background:none; border:none; padding:10px 5px; font-size:14.5px; font-weight:600; color:#64748b; cursor:pointer; position:relative; transition:0.3s; font-family:'Poppins', sans-serif; }
+.feed-tab:hover { color:#ff6a00; }
+.feed-tab.active { color:#ff6a00; }
+.feed-tab.active::after { content:''; position:absolute; bottom:-2px; left:0; width:100%; height:3px; background:#ff6a00; border-radius:3px 3px 0 0; }
 
-/* Category Badge */
-.category-badge{position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.7);color:white;padding:6px 12px;border-radius:20px;font-size:11px;font-weight:500;text-transform:capitalize;}
+.feed{display:flex;flex-direction:column;gap:20px;}
+.post{background:white;padding:20px;border-radius:16px;box-shadow:0 4px 15px rgba(0,0,0,0.03);position:relative;border:1px solid #e2e8f0;}
+.post-header{display:flex;align-items:center;gap:12px;margin-bottom:12px;position:relative;padding-right:30px;}
+.post-header img{width:40px;height:40px;border-radius:50%;cursor:pointer;object-fit:cover;}
+.post-author{display:flex;flex-direction:column;flex:1;}
+.post-author-name{display:flex;align-items:center;font-weight:600;color:#1e2937;font-size:15px;cursor:pointer;}
+.post-author-name:hover{text-decoration:underline;}
+.post-time{font-size:12px;color:#64748b;margin-top:2px;}
+.post p{color:#334155;line-height:1.6;font-size:14.5px;}
 
-/* Card Header */
-.card-header{padding:20px;border-bottom:1px solid #f0f0f0;}
-.card-title{font-size:18px;font-weight:600;color:#333;margin-bottom:8px;}
-.card-description{font-size:14px;color:#666;line-height:1.5;}
-.card-advertiser{font-size:12px;color:#999;margin-top:8px;display:flex;align-items:center;gap:5px;}
-.card-advertiser i{color:#ff6a00;}
+.post-actions{display:flex;gap:25px;margin-top:15px;padding-top:15px;border-top:1px solid #f1f5f9;align-items:center;flex-wrap:wrap;}
+.action-item{display:flex;align-items:center;gap:6px;cursor:pointer;transition:0.2s;color:#64748b;font-size:14px;font-weight:600;}
+.action-item:hover{color:#ff6a00;}
+.action-item i{font-size:18px;}
+.action-item.liked{color:#ef4444;}
+.action-item.liked i{font-weight:900;}
 
-/* Requirements Section */
-.requirements{padding:15px 20px;background:#f8f9fa;}
-.requirements-title{font-size:13px;font-weight:600;color:#333;margin-bottom:10px;}
-.requirement-list{display:flex;flex-direction:column;gap:12px;}
-.requirement-item{font-size:13px;color:#666;}
-.requirement-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
-.requirement-progress-bar{width:100%;height:6px;background:#e0e0e0;border-radius:3px;overflow:hidden;}
-.requirement-progress-fill{height:100%;border-radius:3px;transition:all 0.5s ease;}
-.progress-green{background:#4caf50;}
-.progress-orange{background:#ff9800;}
-.progress-red{background:#f44336;}
+.comments{margin-top:15px;padding-top:15px;border-top:1px solid #f1f5f9;}
+.comment-item{display:flex;gap:8px;margin-bottom:12px;font-size:13.5px;color:#334155;}
+.comment-author{font-weight:600;color:#ff6a00;cursor:pointer;display:inline-flex;align-items:center;}
+.post-image{margin-top:12px;width:100%;max-height:450px;border-radius:12px;object-fit:cover;cursor:pointer;border:1px solid #f1f5f9;}
+.three-dot{position:absolute;top:10px;right:10px;cursor:pointer;font-size:20px;color:#94a3b8;padding:5px;transition:0.2s;}
+.three-dot:hover{color:#334155;}
 
-/* Card Stats */
-.card-stats{padding:15px 20px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;border-top:1px solid #f0f0f0;}
-.card-stat{text-align:center;}
-.card-stat-value{font-size:16px;font-weight:600;color:#333;}
-.card-stat-label{font-size:11px;color:#888;text-transform:uppercase;margin-top:2px;}
+.priority-badge{position:absolute;top:-8px;left:-8px;background:linear-gradient(135deg,#ff6a00,#e55d00);color:white;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700;display:flex;align-items:center;gap:4px;box-shadow:0 4px 10px rgba(255,106,0,0.3);}
+.priority-badge i{font-size:10px;}
 
-/* Card Actions */
-.card-actions{padding:15px 20px;border-top:1px solid #f0f0f0;}
-.apply-btn{width:100%;padding:12px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:0.3s;display:flex;align-items:center;justify-content:center;gap:8px;}
-.apply-btn.eligible{background:#ff6a00;color:white;}
-.apply-btn.eligible:hover{background:#e55d00;}
-.apply-btn.ineligible{background:#f0f0f0;color:#999;cursor:not-allowed;}
-.apply-btn.applied{background:#4caf50;color:white;}
-.apply-btn.pending{background:#ff9800;color:white;}
-.apply-btn.rejected{background:#f44336;color:white;}
-.apply-btn i{font-size:14px;}
+.ad-tag {
+    background:#ff6a00;
+    color:white;
+    font-size:10px;
+    padding:2px 6px;
+    border-radius:4px;
+    font-weight:600;
+    margin-left:8px;
+}
 
-/* My Applications Floating Button */
-.applications-btn{position:fixed;right:20px;bottom:20px;background:#ff6a00;color:white;width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 5px 15px rgba(255,106,0,0.3);cursor:pointer;transition:0.3s;z-index:100;}
-.applications-btn:hover{transform:scale(1.1);box-shadow:0 8px 20px rgba(255,106,0,0.4);}
-.applications-btn i{font-size:24px;}
-.applications-badge{position:absolute;top:-5px;right:-5px;background:#f44336;color:white;min-width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;}
+.create-btn{position:fixed;bottom:30px;right:30px;background:#ff6a00;color:white;border:none;width:60px;height:60px;border-radius:50%;font-size:24px;cursor:pointer;box-shadow:0 10px 25px rgba(255,106,0,0.3);transition:0.3s;z-index:99;display:flex;align-items:center;justify-content:center;}
+.create-btn:hover{transform:scale(1.1);background:#e55d00;}
 
-/* Full Page Overlay - My Applications */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:none;z-index:1000;overflow:auto;}
-.overlay.active{display:block;}
-.overlay-content{background:white;min-height:100vh;max-width:900px;margin:0 auto;position:relative;animation:slideUp 0.3s ease;}
-@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.tip-modal{position:fixed;inset:0;background:rgba(15,23,42,0.7);display:none;align-items:center;justify-content:center;z-index:2000;backdrop-filter:blur(4px);}
+.tip-content{background:white;padding:30px;border-radius:20px;width:90%;max-width:400px;text-align:center;}
+.tip-content h3{color:#1e2937;margin-bottom:15px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:20px;}
+.tip-content h3 i{font-size:24px;color:#ff6a00;}
+.tip-options{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0;}
+.tip-btn{padding:12px;background:#f8fafc;border:2px solid #e2e8f0;border-radius:12px;cursor:pointer;font-weight:600;transition:0.2s;font-size:15px;color:#334155;}
+.tip-btn:hover, .tip-btn.selected{background:#ff6a00;color:white;border-color:#ff6a00;}
+.custom-tip{width:100%;padding:14px;border:2px solid #e2e8f0;border-radius:12px;margin:15px 0;font-size:15px;outline:none;transition:0.3s;}
+.custom-tip:focus{border-color:#ff6a00;box-shadow:0 0 0 4px rgba(255,106,0,0.1);}
+.send-tip-btn{background:#ff6a00;color:white;border:none;padding:14px;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;width:100%;transition:0.2s;}
+.send-tip-btn:hover{background:#e55d00;}
+.send-tip-btn:disabled{opacity:0.6;cursor:not-allowed;}
+.cancel-tip{margin-top:12px;color:#64748b;cursor:pointer;font-size:14px;font-weight:600;}
+.cancel-tip:hover{color:#1e2937;}
 
-.overlay-header{background:linear-gradient(135deg,#ff6a00,#ff8a00);color:white;padding:20px;position:sticky;top:0;z-index:10;}
-.overlay-title{font-size:20px;font-weight:600;display:flex;align-items:center;justify-content:space-between;}
-.close-overlay{background:rgba(255,255,255,0.2);color:white;border:none;width:35px;height:35px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:0.3s;}
-.close-overlay:hover{background:rgba(255,255,255,0.3);}
+.media-modal{position:fixed;inset:0;background:rgba(0,0,0,0.95);display:none;align-items:center;justify-content:center;z-index:3000;cursor:zoom-out;backdrop-filter:blur(5px);}
+.media-modal img{max-width:95%;max-height:95vh;border-radius:12px;}
+.close-modal{position:absolute;top:20px;right:25px;color:white;font-size:35px;cursor:pointer;text-shadow:0 2px 10px rgba(0,0,0,0.5);}
 
-/* Application Filters */
-.app-filters{padding:20px;background:#f8f9fa;border-bottom:1px solid #e0e0e0;display:flex;gap:10px;flex-wrap:wrap;}
-.app-filter{padding:6px 12px;background:white;border:1px solid #e0e0e0;border-radius:6px;font-size:13px;cursor:pointer;transition:0.2s;}
-.app-filter:hover{border-color:#ff6a00;}
-.app-filter.active{background:#ff6a00;color:white;border-color:#ff6a00;}
+.notification-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.35);
+    display:none;
+    z-index:1000;
+    align-items:flex-start;
+    justify-content:flex-end;
+    padding:70px 20px 20px;
+}
+.notification-panel-wrap{
+    width:350px;
+    background:white;
+    border-radius:16px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.15);
+    overflow:hidden;
+    max-height:80vh;
+    border:1px solid #e2e8f0;
+}
+.notification-header{padding:15px 20px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;font-weight:700;background:#f8fafc;color:#1e2937;}
+.notification-panel{max-height:400px;overflow-y:auto;}
+.notification-item{padding:15px 20px;border-bottom:1px solid #f1f5f9;cursor:pointer;transition:0.2s;display:flex;gap:12px;align-items:flex-start;}
+.notification-item:hover{background:#f8fafc;}
+.notification-item.unread{background:#fff7ed;border-left:3px solid #ff6a00;}
+.notif-icon{font-size:20px;flex-shrink:0;width:24px;text-align:center;color:#ff6a00;margin-top:2px;}
+.notif-content strong{display:block;font-size:13.5px;margin-bottom:3px;color:#1e2937;}
+.notif-content small{color:#64748b;font-size:12px;}
+.empty-notif{padding:40px 20px;text-align:center;color:#94a3b8;}
+.empty-notif i{font-size:40px;margin-bottom:10px;opacity:0.5;}
 
-/* Applications List */
-.applications-list{padding:20px;}
-.application-item{background:#f8f9fa;border-radius:12px;padding:20px;margin-bottom:15px;transition:0.3s;}
-.application-item:hover{transform:translateX(5px);box-shadow:0 5px 15px rgba(0,0,0,0.1);}
+.menu-btn{display:none;font-size:22px;cursor:pointer;color:#1e2937;}
 
-.app-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:15px;flex-wrap:wrap;gap:10px;}
-.app-title{font-size:16px;font-weight:600;color:#333;}
-.app-status{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;}
-.status-pending{background:#fff3e0;color:#ff9800;}
-.status-approved{background:#e8f5e9;color:#4caf50;}
-.status-rejected{background:#ffebee;color:#f44336;}
-
-.app-details{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px;margin-top:15px;padding-top:15px;border-top:1px solid #e0e0e0;}
-.app-detail{display:flex;align-items:center;gap:8px;font-size:13px;color:#666;}
-.app-detail i{color:#ff6a00;width:16px;}
-
-.app-actions{display:flex;gap:10px;margin-top:15px;padding-top:15px;border-top:1px solid #e0e0e0;}
-.app-action-btn{padding:8px 15px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;transition:0.2s;border:none;display:flex;align-items:center;gap:5px;}
-.view-opp-btn{background:#ff6a00;color:white;}
-.view-opp-btn:hover{background:#e55d00;}
-.cancel-app-btn{background:#f44336;color:white;}
-.cancel-app-btn:hover{background:#e03333;}
-
-/* Empty States */
-.empty-state{text-align:center;padding:60px 20px;color:#888;}
-.empty-icon{font-size:64px;margin-bottom:20px;opacity:0.3;}
-.empty-title{font-size:20px;color:#333;margin-bottom:10px;}
-.empty-text{font-size:14px;margin-bottom:25px;}
-
-/* Loading */
-.loading{text-align:center;padding:60px 20px;color:#888;}
-.loading i{font-size:32px;color:#ff6a00;animation:spin 1s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg);}}
-
-/* Success Modal */
-.success-modal{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:2000;}
-.success-modal.active{display:flex;}
-.success-content{background:white;border-radius:16px;padding:30px;text-align:center;max-width:400px;}
-.success-icon{width:80px;height:80px;background:#e8f5e9;color:#4caf50;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:40px;}
-.success-title{font-size:20px;font-weight:600;color:#333;margin-bottom:10px;}
-.success-text{font-size:14px;color:#666;margin-bottom:20px;}
-.success-btn{background:#ff6a00;color:white;border:none;padding:12px 30px;border-radius:8px;font-weight:600;cursor:pointer;transition:0.3s;}
-.success-btn:hover{background:#e55d00;}
-
-/* Mobile Responsive */
-@media(max-width:768px){
-    body{padding:10px;}
-    .header{flex-direction:column;}
-    .opportunities-container{grid-template-columns:1fr;}
-    .card-stats{grid-template-columns:repeat(3,1fr);font-size:12px;}
-    .stats-banner-content{grid-template-columns:repeat(2,1fr);}
-    .overlay-content{border-radius:0;}
+@media(max-width:900px){
+    .sidebar{transform:translateX(-100%);}
+    .sidebar.active{transform:translateX(0);}
+    .main{margin-left:0;padding:15px;max-width:100%;width:100%;}
+    .menu-btn{display:block;}
+    .notification-overlay{right:10px;left:10px;width:auto;padding:70px 10px 10px;}
+    .notification-panel-wrap{width:100%;}
+    .tip-options{grid-template-columns:repeat(2,1fr);}
 }
 </style>
 </head>
-
 <body>
 
-<!-- Header -->
-<div class="header">
-    <div class="header-left">
-        <button class="back-btn" onclick="window.location.href='dashboard.html'">
-            <i class="fas fa-arrow-left"></i> Back
-        </button>
-        <h1 class="header-title">Opportunities</h1>
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+    <div class="logo">
+        <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg"> CashClique
     </div>
-    <div class="header-actions">
-        <button class="advertise-btn" onclick="window.location.href='create-opportunities.html'">
-            <i class="fas fa-bullhorn"></i> Advertise
-        </button>
-    </div>
+    <a href="#" class="active"><i class="fas fa-home"></i> Dashboard</a>
+    <a href="my-content.html"><i class="fas fa-file-alt"></i> My Content</a>
+    <a href="earnings.html"><i class="fas fa-dollar-sign"></i> Earnings</a>
+    <a href="opportunities.html"><i class="fas fa-fire"></i> Opportunities</a>
+    <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+    <a href="#" id="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
 </div>
 
-<!-- My Stats Banner -->
-<div class="stats-banner">
-    <div class="stats-banner-title">
-        <i class="fas fa-user-circle"></i> Your Creator Stats
-    </div>
-    <div class="stats-banner-content">
-        <div class="stat-item">
-            <div class="stat-value" id="my-likes">0</div>
-            <div class="stat-label">Total Likes</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-value" id="my-followers">0</div>
-            <div class="stat-label">Followers</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-value" id="my-posts">0</div>
-            <div class="stat-label">Posts</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-value" id="my-views">0</div>
-            <div class="stat-label">Total Views</div>
-        </div>
-    </div>
-    <div style="text-align:center;">
-        <span class="verified-status" id="verified-status">
-            <i class="fas fa-times-circle"></i> Not Verified
-        </span>
-    </div>
-</div>
-
-<!-- Filters -->
-<div class="filters">
-    <button class="filter-btn active" onclick="filterOpportunities('all', this)">
-        <i class="fas fa-th"></i> All
-    </button>
-    <button class="filter-btn" onclick="filterOpportunities('eligible', this)">
-        <i class="fas fa-check-circle"></i> Eligible
-    </button>
-    <button class="filter-btn" onclick="filterOpportunities('tech', this)">
-        <i class="fas fa-laptop-code"></i> Tech
-    </button>
-    <button class="filter-btn" onclick="filterOpportunities('fashion', this)">
-        <i class="fas fa-tshirt"></i> Fashion
-    </button>
-    <button class="filter-btn" onclick="filterOpportunities('food', this)">
-        <i class="fas fa-utensils"></i> Food
-    </button>
-    <button class="filter-btn" onclick="filterOpportunities('travel', this)">
-        <i class="fas fa-plane"></i> Travel
-    </button>
-    <button class="filter-btn" onclick="filterOpportunities('fitness', this)">
-        <i class="fas fa-dumbbell"></i> Fitness
-    </button>
-    <button class="filter-btn" onclick="filterOpportunities('others', this)">
-        <i class="fas fa-ellipsis-h"></i> Others
-    </button>
-</div>
-
-<!-- Opportunities Grid -->
-<div class="opportunities-container" id="opportunities-container">
-    <div class="loading">
-        <i class="fas fa-spinner"></i><br>
-        Loading opportunities...
-    </div>
-</div>
-
-<!-- My Applications Button -->
-<div class="applications-btn" onclick="openApplicationsOverlay()">
-    <i class="fas fa-clipboard-list"></i>
-    <span class="applications-badge" id="app-badge" style="display:none;">0</span>
-</div>
-
-<!-- My Applications Overlay -->
-<div class="overlay" id="applications-overlay">
-    <div class="overlay-content">
-        <div class="overlay-header">
-            <div class="overlay-title">
-                <span><i class="fas fa-clipboard-list"></i> My Applications</span>
-                <button class="close-overlay" onclick="closeApplicationsOverlay()">
-                    <i class="fas fa-times"></i>
-                </button>
+<!-- MAIN -->
+<div class="main">
+    <div class="header">
+        <div class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
+        <div style="flex:1;"></div>
+        <div class="header-right">
+            <div class="notification-bell" id="notification-bell">
+                <i class="fas fa-bell"></i>
+                <span class="badge" id="notif-count">0</span>
             </div>
-        </div>
-        
-        <div class="app-filters">
-            <button class="app-filter active" onclick="filterApplications('all', this)">All</button>
-            <button class="app-filter" onclick="filterApplications('pending', this)">Pending</button>
-            <button class="app-filter" onclick="filterApplications('approved', this)">Approved</button>
-            <button class="app-filter" onclick="filterApplications('rejected', this)">Rejected</button>
-        </div>
-        
-        <div class="applications-list" id="applications-list">
-            <div class="loading">
-                <i class="fas fa-spinner"></i><br>
-                Loading your applications...
+            <div class="user" onclick="window.location.href='profile.html'">
+                <img id="user-avatar" src="https://i.pravatar.cc/150?img=3">
+                <div class="user-info">
+                    <span id="username" style="font-weight:600;font-size:14px;">Loading...</span>
+                    <span id="user-verified-badge" class="verified-badge" style="display:none;"><i class="fas fa-check"></i></span>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- CONTROLS SECTION (Search & Tabs) -->
+    <div class="controls-section">
+        <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" id="search-input" placeholder="Search for posts or users...">
+        </div>
+        <div class="feed-tabs">
+            <button class="feed-tab active" data-tab="all">For You</button>
+            <button class="feed-tab" data-tab="following">Following</button>
+        </div>
+    </div>
+
+    <!-- FEED -->
+    <div class="feed" id="feed">
+        <div style="text-align:center; padding:40px; color:#888;">
+            <i class="fas fa-spinner fa-spin" style="font-size:30px; color:#ff6a00; margin-bottom:10px;"></i>
+            <p>Loading your feed...</p>
+        </div>
+    </div>
 </div>
 
-<!-- Success Modal -->
-<div class="success-modal" id="success-modal">
-    <div class="success-content">
-        <div class="success-icon">
-            <i class="fas fa-check"></i>
+<button class="create-btn" onclick="window.location.href='post.html'">
+    <i class="fas fa-plus"></i>
+</button>
+
+<!-- Media Viewer -->
+<div class="media-modal" id="media-modal" onclick="closeMediaModal()">
+    <span class="close-modal">&times;</span>
+    <img id="modal-image" src="">
+</div>
+
+<!-- Tip Modal -->
+<div class="tip-modal" id="tip-modal">
+    <div class="tip-content">
+        <h3><i class="fas fa-hand-holding-dollar"></i> Send a Tip</h3>
+        <p style="color:#64748b;margin-bottom:15px;">Support <strong id="tip-recipient" style="color:#1e2937;">this creator</strong></p>
+        
+        <div class="tip-options">
+            <button class="tip-btn" data-amount="1">$1</button>
+            <button class="tip-btn" data-amount="5">$5</button>
+            <button class="tip-btn" data-amount="10">$10</button>
+            <button class="tip-btn" data-amount="20">$20</button>
+            <button class="tip-btn" data-amount="50">$50</button>
+            <button class="tip-btn" data-amount="100">$100</button>
         </div>
-        <h3 class="success-title">Application Submitted!</h3>
-        <p class="success-text">Your application has been submitted successfully. You'll be notified once it's reviewed.</p>
-        <button class="success-btn" onclick="closeSuccessModal()">Got it</button>
+        
+        <input type="number" class="custom-tip" id="custom-tip" placeholder="Enter custom amount" step="0.01" min="0.01">
+        
+        <button class="send-tip-btn" id="send-tip-btn">Send Tip</button>
+        <div class="cancel-tip" onclick="closeTipModal()">Cancel</div>
+    </div>
+</div>
+
+<!-- Notifications Overlay -->
+<div class="notification-overlay" id="notification-overlay" onclick="closeNotifications()">
+    <div class="notification-panel-wrap" onclick="event.stopPropagation()">
+        <div class="notification-header">
+            <span><i class="fas fa-bell" style="color:#ff6a00;margin-right:8px;"></i> Notifications</span>
+            <span style="font-size:12px;color:#ff6a00;cursor:pointer;font-weight:600;" id="mark-all-read">Mark all read</span>
+        </div>
+        <div class="notification-panel" id="notification-panel"></div>
     </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, query, where, onSnapshot, doc, getDoc, addDoc, updateDoc, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, doc, onSnapshot, updateDoc, increment, serverTimestamp, query, orderBy, addDoc, arrayUnion, writeBatch, getDoc, getDocs, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -316,481 +267,521 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+const feed = document.getElementById("feed");
 let currentUser = null;
-let userStats = {
-    likes: 0,
-    followers: 0,
-    posts: 0,
-    views: 0,
-    isVerified: false
-};
-let allOpportunities = [];
-let myApplications = [];
-let currentFilter = 'all';
-let currentAppFilter = 'all';
+let currentUsername = "User";
+let currentBalance = 0;
+let viewTimers = {};
+let followingList = [];
+let userVerificationCache = {};
 
-onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-        window.location.href = "login.html";
-        return;
-    }
-    currentUser = user;
-    await loadUserStats();
-    loadOpportunities();
-    loadMyApplications();
+let allPostsCache = [];
+let allAdsCache = [];
+let viewedAds = [];
+let currentFeedTab = localStorage.getItem('cashclique_feed_tab') || 'all';
+let searchQuery = "";
+
+document.querySelectorAll('.feed-tab').forEach(tab => {
+    if (tab.dataset.tab === currentFeedTab) tab.classList.add('active');
+    else tab.classList.remove('active');
 });
 
-// Load user stats
-async function loadUserStats() {
+onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = "login.html"; return; }
+    currentUser = user;
+
+    const userRef = doc(db, "users", user.uid);
+    onSnapshot(userRef, (snap) => {
+        if (snap.exists()) {
+            const data = snap.data();
+            currentUsername = data.username || user.email?.split('@')[0] || "User";
+            currentBalance = data.balance || 0;
+            followingList = data.following || [];
+            viewedAds = data.viewedAds || [];
+            document.getElementById("username").innerText = currentUsername;
+            document.getElementById("user-avatar").src = data.avatar || `https://i.pravatar.cc/150?u=${user.uid}`;
+            if (data.isVerified || data.verified) document.getElementById("user-verified-badge").style.display = "inline-flex";
+        }
+    });
+
+    loadFeed();
+    loadNotifications();
+});
+
+async function getUserVerificationStatus(userId) {
+    if (userVerificationCache[userId] !== undefined) return userVerificationCache[userId];
     try {
-        let userData = {};
-        const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+        const userDoc = await getDoc(doc(db, "users", userId));
         if (userDoc.exists()) {
-            userData = userDoc.data();
-            userStats.isVerified = userData.isVerified || userData.verified || false;
-            
-            const verifiedStatus = document.getElementById('verified-status');
-            if (userStats.isVerified) {
-                verifiedStatus.innerHTML = '<i class="fas fa-check-circle"></i> Verified Creator';
-                verifiedStatus.style.background = 'rgba(29,161,242,0.2)';
-            }
+            const isVerified = userDoc.data().isVerified || userDoc.data().verified || false;
+            userVerificationCache[userId] = isVerified;
+            return isVerified;
         }
-        
-        // --- THE FIX ---
-        // 1. Calculate Real Followers + Purchased Followers
-        const realFollowers = userData.followers?.length || 0;
-        const boostedFollowers = userData.followersCount || 0;
-        userStats.followers = realFollowers + boostedFollowers;
-
-        // 2. Fetch all real post stats
-        const postsQuery = query(collection(db, "posts"), where("userId", "==", currentUser.uid));
-        const postsSnapshot = await getDocs(postsQuery);
-        
-        userStats.posts = postsSnapshot.size;
-        let calculatedLikes = 0;
-        let calculatedViews = 0;
-        
-        postsSnapshot.forEach(doc => {
-            const post = doc.data();
-            calculatedLikes += post.likes || 0;
-            calculatedViews += post.views || 0;
-        });
-
-        // 3. Add any purchased profile likes/views to the calculated total
-        const boostedLikes = userData.totalLikes || userData.likes || 0;
-        const boostedViews = userData.totalViews || userData.views || 0;
-
-        userStats.likes = calculatedLikes + boostedLikes;
-        userStats.views = calculatedViews + boostedViews;
-        // ---------------
-        
-        document.getElementById('my-likes').textContent = formatNumber(userStats.likes);
-        document.getElementById('my-followers').textContent = formatNumber(userStats.followers);
-        document.getElementById('my-posts').textContent = formatNumber(userStats.posts);
-        document.getElementById('my-views').textContent = formatNumber(userStats.views);
-        
-    } catch (error) {
-        console.error("Error loading user stats:", error);
-    }
+    } catch (e) { console.error(e); }
+    return false;
 }
 
-// Load opportunities
-function loadOpportunities() {
-    const q = query(collection(db, "opportunities"), where("status", "in", ["active", "approved"]));
+async function loadFeed() {
+    const postsQuery = query(collection(db, "posts"), orderBy("timestamp", "desc"));
     
-    onSnapshot(q, (snapshot) => {
-        allOpportunities = [];
+    onSnapshot(postsQuery, async (snapshot) => {
+        allPostsCache = [];
         
-        snapshot.forEach(doc => {
-            const data = { id: doc.id, ...doc.data() };
-            allOpportunities.push(data);
-        });
+        for (const postDoc of snapshot.docs) {
+            const post = postDoc.data();
+            const postId = postDoc.id;
+            const isVerified = await getUserVerificationStatus(post.userId);
+            const isFromFollowed = followingList.includes(post.userId);
+            const hasViewed = post.viewedBy && post.viewedBy.includes(currentUser.uid);
+            
+            allPostsCache.push({ id: postId, type: 'post', ...post, isFromFollowed, isVerified, hasViewed });
+        }
         
-        displayOpportunities();
+        renderFeed();
+    });
+
+    // Load active sponsored ads
+    const adsQuery = query(collection(db, "activeAds"), orderBy("approvedAt", "desc"));
+    onSnapshot(adsQuery, async (snapshot) => {
+        allAdsCache = [];
+        
+        for (const adDoc of snapshot.docs) {
+            const ad = adDoc.data();
+            const isVerified = await getUserVerificationStatus(ad.creatorId);
+            const hasViewed = viewedAds.includes(ad.adId);
+            
+            allAdsCache.push({ id: adDoc.id, type: 'ad', ...ad, isVerified, hasViewed });
+        }
+        
+        renderFeed();
     });
 }
 
-// Display opportunities
-async function displayOpportunities() {
-    const container = document.getElementById('opportunities-container');
-    
-    let filtered = allOpportunities;
-    
-    if (currentFilter === 'eligible') {
-        filtered = allOpportunities.filter(opp => checkEligibility(opp).isEligible);
-    } else if (currentFilter !== 'all') {
-        filtered = allOpportunities.filter(opp => opp.category === currentFilter);
+async function renderFeed() {
+    feed.innerHTML = "";
+    let filteredPosts = allPostsCache;
+    let filteredAds = allAdsCache;
+
+    if (currentFeedTab === 'following') {
+        filteredPosts = filteredPosts.filter(p => p.isFromFollowed);
+        filteredAds = filteredAds.filter(a => followingList.includes(a.creatorId));
     }
-    
-    if (filtered.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state" style="grid-column:1/-1;">
-                <div class="empty-icon"><i class="fas fa-bullhorn"></i></div>
-                <h3 class="empty-title">No opportunities found</h3>
-                <p class="empty-text">Check back later for new opportunities</p>
-            </div>`;
-        return;
+
+    if (searchQuery.trim() !== "") {
+        const sq = searchQuery.toLowerCase();
+        filteredPosts = filteredPosts.filter(p => 
+            (p.content && p.content.toLowerCase().includes(sq)) || 
+            (p.username && p.username.toLowerCase().includes(sq))
+        );
+        filteredAds = filteredAds.filter(a =>
+            (a.title && a.title.toLowerCase().includes(sq)) ||
+            (a.description && a.description.toLowerCase().includes(sq))
+        );
     }
-    
-    container.innerHTML = '';
-    
-    for (const opp of filtered) {
-        const eligibility = checkEligibility(opp);
-        const application = myApplications.find(app => app.opportunityId === opp.id);
-        
-        const card = document.createElement('div');
-        card.className = 'opportunity-card';
-        
-        let badgeClass = 'badge-eligible';
-        let badgeText = `${eligibility.totalProgress}% Eligible`;
-        if (!eligibility.isEligible) {
-            if (eligibility.totalProgress > 30) {
-                badgeClass = 'badge-partial';
-                badgeText = `${eligibility.totalProgress}% Eligible`;
-            } else {
-                badgeClass = 'badge-ineligible';
-                badgeText = `${eligibility.totalProgress}% Eligible`;
+
+    // ✅ Perfect fixed mixing algorithm
+    let mixedFeed = [];
+    let postIndex = 0;
+    let adIndex = 0;
+
+    while(postIndex < filteredPosts.length || adIndex < filteredAds.length) {
+
+        // Add up to 2 posts first
+        for(let i = 0; i < 2 && postIndex < filteredPosts.length; i++) {
+            mixedFeed.push(filteredPosts[postIndex]);
+            postIndex++;
+        }
+
+        // Then add one ad if available
+        if(adIndex < filteredAds.length) {
+            mixedFeed.push(filteredAds[adIndex]);
+            adIndex++;
+        }
+
+        // If no more posts left, add all remaining ads
+        if(postIndex >= filteredPosts.length) {
+            while(adIndex < filteredAds.length) {
+                mixedFeed.push(filteredAds[adIndex]);
+                adIndex++;
             }
         }
-        
-        let buttonHTML = '';
-        if (application) {
-            const status = application.status || 'pending';
-            if (status === 'approved') {
-                buttonHTML = `<button class="apply-btn applied" disabled><i class="fas fa-check-circle"></i> Approved</button>`;
-            } else if (status === 'rejected') {
-                buttonHTML = `<button class="apply-btn rejected" disabled><i class="fas fa-times-circle"></i> Rejected</button>`;
-            } else {
-                buttonHTML = `<button class="apply-btn pending" disabled><i class="fas fa-clock"></i> Application Pending</button>`;
-            }
-        } else if (eligibility.isEligible) {
-            buttonHTML = `<button class="apply-btn eligible" onclick="applyForOpportunity('${opp.id}')"><i class="fas fa-paper-plane"></i> Apply Now</button>`;
+    }
+
+    if (mixedFeed.length === 0) {
+        let msg = searchQuery !== "" ? "No posts match your search." : 
+                  (currentFeedTab === 'following' ? "You aren't following anyone who has posted yet." : "No posts found.");
+        feed.innerHTML = `<div class="post" style="text-align:center; padding:40px 20px;"><i class="fas fa-folder-open" style="font-size:40px;color:#cbd5e1;margin-bottom:15px;"></i><p style="color:#64748b;font-weight:500;">${msg}</p></div>`;
+        return;
+    }
+
+    const followedUnviewed = [];
+    const followedViewed = [];
+    const otherItems = [];
+
+    mixedFeed.forEach(item => {
+        if (item.isFromFollowed || (item.type === 'ad' && followingList.includes(item.creatorId))) {
+            if (!item.hasViewed) followedUnviewed.push(item);
+            else followedViewed.push(item);
         } else {
-            buttonHTML = `<button class="apply-btn ineligible" disabled><i class="fas fa-lock"></i> ${eligibility.totalProgress}% Complete</button>`;
+            otherItems.push(item);
         }
+    });
 
-        const likesProgress = getProgress(userStats.likes, opp.requirements.minLikes);
-        const followersProgress = getProgress(userStats.followers, opp.requirements.minFollowers);
+    const sortedFeed = [...followedUnviewed, ...otherItems, ...followedViewed];
 
-        card.innerHTML = `
-            <span class="eligibility-badge ${badgeClass}">${badgeText}</span>
-            <span class="category-badge">${opp.category || 'general'}</span>
-            
-            <div class="card-header">
-                <h3 class="card-title">${opp.title}</h3>
-                <p class="card-description">${opp.description}</p>
-                <div class="card-advertiser">
-                    <i class="fas fa-user"></i>
-                    ${opp.advertiserName || 'Advertiser'}
+    for (const item of sortedFeed) {
+        if(item.type === 'post') {
+            await renderPostHTML(item);
+        }
+        if(item.type === 'ad') {
+            await renderAdHTML(item);
+        }
+    }
+    
+    attachEventHandlers();
+}
+
+async function renderPostHTML(post) {
+    const postId = post.id;
+    const isLiked = post.likedBy && post.likedBy.includes(currentUser.uid);
+    const timestamp = post.timestamp ? formatTime(post.timestamp.toDate()) : "Just now";
+    const verifiedBadge = post.isVerified ? `<span class="verified-badge-post" title="Verified Account"><i class="fas fa-check"></i></span>` : '';
+    
+    const postEl = document.createElement("div");
+    postEl.className = "post";
+    postEl.dataset.postId = postId;
+    postEl.dataset.viewed = post.hasViewed;
+    
+    const imgHTML = post.imageBase64 ? `<img src="${post.imageBase64}" class="post-image" onclick="viewImage(this.src)">` : '';
+    const priorityBadge = post.isFromFollowed && !post.hasViewed ? `<div class="priority-badge"><i class="fas fa-star"></i> Following Update</div>` : '';
+
+    postEl.innerHTML = `
+        ${priorityBadge}
+        <div class="post-header">
+            <img src="${post.userAvatar || 'https://i.pravatar.cc/150?u='+post.userId}" class="profile-pic" data-uid="${post.userId}">
+            <div class="post-author">
+                <div class="post-author-name" onclick="window.location.href='profile.html?uid=${post.userId}'">
+                    <span>${post.username || "Anonymous"}</span>${verifiedBadge}
                 </div>
+                <div class="post-time">${timestamp}</div>
             </div>
-            
-            <div class="requirements">
-                <div class="requirements-title">Requirements Progress</div>
-                <div class="requirement-list">
-
-                    <div class="requirement-item">
-                        <div class="requirement-row">
-                            <span>Total Likes</span>
-                            <span>${formatNumber(userStats.likes)} / ${formatNumber(opp.requirements.minLikes)}</span>
-                        </div>
-                        <div class="requirement-progress-bar">
-                            <div class="requirement-progress-fill ${likesProgress.class}" style="width:${likesProgress.percent}%"></div>
-                        </div>
-                    </div>
-
-                    <div class="requirement-item">
-                        <div class="requirement-row">
-                            <span>Followers</span>
-                            <span>${formatNumber(userStats.followers)} / ${formatNumber(opp.requirements.minFollowers)}</span>
-                        </div>
-                        <div class="requirement-progress-bar">
-                            <div class="requirement-progress-fill ${followersProgress.class}" style="width:${followersProgress.percent}%"></div>
-                        </div>
-                    </div>
-
-                    ${opp.requirements.requireVerified ? `
-                        <div class="requirement-item">
-                            <div class="requirement-row">
-                                <span>Verified Account</span>
-                                <span>${userStats.isVerified ? '✅ Yes' : '❌ No'}</span>
-                            </div>
-                        </div>
-                    ` : ''}
-
-                </div>
+            <i class="fas fa-ellipsis-v three-dot" onclick="window.location.href='post-view.html?postId=${postId}'"></i>
+        </div>
+        <p>${post.content}</p>
+        ${imgHTML}
+        <div class="post-actions">
+            <span class="action-item like-btn ${isLiked ? 'liked' : ''}" data-id="${postId}" data-owner="${post.userId}" data-liked="${isLiked}">
+                <i class="${isLiked ? 'fas' : 'far'} fa-heart"></i> ${post.likes || 0}
+            </span>
+            <span class="action-item" onclick="toggleComments('${postId}')">
+                <i class="far fa-comment"></i> ${post.commentCount || 0}
+            </span>
+            <span class="action-item">
+                <i class="far fa-eye"></i> ${post.views || 0}
+            </span>
+            <span class="action-item tip-jar" data-id="${postId}" data-owner="${post.userId}" data-username="${post.username}">
+                <i class="fas fa-hand-holding-dollar"></i> Tip
+            </span>
+        </div>
+        <div class="comments" id="comments-${postId}" style="display:none">
+            <div class="comment-list" id="comment-list-${postId}"></div>
+            <div style="display:flex;gap:8px;margin-top:10px;">
+                <input placeholder="Write a comment..." id="comment-input-${postId}" style="flex:1;padding:10px 14px;border-radius:10px;border:1px solid #e2e8f0;outline:none;font-family:'Poppins';"/>
+                <button onclick="addComment('${postId}', '${post.userId}')" style="background:#ff6a00;color:white;border:none;padding:10px 18px;border-radius:10px;cursor:pointer;font-weight:600;">Post</button>
             </div>
-            
-            <div class="card-stats">
-                <div class="card-stat">
-                    <div class="card-stat-value">${formatNumber(opp.targetViews)}</div>
-                    <div class="card-stat-label">Target Views</div>
-                </div>
-                <div class="card-stat">
-                    <div class="card-stat-value">$${opp.cost.toFixed(2)}</div>
-                    <div class="card-stat-label">Payout</div>
-                </div>
-                <div class="card-stat">
-                    <div class="card-stat-value">${formatNumber(opp.currentViews || 0)}</div>
-                    <div class="card-stat-label">Completed</div>
-                </div>
-            </div>
-            
-            <div class="card-actions">
-                ${buttonHTML}
-            </div>
-        `;
+        </div>
+    `;
+    feed.appendChild(postEl);
+
+    if (!post.hasViewed) trackView(postId);
+
+    const commentsRef = query(collection(db, "posts", postId, "comments"), orderBy("timestamp", "asc"));
+    onSnapshot(commentsRef, async (cSnap) => {
+        const list = document.getElementById(`comment-list-${postId}`);
+        if (!list) return;
+        list.innerHTML = "";
         
-        container.appendChild(card);
+        updateDoc(doc(db, "posts", postId), { commentCount: cSnap.size });
+        
+        for (const c of cSnap.docs) {
+            const d = c.data();
+            const cVerified = await getUserVerificationStatus(d.userId);
+            const vBadge = cVerified ? `<span class="verified-badge-post"><i class="fas fa-check"></i></span>` : '';
+            
+            const div = document.createElement("div");
+            div.className = "comment-item";
+            div.innerHTML = `
+                <div style="flex:1;">
+                    <span class="comment-author" onclick="window.location.href='profile.html?uid=${d.userId}'">${d.username || "User"}${vBadge}</span>
+                    <span style="color:#475569; margin-left:6px;">${d.text}</span>
+                </div>
+            `;
+            list.appendChild(div);
+        }
+    });
+}
+
+// ✅ Render sponsored ad
+async function renderAdHTML(ad) {
+    const verifiedBadge = ad.isVerified ? `<span class="verified-badge-post" title="Verified Account"><i class="fas fa-check"></i></span>` : '';
+    const completed = viewedAds.includes(ad.adId);
+
+    const postEl = document.createElement("div");
+    postEl.className = "post";
+
+    const imgHTML = ad.flyer ? `<img src="${ad.flyer}" class="post-image" onclick="viewImage(this.src)">` : '';
+
+    postEl.innerHTML = `
+        <div class="post-header">
+            <img src="${ad.creatorAvatar || 'https://i.pravatar.cc/150?u='+ad.creatorId}" class="profile-pic">
+            <div class="post-author">
+                <div class="post-author-name" onclick="window.location.href='profile.html?uid=${ad.creatorId}'">
+                    <span>${ad.creatorName || "Creator"}</span>${verifiedBadge}
+                    <span class="ad-tag">SPONSORED</span>
+                </div>
+                <div class="post-time">Promoted</div>
+            </div>
+        </div>
+        <p><strong>${ad.title || 'Ad'}</strong><br>${ad.description || ''}</p>
+        ${imgHTML}
+        <div class="post-actions">
+            <span class="action-item">
+                <i class="far fa-eye"></i> ${ad.views || 0}
+            </span>
+            <span class="action-item tip-jar" data-id="${ad.id}" data-owner="${ad.creatorId}" data-username="${ad.creatorName}">
+                <i class="fas fa-hand-holding-dollar"></i> Tip
+            </span>
+            <span class="action-item ${completed ? 'liked' : ''}" onclick="viewAd('${ad.id}', '${ad.adId}', '${ad.creatorId}')">
+                <i class="fas fa-play"></i> ${completed ? 'Viewed' : 'View Ad'}
+            </span>
+        </div>
+    `;
+    feed.appendChild(postEl);
+}
+
+window.viewAd = async function(activeAdId, adId, creatorId) {
+    if(viewedAds.includes(adId)) return;
+
+    if(!confirm('Watch ad for 30 seconds to earn $0.02?')) return;
+
+    try {
+        // Increment global view counter
+        await updateDoc(doc(db, "opportunities", adId), {
+            currentViews: increment(1)
+        });
+
+        // Increment creator earned counter
+        await updateDoc(doc(db, "activeAds", activeAdId), {
+            views: increment(1)
+        });
+
+        // Credit viewer
+        await updateDoc(doc(db, "users", currentUser.uid), {
+            viewedAds: arrayUnion(adId),
+            balance: increment(0.02)
+        });
+
+        // Credit creator 50% commission
+        await updateDoc(doc(db, "users", creatorId), {
+            balance: increment(0.01)
+        });
+
+        viewedAds.push(adId);
+        renderFeed();
+
+        alert('✅ Success! You earned $0.02');
+
+    } catch (error) {
+        alert('Error completing ad');
+        console.error(error);
     }
 }
 
-function getProgress(current, required){
-    if (!required) return { percent: 100, className: 'progress-green' };
-    const percent = Math.min(100, Math.round((current / required) * 100));
-    let className = 'progress-red';
-    if(percent >= 100) className = 'progress-green';
-    else if(percent >= 50) className = 'progress-orange';
-    return { percent, className };
+document.getElementById('search-input').addEventListener('input', (e) => {
+    searchQuery = e.target.value;
+    renderFeed();
+});
+
+document.querySelectorAll('.feed-tab').forEach(tab => {
+    tab.addEventListener('click', (e) => {
+        document.querySelectorAll('.feed-tab').forEach(t => t.classList.remove('active'));
+        e.target.classList.add('active');
+        currentFeedTab = e.target.dataset.tab;
+        localStorage.setItem('cashclique_feed_tab', currentFeedTab);
+        renderFeed();
+    });
+});
+
+function trackView(postId) {
+    if (viewTimers[postId]) clearTimeout(viewTimers[postId]);
+    viewTimers[postId] = setTimeout(async () => {
+        const postEl = document.querySelector(`[data-post-id="${postId}"]`);
+        if (postEl && postEl.dataset.viewed !== "true") {
+            try {
+                await updateDoc(doc(db, "posts", postId), { views: increment(1), viewedBy: arrayUnion(currentUser.uid) });
+                postEl.dataset.viewed = "true";
+            } catch (e) {}
+        }
+    }, 2000);
 }
 
-// Check eligibility
-function checkEligibility(opportunity) {
-    const req = opportunity.requirements;
-    const hasEnoughLikes = userStats.likes >= (req.minLikes || 0);
-    const hasEnoughFollowers = userStats.followers >= (req.minFollowers || 0);
-    const meetsVerification = !req.requireVerified || userStats.isVerified;
+function attachEventHandlers() {
+    document.querySelectorAll(".like-btn").forEach(btn => {
+        btn.onclick = async () => {
+            if (btn.dataset.liked === "true") return;
+            const postId = btn.dataset.id;
+            const ownerId = btn.dataset.owner;
+            
+            try {
+                await updateDoc(doc(db, "posts", postId), { likes: increment(1), likedBy: arrayUnion(currentUser.uid) });
+                btn.dataset.liked = "true";
+                btn.classList.add("liked");
+                btn.innerHTML = `<i class="fas fa-heart"></i> ${(parseInt(btn.innerText) || 0) + 1}`;
 
-    const likesProgress = req.minLikes ? Math.min(100, (userStats.likes / req.minLikes) * 100) : 100;
-    const followersProgress = req.minFollowers ? Math.min(100, (userStats.followers / req.minFollowers) * 100) : 100;
-    const verificationProgress = meetsVerification ? 100 : 0;
+                if (ownerId !== currentUser.uid) {
+                    await sendNotification(ownerId, { type: "like", title: `${currentUsername} liked your post`, fromUserId: currentUser.uid, postId: postId });
+                }
+            } catch (e) { console.error("Like failed:", e); }
+        };
+    });
 
-    let totalRequirements = 2;
-    let totalProgress = likesProgress + followersProgress;
+    document.querySelectorAll(".tip-jar").forEach(btn => {
+        btn.onclick = () => {
+            if (btn.dataset.owner === currentUser.uid) return alert("You can't tip yourself!");
+            openTipModal(btn.dataset.id, btn.dataset.owner, btn.dataset.username);
+        };
+    });
+}
 
-    if(req.requireVerified){
-        totalRequirements = 3;
-        totalProgress += verificationProgress;
-    }
+let currentTipData = null;
+function openTipModal(postId, ownerId, username) {
+    currentTipData = { postId, ownerId, username };
+    document.getElementById("tip-recipient").innerText = username || "this creator";
+    document.getElementById("tip-modal").style.display = "flex";
+    document.querySelectorAll(".tip-btn").forEach(btn => btn.classList.remove("selected"));
+    document.getElementById("custom-tip").value = "";
+}
 
-    totalProgress = Math.round(totalProgress / totalRequirements);
-    
-    const isEligible = hasEnoughLikes && hasEnoughFollowers && meetsVerification;
-    const partiallyEligible = (hasEnoughLikes || hasEnoughFollowers) && meetsVerification;
-    
-    return {
-        isEligible,
-        partiallyEligible,
-        hasEnoughLikes,
-        hasEnoughFollowers,
-        meetsVerification,
-        totalProgress
+window.closeTipModal = () => document.getElementById("tip-modal").style.display = "none";
+
+document.querySelectorAll(".tip-btn").forEach(btn => {
+    btn.onclick = () => {
+        document.querySelectorAll(".tip-btn").forEach(b => b.classList.remove("selected"));
+        btn.classList.add("selected");
+        document.getElementById("custom-tip").value = "";
     };
-}
+});
 
-// Apply for opportunity
-window.applyForOpportunity = async function(opportunityId) {
-    const opportunity = allOpportunities.find(opp => opp.id === opportunityId);
-    if (!opportunity) return;
+document.getElementById("custom-tip").addEventListener("input", () => {
+    document.querySelectorAll(".tip-btn").forEach(btn => btn.classList.remove("selected"));
+});
+
+document.getElementById("send-tip-btn").addEventListener("click", async () => {
+    if (!currentTipData) return;
+    let amount = parseFloat(document.querySelector(".tip-btn.selected")?.dataset.amount || document.getElementById("custom-tip").value);
     
-    if (!confirm(`Apply for "${opportunity.title}"?\n\nMake sure you're ready to promote this opportunity if approved.`)) {
-        return;
-    }
+    if (!amount || amount <= 0) return alert("Enter a valid amount");
+    if (amount > currentBalance) return alert("Insufficient balance!");
+    
+    const btn = document.getElementById("send-tip-btn");
+    btn.disabled = true; btn.innerText = "Sending...";
     
     try {
-        await addDoc(collection(db, "applications"), {
-            opportunityId: opportunityId,
-            opportunityTitle: opportunity.title,
-            advertiserId: opportunity.advertiserId,
-            advertiserName: opportunity.advertiserName,
-            creatorId: currentUser.uid,
-            creatorName: currentUser.displayName || currentUser.email?.split('@')[0] || 'Creator',
-            creatorStats: {
-                likes: userStats.likes,
-                followers: userStats.followers,
-                posts: userStats.posts,
-                isVerified: userStats.isVerified
-            },
-            status: 'pending',
-            appliedAt: serverTimestamp(),
-            reviewedAt: null,
-            notes: ''
+        await runTransaction(db, async (tx) => {
+            tx.update(doc(db, "users", currentUser.uid), { balance: increment(-amount) });
+            tx.update(doc(db, "users", currentTipData.ownerId), { balance: increment(amount) });
+            tx.set(doc(collection(db, "transactions")), {
+                type: "tip", from: currentUser.uid, fromUsername: currentUsername, to: currentTipData.ownerId, toUsername: currentTipData.username, amount: amount, postId: currentTipData.postId, timestamp: serverTimestamp()
+            });
         });
-        
-        document.getElementById('success-modal').classList.add('active');
-        loadMyApplications();
-        displayOpportunities();
-        
-    } catch (error) {
-        console.error("Error applying for opportunity:", error);
-        alert("Failed to submit application. Please try again.");
-    }
+        await sendNotification(currentTipData.ownerId, { type: "earning", title: `${currentUsername} sent you a $${amount.toFixed(2)} tip!`, fromUserId: currentUser.uid, postId: currentTipData.postId });
+        alert(`Tip of $${amount.toFixed(2)} sent!`);
+        closeTipModal();
+    } catch (e) { alert("Failed to send tip."); } finally { btn.disabled = false; btn.innerText = "Send Tip"; }
+});
+
+window.addComment = async function(postId, ownerId) {
+    const input = document.getElementById(`comment-input-${postId}`);
+    const text = input.value.trim();
+    if (!text) return;
+    await addDoc(collection(db, "posts", postId, "comments"), { userId: currentUser.uid, username: currentUsername, text, timestamp: serverTimestamp() });
+    if (ownerId !== currentUser.uid) await sendNotification(ownerId, { type: "comment", title: `${currentUsername} commented on your post`, message: text, fromUserId: currentUser.uid, postId: postId });
+    input.value = "";
 };
 
-// Load my applications
-function loadMyApplications() {
-    const q = query(collection(db, "applications"), where("creatorId", "==", currentUser.uid));
-    
-    onSnapshot(q, (snapshot) => {
-        myApplications = [];
-        let pendingCount = 0;
-        
-        snapshot.forEach(doc => {
-            const data = { id: doc.id, ...doc.data() };
-            myApplications.push(data);
-            if (data.status === 'pending') pendingCount++;
-        });
-        
-        const badge = document.getElementById('app-badge');
-        if (pendingCount > 0) {
-            badge.textContent = pendingCount;
-            badge.style.display = 'flex';
+async function sendNotification(toUserId, data) {
+    try { await addDoc(collection(db, "users", toUserId, "notifications"), { ...data, read: false, timestamp: serverTimestamp() }); } catch(e){}
+}
+
+function loadNotifications() {
+    onSnapshot(query(collection(db, "users", currentUser.uid, "notifications"), orderBy("timestamp", "desc")), (snap) => {
+        const panel = document.getElementById("notification-panel");
+        panel.innerHTML = "";
+        let unread = 0;
+        if (snap.empty) {
+            panel.innerHTML = `<div class="empty-notif"><i class="fas fa-bell-slash"></i><br>No notifications yet</div>`;
         } else {
-            badge.style.display = 'none';
+            snap.forEach(nDoc => {
+                const n = nDoc.data();
+                if (!n.read) unread++;
+                const div = document.createElement("div");
+                div.className = `notification-item ${n.read ? '' : 'unread'}`;
+                let icon = n.type === "like" ? "fa-heart" : n.type === "comment" ? "fa-comment" : n.type === "follow" ? "fa-user-plus" : "fa-dollar-sign";
+                div.innerHTML = `<i class="fas ${icon} notif-icon"></i><div class="notif-content"><strong>${n.title}</strong><small>${n.message||""}</small><br><small>${n.timestamp?formatTime(n.timestamp.toDate()):"Just now"}</small></div>`;
+                div.onclick = async () => {
+                    await updateDoc(doc(db, "users", currentUser.uid, "notifications", nDoc.id), { read: true });
+                    if(n.postId) window.location.href = `post-view.html?postId=${n.postId}`;
+                    else if(n.fromUserId) window.location.href = `profile.html?uid=${n.fromUserId}`;
+                };
+                panel.appendChild(div);
+            });
         }
-        
-        displayOpportunities();
-        displayApplications();
+        document.getElementById("notif-count").innerText = unread > 99 ? "99+" : unread;
+        document.getElementById("notif-count").style.display = unread > 0 ? "flex" : "none";
     });
 }
 
-// Display applications
-function displayApplications() {
-    const container = document.getElementById('applications-list');
-    
-    let filtered = myApplications;
-    if (currentAppFilter !== 'all') {
-        filtered = myApplications.filter(app => app.status === currentAppFilter);
-    }
-    
-    filtered.sort((a, b) => {
-        const timeA = a.appliedAt?.seconds || 0;
-        const timeB = b.appliedAt?.seconds || 0;
-        return timeB - timeA;
-    });
-    
-    if (filtered.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-icon"><i class="fas fa-clipboard-list"></i></div>
-                <h3 class="empty-title">No applications</h3>
-                <p class="empty-text">${currentAppFilter === 'all' ? 'You haven\'t applied for any opportunities yet' : `No ${currentAppFilter} applications`}</p>
-            </div>`;
-        return;
-    }
-    
-    container.innerHTML = '';
-    
-    filtered.forEach(app => {
-        const appliedDate = app.appliedAt ? formatDate(app.appliedAt.toDate()) : 'Recently';
-        
-        const item = document.createElement('div');
-        item.className = 'application-item';
-        item.innerHTML = `
-            <div class="app-header">
-                <div>
-                    <h3 class="app-title">${app.opportunityTitle}</h3>
-                    <div style="font-size:12px;color:#999;margin-top:5px;">
-                        <i class="fas fa-user"></i> ${app.advertiserName}
-                    </div>
-                </div>
-                <span class="app-status status-${app.status}">${app.status.toUpperCase()}</span>
-            </div>
-            
-            ${app.notes ? `
-                <div style="padding:10px;background:#f0f0f0;border-radius:8px;margin:10px 0;">
-                    <strong style="font-size:12px;color:#666;">Note from advertiser:</strong>
-                    <p style="font-size:13px;color:#333;margin-top:5px;">${app.notes}</p>
-                </div>
-            ` : ''}
-            
-            <div class="app-details">
-                <div class="app-detail">
-                    <i class="fas fa-calendar"></i>
-                    Applied ${appliedDate}
-                </div>
-                ${app.reviewedAt ? `
-                    <div class="app-detail">
-                        <i class="fas fa-check-circle"></i>
-                        Reviewed ${formatDate(app.reviewedAt.toDate())}
-                    </div>
-                ` : ''}
-                <div class="app-detail">
-                    <i class="fas fa-chart-line"></i>
-                    ${formatNumber(app.creatorStats.likes)} likes, ${formatNumber(app.creatorStats.followers)} followers
-                </div>
-            </div>
-            
-            ${app.status === 'approved' ? `
-                <div class="app-actions">
-                    <button class="app-action-btn view-opp-btn" onclick="viewOpportunity('${app.opportunityId}')">
-                        <i class="fas fa-eye"></i> View Campaign
-                    </button>
-                </div>
-            ` : ''}
-        `;
-        container.appendChild(item);
-    });
+const bell = document.getElementById("notification-bell");
+const overlay = document.getElementById("notification-overlay");
+
+window.openNotifications = () => {
+    overlay.style.display = "flex";
+};
+
+window.closeNotifications = () => {
+    overlay.style.display = "none";
+};
+
+bell.addEventListener("click", (e) => { 
+    e.stopPropagation(); 
+    overlay.style.display = overlay.style.display === "flex" ? "none" : "flex"; 
+});
+
+document.getElementById("mark-all-read").addEventListener("click", async () => {
+    const snap = await getDocs(collection(db, "users", currentUser.uid, "notifications"));
+    const batch = writeBatch(db);
+    snap.forEach(d => { if (!d.data().read) batch.update(d.ref, { read: true }); });
+    await batch.commit();
+});
+
+document.addEventListener("click", (e) => { 
+    if (!bell.contains(e.target) && !overlay.contains(e.target)) overlay.style.display = "none"; 
+    if (e.target.id === "tip-modal") closeTipModal();
+});
+
+function formatTime(d) {
+    const diff = Math.floor((new Date() - d) / 1000);
+    if(diff < 60) return "Just now";
+    if(diff < 3600) return `${Math.floor(diff/60)}m ago`;
+    if(diff < 86400) return `${Math.floor(diff/3600)}h ago`;
+    if(diff < 604800) return `${Math.floor(diff/86400)}d ago`;
+    return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
 }
-
-// Filter opportunities
-window.filterOpportunities = function(filter, btn) {
-    currentFilter = filter;
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    displayOpportunities();
-};
-
-// Filter applications
-window.filterApplications = function(filter, btn) {
-    currentAppFilter = filter;
-    document.querySelectorAll('.app-filter').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    displayApplications();
-};
-
-// View opportunity
-window.viewOpportunity = function(opportunityId) {
-    alert('View opportunity details: ' + opportunityId);
-};
-
-// Overlay functions
-window.openApplicationsOverlay = function() {
-    document.getElementById('applications-overlay').classList.add('active');
-};
-
-window.closeApplicationsOverlay = function() {
-    document.getElementById('applications-overlay').classList.remove('active');
-};
-
-window.closeSuccessModal = function() {
-    document.getElementById('success-modal').classList.remove('active');
-};
-
-// Format number
-function formatNumber(num) {
-    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
-    return num.toString();
-}
-
-// Format date
-function formatDate(date) {
-    const now = new Date();
-    const diff = Math.floor((now - date) / 1000);
-    
-    if (diff < 60) return "Just now";
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-    if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
-    
-    return date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
-    });
-}
+window.viewImage = (src) => { document.getElementById("modal-image").src = src; document.getElementById("media-modal").style.display = "flex"; };
+window.closeMediaModal = () => document.getElementById("media-modal").style.display = "none";
+window.toggleMenu = () => document.getElementById("sidebar").classList.toggle("active");
+window.toggleComments = (id) => { const el = document.getElementById("comments-"+id); el.style.display = el.style.display === "none" ? "block" : "none"; };
+document.getElementById("logout").addEventListener("click", (e) => { e.preventDefault(); signOut(auth).then(() => window.location.href = "login.html"); });
 </script>
-
 </body>
 </html>
