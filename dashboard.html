@@ -345,24 +345,29 @@ async function loadFeed() {
         renderFeed();
     });
 
-    // Load all approved active creator ads
-    const adsQuery = query(collection(db, "activeAds"), where("status", "==", "active"));
+    // ✅ Load all approved ads directly from opportunities
+    const adsQuery = query(collection(db, "opportunities"), where("status", "==", "approved"));
     onSnapshot(adsQuery, async (snapshot) => {
         allAdsCache = [];
         
         for (const adDoc of snapshot.docs) {
             const ad = adDoc.data();
-            const isVerified = await getUserVerificationStatus(ad.creatorId);
-            const isFromFollowed = followingList.includes(ad.creatorId);
-            const hasViewed = viewedAds.includes(ad.adId);
+            const isVerified = await getUserVerificationStatus(ad.advertiserId);
+            const isFromFollowed = followingList.includes(ad.advertiserId);
+            const hasViewed = viewedAds.includes(adDoc.id);
             
             allAdsCache.push({ 
                 id: adDoc.id, 
                 type: 'ad', 
-                userId: ad.creatorId,
-                timestamp: ad.approvedAt,
-                creatorName: ad.creatorName,
-                ...ad, 
+                userId: ad.advertiserId,
+                timestamp: ad.createdAt,
+                creatorName: ad.advertiserName,
+                adId: adDoc.id,
+                title: ad.title,
+                description: ad.description,
+                flyer: ad.flyer,
+                targetUrl: ad.targetUrl,
+                views: ad.currentViews,
                 isFromFollowed, 
                 isVerified, 
                 hasViewed 
@@ -500,9 +505,9 @@ async function renderPostHTML(post) {
     });
 }
 
-// ✅ Render sponsored ad from creator
+// Render sponsored ad
 async function renderAdHTML(ad) {
-    const timestamp = ad.approvedAt ? formatTime(ad.approvedAt.toDate()) : "Promoted";
+    const timestamp = ad.timestamp ? formatTime(ad.timestamp.toDate()) : "Promoted";
     const verifiedBadge = ad.isVerified ? `<span class="verified-badge-post" title="Verified Account"><i class="fas fa-check"></i></span>` : '';
 
     const postEl = document.createElement("div");
@@ -514,10 +519,10 @@ async function renderAdHTML(ad) {
 
     postEl.innerHTML = `
         <div class="post-header">
-            <img src="${ad.creatorAvatar || 'https://i.pravatar.cc/150?u='+ad.creatorId}" class="profile-pic">
+            <img src="${ad.creatorAvatar || 'https://i.pravatar.cc/150?u='+ad.userId}" class="profile-pic">
             <div class="post-author">
-                <div class="post-author-name" onclick="window.location.href='profile.html?uid=${ad.creatorId}'">
-                    <span>${ad.creatorName || "Creator"}</span>${verifiedBadge}
+                <div class="post-author-name" onclick="window.location.href='profile.html?uid=${ad.userId}'">
+                    <span>${ad.creatorName || "Advertiser"}</span>${verifiedBadge}
                     <span class="ad-tag">SPONSORED</span>
                 </div>
                 <div class="post-time">${timestamp}</div>
@@ -571,7 +576,6 @@ function trackAdView(adId) {
         const adEl = document.querySelector(`[data-ad-id="${adId}"]`);
         if (adEl && adEl.dataset.viewed !== "true") {
             try {
-                await updateDoc(doc(db, "activeAds", adId), { views: increment(1) });
                 await updateDoc(doc(db, "opportunities", adId), { currentViews: increment(1) });
                 await updateDoc(doc(db, "users", currentUser.uid), { viewedAds: arrayUnion(adId) });
                 adEl.dataset.viewed = "true";
