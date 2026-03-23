@@ -340,7 +340,7 @@ async function loadFeed() {
         renderFeed();
     });
 
-    // ✅ Load active sponsored ads
+    // Load active sponsored ads
     const adsQuery = query(collection(db, "activeAds"), orderBy("approvedAt", "desc"));
     onSnapshot(adsQuery, async (snapshot) => {
         allAdsCache = [];
@@ -364,6 +364,7 @@ async function renderFeed() {
 
     if (currentFeedTab === 'following') {
         filteredPosts = filteredPosts.filter(p => p.isFromFollowed);
+        filteredAds = filteredAds.filter(a => followingList.includes(a.creatorId));
     }
 
     if (searchQuery.trim() !== "") {
@@ -378,20 +379,31 @@ async function renderFeed() {
         );
     }
 
-    // ✅ Mix ads and posts 50/50, never two ads in a row
+    // ✅ Perfect fixed mixing algorithm
     let mixedFeed = [];
     let postIndex = 0;
     let adIndex = 0;
 
     while(postIndex < filteredPosts.length || adIndex < filteredAds.length) {
-        if(postIndex < filteredPosts.length) {
+
+        // Add up to 2 posts first
+        for(let i = 0; i < 2 && postIndex < filteredPosts.length; i++) {
             mixedFeed.push(filteredPosts[postIndex]);
             postIndex++;
         }
 
+        // Then add one ad if available
         if(adIndex < filteredAds.length) {
             mixedFeed.push(filteredAds[adIndex]);
             adIndex++;
+        }
+
+        // If no more posts left, add all remaining ads
+        if(postIndex >= filteredPosts.length) {
+            while(adIndex < filteredAds.length) {
+                mixedFeed.push(filteredAds[adIndex]);
+                adIndex++;
+            }
         }
     }
 
@@ -407,7 +419,7 @@ async function renderFeed() {
     const otherItems = [];
 
     mixedFeed.forEach(item => {
-        if (item.isFromFollowed) {
+        if (item.isFromFollowed || (item.type === 'ad' && followingList.includes(item.creatorId))) {
             if (!item.hasViewed) followedUnviewed.push(item);
             else followedViewed.push(item);
         } else {
@@ -530,7 +542,7 @@ async function renderAdHTML(ad) {
                 <div class="post-time">Promoted</div>
             </div>
         </div>
-        <p><strong>${ad.title}</strong><br>${ad.description}</p>
+        <p><strong>${ad.title || 'Ad'}</strong><br>${ad.description || ''}</p>
         ${imgHTML}
         <div class="post-actions">
             <span class="action-item">
