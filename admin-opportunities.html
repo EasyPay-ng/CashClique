@@ -1,122 +1,197 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin | CashClique</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Admin • Ad Campaigns | CashClique</title>
 
+<link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins;}
-body{background:#f5f6f8;color:#1e2937}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{background:#f5f6f8;color:#1e2937;min-height:100vh;overflow-x:hidden;}
 
-/* Mobile Menu */
-.menu-toggle{display:none; background:#ff6a00; color:white; border:none; padding:12px; font-size:18px; position:fixed; top:0; left:0; width:100%; z-index:101}
+/* Mobile Header */
+.mobile-header{display:none;background:#1e2937;color:white;padding:15px 20px;align-items:center;gap:15px;position:sticky;top:0;z-index:100;}
+.mobile-header h1{font-size:18px;font-weight:600;flex:1;}
+.menu-btn{background:none;border:none;color:white;font-size:24px;cursor:pointer;padding:5px;}
 
-/* Sidebar */
-.sidebar{width:260px;background:#1e2937;color:#fff;position:fixed;height:100%;padding:20px; z-index:100}
-.sidebar h2{margin-bottom:30px;color:#ff6a00}
-.sidebar a{display:block;color:#cbd5e1;padding:12px;border-radius:8px;margin-bottom:5px;text-decoration:none;transition:0.2s}
-.sidebar a.active,.sidebar a:hover{background:#ff6a00;color:#fff}
+/* Admin Sidebar */
+.sidebar{width:260px;background:#1e2937;color:white;padding:25px;display:flex;flex-direction:column;gap:10px;position:fixed;height:100%;z-index:999;transition:0.3s;transform:translateX(0);}
+.sidebar h2{font-size:22px;margin-bottom:30px;font-weight:700;color:#ff6a00;display:flex;align-items:center;gap:10px;}
+.sidebar a{color:#cbd5e1;text-decoration:none;padding:14px 16px;border-radius:10px;transition:0.3s;font-weight:500;display:flex;align-items:center;gap:10px;}
+.sidebar a:hover, .sidebar a.active{background:#ff6a00;color:white;}
 
-/* Main */
-.main{margin-left:260px;padding:25px;}
-.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-.refresh-btn{background:#ff6a00;color:white;border:none;padding:10px 16px;border-radius:8px;cursor:pointer}
+/* Main Content */
+.main{margin-left:260px;padding:30px;width:calc(100% - 260px);transition:0.3s;}
+.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:20px;border-bottom:2px solid #e2e8f0;flex-wrap:wrap;gap:15px;}
+.header h1{font-size:28px;font-weight:700;color:#0f172a;}
+.sub{font-size:13.5px;color:#64748b;margin-top:6px;max-width:72ch;}
 
-/* Filters */
-.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px}
-.filter{padding:6px 14px;border:1px solid #cbd5e1;border-radius:999px;cursor:pointer;background:white;transition:0.2s}
-.filter.active{background:#ff6a00;color:#fff;border-color:#ff6a00}
+/* Buttons */
+.btn{border:none;border-radius:10px;padding:10px 16px;font-weight:600;font-size:13.5px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:.2s;}
+.btn:disabled{opacity:.55;cursor:not-allowed;transform:none;}
+.btn-dark{background:#1e2937;color:#fff;box-shadow:0 4px 10px rgba(0,0,0,0.1);}
+.btn-dark:hover{background:#0f172a;}
+.btn-ok{background:#10b981;color:#fff;}
+.btn-ok:hover{background:#059669;}
+.btn-no{background:#ef4444;color:#fff;}
+.btn-no:hover{background:#dc2626;}
+.btn-warn{background:#f59e0b;color:#fff;}
+.btn-warn:hover{background:#d97706;}
+.btn-ghost{background:#fff;border:1px solid #e2e8f0;color:#334155;}
+.btn-ghost:hover{background:#f8fafc;transform:translateY(-1px);}
 
-#search{padding:12px 16px;width:100%;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:20px;font-size:14px}
+/* Main Card */
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 4px 15px rgba(0,0,0,0.03);overflow:hidden;}
+.card-head{padding:16px 20px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;background:#f8fafc;}
+
+/* Filters & Search */
+.filters{display:flex;gap:8px;flex-wrap:wrap;}
+.filter{padding:8px 16px;border-radius:999px;border:1px solid #cbd5e1;background:#fff;cursor:pointer;font-weight:600;font-size:12.5px;color:#475569;transition:0.2s;}
+.filter.active{background:#ff6a00;border-color:#ff6a00;color:#fff;}
+.search{display:flex;gap:10px;align-items:center;background:white;padding:0 14px;border:1px solid #cbd5e1;border-radius:12px;}
+.search input{padding:10px 0;border:none;outline:none;min-width:240px;font-size:14px;}
+@media(max-width:640px){.search{width:100%;}.search input{min-width:0;width:100%;}}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:15px;padding:20px;border-bottom:1px solid #e2e8f0;background:#fff;}
+.kpi{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;}
+.kpi .label{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.7px;font-weight:700;}
+.kpi .val{font-size:22px;font-weight:700;margin-top:6px;color:#0f172a;}
+.kpi i{color:#ff6a00;margin-right:6px;}
+@media(max-width:980px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr));}}
 
 /* List */
-.list{margin-top:20px}
-.item{background:#fff;padding:15px;border-radius:12px;margin-bottom:15px;border:1px solid #e2e8f0;transition:0.2s}
-.item:hover{box-shadow:0 3px 10px rgba(0,0,0,0.05)}
-.row{display:flex;justify-content:space-between;align-items:center; gap:12px}
-.title{font-weight:600;font-size:16px}
-.small{font-size:12px;color:#666; margin-top:4px}
-.list-thumb{width:60px; height:60px; border-radius:6px; object-fit:cover}
+.list{padding:20px;display:flex;flex-direction:column;gap:16px;background:#f8fafc;}
+.item{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:20px;transition:.3s;box-shadow:0 4px 10px rgba(0,0,0,0.02);}
+.item:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(0,0,0,0.06);border-color:#cbd5e1;}
+.row{display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap;}
+.title{font-weight:700;font-size:16px;color:#0f172a;}
+.small{font-size:13px;color:#64748b;line-height:1.5;margin-top:6px;}
 
-.badge{padding:4px 10px;border-radius:6px;font-size:12px;font-weight:500}
-.badge.approved{background:#d1e7dd;color:#0f5132}
-.badge.rejected{background:#f8d7da;color:#721c24}
-.badge.pending{background:#fff3cd;color:#856404}
+/* Badges */
+.badge{padding:6px 12px;border-radius:999px;font-size:11.5px;font-weight:700;display:inline-flex;align-items:center;gap:6px;text-transform:uppercase;}
+.pending{background:#fef3c7;color:#b45309;}
+.approved{background:#dcfce7;color:#166534;}
+.rejected{background:#fee2e2;color:#991b1b;}
+.paused{background:#dbeafe;color:#1d4ed8;}
+.completed{background:#f1f5f9;color:#334155;}
 
-.actions{display:flex;gap:8px;margin-top:12px;justify-content:flex-end}
-.actions button{padding:6px 12px; border:none; border-radius:6px; cursor:pointer}
+/* Pills */
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;background:#f8fafc;border:1px solid #e2e8f0;font-size:12.5px;font-weight:600;color:#334155;}
+.pill i{color:#ff6a00;}
 
-.empty{text-align:center; padding:40px; color:#999}
+/* Progress */
+.progress{margin-top:15px;background:#f8fafc;padding:12px;border-radius:10px;border:1px solid #e2e8f0;}
+.progress-top{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:#475569;font-weight:600;}
+.bar{height:8px;border-radius:999px;background:#e2e8f0;overflow:hidden;margin-top:8px;}
+.fill{height:100%;background:linear-gradient(90deg,#ff6a00,#ff8a00);width:0%;transition:0.5s;}
+
+/* Actions */
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;padding-top:16px;border-top:1px solid #e2e8f0;}
+.link{color:#ff6a00;font-weight:600;text-decoration:none;}
+.link:hover{text-decoration:underline;}
+.empty{padding:60px 20px;text-align:center;color:#64748b;}
+.empty i{font-size:48px;opacity:.2;margin-bottom:15px;color:#0f172a;}
 
 /* Modal */
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:200}
-.modal.active{display:flex}
-.modal-box{background:#fff;padding:25px;border-radius:12px;width:95%;max-width:600px;max-height:90vh;overflow-y:auto}
-
-.btn{padding:10px 16px;border:none;border-radius:6px;cursor:pointer;font-weight:500}
-.btn.green{background:#10b981;color:#fff}
-.btn.red{background:#ef4444;color:#fff}
-
-textarea{width:100%;padding:12px;margin-top:10px;border:1px solid #e2e8f0;border-radius:8px;min-height:80px}
+.modal{position:fixed;inset:0;background:rgba(15,23,42,.7);display:none;align-items:center;justify-content:center;z-index:9999;padding:15px;backdrop-filter:blur(4px);}
+.modal.active{display:flex;}
+.modal-box{background:#fff;border-radius:20px;width:100%;max-width:500px;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.2);}
+.modal-head{padding:20px;border-bottom:1px solid #e2e8f0;font-weight:700;font-size:18px;display:flex;justify-content:space-between;align-items:center;}
+.modal-body{padding:20px;}
+textarea{width:100%;padding:15px;border-radius:12px;border:2px solid #e2e8f0;min-height:120px;font-size:14px;outline:none;resize:vertical;}
+textarea:focus{border-color:#ff6a00;}
 
 /* Mobile Responsive */
-@media(max-width:768px){
-    .menu-toggle{display:block}
-    .sidebar{left:-260px; transition:0.3s; padding-top:70px}
-    .sidebar.active{left:0}
-    .main{margin-left:0; padding-top:70px}
+@media(max-width:900px){
+    .mobile-header{display:flex;}
+    .sidebar{transform:translateX(-100%);}
+    .sidebar.active{transform:translateX(0);}
+    .main{margin-left:0;width:100%;padding:15px;}
 }
 </style>
 </head>
 
 <body>
 
-<button class="menu-toggle" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
-
-<div class="sidebar" id="sidebar">
-  <h2>CashClique Admin</h2>
-  <a href="#" class="active"><i class="fas fa-ad"></i> Manage Ads</a>
-  <a href="applications.html"><i class="fas fa-users"></i> Applicants</a>
-  <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+<!-- Mobile Header -->
+<div class="mobile-header">
+  <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
+  <h1>Manage Ads</h1>
 </div>
 
-<div class="main" id="main-content" style="display:none">
+<!-- Admin Sidebar -->
+<div class="sidebar" id="sidebar" style="display:none;">
+    <h2><i class="fas fa-shield-halved"></i> Admin</h2>
+    <a href="admin.html"><i class="fas fa-chart-pie"></i> Dashboard</a>
+    <a href="#" class="active"><i class="fas fa-bullhorn"></i> Manage Ads</a>
+     <a href="applications.html"><i class="fas fa-file"></i> Review applicants</a>
+    <a href="#" id="logoutBtn" style="margin-top:auto;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+</div>
+
+<!-- Main Content -->
+<div class="main" id="main-content" style="display:none;">
   <div class="header">
-    <h1>Review Campaigns</h1>
-    <button class="refresh-btn" id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
+    <div>
+      <h1>Ad Campaigns</h1>
+      <div class="sub">Manage, approve, pause, or reject advertiser campaigns.</div>
+    </div>
+    <div>
+      <button class="btn btn-dark" id="refreshBtn"><i class="fas fa-rotate"></i> Refresh Data</button>
+    </div>
   </div>
 
-  <div class="filters" id="filters">
-    <button class="filter active" data-status="all">All</button>
-    <button class="filter" data-status="pending">Pending</button>
-    <button class="filter" data-status="approved">Approved</button>
-    <button class="filter" data-status="rejected">Rejected</button>
-  </div>
+  <div class="card">
+    <div class="card-head">
+      <div class="filters" id="filters">
+        <button class="filter active" data-status="all">All</button>
+        <button class="filter" data-status="pending">Pending</button>
+        <button class="filter" data-status="approved">Approved</button>
+        <button class="filter" data-status="paused">Paused</button>
+        <button class="filter" data-status="rejected">Rejected</button>
+        <button class="filter" data-status="completed">Completed</button>
+      </div>
 
-  <input id="search" placeholder="Search ad title, category or advertiser...">
+      <div class="search">
+        <i class="fas fa-magnifying-glass" style="color:#94a3b8;"></i>
+        <input id="search" placeholder="Search by title, category, or ID..." />
+      </div>
+    </div>
 
-  <div class="list" id="list">
-    <div class="empty">Loading...</div>
+    <div class="kpis">
+      <div class="kpi"><div class="label"><i class="fas fa-bullhorn"></i>Campaigns</div><div class="val" id="kCampaigns">0</div></div>
+      <div class="kpi"><div class="label"><i class="fas fa-eye"></i>Views</div><div class="val" id="kViews">0</div></div>
+      <div class="kpi"><div class="label"><i class="fas fa-mouse-pointer"></i>Clicks</div><div class="val" id="kClicks">0</div></div>
+      <div class="kpi"><div class="label"><i class="fas fa-circle-play"></i>Watch</div><div class="val" id="kWatch">0</div></div>
+      <div class="kpi"><div class="label"><i class="fas fa-percent"></i>Avg CTR</div><div class="val" id="kCtr">0%</div></div>
+    </div>
+
+    <div class="list" id="list">
+      <div class="empty"><i class="fas fa-spinner fa-spin"></i><div style="margin-top:15px; font-weight:600;">Loading campaigns...</div></div>
+    </div>
   </div>
 </div>
 
-<!-- Review Modal -->
+<!-- Approve/Reject Modal -->
 <div class="modal" id="modal">
   <div class="modal-box">
-    <h3>Review Campaign</h3>
-
-    <img id="modalFlyer" style="display:none; width:100%; max-height:350px; object-fit:contain; border-radius:8px; margin:15px 0;">
-
-    <textarea id="adminNote" placeholder="Admin note (optional)"></textarea>
-
-    <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:15px">
-      <button onclick="closeModal()">Cancel</button>
-      <button onclick="setStatus('rejected')" class="btn red">Reject</button>
-      <button onclick="setStatus('approved')" class="btn green">Approve</button>
+    <div class="modal-head">
+      <div id="modalTitle">Review Campaign</div>
+      <button class="btn btn-ghost" onclick="closeModal()" style="padding:6px 10px;"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <label style="display:block; font-weight:600; font-size:14px; margin-bottom:8px; color:#334155;">Admin Note (Optional)</label>
+      <textarea id="adminNote" placeholder="Write a reason for approval or rejection..."></textarea>
+      
+      <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:20px;">
+        <button class="btn btn-no" id="rejectBtn"><i class="fas fa-ban"></i> Reject</button>
+        <button class="btn btn-ok" id="approveBtn"><i class="fas fa-check"></i> Approve</button>
+      </div>
     </div>
   </div>
 </div>
@@ -124,7 +199,7 @@ textarea{width:100%;padding:12px;margin-top:10px;border:1px solid #e2e8f0;border
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, query, onSnapshot, doc, runTransaction, serverTimestamp, deleteDoc, addDoc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, query, onSnapshot, doc, runTransaction, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -146,41 +221,54 @@ const searchEl = document.getElementById("search");
 const filtersEl = document.getElementById("filters");
 const refreshBtn = document.getElementById("refreshBtn");
 const logoutBtn = document.getElementById("logoutBtn");
-const modalEl = document.getElementById("modal");
+
+const kCampaigns = document.getElementById("kCampaigns");
+const kViews = document.getElementById("kViews");
+const kClicks = document.getElementById("kClicks");
+const kWatch = document.getElementById("kWatch");
+const kCtr = document.getElementById("kCtr");
+
+const modal = document.getElementById("modal");
+const adminNote = document.getElementById("adminNote");
+const modalTitle = document.getElementById("modalTitle");
+const approveBtn = document.getElementById("approveBtn");
+const rejectBtn = document.getElementById("rejectBtn");
 
 let all = [];
 let activeStatus = "all";
 let unsubscribe = null;
-let selectedId = null;
 
-/* AUTH */
-onAuthStateChanged(auth, (user) => {
-  if (!user) return location.href = "login.html";
+// Auth Check
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = "login.html"; return; }
 
-  if (!ALLOWED_EMAILS.includes(user.email.toLowerCase())) {
-    alert("Access denied");
-    return location.href = "dashboard.html";
+  const email = (user.email || "").toLowerCase();
+  
+  if (!ALLOWED_EMAILS.includes(email)) {
+    alert("Admin access restricted.");
+    window.location.href = "dashboard.html";
+    return;
   }
 
-  document.getElementById("sidebar").style.display = "block";
+  // Show UI
+  document.getElementById("sidebar").style.display = "flex";
   document.getElementById("main-content").style.display = "block";
 
   attachUI();
   startListener();
 });
 
-/* UI EVENTS */
 function attachUI(){
   filtersEl.querySelectorAll(".filter").forEach(btn => {
     btn.onclick = () => {
-      document.querySelectorAll(".filter").forEach(b => b.classList.remove("active"));
+      filtersEl.querySelectorAll(".filter").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       activeStatus = btn.dataset.status;
       render();
     };
   });
 
-  searchEl.oninput = render;
+  searchEl.addEventListener("input", render);
 
   refreshBtn.onclick = () => {
     if (unsubscribe) unsubscribe();
@@ -188,186 +276,228 @@ function attachUI(){
   };
 
   logoutBtn.onclick = async () => {
-    if(confirm("Logout?")){
+    if(confirm("Logout from admin panel?")){
       await signOut(auth);
-      location.href = "login.html";
+      window.location.href = "login.html";
     }
   };
+
+  modal.addEventListener("click", (e) => {
+    if (e.target.id === "modal") closeModal();
+  });
 }
 
-/* FIRESTORE LISTENER */
 function startListener(){
+  listEl.innerHTML = `<div class="empty"><i class="fas fa-spinner fa-spin"></i><div style="margin-top:10px; font-weight:600;">Loading campaigns...</div></div>`;
+
   const q = query(collection(db, "opportunities"));
 
   if (unsubscribe) unsubscribe();
 
-  unsubscribe = onSnapshot(q, snap => {
-    all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  unsubscribe = onSnapshot(q, (snap) => {
+    all = snap.docs.map(d => normalizeOpportunity(d.id, d.data()));
+    all.sort((a,b) => getSortTime(b.createdAt) - getSortTime(a.createdAt));
+    updateKPIs(all);
     render();
+  }, (err) => {
+    console.error("Firestore error:", err);
+    listEl.innerHTML = `<div class="empty"><i class="fas fa-triangle-exclamation" style="color:#ef4444;"></i><h3>Connection Error</h3><p>Ensure you have correct permissions.</p></div>`;
   });
 }
 
-/* RENDER */
+function getSortTime(ts){
+  if (!ts) return 0;
+  if (typeof ts.seconds === "number") return ts.seconds * 1000;
+  if (typeof ts.toDate === "function") return ts.toDate().getTime();
+  return 0;
+}
+
+function normalizeOpportunity(id, d){
+  const metrics = d.metrics || {};
+  const views = Number(d.currentViews ?? metrics.views ?? 0);
+  const clicks = Number(d.clicks ?? metrics.clicks ?? 0);
+  const watch = Number(metrics.watch ?? d.watch ?? 0);
+  const targetViews = Number(d.targetViews ?? d.viewsTarget ?? 0);
+  const cost = Number(d.cost ?? d.totalCost ?? 0);
+
+  return {
+    id,
+    title: d.title || "Untitled Campaign",
+    category: d.category || "General",
+    advertiserId: d.advertiserId || d.userId || "Unknown ID",
+    advertiserUsername: d.advertiserUsername || d.advertiserName || "Unknown",
+    status: String(d.status || "pending").toLowerCase(),
+    destinationUrl: d.targetUrl || d.destinationUrl || "",
+    mediaUrl: d.mediaUrl || null,
+    requirements: d.requirements || {},
+    createdAt: d.createdAt || null,
+    targetViews, views, clicks, watch, cost
+  };
+}
+
+function updateKPIs(items){
+  const views = items.reduce((s,x)=>s + x.views, 0);
+  const clicks = items.reduce((s,x)=>s + x.clicks, 0);
+  const watch = items.reduce((s,x)=>s + x.watch, 0);
+  const ctr = views > 0 ? (clicks / views) * 100 : 0;
+
+  kCampaigns.textContent = items.length.toLocaleString();
+  kViews.textContent = views.toLocaleString();
+  kClicks.textContent = clicks.toLocaleString();
+  kWatch.textContent = watch.toLocaleString();
+  kCtr.textContent = `${ctr.toFixed(2)}%`;
+}
+
 function render(){
-  let items = [...all];
+  const term = (searchEl.value || "").trim().toLowerCase();
 
-  if (activeStatus !== "all")
-    items = items.filter(x => x.status === activeStatus);
+  let items = all.slice();
+  if (activeStatus !== "all") items = items.filter(x => x.status === activeStatus);
 
-  const term = searchEl.value.toLowerCase();
-  if (term)
+  if (term) {
     items = items.filter(x =>
-      x.title?.toLowerCase().includes(term) ||
-      x.category?.toLowerCase().includes(term) ||
-      x.advertiserName?.toLowerCase().includes(term)
+      x.title.toLowerCase().includes(term) ||
+      x.category.toLowerCase().includes(term) ||
+      String(x.id).toLowerCase().includes(term)
     );
+  }
 
-  if (!items.length){
-    listEl.innerHTML = `<div class="empty">No campaigns</div>`;
+  if (items.length === 0){
+    listEl.innerHTML = `<div class="empty"><i class="fas fa-folder-open"></i><h3>No Campaigns Found</h3></div>`;
     return;
   }
 
   listEl.innerHTML = "";
+  items.forEach((c) => {
+    const progress = c.targetViews > 0 ? Math.min(100, (c.views / c.targetViews) * 100) : 0;
+    const ctr = c.views > 0 ? (c.clicks / c.views) * 100 : 0;
+    const cpv = c.views > 0 ? (c.cost / c.views) : 0;
+    const cpc = c.clicks > 0 ? (c.cost / c.clicks) : 0;
 
-  items.forEach(c => {
     const el = document.createElement("div");
     el.className = "item";
-
     el.innerHTML = `
       <div class="row">
-        ${c.flyer ? `<img src="${c.flyer}" class="list-thumb">` : ''}
-        <div style="flex:1">
-          <div class="title">${escapeHTML(c.title || "Untitled")}</div>
-          <div class="small">${escapeHTML(c.advertiserName || 'Unknown')} • ${escapeHTML(c.category || "General")} • ${c.targetViews?.toLocaleString()} views • $${c.cost?.toFixed(2)}</div>
+        <div style="flex:1;">
+          <div class="title">${escapeHTML(c.title)}</div>
+          <div class="small"><i class="fas fa-tag"></i> ${escapeHTML(c.category)} • <i class="fas fa-user"></i> ${escapeHTML(c.advertiserUsername)}</div>
+
+          ${c.destinationUrl ? `<div class="small" style="margin-top:6px;"><i class="fas fa-link"></i> <a class="link" href="${escapeHTML(c.destinationUrl)}" target="_blank">Target URL</a></div>` : ``}
+
+          <div class="pills">
+            <span class="pill"><i class="fas fa-eye"></i> ${c.views.toLocaleString()} / ${c.targetViews.toLocaleString()} Views</span>
+            <span class="pill"><i class="fas fa-mouse-pointer"></i> ${c.clicks.toLocaleString()} Clicks</span>
+            <span class="pill"><i class="fas fa-dollar-sign"></i> Budget: $${c.cost.toFixed(2)}</span>
+            <span class="pill"><i class="fas fa-chart-line"></i> CPV: $${cpv.toFixed(4)}</span>
+          </div>
+
+          <div class="progress">
+            <div class="progress-top"><span>Delivery Progress</span><span>${progress.toFixed(1)}%</span></div>
+            <div class="bar"><div class="fill" style="width:${progress}%"></div></div>
+          </div>
         </div>
 
-        ${badge(c.status)}
+        <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-end;">
+          ${statusToBadge(c.status)}
+          <div class="small" style="font-family:monospace; background:#f1f5f9; padding:4px 8px; border-radius:6px;">ID: ${escapeHTML(c.id).substring(0,8)}...</div>
+        </div>
       </div>
 
       <div class="actions">
-        <button onclick="handleAction('review','${c.id}')">Review</button>
-        <button onclick="handleAction('delete','${c.id}')">Delete</button>
+        ${c.status === "pending" ? `<button class="btn btn-ok" data-act="review" data-id="${c.id}"><i class="fas fa-gavel"></i> Review</button>` : ``}
+        ${c.status === "approved" ? `<button class="btn btn-warn" data-act="pause" data-id="${c.id}"><i class="fas fa-pause"></i> Pause</button>` : ``}
+        ${c.status === "paused" ? `<button class="btn btn-ok" data-act="resume" data-id="${c.id}"><i class="fas fa-play"></i> Resume</button>` : ``}
+        ${c.status !== "completed" ? `<button class="btn btn-ghost" data-act="markCompleted" data-id="${c.id}"><i class="fas fa-check-double"></i> Complete</button>` : ''}
+        <button class="btn btn-no" data-act="delete" data-id="${c.id}"><i class="fas fa-trash"></i></button>
       </div>
     `;
-
     listEl.appendChild(el);
+
+    el.querySelectorAll("button[data-act]").forEach(btn => {
+      btn.onclick = () => handleAction(btn.dataset.act, btn.dataset.id);
+    });
   });
 }
 
-/* BADGE */
-function badge(status){
-  if (status === "approved") return `<span class="badge approved">Approved</span>`;
-  if (status === "rejected") return `<span class="badge rejected">Rejected</span>`;
-  return `<span class="badge pending">Pending</span>`;
+function statusToBadge(status){
+  const s = String(status||"pending").toLowerCase();
+  if (s === "approved") return `<span class="badge approved"><i class="fas fa-check-circle"></i> Approved</span>`;
+  if (s === "rejected") return `<span class="badge rejected"><i class="fas fa-times-circle"></i> Rejected</span>`;
+  if (s === "paused") return `<span class="badge paused"><i class="fas fa-pause-circle"></i> Paused</span>`;
+  if (s === "completed") return `<span class="badge completed"><i class="fas fa-flag-checkered"></i> Completed</span>`;
+  return `<span class="badge pending"><i class="fas fa-clock"></i> Pending</span>`;
 }
 
-/* ACTION HANDLER */
-window.handleAction = async (action, id) => {
+async function handleAction(action, id){
   const ref = doc(db, "opportunities", id);
 
   if (action === "review"){
-    selectedId = id;
-    document.getElementById("adminNote").value = '';
+    adminNote.value = "";
+    modalTitle.textContent = `Review Campaign`;
+    modal.classList.add("active");
+    approveBtn.onclick = () => setStatus(id, "approved");
+    rejectBtn.onclick = () => setStatus(id, "rejected");
+    return;
+  }
 
-    const campaign = all.find(c => c.id === id);
-    const flyerEl = document.getElementById('modalFlyer');
+  if (action === "pause"){
+    if (confirm("Pause this campaign?")) setStatus(id, "paused");
+    return;
+  }
 
-    if(campaign.flyer) {
-      flyerEl.src = campaign.flyer;
-      flyerEl.style.display = 'block';
-    } else {
-      flyerEl.style.display = 'none';
-    }
+  if (action === "resume"){
+    if (confirm("Resume this campaign?")) setStatus(id, "approved");
+    return;
+  }
 
-    document.getElementById("modal").classList.add("active");
+  if (action === "markCompleted"){
+    if (confirm("Mark as completed?")) setStatus(id, "completed");
     return;
   }
 
   if (action === "delete"){
-    if (!confirm("⚠️ Permanently delete this campaign? This cannot be undone.")) return;
-
-    try {
-      await deleteDoc(ref);
-    } catch(e){
-      alert("Delete failed");
+    if (confirm("Permanently delete this campaign? This cannot be undone.")){
+      try { await deleteDoc(ref); } 
+      catch(e) { alert(e.message || "Delete failed."); }
     }
+    return;
   }
-};
+}
 
-/* UPDATE STATUS */
-async function setStatus(status){
-  const id = selectedId;
+async function setStatus(id, status){
   const ref = doc(db, "opportunities", id);
-  const note = document.getElementById("adminNote").value || null;
-
-  const confirmMessage = status === 'approved' 
-    ? "Approve this campaign? It will become visible to all creators immediately."
-    : "Reject this campaign? The advertiser will be automatically 100% refunded.";
-
-  if(!confirm(confirmMessage)) return;
+  const note = (adminNote.value || "").trim() || null;
 
   try {
     await runTransaction(db, async (tx) => {
       const snap = await tx.get(ref);
-      if (!snap.exists()) throw "Campaign not found";
-
-      const campaign = snap.data();
+      if (!snap.exists()) throw new Error("Campaign not found.");
+      const d = snap.data();
 
       tx.update(ref, {
         status,
         adminNote: note,
-        reviewedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
+        approvedAt: status === "approved" ? serverTimestamp() : (d.approvedAt || null),
+        rejectedAt: status === "rejected" ? serverTimestamp() : (d.rejectedAt || null),
+        pausedAt: status === "paused" ? serverTimestamp() : null,
+        completedAt: status === "completed" ? serverTimestamp() : null
       });
-
-      if(status === 'rejected') {
-        tx.update(doc(db, "users", campaign.advertiserId), {
-          balance: increment(campaign.cost)
-        });
-
-        tx.add(collection(db, "transactions"), {
-          type: 'refund',
-          userId: campaign.advertiserId,
-          amount: campaign.cost,
-          description: `Refund for rejected campaign: ${campaign.title}`,
-          reference: id,
-          timestamp: serverTimestamp()
-        });
-      }
-
     });
-
     closeModal();
-    alert(status === 'approved' ? 'Campaign approved ✅' : 'Campaign rejected, user refunded ✅');
-
-  } catch(e){
-    console.error(e);
-    alert("Update failed, please try again");
+  } catch(e) {
+    alert(e.message || "Update failed.");
   }
 }
 
-/* MODAL */
-window.closeModal = () => {
-  document.getElementById("modal").classList.remove("active");
-  selectedId = null;
-};
+window.closeModal = () => modal.classList.remove("active");
+window.toggleMenu = () => document.getElementById('sidebar').classList.toggle('active');
 
-/* MENU (MOBILE) */
-window.toggleMenu = () => {
-  document.getElementById("sidebar").classList.toggle("active");
-};
-
-/* ESCAPE HTML (SECURITY) */
 function escapeHTML(str){
-  return String(str || "").replace(/[&<>"']/g, m => ({
-    "&":"&amp;",
-    "<":"&lt;",
-    ">":"&gt;",
-    '"':"&quot;",
-    "'":"&#039;"
+  return String(str||"").replace(/[&<>"']/g, (m) => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
   }[m]));
 }
-
 </script>
-
 </body>
 </html>
