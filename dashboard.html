@@ -82,7 +82,6 @@ body{background:#f5f6f8;display:flex;min-height:100vh;}
     padding:2px 6px;
     border-radius:4px;
     font-weight:600;
-    margin-left:8px;
 }
 
 .create-btn{position:fixed;bottom:30px;right:30px;background:#ff6a00;color:white;border:none;width:60px;height:60px;border-radius:50%;font-size:24px;cursor:pointer;box-shadow:0 10px 25px rgba(255,106,0,0.3);transition:0.3s;z-index:99;display:flex;align-items:center;justify-content:center;}
@@ -340,27 +339,25 @@ async function loadFeed() {
         renderFeed();
     });
 
-    // ✅ FIX: Load all approved ads directly from opportunities
+    // Load all approved ads directly from opportunities
     const adsQuery = query(collection(db, "opportunities"), where("status", "==", "approved"));
     onSnapshot(adsQuery, async (snapshot) => {
         allAdsCache = [];
         
         for (const adDoc of snapshot.docs) {
             const ad = adDoc.data();
-            const isVerified = await getUserVerificationStatus(ad.advertiserId);
             const hasViewed = viewedAds.includes(adDoc.id);
             
             allAdsCache.push({ 
                 id: adDoc.id, 
                 type: 'ad', 
                 adId: adDoc.id,
-                creatorId: ad.advertiserId,
-                creatorName: ad.advertiserName,
                 title: ad.title,
                 description: ad.description,
                 flyer: ad.flyer,
+                targetUrl: ad.targetUrl,
                 views: ad.currentViews,
-                isVerified, 
+                clicks: ad.clicks,
                 hasViewed 
             });
         }
@@ -376,7 +373,6 @@ async function renderFeed() {
 
     if (currentFeedTab === 'following') {
         filteredPosts = filteredPosts.filter(p => p.isFromFollowed);
-        filteredAds = filteredAds.filter(a => followingList.includes(a.creatorId));
     }
 
     if (searchQuery.trim() !== "") {
@@ -431,7 +427,7 @@ async function renderFeed() {
     const otherItems = [];
 
     mixedFeed.forEach(item => {
-        if (item.isFromFollowed || (item.type === 'ad' && followingList.includes(item.creatorId))) {
+        if (item.isFromFollowed) {
             if (!item.hasViewed) followedUnviewed.push(item);
             else followedViewed.push(item);
         } else {
@@ -533,25 +529,21 @@ async function renderPostHTML(post) {
     });
 }
 
-// Render sponsored ad
+// ✅ Render sponsored ad
 async function renderAdHTML(ad) {
-    const verifiedBadge = ad.isVerified ? `<span class="verified-badge-post" title="Verified Account"><i class="fas fa-check"></i></span>` : '';
-    const completed = viewedAds.includes(ad.adId);
-
     const postEl = document.createElement("div");
     postEl.className = "post";
+    postEl.dataset.adId = ad.adId;
+    postEl.dataset.viewed = ad.hasViewed;
 
-    const imgHTML = ad.flyer ? `<img src="${ad.flyer}" class="post-image" onclick="viewImage(this.src)">` : '';
+    const imgHTML = ad.flyer ? `<img src="${ad.flyer}" class="post-image">` : '';
 
     postEl.innerHTML = `
         <div class="post-header">
-            <img src="${ad.creatorAvatar || 'https://i.pravatar.cc/150?u='+ad.creatorId}" class="profile-pic">
             <div class="post-author">
-                <div class="post-author-name" onclick="window.location.href='profile.html?uid=${ad.creatorId}'">
-                    <span>${ad.creatorName || "Creator"}</span>${verifiedBadge}
+                <div class="post-author-name">
                     <span class="ad-tag">SPONSORED</span>
                 </div>
-                <div class="post-time">Promoted</div>
             </div>
         </div>
         <p><strong>${ad.title || 'Ad'}</strong><br>${ad.description || ''}</p>
@@ -560,59 +552,28 @@ async function renderAdHTML(ad) {
             <span class="action-item">
                 <i class="far fa-eye"></i> ${ad.views || 0}
             </span>
-            <span class="action-item tip-jar" data-id="${ad.id}" data-owner="${ad.creatorId}" data-username="${ad.creatorName}">
-                <i class="fas fa-hand-holding-dollar"></i> Tip
-            </span>
-            <span class="action-item ${completed ? 'liked' : ''}" onclick="viewAd('${ad.id}', '${ad.adId}', '${ad.creatorId}')">
-                <i class="fas fa-play"></i> ${completed ? 'Viewed' : 'View Ad'}
-            </span>
         </div>
     `;
-    feed.appendChild(postEl);
-}
 
-window.viewAd = async function(activeAdId, adId, creatorId) {
-    if(viewedAds.includes(adId)) return;
-
-    if(!confirm('Watch ad for 30 seconds to earn $0.02?')) return;
-
-    try {
-        // Increment global view counter
-        await updateDoc(doc(db, "opportunities", adId), {
-            currentViews: increment(1)
-        });
-
-        // Credit viewer
-        await updateDoc(doc(db, "users", currentUser.uid), {
-            viewedAds: arrayUnion(adId),
-            balance: increment(0.02)
-        });
-
-        viewedAds.push(adId);
-        renderFeed();
-
-        alert('✅ Success! You earned $0.02');
-
-    } catch (error) {
-        alert('Error completing ad');
-        console.error(error);
-    }
-}
-
-document.getElementById('search-input').addEventListener('input', (e) => {
-    searchQuery = e.target.value;
-    renderFeed();
-});
-
-document.querySelectorAll('.feed-tab').forEach(tab => {
-    tab.addEventListener('click', (e) => {
-        document.querySelectorAll('.feed-tab').forEach(t => t.classList.remove('active'));
-        e.target.classList.add('active');
-        currentFeedTab = e.target.dataset.tab;
-        localStorage.setItem('cashclique_feed_tab', currentFeedTab);
-        renderFeed();
+    // Open advertiser link on any click on the ad
+    postEl.addEventListener('click', async () => {
+        if(ad.targetUrl) {
+            window.open(ad.targetUrl, '_blank');
+            
+            // Count the click
+            if(!ad.hasViewed) {
+                await updateDoc(doc(db, "opportunities", ad.adId), {
+                    clicks: increment(1)
+                });
+            }
+        }
     });
-});
+
+    feed.appendChild(postEl);
+
+    // Count view automatically after 2 seconds exactly like normal posts
+    if (!ad.hasViewed) trackAdView(ad.adId);
+}
 
 function trackView(postId) {
     if (viewTimers[postId]) clearTimeout(viewTimers[postId]);
@@ -622,6 +583,20 @@ function trackView(postId) {
             try {
                 await updateDoc(doc(db, "posts", postId), { views: increment(1), viewedBy: arrayUnion(currentUser.uid) });
                 postEl.dataset.viewed = "true";
+            } catch (e) {}
+        }
+    }, 2000);
+}
+
+function trackAdView(adId) {
+    if (viewTimers[adId]) clearTimeout(viewTimers[adId]);
+    viewTimers[adId] = setTimeout(async () => {
+        const adEl = document.querySelector(`[data-ad-id="${adId}"]`);
+        if (adEl && adEl.dataset.viewed !== "true") {
+            try {
+                await updateDoc(doc(db, "opportunities", adId), { currentViews: increment(1) });
+                await updateDoc(doc(db, "users", currentUser.uid), { viewedAds: arrayUnion(adId) });
+                adEl.dataset.viewed = "true";
             } catch (e) {}
         }
     }, 2000);
