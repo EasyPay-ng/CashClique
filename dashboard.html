@@ -82,6 +82,7 @@ body{background:#f5f6f8;display:flex;min-height:100vh;}
     padding:2px 6px;
     border-radius:4px;
     font-weight:600;
+    margin-left:8px;
 }
 
 .create-btn{position:fixed;bottom:30px;right:30px;background:#ff6a00;color:white;border:none;width:60px;height:60px;border-radius:50%;font-size:24px;cursor:pointer;box-shadow:0 10px 25px rgba(255,106,0,0.3);transition:0.3s;z-index:99;display:flex;align-items:center;justify-content:center;}
@@ -280,11 +281,6 @@ let viewedAds = [];
 let currentFeedTab = localStorage.getItem('cashclique_feed_tab') || 'all';
 let searchQuery = "";
 
-document.querySelectorAll('.feed-tab').forEach(tab => {
-    if (tab.dataset.tab === currentFeedTab) tab.classList.add('active');
-    else tab.classList.remove('active');
-});
-
 onAuthStateChanged(auth, async (user) => {
     if (!user) { window.location.href = "login.html"; return; }
     currentUser = user;
@@ -305,6 +301,7 @@ onAuthStateChanged(auth, async (user) => {
 
     loadFeed();
     loadNotifications();
+    attachUIEvents();
 });
 
 async function getUserVerificationStatus(userId) {
@@ -333,31 +330,41 @@ async function loadFeed() {
             const isFromFollowed = followingList.includes(post.userId);
             const hasViewed = post.viewedBy && post.viewedBy.includes(currentUser.uid);
             
-            allPostsCache.push({ id: postId, type: 'post', ...post, isFromFollowed, isVerified, hasViewed });
+            allPostsCache.push({ 
+                id: postId, 
+                type: 'post', 
+                userId: post.userId,
+                timestamp: post.timestamp,
+                ...post, 
+                isFromFollowed, 
+                isVerified, 
+                hasViewed 
+            });
         }
         
         renderFeed();
     });
 
-    // Load all approved ads directly from opportunities
-    const adsQuery = query(collection(db, "opportunities"), where("status", "==", "approved"));
+    // Load all approved active creator ads
+    const adsQuery = query(collection(db, "activeAds"), where("status", "==", "active"));
     onSnapshot(adsQuery, async (snapshot) => {
         allAdsCache = [];
         
         for (const adDoc of snapshot.docs) {
             const ad = adDoc.data();
-            const hasViewed = viewedAds.includes(adDoc.id);
+            const isVerified = await getUserVerificationStatus(ad.creatorId);
+            const isFromFollowed = followingList.includes(ad.creatorId);
+            const hasViewed = viewedAds.includes(ad.adId);
             
             allAdsCache.push({ 
                 id: adDoc.id, 
                 type: 'ad', 
-                adId: adDoc.id,
-                title: ad.title,
-                description: ad.description,
-                flyer: ad.flyer,
-                targetUrl: ad.targetUrl,
-                views: ad.currentViews,
-                clicks: ad.clicks,
+                userId: ad.creatorId,
+                timestamp: ad.approvedAt,
+                creatorName: ad.creatorName,
+                ...ad, 
+                isFromFollowed, 
+                isVerified, 
                 hasViewed 
             });
         }
@@ -368,76 +375,40 @@ async function loadFeed() {
 
 async function renderFeed() {
     feed.innerHTML = "";
-    let filteredPosts = allPostsCache;
-    let filteredAds = allAdsCache;
+    let filteredItems = [...allPostsCache, ...allAdsCache];
 
+    // Filter by tab
     if (currentFeedTab === 'following') {
-        filteredPosts = filteredPosts.filter(p => p.isFromFollowed);
+        filteredItems = filteredItems.filter(item => item.isFromFollowed);
     }
 
+    // Filter by search
     if (searchQuery.trim() !== "") {
         const sq = searchQuery.toLowerCase();
-        filteredPosts = filteredPosts.filter(p => 
-            (p.content && p.content.toLowerCase().includes(sq)) || 
-            (p.username && p.username.toLowerCase().includes(sq))
-        );
-        filteredAds = filteredAds.filter(a =>
-            (a.title && a.title.toLowerCase().includes(sq)) ||
-            (a.description && a.description.toLowerCase().includes(sq))
+        filteredItems = filteredItems.filter(item =>
+            (item.title && item.title.toLowerCase().includes(sq)) ||
+            (item.description && item.description.toLowerCase().includes(sq)) ||
+            (item.content && item.content.toLowerCase().includes(sq)) ||
+            (item.username && item.username.toLowerCase().includes(sq)) ||
+            (item.creatorName && item.creatorName.toLowerCase().includes(sq))
         );
     }
 
-    // Perfect mixing algorithm
-    let mixedFeed = [];
-    let postIndex = 0;
-    let adIndex = 0;
+    // Sort everything by timestamp newest first
+    filteredItems.sort((a,b) => {
+        const aTime = a.timestamp?.toDate?.() || new Date(0);
+        const bTime = b.timestamp?.toDate?.() || new Date(0);
+        return bTime - aTime;
+    });
 
-    while(postIndex < filteredPosts.length || adIndex < filteredAds.length) {
-
-        // Add up to 2 posts first
-        for(let i = 0; i < 2 && postIndex < filteredPosts.length; i++) {
-            mixedFeed.push(filteredPosts[postIndex]);
-            postIndex++;
-        }
-
-        // Then add one ad if available
-        if(adIndex < filteredAds.length) {
-            mixedFeed.push(filteredAds[adIndex]);
-            adIndex++;
-        }
-
-        // If no more posts left, add all remaining ads
-        if(postIndex >= filteredPosts.length) {
-            while(adIndex < filteredAds.length) {
-                mixedFeed.push(filteredAds[adIndex]);
-                adIndex++;
-            }
-        }
-    }
-
-    if (mixedFeed.length === 0) {
+    if (filteredItems.length === 0) {
         let msg = searchQuery !== "" ? "No posts match your search." : 
                   (currentFeedTab === 'following' ? "You aren't following anyone who has posted yet." : "No posts found.");
         feed.innerHTML = `<div class="post" style="text-align:center; padding:40px 20px;"><i class="fas fa-folder-open" style="font-size:40px;color:#cbd5e1;margin-bottom:15px;"></i><p style="color:#64748b;font-weight:500;">${msg}</p></div>`;
         return;
     }
 
-    const followedUnviewed = [];
-    const followedViewed = [];
-    const otherItems = [];
-
-    mixedFeed.forEach(item => {
-        if (item.isFromFollowed) {
-            if (!item.hasViewed) followedUnviewed.push(item);
-            else followedViewed.push(item);
-        } else {
-            otherItems.push(item);
-        }
-    });
-
-    const sortedFeed = [...followedUnviewed, ...otherItems, ...followedViewed];
-
-    for (const item of sortedFeed) {
+    for (const item of filteredItems) {
         if(item.type === 'post') {
             await renderPostHTML(item);
         }
@@ -529,8 +500,11 @@ async function renderPostHTML(post) {
     });
 }
 
-// ✅ Render sponsored ad
+// ✅ Render sponsored ad from creator
 async function renderAdHTML(ad) {
+    const timestamp = ad.approvedAt ? formatTime(ad.approvedAt.toDate()) : "Promoted";
+    const verifiedBadge = ad.isVerified ? `<span class="verified-badge-post" title="Verified Account"><i class="fas fa-check"></i></span>` : '';
+
     const postEl = document.createElement("div");
     postEl.className = "post";
     postEl.dataset.adId = ad.adId;
@@ -540,10 +514,13 @@ async function renderAdHTML(ad) {
 
     postEl.innerHTML = `
         <div class="post-header">
+            <img src="${ad.creatorAvatar || 'https://i.pravatar.cc/150?u='+ad.creatorId}" class="profile-pic">
             <div class="post-author">
-                <div class="post-author-name">
+                <div class="post-author-name" onclick="window.location.href='profile.html?uid=${ad.creatorId}'">
+                    <span>${ad.creatorName || "Creator"}</span>${verifiedBadge}
                     <span class="ad-tag">SPONSORED</span>
                 </div>
+                <div class="post-time">${timestamp}</div>
             </div>
         </div>
         <p><strong>${ad.title || 'Ad'}</strong><br>${ad.description || ''}</p>
@@ -594,12 +571,30 @@ function trackAdView(adId) {
         const adEl = document.querySelector(`[data-ad-id="${adId}"]`);
         if (adEl && adEl.dataset.viewed !== "true") {
             try {
+                await updateDoc(doc(db, "activeAds", adId), { views: increment(1) });
                 await updateDoc(doc(db, "opportunities", adId), { currentViews: increment(1) });
                 await updateDoc(doc(db, "users", currentUser.uid), { viewedAds: arrayUnion(adId) });
                 adEl.dataset.viewed = "true";
             } catch (e) {}
         }
     }, 2000);
+}
+
+function attachUIEvents() {
+    document.querySelectorAll('.feed-tab').forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            document.querySelectorAll('.feed-tab').forEach(t => t.classList.remove('active'));
+            e.target.classList.add('active');
+            currentFeedTab = e.target.dataset.tab;
+            localStorage.setItem('cashclique_feed_tab', currentFeedTab);
+            renderFeed();
+        });
+    });
+
+    document.getElementById('search-input').addEventListener('input', (e) => {
+        searchQuery = e.target.value;
+        renderFeed();
+    });
 }
 
 function attachEventHandlers() {
