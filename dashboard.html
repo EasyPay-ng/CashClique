@@ -252,7 +252,7 @@ body{background:#f5f6f8;display:flex;min-height:100vh;}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, doc, onSnapshot, updateDoc, increment, serverTimestamp, query, orderBy, addDoc, arrayUnion, writeBatch, getDoc, getDocs, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, doc, onSnapshot, updateDoc, increment, serverTimestamp, query, orderBy, addDoc, arrayUnion, writeBatch, getDoc, getDocs, runTransaction, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -340,17 +340,29 @@ async function loadFeed() {
         renderFeed();
     });
 
-    // Load active sponsored ads
-    const adsQuery = query(collection(db, "activeAds"), orderBy("approvedAt", "desc"));
+    // ✅ FIX: Load all approved ads directly from opportunities
+    const adsQuery = query(collection(db, "opportunities"), where("status", "==", "approved"));
     onSnapshot(adsQuery, async (snapshot) => {
         allAdsCache = [];
         
         for (const adDoc of snapshot.docs) {
             const ad = adDoc.data();
-            const isVerified = await getUserVerificationStatus(ad.creatorId);
-            const hasViewed = viewedAds.includes(ad.adId);
+            const isVerified = await getUserVerificationStatus(ad.advertiserId);
+            const hasViewed = viewedAds.includes(adDoc.id);
             
-            allAdsCache.push({ id: adDoc.id, type: 'ad', ...ad, isVerified, hasViewed });
+            allAdsCache.push({ 
+                id: adDoc.id, 
+                type: 'ad', 
+                adId: adDoc.id,
+                creatorId: ad.advertiserId,
+                creatorName: ad.advertiserName,
+                title: ad.title,
+                description: ad.description,
+                flyer: ad.flyer,
+                views: ad.currentViews,
+                isVerified, 
+                hasViewed 
+            });
         }
         
         renderFeed();
@@ -379,7 +391,7 @@ async function renderFeed() {
         );
     }
 
-    // ✅ Perfect fixed mixing algorithm
+    // Perfect mixing algorithm
     let mixedFeed = [];
     let postIndex = 0;
     let adIndex = 0;
@@ -521,7 +533,7 @@ async function renderPostHTML(post) {
     });
 }
 
-// ✅ Render sponsored ad
+// Render sponsored ad
 async function renderAdHTML(ad) {
     const verifiedBadge = ad.isVerified ? `<span class="verified-badge-post" title="Verified Account"><i class="fas fa-check"></i></span>` : '';
     const completed = viewedAds.includes(ad.adId);
@@ -570,20 +582,10 @@ window.viewAd = async function(activeAdId, adId, creatorId) {
             currentViews: increment(1)
         });
 
-        // Increment creator earned counter
-        await updateDoc(doc(db, "activeAds", activeAdId), {
-            views: increment(1)
-        });
-
         // Credit viewer
         await updateDoc(doc(db, "users", currentUser.uid), {
             viewedAds: arrayUnion(adId),
             balance: increment(0.02)
-        });
-
-        // Credit creator 50% commission
-        await updateDoc(doc(db, "users", creatorId), {
-            balance: increment(0.01)
         });
 
         viewedAds.push(adId);
