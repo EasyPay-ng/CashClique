@@ -28,7 +28,6 @@ body{background:#f5f6f8;display:flex;min-height:100vh;}
 .user img{width:35px;height:35px;border-radius:50%;object-fit:cover;}
 .user-info{display:flex;align-items:center;gap:5px;}
 
-/* Verified Badge */
 .verified-badge{background:#1DA1F2;color:white;width:16px;height:16px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;margin-left:3px;}
 .verified-badge-post{background:#1DA1F2;color:white;width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;margin-left:5px;vertical-align:middle;}
 
@@ -36,7 +35,6 @@ body{background:#f5f6f8;display:flex;min-height:100vh;}
 .notification-bell:hover{color:#ff6a00;}
 .badge{position:absolute;top:0;right:0;background:#ff0000;color:white;font-size:10px;min-width:16px;height:16px;padding:2px 4px;border-radius:50%;font-weight:600;display:none;text-align:center;line-height:12px;}
 
-/* Controls Section (Search & Tabs) */
 .controls-section { background:white; padding:15px 20px; border-radius:16px; box-shadow:0 4px 15px rgba(0,0,0,0.03); margin-bottom:25px; border:1px solid #e2e8f0; display:flex; flex-direction:column; gap:15px; }
 .search-bar { display:flex; align-items:center; background:#f8fafc; border-radius:12px; padding:12px 16px; border:2px solid #e2e8f0; transition:0.3s; }
 .search-bar:focus-within { border-color:#ff6a00; background:white; box-shadow:0 0 0 4px rgba(255,106,0,0.1); }
@@ -50,7 +48,6 @@ body{background:#f5f6f8;display:flex;min-height:100vh;}
 .feed-tab.active { color:#ff6a00; }
 .feed-tab.active::after { content:''; position:absolute; bottom:-2px; left:0; width:100%; height:3px; background:#ff6a00; border-radius:3px 3px 0 0; }
 
-/* Feed */
 .feed{display:flex;flex-direction:column;gap:20px;}
 .post{background:white;padding:20px;border-radius:16px;box-shadow:0 4px 15px rgba(0,0,0,0.03);position:relative;border:1px solid #e2e8f0;}
 .post-header{display:flex;align-items:center;gap:12px;margin-bottom:12px;position:relative;padding-right:30px;}
@@ -59,13 +56,24 @@ body{background:#f5f6f8;display:flex;min-height:100vh;}
 .post-author-name{display:flex;align-items:center;font-weight:600;color:#1e2937;font-size:15px;cursor:pointer;}
 .post-author-name:hover{text-decoration:underline;}
 .post-time{font-size:12px;color:#64748b;margin-top:2px;}
-.post p{color:#334155;line-height:1.6;font-size:14.5px; margin-bottom:12px;}
+.post p{color:#334155;line-height:1.6;font-size:14.5px;}
 
-.post-flyer{width:100%; max-height:400px; border-radius:10px; object-fit:contain; margin-bottom:15px;}
-.post-actions{display:flex; gap:10px; justify-content:flex-end; margin-top:15px;}
-.earn-btn{background:#ff6a00; color:white; border:none; padding:10px 20px; border-radius:8px; font-weight:600; cursor:pointer; transition:0.2s;}
-.earn-btn:hover{transform:translateY(-2px); box-shadow:0 4px 12px rgba(255,106,0,0.3);}
-.earn-btn.completed{background:#10b981; cursor:default; transform:none; box-shadow:none;}
+.post-actions{display:flex;gap:25px;margin-top:15px;padding-top:15px;border-top:1px solid #f1f5f9;align-items:center;flex-wrap:wrap;}
+.action-item{display:flex;align-items:center;gap:6px;cursor:pointer;transition:0.2s;color:#64748b;font-size:14px;font-weight:600;}
+.action-item:hover{color:#ff6a00;}
+.action-item i{font-size:18px;}
+.action-item.liked{color:#ef4444;}
+.action-item.liked i{font-weight:900;}
+
+.comments{margin-top:15px;padding-top:15px;border-top:1px solid #f1f5f9;}
+.comment-item{display:flex;gap:8px;margin-bottom:12px;font-size:13.5px;color:#334155;}
+.comment-author{font-weight:600;color:#ff6a00;cursor:pointer;display:inline-flex;align-items:center;}
+.post-image{margin-top:12px;width:100%;max-height:450px;border-radius:12px;object-fit:cover;cursor:pointer;border:1px solid #f1f5f9;}
+.three-dot{position:absolute;top:10px;right:10px;cursor:pointer;font-size:20px;color:#94a3b8;padding:5px;transition:0.2s;}
+.three-dot:hover{color:#334155;}
+
+.priority-badge{position:absolute;top:-8px;left:-8px;background:linear-gradient(135deg,#ff6a00,#e55d00);color:white;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700;display:flex;align-items:center;gap:4px;box-shadow:0 4px 10px rgba(255,106,0,0.3);}
+.priority-badge i{font-size:10px;}
 
 .ad-tag {
     background:#ff6a00;
@@ -77,225 +85,467 @@ body{background:#f5f6f8;display:flex;min-height:100vh;}
     margin-left:8px;
 }
 
-.empty{text-align:center; padding:60px 20px; color:#94a3b8}
+.create-btn{position:fixed;bottom:30px;right:30px;background:#ff6a00;color:white;border:none;width:60px;height:60px;border-radius:50%;font-size:24px;cursor:pointer;box-shadow:0 10px 25px rgba(255,106,0,0.3);transition:0.3s;z-index:99;display:flex;align-items:center;justify-content:center;}
+.create-btn:hover{transform:scale(1.1);background:#e55d00;}
 
-.balance-display{font-weight:700; font-size:18px; color:#ff6a00}
+.tip-modal{position:fixed;inset:0;background:rgba(15,23,42,0.7);display:none;align-items:center;justify-content:center;z-index:2000;backdrop-filter:blur(4px);}
+.tip-content{background:white;padding:30px;border-radius:20px;width:90%;max-width:400px;text-align:center;}
+.tip-content h3{color:#1e2937;margin-bottom:15px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:20px;}
+.tip-content h3 i{font-size:24px;color:#ff6a00;}
+.tip-options{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0;}
+.tip-btn{padding:12px;background:#f8fafc;border:2px solid #e2e8f0;border-radius:12px;cursor:pointer;font-weight:600;transition:0.2s;font-size:15px;color:#334155;}
+.tip-btn:hover, .tip-btn.selected{background:#ff6a00;color:white;border-color:#ff6a00;}
+.custom-tip{width:100%;padding:14px;border:2px solid #e2e8f0;border-radius:12px;margin:15px 0;font-size:15px;outline:none;transition:0.3s;}
+.custom-tip:focus{border-color:#ff6a00;box-shadow:0 0 0 4px rgba(255,106,0,0.1);}
+.send-tip-btn{background:#ff6a00;color:white;border:none;padding:14px;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;width:100%;transition:0.2s;}
+.send-tip-btn:hover{background:#e55d00;}
+.send-tip-btn:disabled{opacity:0.6;cursor:not-allowed;}
+.cancel-tip{margin-top:12px;color:#64748b;cursor:pointer;font-size:14px;font-weight:600;}
+.cancel-tip:hover{color:#1e2937;}
 
-.mobile-menu-btn{display:none; background:#ff6a00; border:none; color:white; font-size:18px; padding:10px;}
+.media-modal{position:fixed;inset:0;background:rgba(0,0,0,0.95);display:none;align-items:center;justify-content:center;z-index:3000;cursor:zoom-out;backdrop-filter:blur(5px);}
+.media-modal img{max-width:95%;max-height:95vh;border-radius:12px;}
+.close-modal{position:absolute;top:20px;right:25px;color:white;font-size:35px;cursor:pointer;text-shadow:0 2px 10px rgba(0,0,0,0.5);}
 
-@media(max-width:768px){
-    .mobile-menu-btn{display:block}
-    .sidebar{transform:translateX(-100%)}
-    .sidebar.active{transform:translateX(0)}
-    .main{margin-left:0; width:100%; padding:15px}
+.notification-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.35);
+    display:none;
+    z-index:1000;
+    align-items:flex-start;
+    justify-content:flex-end;
+    padding:70px 20px 20px;
+}
+.notification-panel-wrap{
+    width:350px;
+    background:white;
+    border-radius:16px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.15);
+    overflow:hidden;
+    max-height:80vh;
+    border:1px solid #e2e8f0;
+}
+.notification-header{padding:15px 20px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;font-weight:700;background:#f8fafc;color:#1e2937;}
+.notification-panel{max-height:400px;overflow-y:auto;}
+.notification-item{padding:15px 20px;border-bottom:1px solid #f1f5f9;cursor:pointer;transition:0.2s;display:flex;gap:12px;align-items:flex-start;}
+.notification-item:hover{background:#f8fafc;}
+.notification-item.unread{background:#fff7ed;border-left:3px solid #ff6a00;}
+.notif-icon{font-size:20px;flex-shrink:0;width:24px;text-align:center;color:#ff6a00;margin-top:2px;}
+.notif-content strong{display:block;font-size:13.5px;margin-bottom:3px;color:#1e2937;}
+.notif-content small{color:#64748b;font-size:12px;}
+.empty-notif{padding:40px 20px;text-align:center;color:#94a3b8;}
+.empty-notif i{font-size:40px;margin-bottom:10px;opacity:0.5;}
+
+.menu-btn{display:none;font-size:22px;cursor:pointer;color:#1e2937;}
+
+@media(max-width:900px){
+    .sidebar{transform:translateX(-100%);}
+    .sidebar.active{transform:translateX(0);}
+    .main{margin-left:0;padding:15px;max-width:100%;width:100%;}
+    .menu-btn{display:block;}
+    .notification-overlay{right:10px;left:10px;width:auto;padding:70px 10px 10px;}
+    .notification-panel-wrap{width:100%;}
+    .tip-options{grid-template-columns:repeat(2,1fr);}
 }
 </style>
 </head>
-
 <body>
 
+<!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
     <div class="logo">
-        <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
-        CashClique
+        <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg"> CashClique
     </div>
-
-    <a href="dashboard.html" class="active"><i class="fas fa-home"></i> Home</a>
-    <a href="earn.html"><i class="fas fa-wallet"></i> Earn</a>
-    <a href="withdraw.html"><i class="fas fa-money-bill"></i> Withdraw</a>
-    <a href="history.html"><i class="fas fa-history"></i> History</a>
+    <a href="#" class="active"><i class="fas fa-home"></i> Dashboard</a>
+    <a href="my-content.html"><i class="fas fa-file-alt"></i> My Content</a>
+    <a href="earnings.html"><i class="fas fa-dollar-sign"></i> Earnings</a>
+    <a href="opportunities.html"><i class="fas fa-fire"></i> Opportunities</a>
     <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+    <a href="#" id="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
 </div>
 
+<!-- MAIN -->
 <div class="main">
     <div class="header">
-        <button class="mobile-menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
-        
-        <div>
-            <div style="font-size:12px; color:#64748b">Available Balance</div>
-            <div class="balance-display" id="user-balance">$0.00</div>
-        </div>
-
+        <div class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
+        <div style="flex:1;"></div>
         <div class="header-right">
-            <div class="notification-bell">
+            <div class="notification-bell" id="notification-bell">
                 <i class="fas fa-bell"></i>
-                <span class="badge">3</span>
+                <span class="badge" id="notif-count">0</span>
             </div>
-            
-            <div class="user">
-                <img src="https://picsum.photos/id/237/100">
-                <span id="username">User</span>
+            <div class="user" onclick="window.location.href='profile.html'">
+                <img id="user-avatar" src="https://i.pravatar.cc/150?img=3">
+                <div class="user-info">
+                    <span id="username" style="font-weight:600;font-size:14px;">Loading...</span>
+                    <span id="user-verified-badge" class="verified-badge" style="display:none;"><i class="fas fa-check"></i></span>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- CONTROLS SECTION (Search & Tabs) -->
     <div class="controls-section">
         <div class="search-bar">
             <i class="fas fa-search"></i>
-            <input id="search" placeholder="Search campaigns...">
+            <input type="text" id="search-input" placeholder="Search for posts or users...">
         </div>
-
         <div class="feed-tabs">
-            <button class="feed-tab active">For You</button>
-            <button class="feed-tab">Following</button>
+            <button class="feed-tab active" data-tab="all">For You</button>
+            <button class="feed-tab" data-tab="following">Following</button>
         </div>
     </div>
 
+    <!-- FEED -->
     <div class="feed" id="feed">
-        <div class="empty">
-            <i class="fas fa-spinner fa-spin fa-2x"></i>
-            <div style="margin-top:15px">Loading feed...</div>
+        <div style="text-align:center; padding:40px; color:#888;">
+            <i class="fas fa-spinner fa-spin" style="font-size:30px; color:#ff6a00; margin-bottom:10px;"></i>
+            <p>Loading your feed...</p>
         </div>
     </div>
+</div>
 
+<button class="create-btn" onclick="window.location.href='post.html'">
+    <i class="fas fa-plus"></i>
+</button>
+
+<!-- Media Viewer -->
+<div class="media-modal" id="media-modal" onclick="closeMediaModal()">
+    <span class="close-modal">&times;</span>
+    <img id="modal-image" src="">
+</div>
+
+<!-- Tip Modal -->
+<div class="tip-modal" id="tip-modal">
+    <div class="tip-content">
+        <h3><i class="fas fa-hand-holding-dollar"></i> Send a Tip</h3>
+        <p style="color:#64748b;margin-bottom:15px;">Support <strong id="tip-recipient" style="color:#1e2937;">this creator</strong></p>
+        
+        <div class="tip-options">
+            <button class="tip-btn" data-amount="1">$1</button>
+            <button class="tip-btn" data-amount="5">$5</button>
+            <button class="tip-btn" data-amount="10">$10</button>
+            <button class="tip-btn" data-amount="20">$20</button>
+            <button class="tip-btn" data-amount="50">$50</button>
+            <button class="tip-btn" data-amount="100">$100</button>
+        </div>
+        
+        <input type="number" class="custom-tip" id="custom-tip" placeholder="Enter custom amount" step="0.01" min="0.01">
+        
+        <button class="send-tip-btn" id="send-tip-btn">Send Tip</button>
+        <div class="cancel-tip" onclick="closeTipModal()">Cancel</div>
+    </div>
+</div>
+
+<!-- Notifications Overlay -->
+<div class="notification-overlay" id="notification-overlay" onclick="closeNotifications()">
+    <div class="notification-panel-wrap" onclick="event.stopPropagation()">
+        <div class="notification-header">
+            <span><i class="fas fa-bell" style="color:#ff6a00;margin-right:8px;"></i> Notifications</span>
+            <span style="font-size:12px;color:#ff6a00;cursor:pointer;font-weight:600;" id="mark-all-read">Mark all read</span>
+        </div>
+        <div class="notification-panel" id="notification-panel"></div>
+    </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, query, where, onSnapshot, doc, getDoc, updateDoc, increment, arrayUnion, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, doc, onSnapshot, updateDoc, increment, serverTimestamp, query, orderBy, addDoc, arrayUnion, writeBatch, getDoc, getDocs, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
-  authDomain: "cashclique-31718.firebaseapp.com",
-  projectId: "cashclique-31718",
-  storageBucket: "cashclique-31718.firebasestorage.app",
-  messagingSenderId: "1064282591269",
-  appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc"
+    apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
+    authDomain: "cashclique-31718.firebaseapp.com",
+    projectId: "cashclique-31718",
+    storageBucket: "cashclique-31718.firebasestorage.app",
+    messagingSenderId: "1064282591269",
+    appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+const feed = document.getElementById("feed");
 let currentUser = null;
-let allPosts = [];
-let allAds = [];
+let currentUsername = "User";
+let currentBalance = 0;
+let viewTimers = {};
+let followingList = [];
+let userVerificationCache = {};
+
+let allPostsCache = [];
+let allAdsCache = [];
 let viewedAds = [];
+let currentFeedTab = localStorage.getItem('cashclique_feed_tab') || 'all';
+let searchQuery = "";
 
-onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-        window.location.href = "login.html";
-        return;
-    }
-    currentUser = user;
-
-    // Load user data
-    const userDoc = await getDoc(doc(db, "users", user.uid));
-    const userData = userDoc.data();
-    
-    document.getElementById('username').textContent = userData.displayName || user.email.split('@')[0];
-    document.getElementById('user-balance').textContent = `$${(userData.balance || 0).toFixed(2)}`;
-    viewedAds = userData.viewedAds || [];
-
-    // Load organic posts
-    onSnapshot(query(collection(db, "posts"), orderBy("createdAt", "desc"), limit(50)), snap => {
-        allPosts = snap.docs.map(d => ({id: d.id, type: 'post', ...d.data()}));
-        render();
-    });
-
-    // Load approved active ads from approved creators
-    onSnapshot(query(collection(db, "activeAds"), orderBy("approvedAt", "desc")), snap => {
-        allAds = snap.docs.map(d => ({id: d.id, type: 'ad', ...d.data()}));
-        render();
-    });
+document.querySelectorAll('.feed-tab').forEach(tab => {
+    if (tab.dataset.tab === currentFeedTab) tab.classList.add('active');
+    else tab.classList.remove('active');
 });
 
+onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = "login.html"; return; }
+    currentUser = user;
 
-function render() {
-    const feed = document.getElementById('feed');
-    const searchTerm = document.getElementById('search').value.toLowerCase();
+    const userRef = doc(db, "users", user.uid);
+    onSnapshot(userRef, (snap) => {
+        if (snap.exists()) {
+            const data = snap.data();
+            currentUsername = data.username || user.email?.split('@')[0] || "User";
+            currentBalance = data.balance || 0;
+            followingList = data.following || [];
+            viewedAds = data.viewedAds || [];
+            document.getElementById("username").innerText = currentUsername;
+            document.getElementById("user-avatar").src = data.avatar || `https://i.pravatar.cc/150?u=${user.uid}`;
+            if (data.isVerified || data.verified) document.getElementById("user-verified-badge").style.display = "inline-flex";
+        }
+    });
+
+    loadFeed();
+    loadNotifications();
+});
+
+async function getUserVerificationStatus(userId) {
+    if (userVerificationCache[userId] !== undefined) return userVerificationCache[userId];
+    try {
+        const userDoc = await getDoc(doc(db, "users", userId));
+        if (userDoc.exists()) {
+            const isVerified = userDoc.data().isVerified || userDoc.data().verified || false;
+            userVerificationCache[userId] = isVerified;
+            return isVerified;
+        }
+    } catch (e) { console.error(e); }
+    return false;
+}
+
+async function loadFeed() {
+    const postsQuery = query(collection(db, "posts"), orderBy("timestamp", "desc"));
+    
+    onSnapshot(postsQuery, async (snapshot) => {
+        allPostsCache = [];
+        
+        for (const postDoc of snapshot.docs) {
+            const post = postDoc.data();
+            const postId = postDoc.id;
+            const isVerified = await getUserVerificationStatus(post.userId);
+            const isFromFollowed = followingList.includes(post.userId);
+            const hasViewed = post.viewedBy && post.viewedBy.includes(currentUser.uid);
+            
+            allPostsCache.push({ id: postId, type: 'post', ...post, isFromFollowed, isVerified, hasViewed });
+        }
+        
+        renderFeed();
+    });
+
+    // ✅ Load active sponsored ads
+    const adsQuery = query(collection(db, "activeAds"), orderBy("approvedAt", "desc"));
+    onSnapshot(adsQuery, async (snapshot) => {
+        allAdsCache = [];
+        
+        for (const adDoc of snapshot.docs) {
+            const ad = adDoc.data();
+            const isVerified = await getUserVerificationStatus(ad.creatorId);
+            const hasViewed = viewedAds.includes(ad.adId);
+            
+            allAdsCache.push({ id: adDoc.id, type: 'ad', ...ad, isVerified, hasViewed });
+        }
+        
+        renderFeed();
+    });
+}
+
+async function renderFeed() {
+    feed.innerHTML = "";
+    let filteredPosts = allPostsCache;
+    let filteredAds = allAdsCache;
+
+    if (currentFeedTab === 'following') {
+        filteredPosts = filteredPosts.filter(p => p.isFromFollowed);
+    }
+
+    if (searchQuery.trim() !== "") {
+        const sq = searchQuery.toLowerCase();
+        filteredPosts = filteredPosts.filter(p => 
+            (p.content && p.content.toLowerCase().includes(sq)) || 
+            (p.username && p.username.toLowerCase().includes(sq))
+        );
+        filteredAds = filteredAds.filter(a =>
+            (a.title && a.title.toLowerCase().includes(sq)) ||
+            (a.description && a.description.toLowerCase().includes(sq))
+        );
+    }
 
     // ✅ Mix ads and posts 50/50, never two ads in a row
     let mixedFeed = [];
     let postIndex = 0;
     let adIndex = 0;
 
-    while(postIndex < allPosts.length || adIndex < allAds.length) {
-        if(postIndex < allPosts.length) {
-            mixedFeed.push(allPosts[postIndex]);
+    while(postIndex < filteredPosts.length || adIndex < filteredAds.length) {
+        if(postIndex < filteredPosts.length) {
+            mixedFeed.push(filteredPosts[postIndex]);
             postIndex++;
         }
 
-        if(adIndex < allAds.length) {
-            mixedFeed.push(allAds[adIndex]);
+        if(adIndex < filteredAds.length) {
+            mixedFeed.push(filteredAds[adIndex]);
             adIndex++;
         }
     }
 
-    if(searchTerm) {
-        mixedFeed = mixedFeed.filter(c => 
-            c.title?.toLowerCase().includes(searchTerm) ||
-            c.description?.toLowerCase().includes(searchTerm) ||
-            c.content?.toLowerCase().includes(searchTerm)
-        );
-    }
-
-    if(mixedFeed.length == 0) {
-        feed.innerHTML = `<div class="empty"><i class="fas fa-inbox fa-2x"></i><div style="margin-top:15px">Nothing in your feed yet</div></div>`;
+    if (mixedFeed.length === 0) {
+        let msg = searchQuery !== "" ? "No posts match your search." : 
+                  (currentFeedTab === 'following' ? "You aren't following anyone who has posted yet." : "No posts found.");
+        feed.innerHTML = `<div class="post" style="text-align:center; padding:40px 20px;"><i class="fas fa-folder-open" style="font-size:40px;color:#cbd5e1;margin-bottom:15px;"></i><p style="color:#64748b;font-weight:500;">${msg}</p></div>`;
         return;
     }
 
-    feed.innerHTML = '';
+    const followedUnviewed = [];
+    const followedViewed = [];
+    const otherItems = [];
 
     mixedFeed.forEach(item => {
+        if (item.isFromFollowed) {
+            if (!item.hasViewed) followedUnviewed.push(item);
+            else followedViewed.push(item);
+        } else {
+            otherItems.push(item);
+        }
+    });
 
-        // Normal organic user post
+    const sortedFeed = [...followedUnviewed, ...otherItems, ...followedViewed];
+
+    for (const item of sortedFeed) {
         if(item.type === 'post') {
-            const el = document.createElement('div');
-            el.className = 'post';
-            el.innerHTML = `
-            <div class="post-header">
-                <img src="${item.authorAvatar || 'https://picsum.photos/id/1/100'}">
-                <div class="post-author">
-                    <div class="post-author-name">
-                        ${item.authorName}
-                        ${item.authorVerified ? '<span class="verified-badge-post"><i class="fas fa-check"></i></span>' : ''}
-                    </div>
-                    <div class="post-time">2 hours ago</div>
-                </div>
-            </div>
-            <p>${item.content}</p>
-            `;
-            feed.appendChild(el);
+            await renderPostHTML(item);
         }
-
-        // ✅ Sponsored ad from approved creator
         if(item.type === 'ad') {
-            const completed = viewedAds.includes(item.adId);
-            const el = document.createElement('div');
-            el.className = 'post';
-
-            el.innerHTML = `
-            <div class="post-header">
-                <img src="${item.creatorAvatar || 'https://picsum.photos/id/1/100'}">
-                <div class="post-author">
-                    <div class="post-author-name">
-                        ${item.creatorName}
-                        ${item.creatorVerified ? '<span class="verified-badge-post"><i class="fas fa-check"></i></span>' : ''}
-                        <span class="ad-tag">SPONSORED</span>
-                    </div>
-                    <div class="post-time">Promoted</div>
-                </div>
-            </div>
-
-            <p><strong>${item.title}</strong><br>${item.description}</p>
-
-            ${item.flyer ? `<img src="${item.flyer}" class="post-flyer">` : ''}
-
-            <div class="post-actions">
-                <button class="earn-btn ${completed ? 'completed' : ''}" onclick="viewAd('${item.id}', '${item.adId}', '${item.creatorId}')">
-                    ${completed ? '✓ Viewed' : 'View Ad'}
-                </button>
-            </div>
-            `;
-
-            feed.appendChild(el);
+            await renderAdHTML(item);
         }
+    }
+    
+    attachEventHandlers();
+}
 
+async function renderPostHTML(post) {
+    const postId = post.id;
+    const isLiked = post.likedBy && post.likedBy.includes(currentUser.uid);
+    const timestamp = post.timestamp ? formatTime(post.timestamp.toDate()) : "Just now";
+    const verifiedBadge = post.isVerified ? `<span class="verified-badge-post" title="Verified Account"><i class="fas fa-check"></i></span>` : '';
+    
+    const postEl = document.createElement("div");
+    postEl.className = "post";
+    postEl.dataset.postId = postId;
+    postEl.dataset.viewed = post.hasViewed;
+    
+    const imgHTML = post.imageBase64 ? `<img src="${post.imageBase64}" class="post-image" onclick="viewImage(this.src)">` : '';
+    const priorityBadge = post.isFromFollowed && !post.hasViewed ? `<div class="priority-badge"><i class="fas fa-star"></i> Following Update</div>` : '';
+
+    postEl.innerHTML = `
+        ${priorityBadge}
+        <div class="post-header">
+            <img src="${post.userAvatar || 'https://i.pravatar.cc/150?u='+post.userId}" class="profile-pic" data-uid="${post.userId}">
+            <div class="post-author">
+                <div class="post-author-name" onclick="window.location.href='profile.html?uid=${post.userId}'">
+                    <span>${post.username || "Anonymous"}</span>${verifiedBadge}
+                </div>
+                <div class="post-time">${timestamp}</div>
+            </div>
+            <i class="fas fa-ellipsis-v three-dot" onclick="window.location.href='post-view.html?postId=${postId}'"></i>
+        </div>
+        <p>${post.content}</p>
+        ${imgHTML}
+        <div class="post-actions">
+            <span class="action-item like-btn ${isLiked ? 'liked' : ''}" data-id="${postId}" data-owner="${post.userId}" data-liked="${isLiked}">
+                <i class="${isLiked ? 'fas' : 'far'} fa-heart"></i> ${post.likes || 0}
+            </span>
+            <span class="action-item" onclick="toggleComments('${postId}')">
+                <i class="far fa-comment"></i> ${post.commentCount || 0}
+            </span>
+            <span class="action-item">
+                <i class="far fa-eye"></i> ${post.views || 0}
+            </span>
+            <span class="action-item tip-jar" data-id="${postId}" data-owner="${post.userId}" data-username="${post.username}">
+                <i class="fas fa-hand-holding-dollar"></i> Tip
+            </span>
+        </div>
+        <div class="comments" id="comments-${postId}" style="display:none">
+            <div class="comment-list" id="comment-list-${postId}"></div>
+            <div style="display:flex;gap:8px;margin-top:10px;">
+                <input placeholder="Write a comment..." id="comment-input-${postId}" style="flex:1;padding:10px 14px;border-radius:10px;border:1px solid #e2e8f0;outline:none;font-family:'Poppins';"/>
+                <button onclick="addComment('${postId}', '${post.userId}')" style="background:#ff6a00;color:white;border:none;padding:10px 18px;border-radius:10px;cursor:pointer;font-weight:600;">Post</button>
+            </div>
+        </div>
+    `;
+    feed.appendChild(postEl);
+
+    if (!post.hasViewed) trackView(postId);
+
+    const commentsRef = query(collection(db, "posts", postId, "comments"), orderBy("timestamp", "asc"));
+    onSnapshot(commentsRef, async (cSnap) => {
+        const list = document.getElementById(`comment-list-${postId}`);
+        if (!list) return;
+        list.innerHTML = "";
+        
+        updateDoc(doc(db, "posts", postId), { commentCount: cSnap.size });
+        
+        for (const c of cSnap.docs) {
+            const d = c.data();
+            const cVerified = await getUserVerificationStatus(d.userId);
+            const vBadge = cVerified ? `<span class="verified-badge-post"><i class="fas fa-check"></i></span>` : '';
+            
+            const div = document.createElement("div");
+            div.className = "comment-item";
+            div.innerHTML = `
+                <div style="flex:1;">
+                    <span class="comment-author" onclick="window.location.href='profile.html?uid=${d.userId}'">${d.username || "User"}${vBadge}</span>
+                    <span style="color:#475569; margin-left:6px;">${d.text}</span>
+                </div>
+            `;
+            list.appendChild(div);
+        }
     });
 }
 
+// ✅ Render sponsored ad
+async function renderAdHTML(ad) {
+    const verifiedBadge = ad.isVerified ? `<span class="verified-badge-post" title="Verified Account"><i class="fas fa-check"></i></span>` : '';
+    const completed = viewedAds.includes(ad.adId);
+
+    const postEl = document.createElement("div");
+    postEl.className = "post";
+
+    const imgHTML = ad.flyer ? `<img src="${ad.flyer}" class="post-image" onclick="viewImage(this.src)">` : '';
+
+    postEl.innerHTML = `
+        <div class="post-header">
+            <img src="${ad.creatorAvatar || 'https://i.pravatar.cc/150?u='+ad.creatorId}" class="profile-pic">
+            <div class="post-author">
+                <div class="post-author-name" onclick="window.location.href='profile.html?uid=${ad.creatorId}'">
+                    <span>${ad.creatorName || "Creator"}</span>${verifiedBadge}
+                    <span class="ad-tag">SPONSORED</span>
+                </div>
+                <div class="post-time">Promoted</div>
+            </div>
+        </div>
+        <p><strong>${ad.title}</strong><br>${ad.description}</p>
+        ${imgHTML}
+        <div class="post-actions">
+            <span class="action-item">
+                <i class="far fa-eye"></i> ${ad.views || 0}
+            </span>
+            <span class="action-item tip-jar" data-id="${ad.id}" data-owner="${ad.creatorId}" data-username="${ad.creatorName}">
+                <i class="fas fa-hand-holding-dollar"></i> Tip
+            </span>
+            <span class="action-item ${completed ? 'liked' : ''}" onclick="viewAd('${ad.id}', '${ad.adId}', '${ad.creatorId}')">
+                <i class="fas fa-play"></i> ${completed ? 'Viewed' : 'View Ad'}
+            </span>
+        </div>
+    `;
+    feed.appendChild(postEl);
+}
 
 window.viewAd = async function(activeAdId, adId, creatorId) {
     if(viewedAds.includes(adId)) return;
@@ -325,7 +575,7 @@ window.viewAd = async function(activeAdId, adId, creatorId) {
         });
 
         viewedAds.push(adId);
-        render();
+        renderFeed();
 
         alert('✅ Success! You earned $0.02');
 
@@ -335,13 +585,191 @@ window.viewAd = async function(activeAdId, adId, creatorId) {
     }
 }
 
-window.toggleMenu = function() {
-    document.getElementById('sidebar').classList.toggle('active');
+document.getElementById('search-input').addEventListener('input', (e) => {
+    searchQuery = e.target.value;
+    renderFeed();
+});
+
+document.querySelectorAll('.feed-tab').forEach(tab => {
+    tab.addEventListener('click', (e) => {
+        document.querySelectorAll('.feed-tab').forEach(t => t.classList.remove('active'));
+        e.target.classList.add('active');
+        currentFeedTab = e.target.dataset.tab;
+        localStorage.setItem('cashclique_feed_tab', currentFeedTab);
+        renderFeed();
+    });
+});
+
+function trackView(postId) {
+    if (viewTimers[postId]) clearTimeout(viewTimers[postId]);
+    viewTimers[postId] = setTimeout(async () => {
+        const postEl = document.querySelector(`[data-post-id="${postId}"]`);
+        if (postEl && postEl.dataset.viewed !== "true") {
+            try {
+                await updateDoc(doc(db, "posts", postId), { views: increment(1), viewedBy: arrayUnion(currentUser.uid) });
+                postEl.dataset.viewed = "true";
+            } catch (e) {}
+        }
+    }, 2000);
 }
 
-document.getElementById('search').addEventListener('input', render);
+function attachEventHandlers() {
+    document.querySelectorAll(".like-btn").forEach(btn => {
+        btn.onclick = async () => {
+            if (btn.dataset.liked === "true") return;
+            const postId = btn.dataset.id;
+            const ownerId = btn.dataset.owner;
+            
+            try {
+                await updateDoc(doc(db, "posts", postId), { likes: increment(1), likedBy: arrayUnion(currentUser.uid) });
+                btn.dataset.liked = "true";
+                btn.classList.add("liked");
+                btn.innerHTML = `<i class="fas fa-heart"></i> ${(parseInt(btn.innerText) || 0) + 1}`;
 
+                if (ownerId !== currentUser.uid) {
+                    await sendNotification(ownerId, { type: "like", title: `${currentUsername} liked your post`, fromUserId: currentUser.uid, postId: postId });
+                }
+            } catch (e) { console.error("Like failed:", e); }
+        };
+    });
+
+    document.querySelectorAll(".tip-jar").forEach(btn => {
+        btn.onclick = () => {
+            if (btn.dataset.owner === currentUser.uid) return alert("You can't tip yourself!");
+            openTipModal(btn.dataset.id, btn.dataset.owner, btn.dataset.username);
+        };
+    });
+}
+
+let currentTipData = null;
+function openTipModal(postId, ownerId, username) {
+    currentTipData = { postId, ownerId, username };
+    document.getElementById("tip-recipient").innerText = username || "this creator";
+    document.getElementById("tip-modal").style.display = "flex";
+    document.querySelectorAll(".tip-btn").forEach(btn => btn.classList.remove("selected"));
+    document.getElementById("custom-tip").value = "";
+}
+
+window.closeTipModal = () => document.getElementById("tip-modal").style.display = "none";
+
+document.querySelectorAll(".tip-btn").forEach(btn => {
+    btn.onclick = () => {
+        document.querySelectorAll(".tip-btn").forEach(b => b.classList.remove("selected"));
+        btn.classList.add("selected");
+        document.getElementById("custom-tip").value = "";
+    };
+});
+
+document.getElementById("custom-tip").addEventListener("input", () => {
+    document.querySelectorAll(".tip-btn").forEach(btn => btn.classList.remove("selected"));
+});
+
+document.getElementById("send-tip-btn").addEventListener("click", async () => {
+    if (!currentTipData) return;
+    let amount = parseFloat(document.querySelector(".tip-btn.selected")?.dataset.amount || document.getElementById("custom-tip").value);
+    
+    if (!amount || amount <= 0) return alert("Enter a valid amount");
+    if (amount > currentBalance) return alert("Insufficient balance!");
+    
+    const btn = document.getElementById("send-tip-btn");
+    btn.disabled = true; btn.innerText = "Sending...";
+    
+    try {
+        await runTransaction(db, async (tx) => {
+            tx.update(doc(db, "users", currentUser.uid), { balance: increment(-amount) });
+            tx.update(doc(db, "users", currentTipData.ownerId), { balance: increment(amount) });
+            tx.set(doc(collection(db, "transactions")), {
+                type: "tip", from: currentUser.uid, fromUsername: currentUsername, to: currentTipData.ownerId, toUsername: currentTipData.username, amount: amount, postId: currentTipData.postId, timestamp: serverTimestamp()
+            });
+        });
+        await sendNotification(currentTipData.ownerId, { type: "earning", title: `${currentUsername} sent you a $${amount.toFixed(2)} tip!`, fromUserId: currentUser.uid, postId: currentTipData.postId });
+        alert(`Tip of $${amount.toFixed(2)} sent!`);
+        closeTipModal();
+    } catch (e) { alert("Failed to send tip."); } finally { btn.disabled = false; btn.innerText = "Send Tip"; }
+});
+
+window.addComment = async function(postId, ownerId) {
+    const input = document.getElementById(`comment-input-${postId}`);
+    const text = input.value.trim();
+    if (!text) return;
+    await addDoc(collection(db, "posts", postId, "comments"), { userId: currentUser.uid, username: currentUsername, text, timestamp: serverTimestamp() });
+    if (ownerId !== currentUser.uid) await sendNotification(ownerId, { type: "comment", title: `${currentUsername} commented on your post`, message: text, fromUserId: currentUser.uid, postId: postId });
+    input.value = "";
+};
+
+async function sendNotification(toUserId, data) {
+    try { await addDoc(collection(db, "users", toUserId, "notifications"), { ...data, read: false, timestamp: serverTimestamp() }); } catch(e){}
+}
+
+function loadNotifications() {
+    onSnapshot(query(collection(db, "users", currentUser.uid, "notifications"), orderBy("timestamp", "desc")), (snap) => {
+        const panel = document.getElementById("notification-panel");
+        panel.innerHTML = "";
+        let unread = 0;
+        if (snap.empty) {
+            panel.innerHTML = `<div class="empty-notif"><i class="fas fa-bell-slash"></i><br>No notifications yet</div>`;
+        } else {
+            snap.forEach(nDoc => {
+                const n = nDoc.data();
+                if (!n.read) unread++;
+                const div = document.createElement("div");
+                div.className = `notification-item ${n.read ? '' : 'unread'}`;
+                let icon = n.type === "like" ? "fa-heart" : n.type === "comment" ? "fa-comment" : n.type === "follow" ? "fa-user-plus" : "fa-dollar-sign";
+                div.innerHTML = `<i class="fas ${icon} notif-icon"></i><div class="notif-content"><strong>${n.title}</strong><small>${n.message||""}</small><br><small>${n.timestamp?formatTime(n.timestamp.toDate()):"Just now"}</small></div>`;
+                div.onclick = async () => {
+                    await updateDoc(doc(db, "users", currentUser.uid, "notifications", nDoc.id), { read: true });
+                    if(n.postId) window.location.href = `post-view.html?postId=${n.postId}`;
+                    else if(n.fromUserId) window.location.href = `profile.html?uid=${n.fromUserId}`;
+                };
+                panel.appendChild(div);
+            });
+        }
+        document.getElementById("notif-count").innerText = unread > 99 ? "99+" : unread;
+        document.getElementById("notif-count").style.display = unread > 0 ? "flex" : "none";
+    });
+}
+
+const bell = document.getElementById("notification-bell");
+const overlay = document.getElementById("notification-overlay");
+
+window.openNotifications = () => {
+    overlay.style.display = "flex";
+};
+
+window.closeNotifications = () => {
+    overlay.style.display = "none";
+};
+
+bell.addEventListener("click", (e) => { 
+    e.stopPropagation(); 
+    overlay.style.display = overlay.style.display === "flex" ? "none" : "flex"; 
+});
+
+document.getElementById("mark-all-read").addEventListener("click", async () => {
+    const snap = await getDocs(collection(db, "users", currentUser.uid, "notifications"));
+    const batch = writeBatch(db);
+    snap.forEach(d => { if (!d.data().read) batch.update(d.ref, { read: true }); });
+    await batch.commit();
+});
+
+document.addEventListener("click", (e) => { 
+    if (!bell.contains(e.target) && !overlay.contains(e.target)) overlay.style.display = "none"; 
+    if (e.target.id === "tip-modal") closeTipModal();
+});
+
+function formatTime(d) {
+    const diff = Math.floor((new Date() - d) / 1000);
+    if(diff < 60) return "Just now";
+    if(diff < 3600) return `${Math.floor(diff/60)}m ago`;
+    if(diff < 86400) return `${Math.floor(diff/3600)}h ago`;
+    if(diff < 604800) return `${Math.floor(diff/86400)}d ago`;
+    return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
+window.viewImage = (src) => { document.getElementById("modal-image").src = src; document.getElementById("media-modal").style.display = "flex"; };
+window.closeMediaModal = () => document.getElementById("media-modal").style.display = "none";
+window.toggleMenu = () => document.getElementById("sidebar").classList.toggle("active");
+window.toggleComments = (id) => { const el = document.getElementById("comments-"+id); el.style.display = el.style.display === "none" ? "block" : "none"; };
+document.getElementById("logout").addEventListener("click", (e) => { e.preventDefault(); signOut(auth).then(() => window.location.href = "login.html"); });
 </script>
-
 </body>
 </html>
