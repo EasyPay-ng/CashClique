@@ -310,7 +310,7 @@ let userVerificationCache = {};
 
 let allPostsCache = [];
 let approvedApplications = [];
-let opportunitiesCache = {}; // Cache for opportunity data
+let opportunitiesCache = {};
 let viewedAds = [];
 let currentFeedTab = localStorage.getItem('cashclique_feed_tab') || 'all';
 let searchQuery = "";
@@ -411,27 +411,29 @@ async function loadFeed() {
             const appData = appDoc.data();
             const oppData = opportunitiesCache[appData.opportunityId] || {};
             
+            // Use creatorId (the field name from your database)
             approvedApplications.push({
                 id: appDoc.id,
-                applicantId: appData.applicantId || appData.userId, // Support both field names
+                creatorId: appData.creatorId, // This is the key field - who displays the ad
                 opportunityId: appData.opportunityId,
                 status: appData.status,
                 // Ad content from opportunity or fallback to application data
-                title: oppData.title || appData.adTitle || 'Advertisement',
-                description: oppData.description || appData.adDescription || '',
-                flyer: oppData.flyer || appData.adFlyer || '',
-                targetUrl: oppData.targetUrl || appData.targetUrl || '',
-                advertiserName: oppData.advertiserName || 'Advertiser'
+                title: oppData.title || appData.opportunityTitle || 'Advertisement',
+                description: oppData.description || '',
+                flyer: oppData.flyer || '',
+                targetUrl: oppData.targetUrl || '',
+                advertiserName: oppData.advertiserName || appData.advertiserName || 'Advertiser'
             });
         });
         
         console.log("Loaded approved applications:", approvedApplications.length);
+        console.log("Applications data:", approvedApplications);
         renderFeed();
     });
 }
 
-// Distribute ads evenly among an applicant's posts
-function distributeAdsForApplicant(posts, ads) {
+// Distribute ads evenly among a creator's posts
+function distributeAdsForCreator(posts, ads) {
     const adsWithPosts = [];
     const numAds = ads.length;
     const numPosts = posts.length;
@@ -496,16 +498,19 @@ async function renderFeed() {
         return;
     }
 
-    // Group applications by applicant (the creator who displays ads)
-    const adsByApplicant = {};
+    // Group applications by creatorId (the creator who displays ads)
+    const adsByCreator = {};
     approvedApplications.forEach(app => {
-        const applicantId = app.applicantId;
-        if (!applicantId) return;
-        
-        if (!adsByApplicant[applicantId]) {
-            adsByApplicant[applicantId] = [];
+        const creatorId = app.creatorId;
+        if (!creatorId) {
+            console.warn("Application missing creatorId:", app);
+            return;
         }
-        adsByApplicant[applicantId].push(app);
+        
+        if (!adsByCreator[creatorId]) {
+            adsByCreator[creatorId] = [];
+        }
+        adsByCreator[creatorId].push(app);
     });
 
     // Group posts by user
@@ -517,15 +522,20 @@ async function renderFeed() {
         postsByUser[post.userId].push(post);
     });
 
+    console.log("Ads by creator:", adsByCreator);
+    console.log("Posts by user:", postsByUser);
+
     // Create ad-to-post mapping
     const adToPostMap = new Map(); // postId -> ad
     
-    Object.keys(adsByApplicant).forEach(applicantId => {
-        const applicantAds = adsByApplicant[applicantId];
-        const applicantPosts = postsByUser[applicantId] || [];
+    Object.keys(adsByCreator).forEach(creatorId => {
+        const creatorAds = adsByCreator[creatorId];
+        const creatorPosts = postsByUser[creatorId] || [];
         
-        if (applicantPosts.length > 0 && applicantAds.length > 0) {
-            const distributed = distributeAdsForApplicant(applicantPosts, applicantAds);
+        console.log(`Creator ${creatorId}: ${creatorAds.length} ads, ${creatorPosts.length} posts`);
+        
+        if (creatorPosts.length > 0 && creatorAds.length > 0) {
+            const distributed = distributeAdsForCreator(creatorPosts, creatorAds);
             distributed.forEach(({ postId, ad }) => {
                 if (!adToPostMap.has(postId)) { // Only one ad per post
                     adToPostMap.set(postId, ad);
@@ -533,6 +543,8 @@ async function renderFeed() {
             });
         }
     });
+
+    console.log("Ad to post map:", adToPostMap);
 
     // Render posts with their attached ads
     for (const post of filteredPosts) {
