@@ -56,6 +56,7 @@ body{background:#f5f5f5;min-height:100vh;}
 .edit-btn:hover{background:#ff6a00;color:white;}
 .verify-btn{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;}
 .verify-btn:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(102,126,234,0.4);}
+.verify-btn.disabled{opacity:0.5;cursor:not-allowed;background:#ccc;color:#666;}
 .action-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
 .action-btn i{font-size:14px;}
 
@@ -103,6 +104,31 @@ body{background:#f5f5f5;min-height:100vh;}
 .cancel-btn:hover{background:#e0e0e0;}
 .confirm-btn:disabled{opacity:0.5;cursor:not-allowed;}
 
+/* Chat Overlay */
+.chat-overlay{position:fixed;inset:0;background:white;z-index:200;display:none;flex-direction:column;height:100vh;}
+.chat-overlay.active{display:flex;}
+.chat-header{background:white;box-shadow:0 2px 10px rgba(0,0,0,0.1);padding:15px 20px;display:flex;align-items:center;gap:12px;}
+.chat-header-avatar{width:40px;height:40px;border-radius:50%;object-fit:cover;}
+.chat-header-info{flex:1;}
+.chat-header-name{font-size:16px;font-weight:600;color:#333;}
+.chat-header-status{font-size:12px;color:#666;}
+.chat-close-btn{background:none;border:none;color:#666;font-size:20px;cursor:pointer;}
+.chat-close-btn:hover{color:#ff6a00;}
+
+.chat-messages{flex:1;padding:20px;overflow-y:auto;background:#f5f5f5;display:flex;flex-direction:column;gap:15px;}
+.chat-message{max-width:75%;padding:12px 16px;border-radius:20px;position:relative;}
+.chat-message.sent{align-self:flex-end;background:#ff6a00;color:white;border-bottom-right-radius:4px;}
+.chat-message.received{align-self:flex-start;background:white;color:#333;border-bottom-left-radius:4px;box-shadow:0 2px 5px rgba(0,0,0,0.05);}
+.chat-message-time{font-size:10px;color:rgba(255,255,255,0.7);position:absolute;bottom:4px;right:10px;}
+.chat-message.received .chat-message-time{color:#999;}
+
+.chat-input-area{background:white;padding:15px 20px;display:flex;gap:10px;align-items:center;box-shadow:0 -2px 10px rgba(0,0,0,0.05);}
+.chat-input{flex:1;padding:12px 16px;border:1px solid #ddd;border-radius:25px;outline:none;font-size:14px;resize:none;min-height:40px;}
+.chat-input:focus{border-color:#ff6a00;}
+.chat-send-btn{background:#ff6a00;color:white;border:none;width:40px;height:40px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:0.2s;}
+.chat-send-btn:hover{background:#e55d00;}
+.chat-send-btn:disabled{background:#ccc;cursor:not-allowed;}
+
 /* Toast */
 .toast{position:fixed;bottom:20px;right:20px;padding:15px 20px;border-radius:10px;color:white;box-shadow:0 5px 15px rgba(0,0,0,0.2);z-index:10000;display:flex;align-items:center;gap:10px;animation:slideUp 0.3s ease;}
 .toast.success{background:#4caf50;}
@@ -135,9 +161,6 @@ body{background:#f5f5f5;min-height:100vh;}
         <div class="header-actions">
             <button class="header-action" onclick="shareProfile()">
                 <i class="fas fa-share-alt"></i>
-            </button>
-            <button class="header-action" onclick="toggleMenu()">
-                <i class="fas fa-ellipsis-v"></i>
             </button>
         </div>
     </div>
@@ -186,9 +209,6 @@ body{background:#f5f5f5;min-height:100vh;}
     <div class="tabs">
         <button class="tab active" onclick="switchTab('posts', this)">
             <i class="fas fa-th"></i> Posts
-        </button>
-        <button class="tab" onclick="switchTab('liked', this)">
-            <i class="fas fa-heart"></i> Liked
         </button>
         <button class="tab" onclick="switchTab('media', this)">
             <i class="fas fa-photo-video"></i> Media
@@ -244,10 +264,38 @@ body{background:#f5f5f5;min-height:100vh;}
     </div>
 </div>
 
+<!-- Chat Overlay -->
+<div class="chat-overlay" id="chat-overlay">
+    <div class="chat-header">
+        <button class="chat-close-btn" onclick="closeChat()">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <img class="chat-header-avatar" id="chat-avatar" src="" alt="Avatar">
+        <div class="chat-header-info">
+            <div class="chat-header-name" id="chat-name"></div>
+            <div class="chat-header-status">Online</div>
+        </div>
+    </div>
+    
+    <div class="chat-messages" id="chat-messages">
+        <div class="loading">
+            <i class="fas fa-spinner"></i><br>
+            Loading messages...
+        </div>
+    </div>
+    
+    <div class="chat-input-area">
+        <input type="text" class="chat-input" id="chat-input" placeholder="Type a message..." />
+        <button class="chat-send-btn" id="chat-send-btn" onclick="sendChatMessage()" disabled>
+            <i class="fas fa-paper-plane"></i>
+        </button>
+    </div>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, query, where, onSnapshot, doc, getDoc, updateDoc, arrayUnion, arrayRemove, addDoc, serverTimestamp, runTransaction, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, query, where, onSnapshot, doc, getDoc, updateDoc, arrayUnion, arrayRemove, addDoc, serverTimestamp, runTransaction, increment, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -269,6 +317,7 @@ let currentUsername = "User";
 let currentBalance = 0;
 let isOwnProfile = false;
 let profileData = null;
+let totalLikes = 0;
 
 onAuthStateChanged(auth, async (user) => {
     if (!user) { window.location.href = "login.html"; return; }
@@ -284,9 +333,22 @@ onAuthStateChanged(auth, async (user) => {
     if (!profileUid) profileUid = user.uid;
     isOwnProfile = profileUid === user.uid;
 
+    await loadTotalLikes();
     loadProfile();
     loadUserPosts();
 });
+
+// Load total likes across all user posts
+async function loadTotalLikes() {
+    const postsQuery = query(collection(db, "posts"), where("userId", "==", profileUid));
+    const postsSnap = await getDoc(doc(db, "users", profileUid));
+    const postsSnapshot = await getDocs(postsQuery);
+    
+    totalLikes = 0;
+    postsSnapshot.forEach(doc => {
+        totalLikes += doc.data().likes || 0;
+    });
+}
 
 function loadProfile() {
     const userRef = doc(db, "users", profileUid);
@@ -303,13 +365,12 @@ function loadProfile() {
         document.getElementById("profile-username").innerText = `@${profileData.username || 'user'}`;
         document.getElementById("profile-bio").innerText = profileData.bio || "No bio yet";
         
-        // --- THIS IS THE FIX ---
-        // We add the length of the real followers array PLUS the purchased 'followersCount'
+        // Calculate follower count (real + boosted)
         const realFollowers = profileData.followers?.length || 0;
         const boostedFollowers = profileData.followersCount || 0;
-        document.getElementById("followers-count").innerText = formatNumber(realFollowers + boostedFollowers);
-        // -----------------------
-
+        const totalFollowers = realFollowers + boostedFollowers;
+        document.getElementById("followers-count").innerText = formatNumber(totalFollowers);
+        
         document.getElementById("following-count").innerText = formatNumber(profileData.following?.length || 0);
         
         // Verified badge
@@ -322,16 +383,25 @@ function loadProfile() {
         actionsContainer.innerHTML = "";
 
         if (isOwnProfile) {
+            // Check verification eligibility
+            const isEligible = totalFollowers >= 500 && totalLikes >= 1000;
+            
             // Own profile buttons
             actionsContainer.innerHTML = `
                 <button class="action-btn edit-btn" onclick="window.location.href='settings.html'">
                     <i class="fas fa-edit"></i> Edit Profile
                 </button>
-                ${(!profileData.isVerified && !profileData.verified) ? `
-                    <button class="action-btn verify-btn" onclick="openVerifyModal()">
-                        <i class="fas fa-check-circle"></i> Get Verified
-                    </button>
-                ` : ''}
+                ${(!profileData.isVerified && !profileData.verified) ? (
+                    isEligible ? `
+                        <button class="action-btn verify-btn" onclick="openVerifyModal()">
+                            <i class="fas fa-check-circle"></i> Get Verified
+                        </button>
+                    ` : `
+                        <button class="action-btn verify-btn disabled" onclick="showToast('You need at least 500 followers and 1000 total likes to verify', 'error')">
+                            <i class="fas fa-check-circle"></i> Get Verified
+                        </button>
+                    `
+                ) : ''}
             `;
         } else {
             // Other user's profile
@@ -343,7 +413,7 @@ function loadProfile() {
                     <i class="fas fa-${isFollowing ? 'user-check' : 'user-plus'}"></i>
                     ${isFollowing ? 'Following' : 'Follow'}
                 </button>
-                <button class="action-btn message-btn" onclick="sendMessage()">
+                <button class="action-btn message-btn" onclick="openChat()">
                     <i class="fas fa-comment"></i> Message
                 </button>
             `;
@@ -498,7 +568,7 @@ window.purchaseVerification = async function() {
             transaction.update(userRef, {
                 balance: increment(-5),
                 isVerified: true,
-                verified: true, // catch-all for schema mismatch
+                verified: true,
                 verifiedDate: serverTimestamp()
             });
             
@@ -535,13 +605,6 @@ window.switchTab = function(tab, element) {
     // Load appropriate content based on tab
     if (tab === 'posts') {
         loadUserPosts();
-    } else if (tab === 'liked') {
-        document.getElementById('posts-grid').innerHTML = `
-            <div class="empty-state">
-                <div class="empty-icon"><i class="fas fa-heart"></i></div>
-                <h3 class="empty-title">Liked posts</h3>
-                <p class="empty-text">Feature coming soon</p>
-            </div>`;
     } else if (tab === 'media') {
         loadMediaOnly();
     }
@@ -587,6 +650,96 @@ function loadMediaOnly() {
     });
 }
 
+// Chat Functions
+window.openChat = function() {
+    // Set chat header info
+    document.getElementById("chat-avatar").src = profileData.avatar || `https://i.pravatar.cc/300?u=${profileUid}`;
+    document.getElementById("chat-name").innerText = profileData.username || "Anonymous";
+    
+    // Show chat overlay
+    document.getElementById("chat-overlay").classList.add("active");
+    
+    // Load chat messages
+    loadChatMessages();
+    
+    // Enable send button on input
+    document.getElementById("chat-input").addEventListener("input", () => {
+        const btn = document.getElementById("chat-send-btn");
+        btn.disabled = document.getElementById("chat-input").value.trim() === "";
+    });
+};
+
+window.closeChat = function() {
+    document.getElementById("chat-overlay").classList.remove("active");
+};
+
+window.sendChatMessage = async function() {
+    const input = document.getElementById("chat-input");
+    const text = input.value.trim();
+    if (!text) return;
+    
+    const btn = document.getElementById("chat-send-btn");
+    btn.disabled = true;
+    
+    try {
+        await addDoc(collection(db, "messages"), {
+            fromUserId: currentUser.uid,
+            toUserId: profileUid,
+            text: text,
+            timestamp: serverTimestamp(),
+            fromUsername: currentUsername,
+            toUsername: profileData.username || "Anonymous"
+        });
+        
+        input.value = "";
+        btn.disabled = true;
+        
+        // Scroll to bottom
+        setTimeout(() => {
+            const messagesDiv = document.getElementById("chat-messages");
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }, 100);
+    } catch (e) {
+        console.error(e);
+        showToast("Failed to send message", "error");
+        btn.disabled = false;
+    }
+};
+
+function loadChatMessages() {
+    const messagesQuery = query(
+        collection(db, "messages"),
+        where("fromUserId", "in", [currentUser.uid, profileUid]),
+        where("toUserId", "in", [currentUser.uid, profileUid]),
+        orderBy("timestamp", "asc")
+    );
+    
+    onSnapshot(messagesQuery, (snapshot) => {
+        const messagesDiv = document.getElementById("chat-messages");
+        messagesDiv.innerHTML = "";
+        
+        snapshot.forEach(doc => {
+            const msg = doc.data();
+            const isSent = msg.fromUserId === currentUser.uid;
+            
+            const messageDiv = document.createElement("div");
+            messageDiv.className = `chat-message ${isSent ? 'sent' : 'received'}`;
+            
+            const time = msg.timestamp ? new Date(msg.timestamp.seconds * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "Now";
+            
+            messageDiv.innerHTML = `
+                <div>${msg.text}</div>
+                <div class="chat-message-time">${time}</div>
+            `;
+            
+            messagesDiv.appendChild(messageDiv);
+        });
+        
+        // Scroll to bottom
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    });
+}
+
 // Utility functions
 function formatNumber(num) {
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
@@ -618,10 +771,6 @@ window.shareProfile = function() {
     }
 };
 
-window.sendMessage = function() {
-    showToast("Messaging feature coming soon!", "success");
-};
-
 window.showFollowers = function() {
     showToast("Followers list coming soon!", "success");
 };
@@ -630,14 +779,17 @@ window.showFollowing = function() {
     showToast("Following list coming soon!", "success");
 };
 
-window.toggleMenu = function() {
-    showToast("More options coming soon!", "success");
-};
-
 // Close modal on outside click
 document.getElementById("verify-modal").addEventListener("click", (e) => {
     if (e.target.id === "verify-modal") {
         closeVerifyModal();
+    }
+});
+
+// Close chat on outside click (optional)
+document.getElementById("chat-overlay").addEventListener("click", (e) => {
+    if (e.target.id === "chat-overlay") {
+        closeChat();
     }
 });
 </script>
