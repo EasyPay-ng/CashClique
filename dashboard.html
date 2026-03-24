@@ -309,7 +309,7 @@ let followingList = [];
 let userVerificationCache = {};
 
 let allPostsCache = [];
-let approvedAds = [];
+let approvedApplications = []; // Stores approved applications with applicantId and opportunity data
 let viewedAds = [];
 let currentFeedTab = localStorage.getItem('cashclique_feed_tab') || 'all';
 let searchQuery = "";
@@ -379,22 +379,37 @@ async function loadFeed() {
         renderFeed();
     });
 
-    // Load approved ads
-    const adsQuery = query(collection(db, "opportunities"), where("status", "==", "approved"));
-    onSnapshot(adsQuery, async (snapshot) => {
-        approvedAds = [];
+    // Load approved applications from applications collection
+    // applicantId is the creator who will display the ad on their posts
+    const applicationsQuery = query(collection(db, "applications"), where("status", "==", "approved"));
+    onSnapshot(applicationsQuery, async (snapshot) => {
+        approvedApplications = [];
         
-        for (const adDoc of snapshot.docs) {
-            const ad = adDoc.data();
-            approvedAds.push({ 
-                id: adDoc.id, 
-                advertiserId: ad.advertiserId,
-                advertiserName: ad.advertiserName,
-                title: ad.title,
-                description: ad.description,
-                flyer: ad.flyer,
-                targetUrl: ad.targetUrl,
-                timestamp: ad.createdAt
+        for (const appDoc of snapshot.docs) {
+            const appData = appDoc.data();
+            
+            // Get the opportunity details to get the ad content
+            let opportunityData = null;
+            if (appData.opportunityId) {
+                try {
+                    const oppDoc = await getDoc(doc(db, "opportunities", appData.opportunityId));
+                    if (oppDoc.exists()) {
+                        opportunityData = oppDoc.data();
+                    }
+                } catch (e) { console.error("Error fetching opportunity:", e); }
+            }
+            
+            approvedApplications.push({
+                id: appDoc.id,
+                applicantId: appData.applicantId, // The creator who displays the ad
+                opportunityId: appData.opportunityId,
+                status: appData.status,
+                // Ad content from opportunity
+                title: opportunityData?.title || appData.adTitle || 'Advertisement',
+                description: opportunityData?.description || appData.adDescription || '',
+                flyer: opportunityData?.flyer || appData.adFlyer || '',
+                targetUrl: opportunityData?.targetUrl || appData.targetUrl || '',
+                advertiserName: opportunityData?.advertiserName || 'Advertiser'
             });
         }
         
@@ -402,8 +417,8 @@ async function loadFeed() {
     });
 }
 
-// Distribute ads evenly among a creator's posts
-function distributeAdsForCreator(posts, ads) {
+// Distribute ads evenly among an applicant's posts
+function distributeAdsForApplicant(posts, ads) {
     const adsWithPosts = [];
     const numAds = ads.length;
     const numPosts = posts.length;
@@ -417,14 +432,7 @@ function distributeAdsForCreator(posts, ads) {
         return bTime - aTime;
     });
     
-    // Sort ads by timestamp
-    ads.sort((a, b) => {
-        const aTime = a.timestamp?.toDate?.() || new Date(0);
-        const bTime = b.timestamp?.toDate?.() || new Date(0);
-        return aTime - bTime;
-    });
-    
-    // Distribute ads evenly
+    // Distribute ads evenly across posts
     const postsPerAd = Math.floor(numPosts / numAds);
     const remainder = numPosts % numAds;
     
@@ -434,7 +442,7 @@ function distributeAdsForCreator(posts, ads) {
         for (let j = 0; j < postsForThisAd && postIndex < numPosts; j++) {
             adsWithPosts.push({
                 postId: posts[postIndex].id,
-                ad: ads[i % numAds] // Cycle through ads if more posts than ads
+                ad: ads[i]
             });
             postIndex++;
         }
@@ -475,13 +483,13 @@ async function renderFeed() {
         return;
     }
 
-    // Group ads by advertiser
-    const adsByAdvertiser = {};
-    approvedAds.forEach(ad => {
-        if (!adsByAdvertiser[ad.advertiserId]) {
-            adsByAdvertiser[ad.advertiserId] = [];
+    // Group applications by applicant (the creator who displays ads)
+    const adsByApplicant = {};
+    approvedApplications.forEach(app => {
+        if (!adsByApplicant[app.applicantId]) {
+            adsByApplicant[app.applicantId] = [];
         }
-        adsByAdvertiser[ad.advertiserId].push(ad);
+        adsByApplicant[app.applicantId].push(app);
     });
 
     // Group posts by user
@@ -496,12 +504,12 @@ async function renderFeed() {
     // Create ad-to-post mapping
     const adToPostMap = new Map(); // postId -> ad
     
-    Object.keys(adsByAdvertiser).forEach(advertiserId => {
-        const userAds = adsByAdvertiser[advertiserId];
-        const userPosts = postsByUser[advertiserId] || [];
+    Object.keys(adsByApplicant).forEach(applicantId => {
+        const applicantAds = adsByApplicant[applicantId];
+        const applicantPosts = postsByUser[applicantId] || [];
         
-        if (userPosts.length > 0 && userAds.length > 0) {
-            const distributed = distributeAdsForCreator(userPosts, userAds);
+        if (applicantPosts.length > 0 && applicantAds.length > 0) {
+            const distributed = distributeAdsForApplicant(applicantPosts, applicantAds);
             distributed.forEach(({ postId, ad }) => {
                 if (!adToPostMap.has(postId)) { // Only one ad per post
                     adToPostMap.set(postId, ad);
@@ -635,7 +643,8 @@ function trackAdView(adId) {
         const adEl = document.querySelector(`[data-ad-id="${adId}"]`);
         if (adEl && adEl.dataset.viewed !== "true") {
             try {
-                await updateDoc(doc(db, "opportunities", adId), { currentViews: increment(1) });
+                // Update the application document with view count
+                await updateDoc(doc(db, "applications", adId), { currentViews: increment(1) });
                 await updateDoc(doc(db, "users", currentUser.uid), { viewedAds: arrayUnion(adId) });
                 adEl.dataset.viewed = "true";
             } catch (e) {}
@@ -647,9 +656,9 @@ window.handleAdClick = async function(adId, targetUrl) {
     if (targetUrl) {
         window.open(targetUrl, '_blank');
         
-        // Count the click
+        // Count the click on the application
         try {
-            await updateDoc(doc(db, "opportunities", adId), {
+            await updateDoc(doc(db, "applications", adId), {
                 clicks: increment(1)
             });
         } catch (e) {}
