@@ -333,14 +333,6 @@ h2 {
     color: var(--success);
 }
 
-/* Invite Code */
-.invite-hint {
-    font-size: 10px;
-    color: var(--text-lighter);
-    margin-top: 4px;
-    text-align: left;
-}
-
 /* Terms Checkbox */
 .terms-box {
     margin: 16px 0;
@@ -663,10 +655,6 @@ h2 {
         font-size: 8px;
     }
     
-    .invite-hint {
-        font-size: 9px;
-    }
-    
     .terms-box {
         margin: 12px 0;
     }
@@ -923,21 +911,6 @@ h2 {
             <div class="password-requirements" id="matchStatus"></div>
         </div>
 
-        <!-- Invite Code -->
-        <div class="input-group">
-            <label for="inviteCode">Invite Code <span style="color: var(--text-lighter); font-weight: 400;">(Optional)</span></label>
-            <div class="input-wrapper">
-                <input 
-                    type="text" 
-                    id="inviteCode" 
-                    placeholder="Enter invite code"
-                    aria-label="Invite code"
-                >
-                <i class="fas fa-gift input-icon"></i>
-            </div>
-            <p class="invite-hint"><i class="fas fa-info-circle"></i> Get rewarded when you use a friend's invite code!</p>
-        </div>
-
         <!-- Terms -->
         <div class="terms-box">
             <label class="terms-label" id="termsLabel">
@@ -1016,7 +989,6 @@ const usernameInput = document.getElementById("username");
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 const confirmPasswordInput = document.getElementById("confirmPassword");
-const inviteInput = document.getElementById("inviteCode");
 const termsInput = document.getElementById("terms");
 const termsLabel = document.getElementById("termsLabel");
 const registerBtn = document.getElementById("registerBtn");
@@ -1166,7 +1138,6 @@ window.signUpWithGoogle = async () => {
                 username: result.user.displayName || result.user.email.split('@')[0],
                 email: result.user.email,
                 inviteCode: result.user.uid.substring(0, 6),
-                invitedBy: null,
                 createdAt: Date.now(),
                 provider: 'google'
             });
@@ -1200,7 +1171,6 @@ window.signUpWithApple = async () => {
                 username: result.user.email?.split('@')[0] || 'user',
                 email: result.user.email,
                 inviteCode: result.user.uid.substring(0, 6),
-                invitedBy: null,
                 createdAt: Date.now(),
                 provider: 'apple'
             });
@@ -1230,7 +1200,6 @@ form.addEventListener("submit", async (e) => {
     const email = emailInput.value.trim();
     const password = passwordInput.value;
     const confirmPassword = confirmPasswordInput.value;
-    const invite = inviteInput.value.trim();
     const terms = termsInput.checked;
     
     [usernameInput, emailInput, passwordInput, confirmPasswordInput].forEach(input => input.classList.remove('error'));
@@ -1300,19 +1269,6 @@ form.addEventListener("submit", async (e) => {
             return;
         }
         
-        let inviterUID = null;
-        if (invite) {
-            const inviteSnap = await getDocs(query(collection(db, "users"), where("inviteCode", "==", invite)));
-            if (inviteSnap.empty) {
-                setLoading(false);
-                showMessage("Invalid invite code.", "error");
-                inviteInput.classList.add("error");
-                shakeContainer();
-                return;
-            }
-            inviterUID = inviteSnap.docs[0].id;
-        }
-        
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
         
@@ -1322,7 +1278,6 @@ form.addEventListener("submit", async (e) => {
             username: username,
             email: email,
             inviteCode: user.uid.substring(0, 6),
-            invitedBy: inviterUID,
             createdAt: Date.now(),
             provider: 'email'
         });
@@ -1339,7 +1294,7 @@ form.addEventListener("submit", async (e) => {
     }
 });
 
-[usernameInput, emailInput, passwordInput, confirmPasswordInput, inviteInput].forEach(input => {
+[usernameInput, emailInput, passwordInput, confirmPasswordInput].forEach(input => {
     input.addEventListener("input", () => input.classList.remove("error"));
 });
 
