@@ -133,6 +133,7 @@ body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;overflow-x:hidd
 /* Naira Equiv */
 .naira-eqv {text-align:right; font-size:14px; color:#64748b; margin-top:8px; font-weight:500;}
 .naira-eqv span {color:#ff6a00; font-weight:700; font-size:16px;}
+.tax-note {font-size:12px; color:#ef4444; margin-top:4px; text-align:right;}
 
 /* Submit Button */
 .btn-primary{width:100%;background:linear-gradient(135deg,#ff6a00,#e55d00);color:white;border:none;padding:16px;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;transition:0.3s;margin-top:10px;}
@@ -285,7 +286,7 @@ body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;overflow-x:hidd
         <div class="overlay-title">Withdraw Funds</div>
     </div>
     <div class="overlay-content">
-        <p style="color:#64748b; margin-bottom:20px;">Select how you want to receive your funds. Minimum withdrawal is $1.00.</p>
+        <p style="color:#64748b; margin-bottom:20px;">Select how you want to receive your funds. Minimum withdrawal is $1.00. A 5% processing tax applies to all withdrawals.</p>
 
         <button class="channel-btn" onclick="selectBank()">
             <div class="channel-left">
@@ -330,6 +331,9 @@ body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;overflow-x:hidd
             </div>
             <div class="naira-eqv">
                 You will receive: <span id="wdNairaOutput">₦0</span>
+            </div>
+            <div class="tax-note">
+                <i class="fas fa-info-circle"></i> 5% processing tax will be deducted
             </div>
         </div>
 
@@ -376,6 +380,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 const RATE = 1300;
+const TAX_RATE = 0.05; // 5% tax
 let currentUser = null;
 let balance = 0;
 
@@ -415,11 +420,22 @@ window.selectBank = () => {
     document.getElementById('overlayForm').classList.add('active');
 };
 
-// Real-time Naira Converter for Withdrawal Amount
+// Real-time Naira Converter for Withdrawal Amount (with 5% tax deduction)
 document.getElementById('wdAmount').addEventListener('input', function(e) {
     const usd = parseFloat(this.value) || 0;
-    const naira = usd * RATE;
-    document.getElementById('wdNairaOutput').innerText = `₦${naira.toLocaleString()}`;
+    if (usd < 1) {
+        document.getElementById('wdNairaOutput').innerText = '₦0';
+        return;
+    }
+    
+    // Calculate net amount after 5% tax
+    const tax = usd * TAX_RATE;
+    const netUsd = usd - tax;
+    const netNaira = netUsd * RATE;
+    
+    // Display both net USD and converted naira with clear tax info
+    document.getElementById('wdNairaOutput').innerText = 
+        `₦${netNaira.toLocaleString()} (Net: $${netUsd.toFixed(2)} after $${tax.toFixed(2)} tax)`;
 });
 
 
@@ -632,23 +648,29 @@ window.submitWithdrawal = async () => {
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
 
     try {
-        // 1. Create the withdrawal request
+        // Calculate tax and net amount for record
+        const tax = amt * TAX_RATE;
+        const netAmt = amt - tax;
+
+        // 1. Create the withdrawal request with tax details
         await addDoc(collection(db, "withdrawals"), {
             userId: currentUser.uid,
             username: currentUser.email.split('@')[0],
             amount: amt,
+            taxAmount: tax,
+            netAmount: netAmt,
             method: `${bName} | Acc: ${aNo} | Name: ${aName}`,
             status: 'pending',
             paid: false,
             timestamp: serverTimestamp()
         });
         
-        // 2. Deduct the amount from user's balance
+        // 2. Deduct the full withdrawal amount from user's balance
         await updateDoc(doc(db, "users", currentUser.uid), {
             balance: increment(-amt)
         });
 
-        showToast("Withdrawal Request Submitted Successfully!");
+        showToast("Withdrawal Request Submitted Successfully! 5% tax has been deducted from your payout.");
         
         // Reset and close
         document.getElementById('wdAmount').value = '';
