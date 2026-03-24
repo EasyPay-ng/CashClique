@@ -171,7 +171,7 @@ textarea{width:100%;padding:12px;margin-top:10px;border:1px solid #e2e8f0;border
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, query, onSnapshot, doc, runTransaction, serverTimestamp, deleteDoc, updateDoc, increment, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, query, onSnapshot, doc, runTransaction, serverTimestamp, deleteDoc, updateDoc, increment, addDoc, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -207,8 +207,10 @@ const approveBtn = document.getElementById("approveBtn");
 const rejectBtn = document.getElementById("rejectBtn");
 
 let all = [];
+let applicationsData = {}; // Store aggregated stats from applications
 let activeStatus = "all";
-let unsubscribe = null;
+let unsubscribeOpps = null;
+let unsubscribeApps = null;
 let selectedId = null;
 
 // Auth Check
@@ -227,7 +229,7 @@ onAuthStateChanged(auth, async (user) => {
   document.getElementById("main-content").style.display = "block";
 
   attachUI();
-  startListener();
+  startListeners();
 });
 
 /* UI EVENTS */
@@ -244,8 +246,9 @@ function attachUI(){
   searchEl.oninput = render;
 
   refreshBtn.onclick = () => {
-    if (unsubscribe) unsubscribe();
-    startListener();
+    if (unsubscribeOpps) unsubscribeOpps();
+    if (unsubscribeApps) unsubscribeApps();
+    startListeners();
   };
 
   logoutBtn.onclick = async () => {
@@ -259,17 +262,69 @@ function attachUI(){
   rejectBtn.onclick = () => setStatus('rejected');
 }
 
-/* FIRESTORE LISTENER */
-function startListener(){
+/* FIRESTORE LISTENERS */
+function startListeners(){
+  // Listen to opportunities collection
   const q = query(collection(db, "opportunities"));
 
-  if (unsubscribe) unsubscribe();
+  if (unsubscribeOpps) unsubscribeOpps();
 
-  unsubscribe = onSnapshot(q, snap => {
+  unsubscribeOpps = onSnapshot(q, snap => {
     all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     render();
     updateKPIs();
   });
+
+  // Listen to applications collection for real view/click stats
+  const appsQuery = query(
+    collection(db, "applications"),
+    where("status", "==", "approved")
+  );
+
+  if (unsubscribeApps) unsubscribeApps();
+
+  unsubscribeApps = onSnapshot(appsQuery, snap => {
+    applicationsData = {};
+    
+    snap.forEach(doc => {
+      const app = doc.data();
+      const oppId = app.opportunityId;
+      
+      if (!applicationsData[oppId]) {
+        applicationsData[oppId] = {
+          totalViews: 0,
+          totalClicks: 0
+        };
+      }
+      
+      applicationsData[oppId].totalViews += app.currentViews || 0;
+      applicationsData[oppId].totalClicks += app.clicks || 0;
+    });
+    
+    updateKPIs();
+    render();
+  }, (error) => {
+    // Silently fail
+  });
+}
+
+/* UPDATE KPIS */
+function updateKPIs() {
+  kCampaigns.textContent = all.length;
+  
+  // Calculate totals from applications data (real tracking)
+  let totalViews = 0;
+  let totalClicks = 0;
+  
+  Object.values(applicationsData).forEach(stats => {
+    totalViews += stats.totalViews;
+    totalClicks += stats.totalClicks;
+  });
+  
+  kViews.textContent = totalViews.toLocaleString();
+  kClicks.textContent = totalClicks.toLocaleString();
+  kWatch.textContent = all.reduce((sum, c) => sum + (c.completions || 0), 0).toLocaleString();
+  kCtr.textContent = totalViews > 0 ? `${(totalClicks / totalViews * 100).toFixed(2)}%` : '0%';
 }
 
 /* RENDER */
@@ -295,6 +350,11 @@ function render(){
   listEl.innerHTML = "";
 
   items.forEach(c => {
+    // Get real stats from applications, fallback to opportunity data
+    const appStats = applicationsData[c.id] || { totalViews: 0, totalClicks: 0 };
+    const currentViews = appStats.totalViews || c.currentViews || 0;
+    const clicks = appStats.totalClicks || c.clicks || 0;
+
     const el = document.createElement("div");
     el.className = "item";
 
@@ -305,9 +365,9 @@ function render(){
           <div class="title">${escapeHTML(c.title || "Untitled")}</div>
           <div class="meta">${escapeHTML(c.advertiserName || 'Unknown')} • ${escapeHTML(c.category || "General")} • ${c.targetViews?.toLocaleString()} views • $${c.cost?.toFixed(2)}</div>
           <div class="progress-bar" style="margin-top:8px">
-            <div class="progress-fill" style="width: ${Math.min(100, (c.currentViews / c.targetViews) * 100)}%"></div>
+            <div class="progress-fill" style="width: ${Math.min(100, (currentViews / c.targetViews) * 100)}%"></div>
           </div>
-          <div class="small" style="margin-top:4px">${c.currentViews?.toLocaleString() || 0} / ${c.targetViews?.toLocaleString() || 0} views</div>
+          <div class="small" style="margin-top:4px">${currentViews.toLocaleString()} / ${c.targetViews?.toLocaleString() || 0} views • ${clicks.toLocaleString()} clicks</div>
         </div>
 
         ${badge(c.status)}
@@ -323,18 +383,6 @@ function render(){
 
     listEl.appendChild(el);
   });
-}
-
-/* UPDATE KPIS */
-function updateKPIs() {
-  kCampaigns.textContent = all.length;
-  kViews.textContent = all.reduce((sum, c) => sum + (c.currentViews || 0), 0).toLocaleString();
-  kClicks.textContent = all.reduce((sum, c) => sum + (c.clicks || 0), 0).toLocaleString();
-  kWatch.textContent = all.reduce((sum, c) => sum + (c.completions || 0), 0).toLocaleString();
-
-  const totalViews = all.reduce((sum, c) => sum + (c.currentViews || 0), 0);
-  const totalClicks = all.reduce((sum, c) => sum + (c.clicks || 0), 0);
-  kCtr.textContent = totalViews > 0 ? `${(totalClicks / totalViews * 100).toFixed(2)}%` : '0%';
 }
 
 /* BADGE */
@@ -447,7 +495,6 @@ async function setStatus(status){
     alert(status === 'approved' ? 'Campaign approved ✅' : 'Campaign rejected, user refunded ✅');
 
   } catch(e){
-    console.error(e);
     alert("Update failed, please try again");
   }
 }
