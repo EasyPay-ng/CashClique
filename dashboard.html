@@ -400,7 +400,7 @@ async function loadFeed() {
                     opportunitiesCache[oppId] = oppDoc.data();
                 }
             } catch (e) {
-                console.error("Error fetching opportunity:", oppId, e);
+                // Silently fail
             }
         });
         
@@ -411,13 +411,11 @@ async function loadFeed() {
             const appData = appDoc.data();
             const oppData = opportunitiesCache[appData.opportunityId] || {};
             
-            // Use creatorId (the field name from your database)
             approvedApplications.push({
                 id: appDoc.id,
-                creatorId: appData.creatorId, // This is the key field - who displays the ad
+                creatorId: appData.creatorId,
                 opportunityId: appData.opportunityId,
                 status: appData.status,
-                // Ad content from opportunity or fallback to application data
                 title: oppData.title || appData.opportunityTitle || 'Advertisement',
                 description: oppData.description || '',
                 flyer: oppData.flyer || '',
@@ -426,13 +424,10 @@ async function loadFeed() {
             });
         });
         
-        console.log("Loaded approved applications:", approvedApplications.length);
-        console.log("Applications data:", approvedApplications);
         renderFeed();
     });
 }
 
-// Distribute ads evenly among a creator's posts
 function distributeAdsForCreator(posts, ads) {
     const adsWithPosts = [];
     const numAds = ads.length;
@@ -440,14 +435,12 @@ function distributeAdsForCreator(posts, ads) {
     
     if (numPosts === 0 || numAds === 0) return adsWithPosts;
     
-    // Sort posts by timestamp (newest first)
     posts.sort((a, b) => {
         const aTime = a.timestamp?.toDate?.() || new Date(0);
         const bTime = b.timestamp?.toDate?.() || new Date(0);
         return bTime - aTime;
     });
     
-    // Distribute ads evenly across posts
     const postsPerAd = Math.floor(numPosts / numAds);
     const remainder = numPosts % numAds;
     
@@ -470,12 +463,10 @@ async function renderFeed() {
     feed.innerHTML = "";
     let filteredPosts = [...allPostsCache];
 
-    // Filter by tab
     if (currentFeedTab === 'following') {
         filteredPosts = filteredPosts.filter(item => item.isFromFollowed);
     }
 
-    // Filter by search
     if (searchQuery.trim() !== "") {
         const sq = searchQuery.toLowerCase();
         filteredPosts = filteredPosts.filter(item =>
@@ -484,7 +475,6 @@ async function renderFeed() {
         );
     }
 
-    // Sort posts by timestamp newest first
     filteredPosts.sort((a, b) => {
         const aTime = a.timestamp?.toDate?.() || new Date(0);
         const bTime = b.timestamp?.toDate?.() || new Date(0);
@@ -498,14 +488,10 @@ async function renderFeed() {
         return;
     }
 
-    // Group applications by creatorId (the creator who displays ads)
     const adsByCreator = {};
     approvedApplications.forEach(app => {
         const creatorId = app.creatorId;
-        if (!creatorId) {
-            console.warn("Application missing creatorId:", app);
-            return;
-        }
+        if (!creatorId) return;
         
         if (!adsByCreator[creatorId]) {
             adsByCreator[creatorId] = [];
@@ -513,7 +499,6 @@ async function renderFeed() {
         adsByCreator[creatorId].push(app);
     });
 
-    // Group posts by user
     const postsByUser = {};
     filteredPosts.forEach(post => {
         if (!postsByUser[post.userId]) {
@@ -522,31 +507,22 @@ async function renderFeed() {
         postsByUser[post.userId].push(post);
     });
 
-    console.log("Ads by creator:", adsByCreator);
-    console.log("Posts by user:", postsByUser);
-
-    // Create ad-to-post mapping
-    const adToPostMap = new Map(); // postId -> ad
+    const adToPostMap = new Map();
     
     Object.keys(adsByCreator).forEach(creatorId => {
         const creatorAds = adsByCreator[creatorId];
         const creatorPosts = postsByUser[creatorId] || [];
         
-        console.log(`Creator ${creatorId}: ${creatorAds.length} ads, ${creatorPosts.length} posts`);
-        
         if (creatorPosts.length > 0 && creatorAds.length > 0) {
             const distributed = distributeAdsForCreator(creatorPosts, creatorAds);
             distributed.forEach(({ postId, ad }) => {
-                if (!adToPostMap.has(postId)) { // Only one ad per post
+                if (!adToPostMap.has(postId)) {
                     adToPostMap.set(postId, ad);
                 }
             });
         }
     });
 
-    console.log("Ad to post map:", adToPostMap);
-
-    // Render posts with their attached ads
     for (const post of filteredPosts) {
         await renderPostHTML(post, adToPostMap.get(post.id));
     }
@@ -660,7 +636,7 @@ function trackView(postId) {
             try {
                 await updateDoc(doc(db, "posts", postId), { views: increment(1), viewedBy: arrayUnion(currentUser.uid) });
                 postEl.dataset.viewed = "true";
-            } catch (e) {}
+            } catch (e) { /* Silently fail */ }
         }
     }, 2000);
 }
@@ -674,7 +650,7 @@ function trackAdView(adId) {
                 await updateDoc(doc(db, "applications", adId), { currentViews: increment(1) });
                 await updateDoc(doc(db, "users", currentUser.uid), { viewedAds: arrayUnion(adId) });
                 adEl.dataset.viewed = "true";
-            } catch (e) {}
+            } catch (e) { /* Silently fail */ }
         }
     }, 2000);
 }
@@ -683,9 +659,10 @@ window.handleAdClick = async function(adId, targetUrl) {
     if (targetUrl) {
         window.open(targetUrl, '_blank');
         
+        // Silently record click
         try {
             await updateDoc(doc(db, "applications", adId), { clicks: increment(1) });
-        } catch (e) {}
+        } catch (e) { /* Silently fail */ }
     }
 };
 
