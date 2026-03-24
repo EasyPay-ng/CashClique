@@ -309,7 +309,8 @@ let followingList = [];
 let userVerificationCache = {};
 
 let allPostsCache = [];
-let approvedApplications = []; // Stores approved applications with applicantId and opportunity data
+let approvedApplications = [];
+let opportunitiesCache = {}; // Cache for opportunity data
 let viewedAds = [];
 let currentFeedTab = localStorage.getItem('cashclique_feed_tab') || 'all';
 let searchQuery = "";
@@ -379,40 +380,52 @@ async function loadFeed() {
         renderFeed();
     });
 
-    // Load approved applications from applications collection
-    // applicantId is the creator who will display the ad on their posts
+    // Load all approved applications from applications collection
     const applicationsQuery = query(collection(db, "applications"), where("status", "==", "approved"));
     onSnapshot(applicationsQuery, async (snapshot) => {
         approvedApplications = [];
+        const opportunityIds = new Set();
         
-        for (const appDoc of snapshot.docs) {
-            const appData = appDoc.data();
-            
-            // Get the opportunity details to get the ad content
-            let opportunityData = null;
-            if (appData.opportunityId) {
-                try {
-                    const oppDoc = await getDoc(doc(db, "opportunities", appData.opportunityId));
-                    if (oppDoc.exists()) {
-                        opportunityData = oppDoc.data();
-                    }
-                } catch (e) { console.error("Error fetching opportunity:", e); }
+        // First pass: collect all opportunity IDs
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            if (data.opportunityId) opportunityIds.add(data.opportunityId);
+        });
+        
+        // Fetch all opportunities in parallel
+        const opportunityPromises = Array.from(opportunityIds).map(async (oppId) => {
+            try {
+                const oppDoc = await getDoc(doc(db, "opportunities", oppId));
+                if (oppDoc.exists()) {
+                    opportunitiesCache[oppId] = oppDoc.data();
+                }
+            } catch (e) {
+                console.error("Error fetching opportunity:", oppId, e);
             }
+        });
+        
+        await Promise.all(opportunityPromises);
+        
+        // Now process applications with cached opportunity data
+        snapshot.forEach(appDoc => {
+            const appData = appDoc.data();
+            const oppData = opportunitiesCache[appData.opportunityId] || {};
             
             approvedApplications.push({
                 id: appDoc.id,
-                applicantId: appData.applicantId, // The creator who displays the ad
+                applicantId: appData.applicantId || appData.userId, // Support both field names
                 opportunityId: appData.opportunityId,
                 status: appData.status,
-                // Ad content from opportunity
-                title: opportunityData?.title || appData.adTitle || 'Advertisement',
-                description: opportunityData?.description || appData.adDescription || '',
-                flyer: opportunityData?.flyer || appData.adFlyer || '',
-                targetUrl: opportunityData?.targetUrl || appData.targetUrl || '',
-                advertiserName: opportunityData?.advertiserName || 'Advertiser'
+                // Ad content from opportunity or fallback to application data
+                title: oppData.title || appData.adTitle || 'Advertisement',
+                description: oppData.description || appData.adDescription || '',
+                flyer: oppData.flyer || appData.adFlyer || '',
+                targetUrl: oppData.targetUrl || appData.targetUrl || '',
+                advertiserName: oppData.advertiserName || 'Advertiser'
             });
-        }
+        });
         
+        console.log("Loaded approved applications:", approvedApplications.length);
         renderFeed();
     });
 }
@@ -486,10 +499,13 @@ async function renderFeed() {
     // Group applications by applicant (the creator who displays ads)
     const adsByApplicant = {};
     approvedApplications.forEach(app => {
-        if (!adsByApplicant[app.applicantId]) {
-            adsByApplicant[app.applicantId] = [];
+        const applicantId = app.applicantId;
+        if (!applicantId) return;
+        
+        if (!adsByApplicant[applicantId]) {
+            adsByApplicant[applicantId] = [];
         }
-        adsByApplicant[app.applicantId].push(app);
+        adsByApplicant[applicantId].push(app);
     });
 
     // Group posts by user
@@ -643,7 +659,6 @@ function trackAdView(adId) {
         const adEl = document.querySelector(`[data-ad-id="${adId}"]`);
         if (adEl && adEl.dataset.viewed !== "true") {
             try {
-                // Update the application document with view count
                 await updateDoc(doc(db, "applications", adId), { currentViews: increment(1) });
                 await updateDoc(doc(db, "users", currentUser.uid), { viewedAds: arrayUnion(adId) });
                 adEl.dataset.viewed = "true";
@@ -656,11 +671,8 @@ window.handleAdClick = async function(adId, targetUrl) {
     if (targetUrl) {
         window.open(targetUrl, '_blank');
         
-        // Count the click on the application
         try {
-            await updateDoc(doc(db, "applications", adId), {
-                clicks: increment(1)
-            });
+            await updateDoc(doc(db, "applications", adId), { clicks: increment(1) });
         } catch (e) {}
     }
 };
