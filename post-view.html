@@ -7,12 +7,13 @@
 
 <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
 body{background:#f5f5f5;min-height:100vh;padding:20px;}
 
-.back-btn{margin-bottom:20px;background:white;border:none;padding:10px 16px;border-radius:8px;cursor:pointer;font-weight:500;box-shadow:0 3px 10px rgba(0,0,0,0.05);transition:0.2s;}
+.back-btn{margin-bottom:20px;background:white;border:none;padding:10px 16px;border-radius:8px;cursor:pointer;font-weight:500;box-shadow:0 3px 10px rgba(0,0,0,0.05);transition:0.2s;display:flex;align-items:center;gap:6px;}
 .back-btn:hover{transform:translateY(-1px);box-shadow:0 5px 15px rgba(0,0,0,0.1);}
 
 .container{max-width:600px;margin:0 auto;background:white;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.08);overflow:hidden;}
@@ -26,20 +27,37 @@ body{background:#f5f5f5;min-height:100vh;padding:20px;}
 .post-content{padding:20px;font-size:16px;line-height:1.6;}
 .post-image{width:100%;max-height:500px;object-fit:cover;}
 
-.post-actions{padding:0 20px 20px;display:flex;gap:25px;border-bottom:1px solid #f0f0f0;padding-bottom:20px;}
-.post-actions span{cursor:pointer;font-size:16px;transition:0.2s;display:flex;align-items:center;gap:6px;}
-.post-actions span:hover{color:#ff6a00;}
+.post-actions{padding:0 20px 20px;display:flex;gap:35px;border-bottom:1px solid #f0f0f0;padding-bottom:20px;}
+.action-item{cursor:pointer;font-size:16px;transition:0.2s;display:flex;align-items:center;gap:6px;color:#555;}
+.action-item:hover{color:#ff6a00;}
 .like-btn.liked{color:#ff4444;}
+.like-btn.liked i{font-weight:900;}
 
 .comments-section{padding:20px;}
 .comments-title{font-weight:600;margin-bottom:15px;font-size:15px;color:#444;}
 
-.comment-list{display:flex;flex-direction:column;gap:12px;margin-bottom:20px;}
-.comment{background:#f8f8f8;padding:12px;border-radius:10px;}
-.comment-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+.comment-list{display:flex;flex-direction:column;gap:15px;margin-bottom:20px;}
+.comment{background:#f8f8f8;padding:15px;border-radius:10px;transition:0.2s;}
+.comment:hover{background:#f0f0f0;}
+.comment-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
 .comment-header strong{font-size:14px;color:#ff6a00;}
 .comment-header small{font-size:11px;color:#888;}
-.comment-text{font-size:14px;color:#333;line-height:1.5;}
+.comment-text{font-size:14px;color:#333;line-height:1.5;margin-bottom:10px;}
+.comment-actions{display:flex;gap:15px;font-size:13px;color:#666;}
+.comment-actions span{cursor:pointer;display:flex;align-items:center;gap:4px;}
+.comment-actions span:hover{color:#ff6a00;}
+
+.reply-list{margin-top:12px;margin-left:30px;display:flex;flex-direction:column;gap:12px;}
+.reply{background:#ffffff;padding:12px;border-radius:8px;border-left:2px solid #ff6a00;}
+.reply .comment-header strong{font-size:13px;}
+.reply .comment-text{font-size:13px;}
+
+.reply-input-wrapper{margin-top:12px;display:flex;gap:8px;align-items:flex-end;}
+.reply-input{flex:1;padding:10px 12px;border:1px solid #ddd;border-radius:8px;resize:none;font-size:13px;outline:none;min-height:40px;}
+.reply-input:focus{border-color:#ff6a00;}
+.reply-btn{background:#ff6a00;color:white;border:none;padding:10px 16px;border-radius:8px;font-weight:500;cursor:pointer;transition:0.2s;font-size:13px;white-space:nowrap;}
+.reply-btn:hover{background:#e55d00;transform:translateY(-1px);}
+.reply-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
 
 .comment-input-wrapper{display:flex;gap:10px;align-items:flex-end;}
 .comment-input{flex:1;padding:12px 15px;border:1px solid #ddd;border-radius:10px;resize:none;font-size:14px;outline:none;transition:0.2s;min-height:48px;}
@@ -56,13 +74,17 @@ body{background:#f5f5f5;min-height:100vh;padding:20px;}
 @media(max-width:600px){
     body{padding:10px;}
     .post-header, .post-content, .post-actions, .comments-section{padding:15px;}
+    .post-actions{gap:25px;}
+    .reply-list{margin-left:20px;}
 }
 </style>
 </head>
 
 <body>
 
-<button class="back-btn" onclick="history.back()">← Back</button>
+<button class="back-btn" onclick="history.back()">
+    <i class="fa-solid fa-arrow-left"></i> Back
+</button>
 
 <div class="container">
   <div class="post-header">
@@ -74,8 +96,15 @@ body{background:#f5f5f5;min-height:100vh;padding:20px;}
   <img id="post-img" class="post-image" style="display:none;">
 
   <div class="post-actions">
-    <span id="like-btn" class="like-btn">❤️ 0</span>
-    <span>💬 <span id="comment-count">0</span></span>
+    <span id="view-count" class="action-item">
+        <i class="fa-regular fa-eye"></i> <span>0</span>
+    </span>
+    <span id="like-btn" class="like-btn action-item">
+        <i class="fa-regular fa-heart"></i> <span>0</span>
+    </span>
+    <span id="comment-action" class="action-item">
+        <i class="fa-regular fa-comment"></i> <span id="comment-count">0</span>
+    </span>
   </div>
 
   <div class="comments-section">
@@ -91,7 +120,7 @@ body{background:#f5f5f5;min-height:100vh;padding:20px;}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, collection, getDoc, onSnapshot, addDoc, updateDoc, increment, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, collection, getDoc, onSnapshot, addDoc, updateDoc, increment, serverTimestamp, arrayUnion, arrayRemove, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
 apiKey:"AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -115,6 +144,8 @@ const posterName = document.getElementById("poster-name");
 const postText = document.getElementById("post-text");
 const postImg = document.getElementById("post-img");
 const likeBtn = document.getElementById("like-btn");
+const likeCountSpan = likeBtn.querySelector('span');
+const viewCountSpan = document.getElementById('view-count').querySelector('span');
 const commentList = document.getElementById("comment-list");
 const commentInput = document.getElementById("comment-input");
 const commentBtn = document.getElementById("comment-btn");
@@ -135,46 +166,77 @@ onAuthStateChanged(auth, async user=>{
   }
 
   loadPost();
+  loadComments();
 });
 
-// Load post data
-async function loadPost(){
+// Load post data with real-time updates
+function loadPost(){
   const postRef = doc(db,"posts",postId);
-  const postSnap = await getDoc(postRef);
-  if(!postSnap.exists()){ alert("Post not found"); return; }
-  const post = postSnap.data();
+  
+  // Track views (only increment once per user)
+  getDoc(postRef).then(async postSnap => {
+    if(postSnap.exists()){
+      const post = postSnap.data();
+      if(!post.viewedBy || !post.viewedBy.includes(currentUser.uid)){
+        await updateDoc(postRef, {
+          views: increment(1),
+          viewedBy: arrayUnion(currentUser.uid)
+        });
+      }
+    }
+  });
 
-  posterName.innerText = post.username;
-  // Fixed the critical bug where profile pic was post image
-  posterPic.src = `https://i.pravatar.cc/150?u=${post.userId}`;
-  postText.innerText = post.content || '';
-  if(post.imageBase64){ 
-    postImg.src = post.imageBase64; 
-    postImg.style.display='block'; 
-  }
+  // Real-time post updates
+  onSnapshot(postRef, postSnap => {
+    if(!postSnap.exists()){ alert("Post not found"); return; }
+    const post = postSnap.data();
 
-  posterPic.onclick = ()=>{ window.location.href=`profile.html?uid=${post.userId}`; }
-  posterName.onclick = ()=>{ window.location.href=`profile.html?uid=${post.userId}`; }
+    posterName.innerText = post.username;
+    posterPic.src = `https://i.pravatar.cc/150?u=${post.userId}`;
+    postText.innerText = post.content || '';
+    if(post.imageBase64){ 
+      postImg.src = post.imageBase64; 
+      postImg.style.display='block'; 
+    }
 
-  // Like button state
-  isLiked = post.likedBy?.includes(currentUser.uid) || false;
-  likeBtn.innerText = `❤️ ${post.likes||0}`;
-  if(isLiked) likeBtn.classList.add('liked');
+    posterPic.onclick = ()=>{ window.location.href=`profile.html?uid=${post.userId}`; }
+    posterName.onclick = ()=>{ window.location.href=`profile.html?uid=${post.userId}`; }
 
-  likeBtn.onclick = async () => {
-    if(isLiked) return;
+    // Update view count
+    viewCountSpan.innerText = post.views || 0;
+
+    // Update like state and count
+    isLiked = post.likedBy?.includes(currentUser.uid) || false;
+    likeCountSpan.innerText = post.likes || 0;
+    if(isLiked) likeBtn.classList.add('liked');
+    else likeBtn.classList.remove('liked');
+  });
+}
+
+// Like/Unlike functionality
+likeBtn.onclick = async () => {
+  const postRef = doc(db,"posts",postId);
+  if(isLiked){
+    // Unlike
+    await updateDoc(postRef, {
+      likes: increment(-1),
+      likedBy: arrayRemove(currentUser.uid)
+    });
+  } else {
+    // Like
     await updateDoc(postRef, {
       likes: increment(1),
       likedBy: arrayUnion(currentUser.uid)
     });
-    isLiked = true;
-    likeBtn.classList.add('liked');
-    likeBtn.innerText = `❤️ ${(post.likes||0) + 1}`;
-  };
+  }
+};
 
-  // Load comments
+// Load comments with replies
+function loadComments(){
   const commentsRef = collection(db,"posts",postId,"comments");
-  onSnapshot(commentsRef,(snap)=>{
+  const q = query(commentsRef, orderBy("timestamp", "asc"));
+
+  onSnapshot(q, snap => {
     commentCount.innerText = snap.size;
     commentList.innerHTML="";
 
@@ -183,22 +245,126 @@ async function loadPost(){
       return;
     }
 
-    snap.forEach(c=>{
-      const data = c.data();
-      const div = document.createElement("div");
-      div.className = "comment";
+    // Separate top-level comments and replies
+    const comments = [];
+    const replies = new Map();
 
-      const time = data.timestamp ? timeAgo(data.timestamp.toDate()) : "Just now";
-
-      div.innerHTML = `
-        <div class="comment-header">
-          <strong>${data.username}</strong>
-          <small>${time}</small>
-        </div>
-        <div class="comment-text">${data.text}</div>
-      `;
-      commentList.appendChild(div);
+    snap.forEach(doc => {
+      const data = doc.data();
+      data.id = doc.id;
+      if(data.parentCommentId){
+        if(!replies.has(data.parentCommentId)) replies.set(data.parentCommentId, []);
+        replies.get(data.parentCommentId).push(data);
+      } else {
+        comments.push(data);
+      }
     });
+
+    // Render top-level comments and their replies
+    comments.forEach(comment => {
+      renderComment(comment, replies.get(comment.id) || []);
+    });
+  });
+}
+
+// Render a single comment with its replies
+function renderComment(comment, replies=[]){
+  const div = document.createElement("div");
+  div.className = "comment";
+  div.dataset.commentId = comment.id;
+
+  const time = comment.timestamp ? timeAgo(comment.timestamp.toDate()) : "Just now";
+
+  div.innerHTML = `
+    <div class="comment-header">
+      <strong>${comment.username}</strong>
+      <small>${time}</small>
+    </div>
+    <div class="comment-text">${comment.text}</div>
+    <div class="comment-actions">
+      <span class="reply-btn" data-comment-id="${comment.id}">
+        <i class="fa-regular fa-reply"></i> Reply
+      </span>
+    </div>
+  `;
+
+  // Add reply input container
+  const replyInputContainer = document.createElement("div");
+  replyInputContainer.className = "reply-input-wrapper";
+  replyInputContainer.style.display = "none";
+  replyInputContainer.innerHTML = `
+    <textarea class="reply-input" placeholder="Write a reply..." rows="1"></textarea>
+    <button class="reply-btn-submit" data-comment-id="${comment.id}">Post</button>
+  `;
+  div.appendChild(replyInputContainer);
+
+  // Add reply list
+  const replyList = document.createElement("div");
+  replyList.className = "reply-list";
+  div.appendChild(replyList);
+
+  // Render replies
+  replies.forEach(reply => {
+    const replyDiv = document.createElement("div");
+    replyDiv.className = "reply";
+    replyDiv.innerHTML = `
+      <div class="comment-header">
+        <strong>${reply.username}</strong>
+        <small>${timeAgo(reply.timestamp.toDate())}</small>
+      </div>
+      <div class="comment-text">${reply.text}</div>
+      <div class="comment-actions">
+        <span class="reply-btn" data-comment-id="${reply.id}">
+          <i class="fa-regular fa-reply"></i> Reply
+        </span>
+      </div>
+    `;
+    replyList.appendChild(replyDiv);
+
+    // Add reply input for replies
+    const replyReplyContainer = document.createElement("div");
+    replyReplyContainer.className = "reply-input-wrapper";
+    replyReplyContainer.style.display = "none";
+    replyReplyContainer.innerHTML = `
+      <textarea class="reply-input" placeholder="Write a reply..." rows="1"></textarea>
+      <button class="reply-btn-submit" data-comment-id="${reply.id}">Post</button>
+    `;
+    replyDiv.appendChild(replyReplyContainer);
+  });
+
+  commentList.appendChild(div);
+
+  // Add reply button event listeners
+  div.querySelector(".reply-btn").addEventListener("click", (e) => {
+    const container = e.target.closest(".comment").querySelector(".reply-input-wrapper");
+    container.style.display = container.style.display === "none" ? "flex" : "none";
+    if(container.style.display === "flex"){
+      container.querySelector(".reply-input").focus();
+    }
+  });
+
+  // Add reply submit listener
+  div.querySelector(".reply-btn-submit").addEventListener("click", async (e) => {
+    const commentId = e.target.dataset.commentId;
+    const input = e.target.previousElementSibling;
+    const text = input.value.trim();
+    if(!text) return;
+
+    e.target.disabled = true;
+    e.target.innerHTML = `<div class="spinner" style="width:14px;height:14px;"></div>`;
+
+    await addDoc(collection(db,"posts",postId,"comments"),{
+      userId: currentUser.uid,
+      username: currentUsername,
+      text: text,
+      parentCommentId: commentId,
+      timestamp: serverTimestamp()
+    });
+
+    input.value="";
+    e.target.disabled = false;
+    e.target.innerHTML = "Post";
+    e.target.closest(".reply-input-wrapper").style.display = "none";
   });
 }
 
