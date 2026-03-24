@@ -190,7 +190,7 @@ body{background:#f5f5f5;min-height:100vh;padding:20px;}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -207,6 +207,7 @@ const db = getFirestore(app);
 
 let currentUser = null;
 let allOpportunities = [];
+let applicationsData = {}; // Store application stats by opportunityId
 let currentFilter = 'all';
 
 onAuthStateChanged(auth, (user) => {
@@ -215,14 +216,55 @@ onAuthStateChanged(auth, (user) => {
         return;
     }
     currentUser = user;
-    console.log("User logged in:", user.uid);
     loadOpportunities();
+    loadApplicationsStats(); // Load stats from applications collection
 });
 
-function loadOpportunities() {
-    console.log("Loading opportunities for user:", currentUser.uid);
+// Load real view/click data from applications collection
+async function loadApplicationsStats() {
+    // Query all applications for this advertiser's opportunities
+    const appsQuery = query(
+        collection(db, "applications"),
+        where("advertiserId", "==", currentUser.uid),
+        where("status", "==", "approved")
+    );
     
-    // Simple query without orderBy to avoid index issues
+    onSnapshot(appsQuery, (snapshot) => {
+        applicationsData = {};
+        
+        snapshot.forEach(doc => {
+            const app = doc.data();
+            const oppId = app.opportunityId;
+            
+            if (!applicationsData[oppId]) {
+                applicationsData[oppId] = {
+                    totalViews: 0,
+                    totalClicks: 0,
+                    applications: []
+                };
+            }
+            
+            // Aggregate views and clicks from all applications for this opportunity
+            applicationsData[oppId].totalViews += app.currentViews || 0;
+            applicationsData[oppId].totalClicks += app.clicks || 0;
+            applicationsData[oppId].applications.push({
+                id: doc.id,
+                creatorId: app.creatorId,
+                creatorName: app.creatorName,
+                views: app.currentViews || 0,
+                clicks: app.clicks || 0
+            });
+        });
+        
+        // Update display with real stats
+        updateStatsDisplay();
+        displayOpportunities();
+    }, (error) => {
+        // Silently fail - don't break the page if applications query fails
+    });
+}
+
+function loadOpportunities() {
     const q = query(
         collection(db, "opportunities"),
         where("advertiserId", "==", currentUser.uid)
@@ -230,19 +272,11 @@ function loadOpportunities() {
     
     onSnapshot(q, 
         (snapshot) => {
-            console.log("Snapshot received, docs count:", snapshot.size);
-            
             allOpportunities = [];
-            let totalViews = 0;
-            let totalClicks = 0;
             
             snapshot.forEach(doc => {
                 const data = { id: doc.id, ...doc.data() };
-                console.log("Opportunity found:", data.title, data.status);
                 allOpportunities.push(data);
-                
-                totalViews += data.currentViews || 0;
-                totalClicks += data.clicks || 0;
             });
             
             // Sort by creation date manually (newest first)
@@ -252,18 +286,10 @@ function loadOpportunities() {
                 return timeB - timeA;
             });
             
-            // Update stats
-            document.getElementById('total-campaigns').textContent = allOpportunities.length;
-            document.getElementById('total-views').textContent = formatNumber(totalViews);
-            document.getElementById('total-clicks').textContent = formatNumber(totalClicks);
-            
-            const ctr = totalViews > 0 ? ((totalClicks / totalViews) * 100).toFixed(2) : 0;
-            document.getElementById('avg-ctr').textContent = `${ctr}%`;
-            
+            updateStatsDisplay();
             displayOpportunities();
         },
         (error) => {
-            console.error("Error loading opportunities:", error);
             document.getElementById('opportunities-list').innerHTML = `
                 <div class="error-state">
                     <div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div>
@@ -277,6 +303,25 @@ function loadOpportunities() {
     );
 }
 
+function updateStatsDisplay() {
+    // Calculate totals from applications data (real view/click tracking)
+    let totalViews = 0;
+    let totalClicks = 0;
+    
+    Object.values(applicationsData).forEach(oppStats => {
+        totalViews += oppStats.totalViews;
+        totalClicks += oppStats.totalClicks;
+    });
+    
+    // Update stats cards
+    document.getElementById('total-campaigns').textContent = allOpportunities.length;
+    document.getElementById('total-views').textContent = formatNumber(totalViews);
+    document.getElementById('total-clicks').textContent = formatNumber(totalClicks);
+    
+    const ctr = totalViews > 0 ? ((totalClicks / totalViews) * 100).toFixed(2) : 0;
+    document.getElementById('avg-ctr').textContent = `${ctr}%`;
+}
+
 function displayOpportunities() {
     const container = document.getElementById('opportunities-list');
     
@@ -284,8 +329,6 @@ function displayOpportunities() {
     if (currentFilter !== 'all') {
         filtered = allOpportunities.filter(opp => opp.status === currentFilter);
     }
-    
-    console.log(`Displaying ${filtered.length} opportunities (filter: ${currentFilter})`);
     
     if (filtered.length === 0) {
         container.innerHTML = `
@@ -302,9 +345,13 @@ function displayOpportunities() {
     
     container.innerHTML = '';
     filtered.forEach(opp => {
-        const progress = opp.targetViews > 0 ? (opp.currentViews / opp.targetViews) * 100 : 0;
-        const ctr = opp.currentViews > 0 ? ((opp.clicks / opp.currentViews) * 100).toFixed(2) : 0;
-        const createdDate = opp.createdAt ? formatDate(opp.createdAt.toDate()) : 'Recently';
+        // Get real stats from applications data, fallback to opportunity data
+        const appStats = applicationsData[opp.id] || { totalViews: 0, totalClicks: 0 };
+        const currentViews = appStats.totalViews || opp.currentViews || 0;
+        const clicks = appStats.totalClicks || opp.clicks || 0;
+        
+        const progress = opp.targetViews > 0 ? (currentViews / opp.targetViews) * 100 : 0;
+        const ctr = currentViews > 0 ? ((clicks / currentViews) * 100).toFixed(2) : 0;
         
         const card = document.createElement('div');
         card.className = 'opportunity-card';
@@ -326,7 +373,7 @@ function displayOpportunities() {
                 <div class="opp-progress">
                     <div class="progress-header">
                         <span>Progress</span>
-                        <span>${(opp.currentViews || 0).toLocaleString()} / ${(opp.targetViews || 0).toLocaleString()} views</span>
+                        <span>${currentViews.toLocaleString()} / ${(opp.targetViews || 0).toLocaleString()} views</span>
                     </div>
                     <div class="progress-bar">
                         <div class="progress-fill" style="width:${Math.min(progress, 100)}%"></div>
@@ -336,11 +383,11 @@ function displayOpportunities() {
             
             <div class="opp-stats">
                 <div class="opp-stat">
-                    <div class="opp-stat-value">${formatNumber(opp.currentViews || 0)}</div>
+                    <div class="opp-stat-value">${formatNumber(currentViews)}</div>
                     <div class="opp-stat-label">Views</div>
                 </div>
                 <div class="opp-stat">
-                    <div class="opp-stat-value">${formatNumber(opp.clicks || 0)}</div>
+                    <div class="opp-stat-value">${formatNumber(clicks)}</div>
                     <div class="opp-stat-label">Clicks</div>
                 </div>
                 <div class="opp-stat">
@@ -392,24 +439,52 @@ window.viewPerformance = function(oppId) {
     const opp = allOpportunities.find(o => o.id === oppId);
     if (!opp) return;
     
+    // Get real stats from applications
+    const appStats = applicationsData[oppId] || { totalViews: 0, totalClicks: 0, applications: [] };
+    const currentViews = appStats.totalViews || opp.currentViews || 0;
+    const clicks = appStats.totalClicks || opp.clicks || 0;
+    
     const modal = document.getElementById('performance-modal');
     const modalBody = document.getElementById('modal-body');
     
-    const ctr = opp.currentViews > 0 ? ((opp.clicks / opp.currentViews) * 100).toFixed(2) : 0;
-    const costPerClick = opp.clicks > 0 ? (opp.cost / opp.clicks).toFixed(2) : 0;
-    const costPerView = opp.currentViews > 0 ? (opp.cost / opp.currentViews).toFixed(4) : 0;
-    const completion = ((opp.currentViews / opp.targetViews) * 100).toFixed(1);
+    const ctr = currentViews > 0 ? ((clicks / currentViews) * 100).toFixed(2) : 0;
+    const costPerClick = clicks > 0 ? (opp.cost / clicks).toFixed(2) : 0;
+    const costPerView = currentViews > 0 ? (opp.cost / currentViews).toFixed(4) : 0;
+    const completion = ((currentViews / opp.targetViews) * 100).toFixed(1);
+    
+    // Build creator breakdown
+    let creatorsList = '';
+    if (appStats.applications && appStats.applications.length > 0) {
+        creatorsList = `
+            <div style="margin-top:20px;padding:15px;background:#f8f9fa;border-radius:10px;">
+                <h4 style="margin-bottom:15px;color:#333;">Performance by Creator</h4>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                    ${appStats.applications.map(app => `
+                        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:white;border-radius:8px;">
+                            <div>
+                                <div style="font-weight:500;color:#333;">${app.creatorName || 'Unknown'}</div>
+                                <div style="font-size:12px;color:#888;">${app.views.toLocaleString()} views • ${app.clicks.toLocaleString()} clicks</div>
+                            </div>
+                            <div style="text-align:right;">
+                                <div style="font-weight:600;color:#ff6a00;">${app.views > 0 ? ((app.clicks/app.views)*100).toFixed(2) : 0}% CTR</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
     
     modalBody.innerHTML = `
         <div class="performance-metrics">
             <div class="metric-card">
                 <div class="metric-label">Total Impressions</div>
-                <div class="metric-value">${(opp.currentViews || 0).toLocaleString()}</div>
+                <div class="metric-value">${currentViews.toLocaleString()}</div>
                 <div class="metric-change">Target: ${(opp.targetViews || 0).toLocaleString()}</div>
             </div>
             <div class="metric-card">
                 <div class="metric-label">Total Clicks</div>
-                <div class="metric-value">${(opp.clicks || 0).toLocaleString()}</div>
+                <div class="metric-value">${clicks.toLocaleString()}</div>
                 <div class="metric-change">CTR: ${ctr}%</div>
             </div>
             <div class="metric-card">
@@ -423,6 +498,8 @@ window.viewPerformance = function(oppId) {
                 <div class="metric-change">${opp.status}</div>
             </div>
         </div>
+        
+        ${creatorsList}
         
         <div style="margin-top:20px;padding:15px;background:#f8f9fa;border-radius:10px;">
             <h4 style="margin-bottom:10px;color:#333;">Campaign Details</h4>
@@ -453,9 +530,7 @@ window.pauseCampaign = async function(oppId) {
             pausedAt: serverTimestamp()
         });
         alert('✅ Campaign paused successfully');
-        loadOpportunities(); // Reload to show updated status
     } catch (error) {
-        console.error('Error pausing campaign:', error);
         alert('❌ Failed to pause campaign');
     }
 };
@@ -469,9 +544,7 @@ window.resumeCampaign = async function(oppId) {
             resumedAt: serverTimestamp()
         });
         alert('✅ Campaign resumed successfully');
-        loadOpportunities(); // Reload to show updated status
     } catch (error) {
-        console.error('Error resuming campaign:', error);
         alert('❌ Failed to resume campaign');
     }
 };
