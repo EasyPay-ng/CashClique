@@ -41,6 +41,22 @@ p.sub { font-size:14px; color:#64748b; margin-bottom:30px; }
 .channel-text h3 { font-size:16px; font-weight:600; color:#1e2937; }
 .channel-text span { font-size:13px; color:#64748b; }
 
+/* Crypto Option Buttons */
+.crypto-option {
+    width:100%; background:white; border:2px solid #e2e8f0; border-radius:16px;
+    padding:20px; display:flex; align-items:center; justify-content:space-between;
+    cursor:pointer; margin-bottom:15px; transition:0.3s; text-align:left;
+}
+.crypto-option:hover { border-color:#ff6a00; transform:translateY(-2px); box-shadow:0 10px 20px rgba(255,106,0,0.1); }
+.crypto-icon { width:45px; height:45px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:700; }
+.crypto-icon.trx { background:#ff060a; color:white; }
+.crypto-icon.usdt { background:#26a17b; color:white; }
+.crypto-icon.eth { background:#627eea; color:white; }
+.crypto-icon.btc { background:#f7931a; color:white; }
+.crypto-icon.ton { background:#0088cc; color:white; }
+.crypto-info h3 { font-size:16px; font-weight:600; color:#1e2937; }
+.crypto-info span { font-size:13px; color:#64748b; }
+
 /* Full Page Overlays (App-like slide in) */
 .page-overlay {
     position:fixed; inset:0; background:white; z-index:100;
@@ -110,12 +126,20 @@ p.sub { font-size:14px; color:#64748b; margin-bottom:30px; }
 }
 .detail-row:last-child { border-bottom:none; }
 .detail-label { font-size:13px; color:#64748b; display:block; margin-bottom:4px; }
-.detail-value { font-size:15px; font-weight:700; color:#1e2937; }
+.detail-value { font-size:15px; font-weight:700; color:#1e2937; word-break:break-all; }
 .copy-btn {
     background:#f1f5f9; border:none; width:36px; height:36px; border-radius:10px;
-    color:#ff6a00; cursor:pointer; transition:0.2s; display:flex; align-items:center; justify-content:center;
+    color:#ff6a00; cursor:pointer; transition:0.2s; display:flex; align-items:center; justify-content:center; flex-shrink:0;
 }
 .copy-btn:hover { background:#ff6a00; color:white; }
+
+/* QR Code Placeholder */
+.qr-placeholder {
+    width:200px; height:200px; background:#f8fafc; border:2px dashed #e2e8f0;
+    border-radius:16px; margin:0 auto 24px; display:flex; align-items:center; justify-content:center;
+    flex-direction:column; color:#64748b;
+}
+.qr-placeholder i { font-size:60px; margin-bottom:10px; }
 
 /* Full Screen Loader */
 .loader-overlay {
@@ -182,14 +206,155 @@ p.sub { font-size:14px; color:#64748b; margin-bottom:30px; }
             <div class="channel-icon icon-crypto"><i class="fab fa-bitcoin"></i></div>
             <div class="channel-text">
                 <h3>Cryptocurrency</h3>
-                <span>USDT, BTC, ETH</span>
+                <span>USDT, BTC, ETH, TRX, TON</span>
             </div>
         </div>
         <i class="fas fa-chevron-right" style="color:#cbd5e1;"></i>
     </button>
 </div>
 
-<!-- OVERLAY 1: Enter Amount -->
+<!-- OVERLAY: Select Crypto Currency -->
+<div class="page-overlay" id="overlayCryptoSelect">
+    <div class="overlay-header">
+        <button class="back-btn" onclick="closeOverlay('overlayCryptoSelect')"><i class="fas fa-arrow-left"></i></button>
+        <div class="overlay-title">Select Cryptocurrency</div>
+    </div>
+    <div class="overlay-content">
+        <div class="user-badge">
+            <i class="fas fa-circle-user"></i>
+            <span class="user-email" id="cryptoDisplayEmail">Loading user...</span>
+        </div>
+
+        <div class="notice-box">
+            <i class="fas fa-circle-info" style="margin-right:5px;"></i>
+            <strong>Important Notice:</strong><br>
+            • Select your preferred cryptocurrency network<br>
+            • Ensure you send to the correct network address<br>
+            • Deposits are confirmed after blockchain confirmation<br>
+            • Minimum deposit varies by network<br>
+            • Encountered an issue? <a href="https://wa.me/2348145897371" style="color:#ff6a00;">Contact Support</a>.
+        </div>
+
+        <button class="crypto-option" onclick="selectCryptoNetwork('TRX')">
+            <div class="channel-left">
+                <div class="crypto-icon trx">₮</div>
+                <div class="crypto-info">
+                    <h3>TRX (TRC20)</h3>
+                    <span>Tron Network - Fast & Low Fee</span>
+                </div>
+            </div>
+            <i class="fas fa-chevron-right" style="color:#cbd5e1;"></i>
+        </button>
+
+        <button class="crypto-option" onclick="selectCryptoNetwork('USDT')">
+            <div class="channel-left">
+                <div class="crypto-icon usdt">₮</div>
+                <div class="crypto-info">
+                    <h3>USDT (BEP20)</h3>
+                    <span>Binance Smart Chain</span>
+                </div>
+            </div>
+            <i class="fas fa-chevron-right" style="color:#cbd5e1;"></i>
+        </button>
+
+        <button class="crypto-option" onclick="selectCryptoNetwork('ETH')">
+            <div class="channel-left">
+                <div class="crypto-icon eth">Ξ</div>
+                <div class="crypto-info">
+                    <h3>Ethereum (ERC20)</h3>
+                    <span>Ethereum Network</span>
+                </div>
+            </div>
+            <i class="fas fa-chevron-right" style="color:#cbd5e1;"></i>
+        </button>
+
+        <button class="crypto-option" onclick="selectCryptoNetwork('BTC')">
+            <div class="channel-left">
+                <div class="crypto-icon btc">₿</div>
+                <div class="crypto-info">
+                    <h3>Bitcoin (BTC)</h3>
+                    <span>Bitcoin Network</span>
+                </div>
+            </div>
+            <i class="fas fa-chevron-right" style="color:#cbd5e1;"></i>
+        </button>
+
+        <button class="crypto-option" onclick="selectCryptoNetwork('TON')">
+            <div class="channel-left">
+                <div class="crypto-icon ton">T</div>
+                <div class="crypto-info">
+                    <h3>TON</h3>
+                    <span>The Open Network</span>
+                </div>
+            </div>
+            <i class="fas fa-chevron-right" style="color:#cbd5e1;"></i>
+        </button>
+    </div>
+</div>
+
+<!-- OVERLAY: Crypto Payment Details -->
+<div class="page-overlay" id="overlayCryptoPayment">
+    <div class="overlay-header">
+        <button class="back-btn" onclick="closeOverlay('overlayCryptoPayment')"><i class="fas fa-arrow-left"></i></button>
+        <div class="overlay-title" id="cryptoPaymentTitle">Deposit</div>
+    </div>
+    <div class="overlay-content">
+        
+        <div class="timer-box">
+            <i class="fas fa-stopwatch"></i> <span id="cryptoCountdown">30:00</span>
+        </div>
+
+        <div class="qr-placeholder">
+            <i class="fas fa-qrcode"></i>
+            <span>Scan QR Code</span>
+        </div>
+
+        <p style="font-size:14px; color:#64748b; margin-bottom:15px; text-align:center;">Send only <strong id="selectedNetwork">USDT</strong> to this address.</p>
+
+        <div class="details-card">
+            <div class="detail-row">
+                <div style="flex:1; min-width:0;">
+                    <span class="detail-label">Network</span>
+                    <span class="detail-value" id="displayNetwork">BEP20</span>
+                </div>
+            </div>
+            <div class="detail-row">
+                <div style="flex:1; min-width:0;">
+                    <span class="detail-label">Wallet Address</span>
+                    <span class="detail-value" id="cryptoAddress" style="font-size:12px;">0x...</span>
+                </div>
+                <button class="copy-btn" onclick="copyText(document.getElementById('cryptoAddress').innerText)"><i class="far fa-copy"></i></button>
+            </div>
+        </div>
+
+        <div class="notice-box" style="background:#fef3c7; border-left-color:#f59e0b; color:#92400e;">
+            <i class="fas fa-exclamation-triangle" style="margin-right:5px;"></i>
+            <strong>Warning:</strong> Sending any other cryptocurrency or using the wrong network will result in permanent loss of funds.
+        </div>
+
+        <button class="btn-primary" onclick="proceedToCryptoVerification()">I Have Initiated The Deposit</button>
+    </div>
+</div>
+
+<!-- OVERLAY: Verify Crypto Transaction -->
+<div class="page-overlay" id="overlayCryptoVerify">
+    <div class="overlay-header">
+        <button class="back-btn" onclick="closeOverlay('overlayCryptoVerify')"><i class="fas fa-arrow-left"></i></button>
+        <div class="overlay-title">Verify Crypto Payment</div>
+    </div>
+    <div class="overlay-content" style="text-align:center; padding-top:40px;">
+        
+        <i class="fas fa-link" style="font-size:60px; color:#e2e8f0; margin-bottom:20px;"></i>
+        <h3 style="font-size:20px; font-weight:700; margin-bottom:10px;">Input Transaction Hash</h3>
+        <p style="font-size:14px; color:#64748b; margin-bottom:30px;">Please enter the transaction hash (TxID) from your wallet to verify this payment.</p>
+
+        <input type="text" id="cryptoTransactionHash" class="amount-input" style="text-align:center; padding:16px; font-size:14px;" placeholder="Enter Transaction Hash (64+ characters)">
+
+        <button class="btn-primary" onclick="verifyCryptoPayment()" style="margin-top:30px;">Verify Payment <i class="fas fa-check-circle"></i></button>
+    </div>
+</div>
+
+<!-- OVERLAY 1: Enter Amount (Bank) -->
 <div class="page-overlay" id="overlayAmount">
     <div class="overlay-header">
         <button class="back-btn" onclick="closeOverlay('overlayAmount')"><i class="fas fa-arrow-left"></i></button>
@@ -208,7 +373,7 @@ p.sub { font-size:14px; color:#64748b; margin-bottom:30px; }
             • Exchange Rate: <strong>the rate is subject to change overtime</strong><br>
             • Deposits confirmed within 1 minute.<br>
             • Do not deposit using PALMPAY LIMITED<br>
-            • Encountered an issue? <a href="wa.me://2348145897371" style="color:#ff6a00;">Contact Support</a>.
+            • Encountered an issue? <a href="https://wa.me/2348145897371" style="color:#ff6a00;">Contact Support</a>.
         </div>
 
         <div class="input-group">
@@ -279,7 +444,7 @@ p.sub { font-size:14px; color:#64748b; margin-bottom:30px; }
     </div>
 </div>
 
-<!-- OVERLAY 3: Verify Transaction -->
+<!-- OVERLAY 3: Verify Transaction (Bank) -->
 <div class="page-overlay" id="overlayVerify">
     <div class="overlay-header">
         <button class="back-btn" onclick="closeOverlay('overlayVerify')"><i class="fas fa-arrow-left"></i></button>
@@ -291,8 +456,7 @@ p.sub { font-size:14px; color:#64748b; margin-bottom:30px; }
         <h3 style="font-size:20px; font-weight:700; margin-bottom:10px;">Input Transaction ID</h3>
         <p style="font-size:14px; color:#64748b; margin-bottom:30px;">Please enter the transaction number from your bank receipt to verify this payment.</p>
 
-        <!-- No mention of 24 digits in the placeholder -->
-        <input type="number" id="transactionId" class="amount-input" style="text-align:center; padding:16px; font-size:18px;" placeholder="Enter Transaction ID">
+        <input type="text" id="transactionId" class="amount-input" style="text-align:center; padding:16px; font-size:18px;" placeholder="Enter Transaction ID">
 
         <button class="btn-primary" onclick="verifyPayment()" style="margin-top:30px;">Verify Payment <i class="fas fa-check-circle"></i></button>
     </div>
@@ -321,7 +485,7 @@ p.sub { font-size:14px; color:#64748b; margin-bottom:30px; }
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, updateDoc, increment, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, updateDoc, increment, collection, addDoc, serverTimestamp, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -339,11 +503,23 @@ const db = getFirestore(app);
 const RATE = 1300;
 let userNairaAmount = 0;
 let timerInterval;
+let cryptoTimerInterval;
+let selectedCrypto = '';
+let cryptoAmount = 0;
+
+const CRYPTO_ADDRESSES = {
+    'TRX': { address: 'TM4LHrGkq3qRKkt2U5Kqrpb3JJ2nKHGFiM', network: 'TRC20' },
+    'USDT': { address: '0xca5E14C59362045B2882C260FD149026C54B1FF0', network: 'BEP20' },
+    'ETH': { address: '0xca5E14C59362045B2882C260FD149026C54B1FF0', network: 'ERC20' },
+    'BTC': { address: 'bc1qqh7vjlz343mmyne0jpuks6zzwqa87rveppsz6s', network: 'BTC' },
+    'TON': { address: 'UQASQgSpskW-871H2pkS0QlkTr_A1h3C38RmrLcLjyvOh-zi', network: 'TON' }
+};
 
 // Check Auth
 onAuthStateChanged(auth, (user) => {
     if (user) {
         document.getElementById('displayEmail').innerText = user.email;
+        document.getElementById('cryptoDisplayEmail').innerText = user.email;
     } else {
         window.location.href = "login.html";
     }
@@ -371,9 +547,126 @@ window.closeOverlay = (id) => {
     document.getElementById(id).classList.remove('active');
 };
 
-// Step 1 logic
-window.selectCrypto = () => showToast("This deposit channel is temporarily unavailable.");
+// Step 1 logic - Crypto Selection
+window.selectCrypto = () => {
+    showLoader("Loading Crypto Options...", 1000, () => {
+        document.getElementById('overlayCryptoSelect').classList.add('active');
+    });
+};
 
+window.selectCryptoNetwork = (crypto) => {
+    selectedCrypto = crypto;
+    const cryptoData = CRYPTO_ADDRESSES[crypto];
+    
+    document.getElementById('cryptoPaymentTitle').innerText = `Deposit ${crypto}`;
+    document.getElementById('selectedNetwork').innerText = crypto;
+    document.getElementById('displayNetwork').innerText = cryptoData.network;
+    document.getElementById('cryptoAddress').innerText = cryptoData.address;
+    
+    closeOverlay('overlayCryptoSelect');
+    setTimeout(() => {
+        document.getElementById('overlayCryptoPayment').classList.add('active');
+        startCryptoTimer();
+    }, 300);
+};
+
+function startCryptoTimer() {
+    clearInterval(cryptoTimerInterval);
+    let time = 1800;
+    const display = document.getElementById('cryptoCountdown');
+    
+    cryptoTimerInterval = setInterval(() => {
+        const min = Math.floor(time / 60);
+        const sec = time % 60;
+        display.innerText = `${min}:${sec < 10 ? '0' : ''}${sec}`;
+        if (time-- <= 0) {
+            clearInterval(cryptoTimerInterval);
+            alert("Payment session expired.");
+            window.location.reload();
+        }
+    }, 1000);
+}
+
+window.proceedToCryptoVerification = () => {
+    showLoader("Securing session...", 1500, () => {
+        document.getElementById('overlayCryptoVerify').classList.add('active');
+    });
+};
+
+window.verifyCryptoPayment = async () => {
+    const hash = document.getElementById('cryptoTransactionHash').value.trim();
+    
+    // Validate: At least 64 characters, alphanumeric
+    if (!/^[a-zA-Z0-9]{64,}$/.test(hash)) {
+        showToast("Invalid Transaction Hash. Must be at least 64 alphanumeric characters.");
+        return;
+    }
+
+    showLoader("Checking transaction...", 2000, async () => {
+        try {
+            // Check if hash already exists
+            const transactionsRef = collection(db, "transactions");
+            const q = query(transactionsRef, where("transactionHash", "==", hash));
+            const querySnapshot = await getDocs(q);
+            
+            if (!querySnapshot.empty) {
+                showToast("This transaction hash has already been used.");
+                return;
+            }
+            
+            // Check if same user used this hash before
+            const userHashQuery = query(transactionsRef, 
+                where("userId", "==", auth.currentUser.uid),
+                where("transactionHash", "==", hash)
+            );
+            const userHashSnapshot = await getDocs(userHashQuery);
+            
+            if (!userHashSnapshot.empty) {
+                showToast("You have already used this transaction hash.");
+                return;
+            }
+            
+            // Get crypto amount (for now using a default or prompt)
+            const amount = prompt("Enter the USD amount deposited:", "10");
+            if (!amount || isNaN(amount) || amount <= 0) {
+                showToast("Invalid amount entered.");
+                return;
+            }
+            
+            document.getElementById('loaderText').innerText = "Verifying & Crediting Wallet...";
+            document.getElementById('mainLoader').classList.add('active');
+            
+            // Credit user's wallet
+            const userRef = doc(db, "users", auth.currentUser.uid);
+            await updateDoc(userRef, {
+                balance: increment(parseFloat(amount))
+            });
+            
+            // Log transaction
+            await addDoc(collection(db, "transactions"), {
+                userId: auth.currentUser.uid,
+                email: auth.currentUser.email,
+                type: "deposit",
+                method: "crypto",
+                cryptoType: selectedCrypto,
+                amountUSD: parseFloat(amount),
+                transactionHash: hash,
+                status: "completed",
+                timestamp: serverTimestamp()
+            });
+            
+            document.getElementById('mainLoader').classList.remove('active');
+            document.getElementById('successModal').classList.add('active');
+            
+        } catch (error) {
+            console.error("Error:", error);
+            document.getElementById('mainLoader').classList.remove('active');
+            showToast("An error occurred. Please try again.");
+        }
+    });
+};
+
+// Bank Transfer Logic
 window.selectBank = () => {
     showLoader("Connecting to Bank...", 1500, () => {
         document.getElementById('overlayAmount').classList.add('active');
@@ -394,7 +687,6 @@ window.proceedToPayment = () => {
     showLoader("Generating Payment Details...", 2000, () => {
         document.getElementById('finalNaira').innerText = userNairaAmount.toLocaleString();
         
-        // Generate Remark (CC-RANDOM-NUMBERS)
         const randomStr = Math.random().toString(36).substr(2, 4).toUpperCase();
         const randomNum = Math.floor(1000 + Math.random() * 9000);
         document.getElementById('generatedRemark').innerText = `CC-${randomStr}-${randomNum}`;
@@ -404,10 +696,9 @@ window.proceedToPayment = () => {
     });
 };
 
-// Step 3 Logic (Timer & Details)
 function startTimer() {
     clearInterval(timerInterval);
-    let time = 1800; // 30 mins
+    let time = 1800;
     const display = document.getElementById('countdown');
     
     timerInterval = setInterval(() => {
@@ -434,51 +725,74 @@ window.proceedToVerification = () => {
     });
 };
 
-// Step 4 Logic (Validation & Firebase Credit)
-window.verifyPayment = () => {
+// Updated Bank Verification with duplicate check
+window.verifyPayment = async () => {
     const val = document.getElementById('transactionId').value.trim();
     
-    // Strict Regex: Exactly 24 Digits (Silently checked)
     if (!/^\d{24}$/.test(val)) {
         showLoader("Verifying...", 2000, () => {
-            alert("Payment failed: Invalid Transaction Number."); // No mention of 24 digits
-            window.location.href = "deposit.html"; // Redirect to start
+            alert("Payment failed: Invalid Transaction Number.");
+            window.location.href = "deposit.html";
         });
         return;
     }
 
-    const usdAmount = parseFloat(document.getElementById('amountInput').value);
+    showLoader("Checking transaction...", 2000, async () => {
+        try {
+            // Check if transaction ID already exists
+            const transactionsRef = collection(db, "transactions");
+            const q = query(transactionsRef, where("transactionId", "==", val));
+            const querySnapshot = await getDocs(q);
+            
+            if (!querySnapshot.empty) {
+                showToast("This transaction ID has already been used.");
+                return;
+            }
+            
+            // Check if same user used this ID before
+            const userTransQuery = query(transactionsRef, 
+                where("userId", "==", auth.currentUser.uid),
+                where("transactionId", "==", val)
+            );
+            const userTransSnapshot = await getDocs(userTransQuery);
+            
+            if (!userTransSnapshot.empty) {
+                showToast("You have already used this transaction ID.");
+                return;
+            }
+            
+            const usdAmount = parseFloat(document.getElementById('amountInput').value);
 
-    // Show Loader and Process Firebase Upload
-    document.getElementById('loaderText').innerText = "Verifying Payment & Crediting Wallet...";
-    document.getElementById('mainLoader').classList.add('active');
+            document.getElementById('loaderText').innerText = "Verifying Payment & Crediting Wallet...";
+            document.getElementById('mainLoader').classList.add('active');
 
-    // Credit user's wallet
-    const userRef = doc(db, "users", auth.currentUser.uid);
-    
-    updateDoc(userRef, {
-        balance: increment(usdAmount)
-    }).then(() => {
-        // Also log the transaction for admin records
-        return addDoc(collection(db, "transactions"), {
-            userId: auth.currentUser.uid,
-            email: auth.currentUser.email,
-            type: "deposit",
-            amountUSD: usdAmount,
-            amountNGN: userNairaAmount,
-            transactionId: val,
-            remark: document.getElementById('generatedRemark').innerText,
-            status: "completed",
-            timestamp: serverTimestamp()
-        });
-    }).then(() => {
-        // Stop loader and show success
-        document.getElementById('mainLoader').classList.remove('active');
-        document.getElementById('successModal').classList.add('active');
-    }).catch((error) => {
-        console.error("Error crediting wallet:", error);
-        document.getElementById('mainLoader').classList.remove('active');
-        alert("An error occurred connecting to the server. Please try again or contact support.");
+            const userRef = doc(db, "users", auth.currentUser.uid);
+            
+            await updateDoc(userRef, {
+                balance: increment(usdAmount)
+            });
+            
+            await addDoc(collection(db, "transactions"), {
+                userId: auth.currentUser.uid,
+                email: auth.currentUser.email,
+                type: "deposit",
+                method: "bank",
+                amountUSD: usdAmount,
+                amountNGN: userNairaAmount,
+                transactionId: val,
+                remark: document.getElementById('generatedRemark').innerText,
+                status: "completed",
+                timestamp: serverTimestamp()
+            });
+            
+            document.getElementById('mainLoader').classList.remove('active');
+            document.getElementById('successModal').classList.add('active');
+            
+        } catch (error) {
+            console.error("Error crediting wallet:", error);
+            document.getElementById('mainLoader').classList.remove('active');
+            alert("An error occurred connecting to the server. Please try again or contact support.");
+        }
     });
 };
 </script>
