@@ -8,6 +8,7 @@
 <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1774094269/logo2_ago4ay.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <style>
 * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
@@ -133,13 +134,16 @@ p.sub { font-size:14px; color:#64748b; margin-bottom:30px; }
 }
 .copy-btn:hover { background:#ff6a00; color:white; }
 
-/* QR Code Placeholder */
-.qr-placeholder {
-    width:200px; height:200px; background:#f8fafc; border:2px dashed #e2e8f0;
+/* QR Code Container */
+.qr-container {
+    width:200px; height:200px; background:white; border:2px solid #e2e8f0;
     border-radius:16px; margin:0 auto 24px; display:flex; align-items:center; justify-content:center;
-    flex-direction:column; color:#64748b;
+    padding:10px;
 }
-.qr-placeholder i { font-size:60px; margin-bottom:10px; }
+#qrcode img {
+    display:block;
+    margin:0 auto;
+}
 
 /* Full Screen Loader */
 .loader-overlay {
@@ -304,10 +308,7 @@ p.sub { font-size:14px; color:#64748b; margin-bottom:30px; }
             <i class="fas fa-stopwatch"></i> <span id="cryptoCountdown">30:00</span>
         </div>
 
-        <div class="qr-placeholder">
-            <i class="fas fa-qrcode"></i>
-            <span>Scan QR Code</span>
-        </div>
+        <div class="qr-container" id="qrcode"></div>
 
         <p style="font-size:14px; color:#64748b; margin-bottom:15px; text-align:center;">Send only <strong id="selectedNetwork">USDT</strong> to this address.</p>
 
@@ -348,7 +349,7 @@ p.sub { font-size:14px; color:#64748b; margin-bottom:30px; }
         <h3 style="font-size:20px; font-weight:700; margin-bottom:10px;">Input Transaction Hash</h3>
         <p style="font-size:14px; color:#64748b; margin-bottom:30px;">Please enter the transaction hash (TxID) from your wallet to verify this payment.</p>
 
-        <input type="text" id="cryptoTransactionHash" class="amount-input" style="text-align:center; padding:16px; font-size:14px;" placeholder="Enter Transaction Hash (64+ characters)">
+        <input type="text" id="cryptoTransactionHash" class="amount-input" style="text-align:center; padding:16px; font-size:14px;" placeholder="Enter Transaction Hash">
 
         <button class="btn-primary" onclick="verifyCryptoPayment()" style="margin-top:30px;">Verify Payment <i class="fas fa-check-circle"></i></button>
     </div>
@@ -506,6 +507,7 @@ let timerInterval;
 let cryptoTimerInterval;
 let selectedCrypto = '';
 let cryptoAmount = 0;
+let qrCodeObj = null;
 
 const CRYPTO_ADDRESSES = {
     'TRX': { address: 'TM4LHrGkq3qRKkt2U5Kqrpb3JJ2nKHGFiM', network: 'TRC20' },
@@ -547,6 +549,20 @@ window.closeOverlay = (id) => {
     document.getElementById(id).classList.remove('active');
 };
 
+// Generate QR Code
+function generateQRCode(text) {
+    const qrContainer = document.getElementById('qrcode');
+    qrContainer.innerHTML = '';
+    qrCodeObj = new QRCode(qrContainer, {
+        text: text,
+        width: 180,
+        height: 180,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.M
+    });
+}
+
 // Step 1 logic - Crypto Selection
 window.selectCrypto = () => {
     showLoader("Loading Crypto Options...", 1000, () => {
@@ -562,6 +578,9 @@ window.selectCryptoNetwork = (crypto) => {
     document.getElementById('selectedNetwork').innerText = crypto;
     document.getElementById('displayNetwork').innerText = cryptoData.network;
     document.getElementById('cryptoAddress').innerText = cryptoData.address;
+    
+    // Generate QR code for the address
+    generateQRCode(cryptoData.address);
     
     closeOverlay('overlayCryptoSelect');
     setTimeout(() => {
@@ -596,9 +615,9 @@ window.proceedToCryptoVerification = () => {
 window.verifyCryptoPayment = async () => {
     const hash = document.getElementById('cryptoTransactionHash').value.trim();
     
-    // Validate: At least 64 characters, alphanumeric
+    // Validate: At least 64 characters, alphanumeric (not shown to user)
     if (!/^[a-zA-Z0-9]{64,}$/.test(hash)) {
-        showToast("Invalid Transaction Hash. Must be at least 64 alphanumeric characters.");
+        showToast("Invalid Transaction Hash. Please check and try again.");
         return;
     }
 
@@ -729,6 +748,7 @@ window.proceedToVerification = () => {
 window.verifyPayment = async () => {
     const val = document.getElementById('transactionId').value.trim();
     
+    // Validate: Exactly 24 digits (not shown to user)
     if (!/^\d{24}$/.test(val)) {
         showLoader("Verifying...", 2000, () => {
             alert("Payment failed: Invalid Transaction Number.");
