@@ -68,6 +68,7 @@ body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;overflow-x:hidd
 .type-icon.withdrawal{background:#fef3c7;color:#d97706;}
 .type-icon.revenue{background:#dcfce7;color:#10b981;}
 .type-icon.deposit{background:#f3e8ff;color:#a855f7;}
+.type-icon.crypto{background:#fef3c7;color:#f59e0b;}
 .type-info{text-align:left;}
 .type-title{font-weight:600;font-size:14px;color:#1e2937;}
 .type-subtitle{font-size:12px;color:#64748b;margin-top:2px;}
@@ -470,7 +471,7 @@ function sortDocs(docs) {
     });
 }
 
-// 1. DEPOSITS
+// 1. DEPOSITS - UPDATED TO SHOW CORRECT METHOD
 function loadDeposits() {
     const q = query(collection(db, "transactions"), where("userId", "==", currentUser.uid));
     onSnapshot(q, (snapshot) => {
@@ -486,13 +487,20 @@ function loadDeposits() {
         docs.forEach(doc => {
             const data = doc.data();
             const statClass = data.status === 'completed' ? 'completed' : 'pending';
+            
+            // Determine deposit method - check for crypto method
+            const isCrypto = data.method === "crypto";
+            const methodLabel = isCrypto ? (data.cryptoType || 'Crypto') : 'Bank Transfer';
+            const iconClass = isCrypto ? 'crypto' : 'deposit';
+            const iconSymbol = isCrypto ? '<i class="fab fa-bitcoin"></i>' : '<i class="fas fa-arrow-down"></i>';
+            
             html += `
                 <div class="table-row grid-layout">
                     <div class="transaction-type">
-                        <div class="type-icon deposit"><i class="fas fa-arrow-down"></i></div>
+                        <div class="type-icon ${iconClass}">${iconSymbol}</div>
                         <div class="type-info">
-                            <div class="type-title">Deposit #${(data.transactionId || doc.id).substring(0,8).toUpperCase()}</div>
-                            <div class="type-subtitle">Bank Transfer</div>
+                            <div class="type-title">Deposit #${(data.transactionId || data.transactionHash || doc.id).substring(0,8).toUpperCase()}</div>
+                            <div class="type-subtitle">${methodLabel}</div>
                         </div>
                     </div>
                     <div class="amount credit"><span class="mobile-label">Amount:</span>+$${(data.amountUSD || data.amount || 0).toFixed(2)}</div>
