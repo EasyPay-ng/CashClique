@@ -609,15 +609,23 @@ function showToast(message, type = "success") {
     setTimeout(() => toast.remove(), 3000);
 }
 
+// ✅ FIXED: Always generate shareable link with ?uid=profileUid
 window.shareProfile = function() {
+    // Always construct full URL with UID
+    const shareUrl = `${window.location.origin}${window.location.pathname}?uid=${profileUid}`;
+
     if (navigator.share) {
         navigator.share({
             title: `${profileData?.username || 'User'} on CashClique`,
             text: 'Check out this profile on CashClique',
-            url: window.location.href
+            url: shareUrl
+        }).catch(err => {
+            // Fallback if share fails
+            navigator.clipboard.writeText(shareUrl);
+            showToast("Profile link copied to clipboard!", "success");
         });
     } else {
-        navigator.clipboard.writeText(window.location.href);
+        navigator.clipboard.writeText(shareUrl);
         showToast("Profile link copied to clipboard!", "success");
     }
 };
