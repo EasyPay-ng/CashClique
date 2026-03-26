@@ -923,11 +923,11 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
   import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js";
 
   const firebaseConfig = {
-    apiKey: "PASTE_YOURS",
-    authDomain: "PASTE_YOURS",
-    projectId: "PASTE_YOURS",
-    messagingSenderId: "PASTE_YOURS",
-    appId: "PASTE_YOURS"
+    apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
+    authDomain: "cashclique-31718.firebaseapp.com",
+    projectId: "cashclique-31718",
+    messagingSenderId: "1064282591269",
+    appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc"
   };
 
   const app = initializeApp(firebaseConfig);
@@ -938,7 +938,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 
     if (permission === "granted") {
       const token = await getToken(messaging, {
-        vapidKey: "PASTE_YOUR_PUBLIC_KEY"
+        vapidKey: "BC3tPo2214pVm2EsUTT4esaS_UfDHY_Gkh948zqU7xsPztiZXE03CdPXiKncElOKXoRJC1i1KwP7RtA0Us7-qgg"
       });
 
       console.log("Token:", token);
