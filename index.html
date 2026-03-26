@@ -918,6 +918,35 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     }
   });
 });
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js";
+
+  const firebaseConfig = {
+    apiKey: "PASTE_YOURS",
+    authDomain: "PASTE_YOURS",
+    projectId: "PASTE_YOURS",
+    messagingSenderId: "PASTE_YOURS",
+    appId: "PASTE_YOURS"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const messaging = getMessaging(app);
+
+  async function requestPermission() {
+    const permission = await Notification.requestPermission();
+
+    if (permission === "granted") {
+      const token = await getToken(messaging, {
+        vapidKey: "PASTE_YOUR_PUBLIC_KEY"
+      });
+
+      console.log("Token:", token);
+      alert("Notifications enabled!");
+    }
+  }
+
+  requestPermission();
 </script>
 
 </body>
