@@ -8,6 +8,8 @@
 <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<!-- Added Manifest Link -->
+<link rel="manifest" href="/manifest.json">
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
@@ -172,6 +174,16 @@ body{background:#f5f6f8;display:flex;min-height:100vh;}
 
 .menu-btn{display:none;font-size:22px;cursor:pointer;color:#1e2937;}
 
+/* Toast Notification Styles */
+.toast {
+    position:fixed; bottom:20px; right:20px; padding:12px 20px; border-radius:8px; 
+    background:#22c55e; color:white; font-size:14px; display:flex; align-items:center; gap:8px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.15); z-index:9999; animation:slideIn 0.3s ease;
+}
+.toast.info { background:#3b82f6; }
+.toast.error { background:#ef4444; }
+@keyframes slideIn { from { transform:translateX(100%); opacity:0; } to { transform:translateX(0); opacity:1; } }
+
 @media(max-width:900px){
     .sidebar{transform:translateX(-100%);}
     .sidebar.active{transform:translateX(0);}
@@ -284,21 +296,89 @@ body{background:#f5f6f8;display:flex;min-height:100vh;}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, doc, onSnapshot, updateDoc, increment, serverTimestamp, query, orderBy, addDoc, arrayUnion, writeBatch, getDoc, getDocs, runTransaction, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { 
+    getAuth, 
+    onAuthStateChanged,
+    signOut
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { 
+    getFirestore, 
+    doc, 
+    getDoc, 
+    updateDoc, 
+    collection, 
+    query, 
+    where, 
+    getDocs,
+    onSnapshot,
+    arrayUnion,
+    arrayRemove,
+    orderBy,
+    addDoc,
+    increment,
+    serverTimestamp,
+    writeBatch,
+    runTransaction
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+// NEW FCM IMPORTS HERE
+import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js ";
 
+// Firebase Configuration
 const firebaseConfig = {
     apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
     authDomain: "cashclique-31718.firebaseapp.com",
     projectId: "cashclique-31718",
     storageBucket: "cashclique-31718.firebasestorage.app",
     messagingSenderId: "1064282591269",
-    appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc"
+    appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc",
+    measurementId: "G-V5WHJB6LS0"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+// NEW FCM INITIALIZATION HERE
+const messaging = getMessaging(app);
+
+// Toast Notification Function
+function showToast(message, type = "success") {
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'info' ? 'info-circle' : 'exclamation-circle'}"></i> ${message}`;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => toast.remove(), 3000);
+}
+
+// Request notification permission and save token to Firestore
+async function setupPushNotifications(currentUser) {
+  try {
+    // Request permission
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') return;
+
+    // Get FCM token with YOUR VAPID key
+    const token = await getToken(messaging, { 
+      vapidKey: "BC3tPo2214pVm2EsUTT4esaS_UfDHY_Gkh948zqU7xsPztiZXE03CdPXiKncElOKXoRJC1i1KwP7RtA0Us7-qgg" 
+    });
+
+    // Save token to user's Firestore document
+    if (token) {
+      await updateDoc(doc(db, "users", currentUser.uid), {
+        pushTokens: arrayUnion(token)
+      });
+    }
+
+    // Listen for foreground notifications (when user is on the site)
+    onMessage(messaging, (payload) => {
+      // Use your existing toast function to show notifications
+      showToast(payload.notification.body, "info");
+    });
+  } catch (error) {
+    console.error("FCM setup failed:", error);
+  }
+}
 
 const feed = document.getElementById("feed");
 let currentUser = null;
@@ -332,6 +412,9 @@ onAuthStateChanged(auth, async (user) => {
             if (data.isVerified || data.verified) document.getElementById("user-verified-badge").style.display = "inline-flex";
         }
     });
+
+    // NEW: Call FCM setup after user is authenticated
+    setupPushNotifications(user);
 
     loadFeed();
     loadNotifications();
@@ -541,7 +624,7 @@ async function renderPostHTML(post, attachedAd = null) {
     postEl.dataset.postId = postId;
     postEl.dataset.viewed = post.hasViewed;
     
-    const imgHTML = post.imageBase64 ? `<img src="${post.imageBase64}" class="post-image" onclick="viewImage(this.src)">` : '';
+    const imgHTML = post.imageBase64 ? `<img src="${post.imageBase64}" class="post-image" onclick="viewImage(this.src)" loading="lazy">` : '';
     const priorityBadge = post.isFromFollowed && !post.hasViewed ? `<div class="priority-badge"><i class="fas fa-star"></i> Following Update</div>` : '';
 
     let adHTML = '';
@@ -677,9 +760,13 @@ function attachUIEvents() {
         });
     });
 
+    let searchTimeout;
     document.getElementById('search-input').addEventListener('input', (e) => {
-        searchQuery = e.target.value;
-        renderFeed();
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            searchQuery = e.target.value;
+            renderFeed();
+        }, 300);
     });
 }
 
@@ -753,7 +840,7 @@ document.getElementById("send-tip-btn").addEventListener("click", async () => {
             });
         });
         await sendNotification(currentTipData.ownerId, { type: "earning", title: `${currentUsername} sent you a $${amount.toFixed(2)} tip!`, fromUserId: currentUser.uid, postId: currentTipData.postId });
-        alert(`Tip of $${amount.toFixed(2)} sent!`);
+        showToast(`Tip of $${amount.toFixed(2)} sent!`);
         closeTipModal();
     } catch (e) { alert("Failed to send tip."); } finally { btn.disabled = false; btn.innerText = "Send Tip"; }
 });
@@ -768,7 +855,13 @@ window.addComment = async function(postId, ownerId) {
 };
 
 async function sendNotification(toUserId, data) {
-    try { await addDoc(collection(db, "users", toUserId, "notifications"), { ...data, read: false, timestamp: serverTimestamp() }); } catch(e){}
+    try { 
+        await addDoc(collection(db, "users", toUserId, "notifications"), { 
+            ...data, 
+            read: false, 
+            timestamp: serverTimestamp() 
+        });
+    } catch(e){}
 }
 
 function loadNotifications() {
