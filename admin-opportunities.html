@@ -8,6 +8,7 @@
 <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="manifest" href="/manifest.json">
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
@@ -49,7 +50,6 @@ body{background:#f5f6f8;color:#1e2937;min-height:100vh;overflow-x:hidden;}
 .row{display:flex;justify-content:space-between;align-items:center; gap:12px}
 .title{font-weight:600;font-size:16px}
 .meta{font-size:12px;color:#666; margin-top:4px}
-.small{font-size:11px;color:#94a3b8}
 
 .thumb{width:60px; height:60px; border-radius:6px; object-fit:cover; cursor:pointer}
 
@@ -60,15 +60,10 @@ body{background:#f5f6f8;color:#1e2937;min-height:100vh;overflow-x:hidden;}
 .badge.approved{background:#d1e7dd;color:#0f5132}
 .badge.rejected{background:#f8d7da;color:#721c24}
 .badge.pending{background:#fff3cd;color:#856404}
-.badge.paused{background:#e2e8f0;color:#475569}
-.badge.completed{background:#dbeafe;color:#1e40af}
 
 .actions{display:flex;gap:8px;margin-top:12px;justify-content:flex-end}
-.actions button{padding:6px 12px; border:none; border-radius:6px; cursor:pointer}
+.actions button{padding:6px 12px; border:none; border-radius:6px; cursor:pointer; background:#f1f5f9; color:#1e2937}
 
-.empty{text-align:center; padding:40px; color:#999}
-
-/* Enhanced Modal Styles */
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:200}
 .modal.active{display:flex}
 .modal-box{background:#fff;padding:25px;border-radius:12px;width:95%;max-width:700px;max-height:90vh;overflow-y:auto}
@@ -78,62 +73,31 @@ body{background:#f5f6f8;color:#1e2937;min-height:100vh;overflow-x:hidden;}
 .btn-no{background:#ef4444;color:#fff}
 .btn-ghost{background:#f1f5f9;color:#64748b;}
 
-.campaign-preview{width:100%; max-height:300px; object-fit:cover; border-radius:8px; margin-bottom:20px; cursor:pointer;}
-.campaign-preview:hover{opacity:0.9;}
-
-.detail-section{margin-bottom:20px;}
-.detail-section h4{color:#1e2937; font-size:14px; font-weight:600; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px;}
-.detail-grid{display:grid; grid-template-columns:repeat(2, 1fr); gap:12px;}
-.detail-item{background:#f8fafc; padding:12px; border-radius:8px;}
-.detail-label{font-size:11px; color:#64748b; text-transform:uppercase; margin-bottom:4px;}
-.detail-value{font-size:14px; color:#1e2937; font-weight:500;}
-.detail-value.url{color:#ff6a00; word-break:break-all;}
-.detail-value.url:hover{text-decoration:underline; cursor:pointer;}
-
-.requirements-box{background:#fff7ed; border:1px solid #ff6a00; border-radius:8px; padding:15px; margin-bottom:20px;}
-.requirements-box h4{color:#ff6a00; margin-bottom:10px;}
-.req-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;}
-.req-item{text-align:center;}
-.req-icon{font-size:20px; color:#ff6a00; margin-bottom:5px;}
-.req-label{font-size:11px; color:#64748b;}
-.req-value{font-size:14px; font-weight:600; color:#1e2937;}
-
-.timeline-box{background:#f0f9ff; border:1px solid #0ea5e9; border-radius:8px; padding:15px; margin-bottom:20px;}
-.timeline-box h4{color:#0ea5e9; margin-bottom:10px;}
-.timeline-item{display:flex; align-items:center; gap:10px; margin-bottom:8px; font-size:13px;}
-.timeline-item i{color:#0ea5e9; width:16px;}
+.campaign-preview{width:100%; max-height:300px; object-fit:cover; border-radius:8px; margin-bottom:20px;}
 
 .performance-box{background:#f0fdf4; border:1px solid #22c55e; border-radius:8px; padding:15px; margin-bottom:20px;}
-.performance-box h4{color:#16a34a; margin-bottom:10px;}
-.perf-grid{display:grid; grid-template-columns:repeat(4, 1fr); gap:10px;}
-.perf-item{text-align:center;}
-.perf-value{font-size:20px; font-weight:700; color:#16a34a;}
-.perf-label{font-size:11px; color:#64748b; margin-top:4px;}
+.perf-grid{display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; text-align:center;}
+.perf-value{font-size:18px; font-weight:700; color:#16a34a;}
+.perf-label{font-size:10px; color:#64748b; text-transform:uppercase;}
 
-.admin-note-section{margin-top:20px; padding-top:20px; border-top:2px solid #f1f5f9;}
-textarea{width:100%;padding:12px;margin-top:10px;border:1px solid #e2e8f0;border-radius:8px;min-height:80px; font-family:'Poppins', sans-serif; resize:vertical;}
+textarea{width:100%;padding:12px;margin-top:10px;border:1px solid #e2e8f0;border-radius:8px;min-height:80px;}
 
 @media(max-width:900px){
     .mobile-header{display:flex;}
     .sidebar{transform:translateX(-100%);}
     .sidebar.active{transform:translateX(0);}
     .main{margin-left:0;width:100%;padding:15px;}
-    .detail-grid{grid-template-columns:1fr;}
-    .req-grid{grid-template-columns:1fr;}
-    .perf-grid{grid-template-columns:repeat(2, 1fr);}
 }
 </style>
 </head>
 
 <body>
 
-<!-- Mobile Header -->
 <div class="mobile-header">
   <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
   <h1>Manage Ads</h1>
 </div>
 
-<!-- Admin Sidebar -->
 <div class="sidebar" id="sidebar" style="display:none;">
     <h2><i class="fas fa-shield-halved"></i> Admin</h2>
     <a href="admin.html"><i class="fas fa-chart-pie"></i> Dashboard</a>
@@ -142,17 +106,13 @@ textarea{width:100%;padding:12px;margin-top:10px;border:1px solid #e2e8f0;border
     <a href="#" id="logoutBtn" style="margin-top:auto;"><i class="fas fa-sign-out-alt"></i> Logout</a>
 </div>
 
-<!-- Main Content -->
 <div class="main" id="main-content" style="display:none;">
-
   <div class="header">
     <div>
       <h1>Ad Campaigns</h1>
-      <div class="sub">Manage, approve, pause, or reject advertiser campaigns.</div>
+      <div class="sub">Manage campaigns and monitor performance.</div>
     </div>
-    <div>
-      <button class="btn btn-dark" id="refreshBtn"><i class="fas fa-rotate"></i> Refresh Data</button>
-    </div>
+    <button class="btn btn-dark" id="refreshBtn"><i class="fas fa-rotate"></i> Refresh</button>
   </div>
 
   <div class="card">
@@ -161,51 +121,41 @@ textarea{width:100%;padding:12px;margin-top:10px;border:1px solid #e2e8f0;border
         <button class="filter active" data-status="all">All</button>
         <button class="filter" data-status="pending">Pending</button>
         <button class="filter" data-status="approved">Approved</button>
-        <button class="filter" data-status="paused">Paused</button>
-        <button class="filter" data-status="rejected">Rejected</button>
-        <button class="filter" data-status="completed">Completed</button>
       </div>
-
       <div class="search">
-        <i class="fas fa-magnifying-glass" style="color:#94a3b8;"></i>
-        <input id="search" placeholder="Search by title, category, or ID..." />
+        <i class="fas fa-magnifying-glass"></i>
+        <input id="search" placeholder="Search title or advertiser..." />
       </div>
     </div>
 
     <div class="kpis">
-      <div class="kpi"><div class="label"><i class="fas fa-bullhorn"></i> Campaigns</div><div class="val" id="kCampaigns">0</div></div>
-      <div class="kpi"><div class="label"><i class="fas fa-eye"></i> Total Views</div><div class="val" id="kViews">0</div></div>
-      <div class="kpi"><div class="label"><i class="fas fa-mouse-pointer"></i> Total Clicks</div><div class="val" id="kClicks">0</div></div>
-      <div class="kpi"><div class="label"><i class="fas fa-percent"></i> Avg CTR</div><div class="val" id="kCtr">0%</div></div>
+      <div class="kpi"><div class="label">Campaigns</div><div class="val" id="kCampaigns">0</div></div>
+      <div class="kpi"><div class="label">Total Views</div><div class="val" id="kViews">0</div></div>
+      <div class="kpi"><div class="label">Total Clicks</div><div class="val" id="kClicks">0</div></div>
+      <div class="kpi"><div class="label">Avg CTR</div><div class="val" id="kCtr">0%</div></div>
     </div>
 
     <div class="list" id="list">
-      <div class="empty"><i class="fas fa-spinner fa-spin"></i><div style="margin-top:15px; font-weight:600;">Loading campaigns...</div></div>
+      <div class="empty">Loading...</div>
     </div>
   </div>
 </div>
 
-<!-- Enhanced Review Modal -->
 <div class="modal" id="modal">
   <div class="modal-box">
     <div class="modal-head">
-      <div>
-        <div id="modalTitle" style="font-size:18px; font-weight:600; color:#1e2937;">Review Campaign</div>
-        <div id="modalSubtitle" style="font-size:13px; color:#64748b; margin-top:4px;"></div>
-      </div>
-      <button class="btn btn-ghost" onclick="closeModal()" style="padding:6px 12px;"><i class="fas fa-xmark"></i> Close</button>
+      <h3 id="modalTitle">Review</h3>
+      <button class="btn btn-ghost" onclick="closeModal()">×</button>
     </div>
-    
-    <div class="modal-body" id="modalBody">
-      <!-- Dynamic content will be loaded here -->
-    </div>
+    <div class="modal-body" id="modalBody"></div>
   </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, query, onSnapshot, doc, runTransaction, serverTimestamp, deleteDoc, updateDoc, increment, addDoc, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, query, onSnapshot, doc, getDoc, runTransaction, serverTimestamp, deleteDoc, updateDoc, increment, addDoc, where, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -226,181 +176,77 @@ const listEl = document.getElementById("list");
 const searchEl = document.getElementById("search");
 const filtersEl = document.getElementById("filters");
 const refreshBtn = document.getElementById("refreshBtn");
-const logoutBtn = document.getElementById("logoutBtn");
 
 const kCampaigns = document.getElementById("kCampaigns");
 const kViews = document.getElementById("kViews");
 const kClicks = document.getElementById("kClicks");
 const kCtr = document.getElementById("kCtr");
 
-const modal = document.getElementById("modal");
-const modalTitle = document.getElementById("modalTitle");
-const modalSubtitle = document.getElementById("modalSubtitle");
-const modalBody = document.getElementById("modalBody");
-
 let all = [];
-let applicationsData = {}; // Stores aggregated stats from applications
-let allApplications = []; // Stores all individual applications
+let applicationsData = {};
 let activeStatus = "all";
-let unsubscribeOpps = null;
-let unsubscribeApps = null;
 let selectedId = null;
 
-// Auth Check
 onAuthStateChanged(auth, async (user) => {
-  if (!user) { window.location.href = "login.html"; return; }
-
-  const email = (user.email || "").toLowerCase();
-  
-  if (!ALLOWED_EMAILS.includes(email)) {
-    alert("Admin access restricted.");
-    window.location.href = "dashboard.html";
+  if (!user || !ALLOWED_EMAILS.includes((user.email || "").toLowerCase())) {
+    window.location.href = "login.html";
     return;
   }
-
   document.getElementById("sidebar").style.display = "flex";
   document.getElementById("main-content").style.display = "block";
-
-  attachUI();
   startListeners();
 });
 
-/* UI EVENTS */
-function attachUI(){
-  filtersEl.querySelectorAll(".filter").forEach(btn => {
-    btn.onclick = () => {
-      document.querySelectorAll(".filter").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      activeStatus = btn.dataset.status;
-      render();
-    };
-  });
-
-  searchEl.oninput = render;
-
-  refreshBtn.onclick = () => {
-    if (unsubscribeOpps) unsubscribeOpps();
-    if (unsubscribeApps) unsubscribeApps();
-    startListeners();
-  };
-
-  logoutBtn.onclick = async () => {
-    if(confirm("Logout?")){
-      await signOut(auth);
-      location.href = "login.html";
-    }
-  };
-}
-
-/* FIRESTORE LISTENERS */
 function startListeners(){
-  // Listen to all opportunities
-  const q = query(collection(db, "opportunities"));
-  if (unsubscribeOpps) unsubscribeOpps();
-  unsubscribeOpps = onSnapshot(q, snap => {
+  onSnapshot(query(collection(db, "opportunities")), snap => {
     all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     render();
-    updateKPIs();
   });
 
-  // Listen to ALL applications (not just approved) to get complete stats
-  const appsQuery = query(collection(db, "applications"));
-  if (unsubscribeApps) unsubscribeApps();
-  unsubscribeApps = onSnapshot(appsQuery, snap => {
-    allApplications = [];
+  onSnapshot(query(collection(db, "applications")), snap => {
     applicationsData = {};
-    
     snap.forEach(doc => {
       const app = doc.data();
-      allApplications.push({ id: doc.id, ...app });
-      
-      // Aggregate by opportunityId
       const oppId = app.opportunityId;
-      if (!applicationsData[oppId]) {
-        applicationsData[oppId] = { 
-          totalViews: 0, 
-          totalClicks: 0,
-          approvedViews: 0,
-          approvedClicks: 0
-        };
-      }
-      
-      // Add to totals regardless of status
+      if (!applicationsData[oppId]) applicationsData[oppId] = { totalViews: 0, totalClicks: 0 };
       applicationsData[oppId].totalViews += app.currentViews || 0;
       applicationsData[oppId].totalClicks += app.clicks || 0;
-      
-      // Also track approved-only stats separately
-      if (app.status === 'approved') {
-        applicationsData[oppId].approvedViews += app.currentViews || 0;
-        applicationsData[oppId].approvedClicks += app.clicks || 0;
-      }
     });
-    
     updateKPIs();
     render();
-  }, () => {});
-}
-
-/* UPDATE KPIS - Shows totals from ALL applications */
-function updateKPIs() {
-  kCampaigns.textContent = all.length;
-  
-  // Calculate grand totals from ALL applications across all opportunities
-  let grandTotalViews = 0;
-  let grandTotalClicks = 0;
-  
-  Object.values(applicationsData).forEach(stats => {
-    grandTotalViews += stats.totalViews;
-    grandTotalClicks += stats.totalClicks;
   });
-  
-  kViews.textContent = grandTotalViews.toLocaleString();
-  kClicks.textContent = grandTotalClicks.toLocaleString();
-  kCtr.textContent = grandTotalViews > 0 ? `${(grandTotalClicks / grandTotalViews * 100).toFixed(2)}%` : '0%';
 }
 
-/* RENDER */
+function updateKPIs() {
+  let v = 0, c = 0;
+  Object.values(applicationsData).forEach(s => { v += s.totalViews; c += s.totalClicks; });
+  kCampaigns.textContent = all.length;
+  kViews.textContent = v.toLocaleString();
+  kClicks.textContent = c.toLocaleString();
+  kCtr.textContent = v > 0 ? `${((c/v)*100).toFixed(2)}%` : '0%';
+}
+
 function render(){
-  let items = [...all];
-  if (activeStatus !== "all") items = items.filter(x => x.status === activeStatus);
+  let items = all.filter(x => (activeStatus === "all" || x.status === activeStatus));
   const term = searchEl.value.toLowerCase();
-  if (term) items = items.filter(x => x.title?.toLowerCase().includes(term) || x.category?.toLowerCase().includes(term) || x.advertiserName?.toLowerCase().includes(term));
+  if (term) items = items.filter(x => x.title?.toLowerCase().includes(term));
 
-  if (!items.length){
-    listEl.innerHTML = `<div class="empty"><i class="fas fa-inbox"></i><div style="margin-top:15px; font-weight:600;">No campaigns</div></div>`;
-    return;
-  }
-
-  listEl.innerHTML = "";
+  listEl.innerHTML = items.length ? "" : "No campaigns found.";
   items.forEach(c => {
-    // Get real aggregated stats from all applications for this opportunity
-    const appStats = applicationsData[c.id] || { totalViews: 0, totalClicks: 0 };
-    const currentViews = appStats.totalViews;
-    const clicks = appStats.totalClicks;
-
+    const stats = applicationsData[c.id] || { totalViews: 0, totalClicks: 0 };
     const el = document.createElement("div");
     el.className = "item";
     el.innerHTML = `
       <div class="row">
-        ${c.flyer ? `<img src="${c.flyer}" class="thumb" onclick="window.open('${c.flyer}', '_blank')" title="Click to open full size">` : ''}
+        <img src="${c.flyer || ''}" class="thumb" onerror="this.style.display='none'">
         <div style="flex:1">
-          <div class="title">${escapeHTML(c.title || "Untitled")}</div>
-          <div class="meta">${escapeHTML(c.advertiserName || 'Unknown')} • ${escapeHTML(c.category || "General")} • $${c.cost?.toFixed(2)}</div>
-          <div class="progress-bar" style="margin-top:8px">
-            <div class="progress-fill" style="width: ${Math.min(100, (currentViews / c.targetViews) * 100)}%"></div>
-          </div>
-          <div class="small" style="margin-top:4px">
-            <strong>${currentViews.toLocaleString()}</strong> views • 
-            <strong>${clicks.toLocaleString()}</strong> clicks • 
-            Target: ${c.targetViews?.toLocaleString() || 0}
-          </div>
+          <div class="title">${c.title}</div>
+          <div class="meta">${c.advertiserName} • $${c.cost?.toFixed(2)}</div>
         </div>
-        ${badge(c.status)}
+        <span class="badge ${c.status}">${c.status || 'pending'}</span>
       </div>
       <div class="actions">
         <button onclick="handleAction('review','${c.id}')">Review</button>
-        ${c.status === 'approved' ? `<button onclick="handleAction('pause','${c.id}')">Pause</button>` : ''}
-        ${c.status === 'paused' ? `<button onclick="handleAction('resume','${c.id}')">Resume</button>` : ''}
         <button onclick="handleAction('delete','${c.id}')">Delete</button>
       </div>
     `;
@@ -408,291 +254,89 @@ function render(){
   });
 }
 
-/* BADGE */
-function badge(status){
-  if (status === "approved") return `<span class="badge approved">Approved</span>`;
-  if (status === "rejected") return `<span class="badge rejected">Rejected</span>`;
-  if (status === "paused") return `<span class="badge paused">Paused</span>`;
-  if (status === "completed") return `<span class="badge completed">Completed</span>`;
-  return `<span class="badge pending">Pending</span>`;
-}
-
-/* FORMAT DATE */
-function formatDate(timestamp) {
-  if (!timestamp) return 'Not set';
-  if (timestamp.toDate) {
-    return timestamp.toDate().toLocaleString('en-US', {
-      month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
-    });
-  }
-  return new Date(timestamp).toLocaleString();
-}
-
-/* ACTION HANDLER */
-window.handleAction = async (action, id) => {
-  if (action === "review"){
-    selectedId = id;
-    const c = all.find(x => x.id === id);
-    if (!c) return;
-    
-    modalTitle.textContent = c.title || "Untitled Campaign";
-    modalSubtitle.innerHTML = `By <strong>${escapeHTML(c.advertiserName || 'Unknown')}</strong> • ${badge(c.status)}`;
-    
-    // Get aggregated stats from all applications
-    const appStats = applicationsData[id] || { totalViews: 0, totalClicks: 0 };
-    const realViews = appStats.totalViews;
-    const realClicks = appStats.totalClicks;
-    const ctr = realViews > 0 ? ((realClicks / realViews) * 100).toFixed(2) : 0;
-    const progress = c.targetViews > 0 ? ((realViews / c.targetViews) * 100).toFixed(1) : 0;
-    
-    modalBody.innerHTML = `
-      ${c.flyer ? `<img src="${c.flyer}" class="campaign-preview" onclick="window.open('${c.flyer}', '_blank')" title="Click to view full image">` : ''}
-      
-      <div class="performance-box">
-        <h4><i class="fas fa-chart-line"></i> Live Performance (All Applications)</h4>
-        <div class="perf-grid">
-          <div class="perf-item">
-            <div class="perf-value">${realViews.toLocaleString()}</div>
-            <div class="perf-label">Total Views</div>
-          </div>
-          <div class="perf-item">
-            <div class="perf-value">${realClicks.toLocaleString()}</div>
-            <div class="perf-label">Total Clicks</div>
-          </div>
-          <div class="perf-item">
-            <div class="perf-value">${ctr}%</div>
-            <div class="perf-label">CTR</div>
-          </div>
-          <div class="perf-item">
-            <div class="perf-value">${progress}%</div>
-            <div class="perf-label">Progress</div>
-          </div>
-        </div>
-        <div class="progress-bar" style="margin-top:10px;">
-          <div class="progress-fill" style="width: ${Math.min(100, progress)}%"></div>
-        </div>
-        <div style="text-align:center; margin-top:8px; font-size:12px; color:#64748b;">
-          ${realViews.toLocaleString()} of ${c.targetViews?.toLocaleString() || 0} target views
-        </div>
-      </div>
-      
-      <div class="requirements-box">
-        <h4><i class="fas fa-filter"></i> Creator Requirements</h4>
-        <div class="req-grid">
-          <div class="req-item">
-            <div class="req-icon"><i class="fas fa-heart"></i></div>
-            <div class="req-value">${c.requirements?.minLikes || 0}+</div>
-            <div class="req-label">Min Likes</div>
-          </div>
-          <div class="req-item">
-            <div class="req-icon"><i class="fas fa-users"></i></div>
-            <div class="req-value">${c.requirements?.minFollowers || 0}+</div>
-            <div class="req-label">Min Followers</div>
-          </div>
-          <div class="req-item">
-            <div class="req-icon"><i class="fas fa-check-circle"></i></div>
-            <div class="req-value">${c.requirements?.requireVerified ? 'Yes' : 'No'}</div>
-            <div class="req-label">Verified Only</div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="detail-section">
-        <h4>Campaign Details</h4>
-        <div class="detail-grid">
-          <div class="detail-item">
-            <div class="detail-label">Campaign ID</div>
-            <div class="detail-value" style="font-family:monospace; font-size:12px;">${c.id}</div>
-          </div>
-          <div class="detail-item">
-            <div class="detail-label">Advertiser ID</div>
-            <div class="detail-value" style="font-family:monospace; font-size:12px;">${c.advertiserId || 'N/A'}</div>
-          </div>
-          <div class="detail-item">
-            <div class="detail-label">Category</div>
-            <div class="detail-value">${escapeHTML(c.category || 'General')}</div>
-          </div>
-          <div class="detail-item">
-            <div class="detail-label">Cost</div>
-            <div class="detail-value">$${(c.cost || 0).toFixed(2)}</div>
-          </div>
-          <div class="detail-item" style="grid-column:span 2;">
-            <div class="detail-label">Target URL</div>
-            <div class="detail-value url" onclick="window.open('${c.targetUrl}', '_blank')">${escapeHTML(c.targetUrl || 'Not set')}</div>
-          </div>
-          <div class="detail-item" style="grid-column:span 2;">
-            <div class="detail-label">Description</div>
-            <div class="detail-value" style="font-size:13px; line-height:1.5;">${escapeHTML(c.description || 'No description provided')}</div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="timeline-box">
-        <h4><i class="fas fa-clock"></i> Timeline</h4>
-        <div class="timeline-item">
-          <i class="fas fa-plus-circle"></i>
-          <span>Created: ${formatDate(c.createdAt)}</span>
-        </div>
-        ${c.approvedAt ? `
-        <div class="timeline-item">
-          <i class="fas fa-check-circle"></i>
-          <span>Approved: ${formatDate(c.approvedAt)}</span>
-        </div>` : ''}
-        ${c.rejectedAt ? `
-        <div class="timeline-item">
-          <i class="fas fa-times-circle"></i>
-          <span>Rejected: ${formatDate(c.rejectedAt)}</span>
-        </div>` : ''}
-        ${c.pausedAt ? `
-        <div class="timeline-item">
-          <i class="fas fa-pause-circle"></i>
-          <span>Paused: ${formatDate(c.pausedAt)}</span>
-        </div>` : ''}
-        ${c.completedAt ? `
-        <div class="timeline-item">
-          <i class="fas fa-flag-checkered"></i>
-          <span>Completed: ${formatDate(c.completedAt)}</span>
-        </div>` : ''}
-        ${c.expiresAt ? `
-        <div class="timeline-item">
-          <i class="fas fa-hourglass-end"></i>
-          <span>Expires: ${formatDate(c.expiresAt)}</span>
-        </div>` : ''}
-      </div>
-      
-      ${c.adminNote ? `
-      <div class="detail-section" style="background:#fef3c7; padding:15px; border-radius:8px; border-left:4px solid #f59e0b;">
-        <h4 style="color:#d97706; margin-bottom:8px;"><i class="fas fa-sticky-note"></i> Admin Note</h4>
-        <div style="font-size:14px; color:#92400e; font-style:italic;">${escapeHTML(c.adminNote)}</div>
-      </div>
-      ` : ''}
-      
-      <div class="admin-note-section">
-        <h4><i class="fas fa-edit"></i> ${c.status === 'pending' ? 'Review Decision' : 'Update Status'}</h4>
-        <textarea id="adminNote" placeholder="Add a note about this campaign (optional)...">${c.adminNote || ''}</textarea>
-        
-        <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:15px;flex-wrap:wrap;">
-          ${c.status === 'pending' ? `
-            <button class="btn btn-no" onclick="setStatus('rejected')"><i class="fas fa-ban"></i> Reject & Refund</button>
-            <button class="btn btn-ok" onclick="setStatus('approved')"><i class="fas fa-check"></i> Approve Campaign</button>
-          ` : c.status === 'approved' ? `
-            <button class="btn btn-no" onclick="setStatus('paused')"><i class="fas fa-pause"></i> Pause Campaign</button>
-          ` : c.status === 'paused' ? `
-            <button class="btn btn-ok" onclick="setStatus('approved')"><i class="fas fa-play"></i> Resume Campaign</button>
-          ` : c.status === 'rejected' ? `
-            <button class="btn btn-ok" onclick="setStatus('approved')"><i class="fas fa-redo"></i> Re-approve</button>
-          ` : ''}
-          <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-        </div>
-      </div>
-    `;
-    
-    modal.classList.add("active");
+// Global functions attached to window for HTML onclick access
+window.handleAction = (action, id) => {
+  if (action === "delete") {
+    if(confirm("Delete campaign?")) deleteDoc(doc(db, "opportunities", id));
     return;
   }
-
-  if (action === "pause") {
-    if(!confirm('Pause this campaign? It will no longer be shown to creators.')) return;
-    await updateDoc(doc(db, "opportunities", id), { status: 'paused', pausedAt: serverTimestamp() });
-    return;
-  }
-
-  if (action === "resume") {
-    if(!confirm('Resume this campaign?')) return;
-    await updateDoc(doc(db, "opportunities", id), { status: 'approved', resumedAt: serverTimestamp() });
-    return;
-  }
-
-  if (action === "delete"){
-    if (!confirm("⚠️ Permanently delete this campaign? This cannot be undone.")) return;
-    try {
-      await deleteDoc(doc(db, "opportunities", id));
-    } catch(e){
-      alert("Delete failed");
-    }
-  }
+  
+  selectedId = id;
+  const c = all.find(x => x.id === id);
+  const stats = applicationsData[id] || { totalViews: 0, totalClicks: 0 };
+  
+  document.getElementById("modalBody").innerHTML = `
+    ${c.flyer ? `<img src="${c.flyer}" class="campaign-preview">` : ''}
+    <div class="performance-box">
+      <div class="perf-grid">
+        <div class="perf-item"><div class="perf-value">${stats.totalViews}</div><div class="perf-label">Views</div></div>
+        <div class="perf-item"><div class="perf-value">${stats.totalClicks}</div><div class="perf-label">Clicks</div></div>
+      </div>
+    </div>
+    <p><strong>URL:</strong> <a href="${c.targetUrl}" target="_blank">${c.targetUrl}</a></p>
+    <textarea id="adminNote" placeholder="Rejection reason or note...">${c.adminNote || ''}</textarea>
+    <div style="display:flex; gap:10px; margin-top:15px">
+      ${c.status === 'pending' ? `
+        <button class="btn btn-ok" style="flex:1" onclick="setStatus('approved')">Approve</button>
+        <button class="btn btn-no" style="flex:1" onclick="setStatus('rejected')">Reject & Refund</button>
+      ` : `<p>Status: ${c.status.toUpperCase()}</p>`}
+    </div>
+  `;
+  document.getElementById("modal").classList.add("active");
 };
 
-/* UPDATE STATUS */
-async function setStatus(status){
-  const id = selectedId;
-  const ref = doc(db, "opportunities", id);
-  const note = document.getElementById('adminNote')?.value || null;
-
-  const confirmMessage = status === 'approved' 
-    ? "Approve this campaign? It will become visible to all creators immediately."
-    : status === 'rejected' 
-    ? "Reject this campaign? The advertiser will be automatically 100% refunded."
-    : status === 'paused'
-    ? "Pause this campaign?"
-    : "Update campaign status?";
-
-  if(!confirm(confirmMessage)) return;
-
+window.setStatus = async (status) => {
+  if(!selectedId) return;
+  const note = document.getElementById("adminNote").value;
+  const ref = doc(db, "opportunities", selectedId);
+  
   try {
     await runTransaction(db, async (tx) => {
       const snap = await tx.get(ref);
-      if (!snap.exists()) throw "Campaign not found";
       const campaign = snap.data();
 
-      const updateData = {
-        status,
-        adminNote: note,
-        updatedAt: serverTimestamp()
-      };
-      
-      if (status === 'approved') updateData.approvedAt = serverTimestamp();
-      if (status === 'rejected') updateData.rejectedAt = serverTimestamp();
-      if (status === 'paused') updateData.pausedAt = serverTimestamp();
-      
-      tx.update(ref, updateData);
+      tx.update(ref, { 
+        status, 
+        adminNote: note, 
+        updatedAt: serverTimestamp(),
+        approvedAt: status === 'approved' ? serverTimestamp() : (campaign.approvedAt || null)
+      });
 
       if(status === 'rejected') {
-        tx.update(doc(db, "users", campaign.advertiserId), {
-          balance: increment(campaign.cost)
-        });
+        tx.update(doc(db, "users", campaign.advertiserId), { balance: increment(campaign.cost) });
         tx.add(collection(db, "transactions"), {
-          type: 'refund',
-          userId: campaign.advertiserId,
-          amount: campaign.cost,
-          description: `Refund for rejected campaign: ${campaign.title}`,
-          reference: id,
-          timestamp: serverTimestamp()
+          type: 'refund', userId: campaign.advertiserId, amount: campaign.cost,
+          description: `Refund: ${campaign.title}`, timestamp: serverTimestamp()
         });
       }
     });
-
-    closeModal();
-    alert(status === 'approved' ? 'Campaign approved ✅' : status === 'rejected' ? 'Campaign rejected, user refunded ✅' : 'Status updated ✅');
-
-  } catch(e){
-    alert("Update failed, please try again");
+    
+    // Add logic to trigger user notification document here if needed
+    
+    window.closeModal();
+    alert("Campaign " + status);
+  } catch(e) {
+    console.error(e);
+    alert("Error updating status");
   }
-}
-
-/* MODAL */
-window.closeModal = () => {
-  modal.classList.remove("active");
-  selectedId = null;
 };
 
-/* MENU (MOBILE) */
-window.toggleMenu = () => {
-  document.getElementById("sidebar").classList.toggle("active");
-};
+window.closeModal = () => document.getElementById("modal").classList.remove("active");
+window.toggleMenu = () => document.getElementById("sidebar").classList.toggle("active");
 
-/* ESCAPE HTML */
-function escapeHTML(str){
-  return String(str || "").replace(/[&<>"']/g, m => ({
-    "&":"&amp;",
-    "<":"&lt;",
-    ">":"&gt;",
-    '"':"&quot;",
-    "'":"&#039;"
-  }[m]));
-}
+filtersEl.querySelectorAll(".filter").forEach(btn => {
+  btn.onclick = () => {
+    filtersEl.querySelector(".active").classList.remove("active");
+    btn.classList.add("active");
+    activeStatus = btn.dataset.status;
+    render();
+  };
+});
+
+searchEl.oninput = render;
+refreshBtn.onclick = () => location.reload();
+document.getElementById("logoutBtn").onclick = () => signOut(auth).then(()=>location.href="login.html");
 
 </script>
-
 </body>
 </html>
