@@ -67,6 +67,34 @@ body{background:#f5f6f8;display:flex;min-height:100vh;}
 .action-item.liked{color:#ef4444;}
 .action-item.liked i{font-weight:900;}
 
+/* Follow Button */
+.follow-btn {
+    background: linear-gradient(135deg, #ff6a00, #e55d00);
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.follow-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(255,106,0,0.3);
+}
+.follow-btn.following {
+    background: #e2e8f0;
+    color: #64748b;
+}
+.follow-btn.following:hover {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
 .comments{margin-top:15px;padding-top:15px;border-top:1px solid #f1f5f9;}
 .comment-item{display:flex;gap:8px;margin-bottom:12px;font-size:13.5px;color:#334155;}
 .comment-author{font-weight:600;color:#ff6a00;cursor:pointer;display:inline-flex;align-items:center;}
@@ -122,6 +150,264 @@ body{background:#f5f6f8;display:flex;min-height:100vh;}
 
 .create-btn{position:fixed;bottom:30px;right:30px;background:#ff6a00;color:white;border:none;width:60px;height:60px;border-radius:50%;font-size:24px;cursor:pointer;box-shadow:0 10px 25px rgba(255,106,0,0.3);transition:0.3s;z-index:99;display:flex;align-items:center;justify-content:center;}
 .create-btn:hover{transform:scale(1.1);background:#e55d00;}
+
+/* Customer Service Chat Button */
+.cs-btn {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: none;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 10px 25px rgba(16,185,129,0.3);
+    transition: 0.3s;
+    z-index: 99;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.cs-btn:hover {
+    transform: scale(1.1);
+    background: #059669;
+}
+.cs-btn.has-unread::after {
+    content: '';
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 12px;
+    height: 12px;
+    background: #ef4444;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+/* Customer Service Chat Overlay */
+.cs-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    backdrop-filter: blur(4px);
+}
+.cs-overlay.active {
+    display: flex;
+}
+.cs-chat-container {
+    width: 90%;
+    max-width: 450px;
+    height: 80vh;
+    max-height: 600px;
+    background: white;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.cs-header {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.cs-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.cs-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #10b981;
+}
+.cs-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    opacity: 0.9;
+}
+.cs-status-dot {
+    width: 8px;
+    height: 8px;
+    background: #4ade80;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+.cs-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px;
+}
+.cs-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: #f8fafc;
+}
+.cs-message {
+    max-width: 80%;
+    padding: 12px 16px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.5;
+    word-wrap: break-word;
+}
+.cs-message.user {
+    align-self: flex-end;
+    background: linear-gradient(135deg, #ff6a00, #e55d00);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+.cs-message.admin {
+    align-self: flex-start;
+    background: white;
+    color: #1e2937;
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.cs-message-image {
+    max-width: 200px;
+    border-radius: 12px;
+    margin-top: 8px;
+    cursor: pointer;
+}
+.cs-message-time {
+    font-size: 10px;
+    opacity: 0.7;
+    margin-top: 4px;
+    text-align: right;
+}
+.cs-input-area {
+    padding: 15px 20px;
+    background: white;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.cs-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.cs-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 25px;
+    outline: none;
+    font-size: 14px;
+    transition: 0.2s;
+}
+.cs-input:focus {
+    border-color: #10b981;
+}
+.cs-send-btn, .cs-attach-btn {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+    font-size: 18px;
+}
+.cs-send-btn {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+.cs-send-btn:hover {
+    transform: scale(1.05);
+}
+.cs-attach-btn {
+    background: #f1f5f9;
+    color: #64748b;
+}
+.cs-attach-btn:hover {
+    background: #e2e8f0;
+}
+.cs-image-preview {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: #f1f5f9;
+    border-radius: 12px;
+}
+.cs-image-preview.active {
+    display: flex;
+}
+.cs-image-preview img {
+    height: 60px;
+    border-radius: 8px;
+}
+.cs-image-preview button {
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+}
+.cs-typing {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    font-size: 12px;
+    color: #64748b;
+}
+.cs-typing.active {
+    display: flex;
+}
+.cs-typing-dots {
+    display: flex;
+    gap: 4px;
+}
+.cs-typing-dots span {
+    width: 6px;
+    height: 6px;
+    background: #cbd5e1;
+    border-radius: 50%;
+    animation: typing 1.4s infinite;
+}
+.cs-typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.cs-typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typing {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-4px); }
+}
 
 .tip-modal{position:fixed;inset:0;background:rgba(15,23,42,0.7);display:none;align-items:center;justify-content:center;z-index:2000;backdrop-filter:blur(4px);}
 .tip-content{background:white;padding:30px;border-radius:20px;width:90%;max-width:400px;text-align:center;}
@@ -192,6 +478,8 @@ body{background:#f5f6f8;display:flex;min-height:100vh;}
     .notification-overlay{right:10px;left:10px;width:auto;padding:70px 10px 10px;}
     .notification-panel-wrap{width:100%;}
     .tip-options{grid-template-columns:repeat(2,1fr);}
+    .cs-btn { bottom: 90px; right: 20px; width: 50px; height: 50px; font-size: 20px; }
+    .create-btn { bottom: 20px; right: 20px; width: 50px; height: 50px; font-size: 20px; }
 }
 </style>
 </head>
@@ -254,6 +542,67 @@ body{background:#f5f6f8;display:flex;min-height:100vh;}
 <button class="create-btn" onclick="window.location.href='post.html'">
     <i class="fas fa-plus"></i>
 </button>
+
+<!-- Customer Service Chat Button -->
+<button class="cs-btn" id="cs-btn" onclick="openCSChat()">
+    <i class="fas fa-headset"></i>
+</button>
+
+<!-- Customer Service Chat Overlay -->
+<div class="cs-overlay" id="cs-overlay">
+    <div class="cs-chat-container">
+        <div class="cs-header">
+            <div class="cs-header-left">
+                <div class="cs-avatar">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <div>
+                    <div style="font-weight:700;">Customer Support</div>
+                    <div class="cs-status">
+                        <span class="cs-status-dot"></span>
+                        <span>Online</span>
+                    </div>
+                </div>
+            </div>
+            <button class="cs-close" onclick="closeCSChat()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="cs-messages" id="cs-messages">
+            <div class="cs-message admin">
+                <div>👋 Hello! How can we help you today?</div>
+                <div class="cs-message-time">Just now</div>
+            </div>
+        </div>
+        
+        <div class="cs-typing" id="cs-typing">
+            <span>Admin is typing</span>
+            <div class="cs-typing-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+        
+        <div class="cs-input-area">
+            <div class="cs-image-preview" id="cs-image-preview">
+                <img id="cs-preview-img" src="" alt="Preview">
+                <button onclick="removeCSImage()">Remove</button>
+            </div>
+            <div class="cs-input-wrapper">
+                <button class="cs-attach-btn" onclick="document.getElementById('cs-file-input').click()">
+                    <i class="fas fa-image"></i>
+                </button>
+                <input type="file" id="cs-file-input" accept="image/*" style="display:none;" onchange="handleCSImageSelect(event)">
+                <input type="text" class="cs-input" id="cs-input" placeholder="Type your message..." onkeypress="handleCSKeyPress(event)">
+                <button class="cs-send-btn" onclick="sendCSMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Media Viewer -->
 <div class="media-modal" id="media-modal" onclick="closeMediaModal()">
@@ -320,6 +669,7 @@ import {
     writeBatch,
     runTransaction
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 // NEW FCM IMPORTS HERE
 import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js ";
 
@@ -338,6 +688,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 // NEW FCM INITIALIZATION HERE
 const messaging = getMessaging(app);
 
@@ -395,6 +746,11 @@ let viewedAds = [];
 let currentFeedTab = localStorage.getItem('cashclique_feed_tab') || 'all';
 let searchQuery = "";
 
+// Customer Service Chat Variables
+let csChatId = null;
+let csUnsubscribe = null;
+let selectedCSImage = null;
+
 onAuthStateChanged(auth, async (user) => {
     if (!user) { window.location.href = "login.html"; return; }
     currentUser = user;
@@ -416,10 +772,245 @@ onAuthStateChanged(auth, async (user) => {
     // NEW: Call FCM setup after user is authenticated
     setupPushNotifications(user);
 
+    // Initialize Customer Service Chat
+    initCSChat();
+
     loadFeed();
     loadNotifications();
     attachUIEvents();
 });
+
+// ==================== CUSTOMER SERVICE CHAT FUNCTIONS ====================
+
+async function initCSChat() {
+    // Check if user already has a support chat
+    const chatsQuery = query(
+        collection(db, "supportChats"),
+        where("userId", "==", currentUser.uid)
+    );
+    
+    const snapshot = await getDocs(chatsQuery);
+    if (!snapshot.empty) {
+        csChatId = snapshot.docs[0].id;
+        loadCSMessages();
+    }
+}
+
+window.openCSChat = async () => {
+    document.getElementById('cs-overlay').classList.add('active');
+    
+    // Create chat if doesn't exist
+    if (!csChatId) {
+        const chatDoc = await addDoc(collection(db, "supportChats"), {
+            userId: currentUser.uid,
+            userEmail: currentUser.email,
+            userName: currentUsername,
+            status: 'open',
+            createdAt: serverTimestamp(),
+            lastMessageAt: serverTimestamp(),
+            unreadByUser: false,
+            unreadByAdmin: false
+        });
+        csChatId = chatDoc.id;
+        loadCSMessages();
+    }
+    
+    // Mark messages as read
+    await updateDoc(doc(db, "supportChats", csChatId), {
+        unreadByUser: false
+    });
+    document.getElementById('cs-btn').classList.remove('has-unread');
+};
+
+window.closeCSChat = () => {
+    document.getElementById('cs-overlay').classList.remove('active');
+};
+
+function loadCSMessages() {
+    if (csUnsubscribe) csUnsubscribe();
+    
+    const messagesQuery = query(
+        collection(db, "supportChats", csChatId, "messages"),
+        orderBy("timestamp", "asc")
+    );
+    
+    csUnsubscribe = onSnapshot(messagesQuery, (snapshot) => {
+        const messagesContainer = document.getElementById('cs-messages');
+        messagesContainer.innerHTML = '';
+        
+        snapshot.forEach(doc => {
+            const msg = doc.data();
+            const isUser = msg.sender === 'user';
+            const time = msg.timestamp ? formatTime(msg.timestamp.toDate()) : 'Just now';
+            
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `cs-message ${isUser ? 'user' : 'admin'}`;
+            
+            let content = `<div>${escapeHtml(msg.text)}</div>`;
+            if (msg.imageUrl) {
+                content += `<img src="${msg.imageUrl}" class="cs-message-image" onclick="viewImage('${msg.imageUrl}')">`;
+            }
+            content += `<div class="cs-message-time">${time}</div>`;
+            
+            msgDiv.innerHTML = content;
+            messagesContainer.appendChild(msgDiv);
+        });
+        
+        // Scroll to bottom
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        
+        // Check for unread admin messages
+        snapshot.docChanges().forEach(change => {
+            if (change.type === 'added' && change.doc.data().sender === 'admin') {
+                if (document.getElementById('cs-overlay').classList.contains('active')) {
+                    // Mark as read if chat is open
+                    updateDoc(doc(db, "supportChats", csChatId), { unreadByUser: false });
+                } else {
+                    // Show notification dot
+                    document.getElementById('cs-btn').classList.add('has-unread');
+                }
+            }
+        });
+    });
+}
+
+window.handleCSImageSelect = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    if (!file.type.startsWith('image/')) {
+        showToast('Please select an image file', 'error');
+        return;
+    }
+    
+    if (file.size > 5 * 1024 * 1024) {
+        showToast('Image must be less than 5MB', 'error');
+        return;
+    }
+    
+    selectedCSImage = file;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        document.getElementById('cs-preview-img').src = e.target.result;
+        document.getElementById('cs-image-preview').classList.add('active');
+    };
+    reader.readAsDataURL(file);
+};
+
+window.removeCSImage = () => {
+    selectedCSImage = null;
+    document.getElementById('cs-image-preview').classList.remove('active');
+    document.getElementById('cs-file-input').value = '';
+};
+
+window.handleCSKeyPress = (event) => {
+    if (event.key === 'Enter') {
+        sendCSMessage();
+    }
+};
+
+window.sendCSMessage = async () => {
+    const input = document.getElementById('cs-input');
+    const text = input.value.trim();
+    
+    if (!text && !selectedCSImage) return;
+    
+    input.value = '';
+    
+    let imageUrl = null;
+    
+    // Upload image if selected
+    if (selectedCSImage) {
+        try {
+            const imageRef = ref(storage, `supportImages/${csChatId}/${Date.now()}_${selectedCSImage.name}`);
+            await uploadBytes(imageRef, selectedCSImage);
+            imageUrl = await getDownloadURL(imageRef);
+            removeCSImage();
+        } catch (error) {
+            console.error("Image upload failed:", error);
+            showToast('Failed to upload image', 'error');
+            return;
+        }
+    }
+    
+    // Send message
+    try {
+        await addDoc(collection(db, "supportChats", csChatId, "messages"), {
+            sender: 'user',
+            text: text || '',
+            imageUrl: imageUrl,
+            timestamp: serverTimestamp()
+        });
+        
+        // Update chat metadata
+        await updateDoc(doc(db, "supportChats", csChatId), {
+            lastMessageAt: serverTimestamp(),
+            lastMessage: text || (imageUrl ? 'Image' : ''),
+            unreadByAdmin: true
+        });
+        
+    } catch (error) {
+        console.error("Failed to send message:", error);
+        showToast('Failed to send message', 'error');
+    }
+};
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// ==================== FOLLOW FUNCTION ====================
+
+window.toggleFollow = async (userId, button) => {
+    if (userId === currentUser.uid) {
+        showToast("You can't follow yourself!", "error");
+        return;
+    }
+    
+    const isFollowing = followingList.includes(userId);
+    const userRef = doc(db, "users", currentUser.uid);
+    const targetUserRef = doc(db, "users", userId);
+    
+    try {
+        if (isFollowing) {
+            // Unfollow
+            await updateDoc(userRef, {
+                following: arrayRemove(userId)
+            });
+            await updateDoc(targetUserRef, {
+                followers: arrayRemove(currentUser.uid)
+            });
+            followingList = followingList.filter(id => id !== userId);
+            button.innerHTML = '<i class="fas fa-plus"></i> Follow';
+            button.classList.remove('following');
+            showToast("Unfollowed successfully");
+        } else {
+            // Follow
+            await updateDoc(userRef, {
+                following: arrayUnion(userId)
+            });
+            await updateDoc(targetUserRef, {
+                followers: arrayUnion(currentUser.uid)
+            });
+            followingList.push(userId);
+            button.innerHTML = '<i class="fas fa-check"></i> Following';
+            button.classList.add('following');
+            showToast("Following now!");
+            
+            // Send notification to followed user
+            await sendNotification(userId, {
+                type: "follow",
+                title: `${currentUsername} started following you`,
+                fromUserId: currentUser.uid
+            });
+        }
+    } catch (error) {
+        console.error("Follow error:", error);
+        showToast("Failed to update follow status", "error");
+    }
+};
 
 async function getUserVerificationStatus(userId) {
     if (userVerificationCache[userId] !== undefined) return userVerificationCache[userId];
@@ -619,6 +1210,14 @@ async function renderPostHTML(post, attachedAd = null) {
     const timestamp = post.timestamp ? formatTime(post.timestamp.toDate()) : "Just now";
     const verifiedBadge = post.isVerified ? `<span class="verified-badge-post" title="Verified Account"><i class="fas fa-check"></i></span>` : '';
     
+    // Check if current user is following the post author
+    const isFollowing = followingList.includes(post.userId);
+    const showFollowBtn = post.userId !== currentUser.uid;
+    const followBtnHTML = showFollowBtn ? 
+        `<button class="follow-btn ${isFollowing ? 'following' : ''}" onclick="toggleFollow('${post.userId}', this)">
+            <i class="fas fa-${isFollowing ? 'check' : 'plus'}"></i> ${isFollowing ? 'Following' : 'Follow'}
+        </button>` : '';
+    
     const postEl = document.createElement("div");
     postEl.className = "post";
     postEl.dataset.postId = postId;
@@ -654,6 +1253,7 @@ async function renderPostHTML(post, attachedAd = null) {
                 </div>
                 <div class="post-time">${timestamp}</div>
             </div>
+            ${followBtnHTML}
             <i class="fas fa-ellipsis-v three-dot" onclick="window.location.href='post-view.html?postId=${postId}'"></i>
         </div>
         <p>${post.content}</p>
