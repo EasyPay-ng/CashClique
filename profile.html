@@ -7,6 +7,7 @@
 <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="manifest" href="/manifest.json">
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
@@ -30,6 +31,7 @@ body{background:#f5f5f5;min-height:100vh;}
 .profile-avatar-container{position:relative;}
 .profile-avatar{width:100px;height:100px;border-radius:50%;border:3px solid #ff6a00;object-fit:cover;}
 .verified-badge{position:absolute;bottom:0;right:0;background:#1DA1F2;color:white;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid white;font-size:14px;}
+.gold-badge{position:absolute;bottom:0;right:0;background:#FFD700;color:#1a1a1a;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid white;font-size:14px;font-weight:700;}
 .profile-info{flex:1;}
 .profile-name-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
 .profile-name{font-size:22px;font-weight:600;color:#333;}
@@ -49,10 +51,12 @@ body{background:#f5f5f5;min-height:100vh;}
 .follow-btn{background:#ff6a00;color:white;}
 .follow-btn:hover{background:#e55d00;transform:translateY(-2px);box-shadow:0 5px 15px rgba(255,106,0,0.3);}
 .follow-btn.following{background:#e3e3e3;color:#333;}
+.follow-btn.following:hover{background:#d0d0d0;}
 .edit-btn{background:transparent;border:2px solid #ff6a00;color:#ff6a00;}
 .edit-btn:hover{background:#ff6a00;color:white;}
 .verify-btn{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;}
 .verify-btn:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(102,126,234,0.4);}
+.verify-btn.disabled{opacity:0.5;cursor:not-allowed;background:#ccc;color:#666;}
 .action-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
 .action-btn i{font-size:14px;}
 
@@ -68,6 +72,10 @@ body{background:#f5f5f5;min-height:100vh;}
 .post-thumb{aspect-ratio:1;background:#fff;border-radius:12px;overflow:hidden;cursor:pointer;transition:0.3s;box-shadow:0 2px 8px rgba(0,0,0,0.08);position:relative;}
 .post-thumb:hover{transform:scale(1.05);box-shadow:0 5px 20px rgba(0,0,0,0.15);}
 .post-thumb img{width:100%;height:100%;object-fit:cover;}
+.post-thumb-overlay{position:absolute;inset:0;background:linear-gradient(transparent,rgba(0,0,0,0.5));opacity:0;transition:0.3s;display:flex;align-items:flex-end;padding:10px;color:white;}
+.post-thumb:hover .post-thumb-overlay{opacity:1;}
+.post-stats-overlay{display:flex;gap:15px;font-size:12px;}
+.post-stats-overlay span{display:flex;align-items:center;gap:4px;}
 
 /* Empty State */
 .empty-state{grid-column:1/-1;text-align:center;padding:60px 20px;background:white;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.05);}
@@ -75,48 +83,248 @@ body{background:#f5f5f5;min-height:100vh;}
 .empty-title{font-size:18px;color:#333;margin-bottom:8px;}
 .empty-text{font-size:14px;color:#888;}
 
-/* Toast */
-.toast{position:fixed;bottom:20px;right:20px;padding:15px 20px;border-radius:10px;color:white;box-shadow:0 5px 15px rgba(0,0,0,0.2);z-index:10000;display:flex;align-items:center;gap:10px;animation:slideUp 0.3s ease;}
-.toast.success{background:#4caf50;}
-.toast.error{background:#f44336;}
-@keyframes slideUp{from{transform:translateY(100px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+/* Verification Overlay */
+.verification-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.8);
+    z-index:2000;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:15px;
+    backdrop-filter:blur(4px);
+}
+.verification-overlay.active{
+    display:flex;
+}
+.verification-modal{
+    background:white;
+    border-radius:20px;
+    width:100%;
+    max-width:500px;
+    overflow:hidden;
+    animation:modalSlideIn 0.3s ease;
+}
+@keyframes modalSlideIn{
+    from{transform:scale(0.9);opacity:0;}
+    to{transform:scale(1);opacity:1;}
+}
+.modal-header{
+    background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+    color:white;
+    padding:20px;
+    text-align:center;
+}
+.modal-header h2{
+    font-size:20px;
+    margin-bottom:6px;
+}
+.modal-header p{
+    font-size:13px;
+    opacity:0.9;
+}
+.modal-body{
+    padding:20px 15px;
+}
+.badge-options{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:15px;
+    margin-bottom:25px;
+}
+.badge-card{
+    border:2px solid #e2e8f0;
+    border-radius:16px;
+    padding:18px;
+    text-align:center;
+    cursor:pointer;
+    transition:all 0.3s;
+    position:relative;
+}
+.badge-card:hover{
+    border-color:#ff6a00;
+    transform:translateY(-2px);
+    box-shadow:0 10px 20px rgba(0,0,0,0.1);
+}
+.badge-card.selected{
+    border-color:#ff6a00;
+    background:#fff7ed;
+}
+.badge-icon{
+    width:45px;
+    height:45px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin:0 auto 12px;
+    font-size:20px;
+}
+.blue-badge{
+    background:#1DA1F2;
+    color:white;
+}
+.gold-badge-card{
+    background:#FFD700;
+    color:#1a1a1a;
+}
+.badge-title{
+    font-size:16px;
+    font-weight:600;
+    margin-bottom:6px;
+}
+.badge-price{
+    font-size:20px;
+    font-weight:700;
+    color:#ff6a00;
+    margin-bottom:10px;
+}
+.badge-requirements{
+    text-align:left;
+    font-size:12px;
+    color:#666;
+    margin-bottom:12px;
+}
+.requirement-item{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:5px;
+}
+.requirement-item i{
+    width:16px;
+    text-align:center;
+}
+.requirement-item.met{
+    color:#22c55e;
+}
+.requirement-item.not-met{
+    color:#ef4444;
+}
+.eligible-badge{
+    position:absolute;
+    top:10px;
+    right:10px;
+    background:#22c55e;
+    color:white;
+    padding:4px 8px;
+    border-radius:12px;
+    font-size:10px;
+    font-weight:600;
+}
+.not-eligible-badge{
+    position:absolute;
+    top:10px;
+    right:10px;
+    background:#ef4444;
+    color:white;
+    padding:4px 8px;
+    border-radius:12px;
+    font-size:10px;
+    font-weight:600;
+}
+.modal-footer{
+    padding:15px;
+    border-top:1px solid #e2e8f0;
+    display:flex;
+    gap:10px;
+}
+.modal-btn{
+    flex:1;
+    padding:12px;
+    border-radius:10px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    transition:0.3s;
+    border:none;
+}
+.confirm-btn{
+    background:#ff6a00;
+    color:white;
+}
+.confirm-btn:hover{
+    background:#e55d00;
+    transform:translateY(-1px);
+}
+.confirm-btn:disabled{
+    opacity:0.5;
+    cursor:not-allowed;
+    transform:none;
+}
+.cancel-btn{
+    background:#f0f0f0;
+    color:#666;
+}
+.cancel-btn:hover{
+    background:#e0e0e0;
+}
+
+/* Toast Notifications */
+.toast {
+    position:fixed; bottom:20px; right:20px; padding:12px 20px; border-radius:8px; 
+    background:#22c55e; color:white; font-size:14px; display:flex; align-items:center; gap:8px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.15); z-index:9999; animation:slideIn 0.3s ease;
+    max-width:90%;
+}
+.toast.error { background:#ef4444; }
+.toast.info { background:#3b82f6; }
+@keyframes slideIn { from { transform:translateX(100%); opacity:0; } to { transform:translateX(0); opacity:1; } }
 
 /* Loading */
 .loading{text-align:center;padding:40px;color:#888;}
 .loading i{font-size:32px;color:#ff6a00;animation:spin 1s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
-/* FULL PAGE VERIFICATION OVERLAY */
-.verify-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;z-index:2000;padding:20px;overflow-y:auto;}
-.verify-content{max-width:700px;width:100%;background:white;border-radius:20px;overflow:hidden;}
-.verify-header{padding:25px;background:linear-gradient(135deg,#667eea,#764ba2);color:white;text-align:center;}
-.verify-header h2{margin:0;font-size:28px;}
-.verify-close{position:absolute;top:20px;right:20px;color:white;font-size:30px;cursor:pointer;}
-
-.verify-options{display:flex;gap:20px;padding:30px;flex-wrap:wrap;justify-content:center;}
-.verify-card{background:#f8f9fa;border:2px solid #e2e8f0;border-radius:16px;padding:25px;width:300px;transition:0.3s;cursor:pointer;}
-.verify-card:hover{border-color:#667eea;transform:translateY(-5px);}
-.verify-card.gold{border-color:#f59e0b;}
-.verify-card.gold:hover{border-color:#d97706;}
-
-.badge-preview{font-size:60px;margin-bottom:15px;}
-.blue-badge{color:#1DA1F2;}
-.gold-badge{color:#f59e0b;}
-
-.verify-card h3{margin:10px 0;font-size:22px;}
-.requirements{list-style:none;margin:15px 0;padding:0;font-size:14px;}
-.requirements li{margin:8px 0;display:flex;align-items:center;gap:8px;}
-.requirements li i{color:#10b981;}
-
-.price{font-size:28px;font-weight:700;color:#ff6a00;margin:15px 0;}
-.buy-btn{width:100%;padding:14px;background:#ff6a00;color:white;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;margin-top:10px;}
-.buy-btn:disabled{background:#ccc;cursor:not-allowed;}
-
+/* ===== MOBILE RESPONSIVE STYLES ===== */
 @media(max-width:600px){
-    .verify-options{flex-direction:column;align-items:center;}
-    .profile-header{flex-direction:column;align-items:center;text-align:center;}
-    .profile-actions{flex-direction:column;}
+    .header-content{padding:12px 15px;}
+    .profile-container{padding:15px 15px 30px;}
+    .profile-card{padding:20px 15px;}
+    .profile-header{flex-direction:column;align-items:center;text-align:center;gap:15px;}
+    .profile-avatar{width:80px;height:80px;}
+    .profile-name{font-size:20px;}
+    .profile-username{font-size:13px;}
+    .profile-bio{font-size:13px;text-align:center;}
+    .profile-stats{grid-template-columns:repeat(3,1fr);gap:10px;padding:15px 0;}
+    .stat-num{font-size:18px;}
+    .stat-label{font-size:11px;}
+    .profile-actions{flex-direction:column;gap:8px;}
+    .action-btn{padding:10px;font-size:14px;}
+    .tabs{margin-bottom:15px;}
+    .tab{padding:10px;font-size:13px;}
     .posts-grid{grid-template-columns:repeat(2,1fr);gap:8px;}
+    .post-thumb{border-radius:10px;}
+    .post-thumb-overlay{padding:8px;}
+    .post-stats-overlay{gap:10px;font-size:11px;}
+    .empty-state{padding:40px 15px;}
+    .empty-title{font-size:16px;}
+    .empty-text{font-size:13px;}
+    
+    /* Verification Modal Mobile */
+    .verification-overlay{padding:10px;}
+    .modal-header{padding:18px 15px;}
+    .modal-header h2{font-size:18px;}
+    .modal-body{padding:18px 15px;}
+    .badge-options{gap:12px;margin-bottom:20px;}
+    .badge-card{padding:15px;}
+    .badge-icon{width:40px;height:40px;font-size:18px;margin-bottom:10px;}
+    .badge-title{font-size:15px;}
+    .badge-price{font-size:18px;}
+    .badge-requirements{font-size:11px;}
+    .modal-footer{padding:12px;gap:8px;}
+    .modal-btn{padding:10px;font-size:13px;}
+}
+
+@media(max-width:360px){
+    .profile-avatar{width:70px;height:70px;}
+    .profile-name{font-size:18px;}
+    .profile-stats{gap:8px;}
+    .stat-num{font-size:16px;}
+    .stat-label{font-size:10px;}
+    .posts-grid{grid-template-columns:1fr;gap:10px;}
+    .post-thumb{aspect-ratio:1.5/1;}
 }
 </style>
 </head>
@@ -138,12 +346,16 @@ body{background:#f5f5f5;min-height:100vh;}
 </div>
 
 <div class="profile-container">
+    <!-- Profile Card -->
     <div class="profile-card">
         <div class="profile-header">
             <div class="profile-avatar-container">
                 <img class="profile-avatar" id="avatar" src="https://i.pravatar.cc/300" alt="Avatar">
                 <div class="verified-badge" id="verified-badge" style="display:none;">
                     <i class="fas fa-check"></i>
+                </div>
+                <div class="gold-badge" id="gold-badge" style="display:none;">
+                    <i class="fas fa-star"></i>
                 </div>
             </div>
             <div class="profile-info">
@@ -156,59 +368,100 @@ body{background:#f5f5f5;min-height:100vh;}
         </div>
         
         <div class="profile-stats">
-            <div class="stat"><div class="stat-num" id="posts-count">0</div><div class="stat-label">Posts</div></div>
-            <div class="stat"><div class="stat-num" id="followers-count">0</div><div class="stat-label">Followers</div></div>
-            <div class="stat"><div class="stat-num" id="following-count">0</div><div class="stat-label">Following</div></div>
+            <div class="stat" onclick="showPosts()">
+                <div class="stat-num" id="posts-count">0</div>
+                <div class="stat-label">Posts</div>
+            </div>
+            <div class="stat" onclick="showFollowers()">
+                <div class="stat-num" id="followers-count">0</div>
+                <div class="stat-label">Followers</div>
+            </div>
+            <div class="stat" onclick="showFollowing()">
+                <div class="stat-num" id="following-count">0</div>
+                <div class="stat-label">Following</div>
+            </div>
         </div>
         
-        <div class="profile-actions" id="profile-actions"></div>
+        <div class="profile-actions" id="profile-actions">
+            <!-- Actions load here -->
+        </div>
     </div>
 
+    <!-- Tabs -->
     <div class="tabs">
-        <button class="tab active" onclick="switchTab('posts', this)"><i class="fas fa-th"></i> Posts</button>
-        <button class="tab" onclick="switchTab('media', this)"><i class="fas fa-photo-video"></i> Media</button>
+        <button class="tab active" onclick="switchTab('posts', this)">
+            <i class="fas fa-th"></i> Posts
+        </button>
+        <button class="tab" onclick="switchTab('media', this)">
+            <i class="fas fa-photo-video"></i> Media
+        </button>
     </div>
 
+    <!-- Content Grid -->
     <div class="posts-grid" id="posts-grid">
-        <div class="loading"><i class="fas fa-spinner"></i><br>Loading content...</div>
+        <div class="loading">
+            <i class="fas fa-spinner"></i><br>
+            Loading content...
+        </div>
     </div>
 </div>
 
-<!-- FULL PAGE VERIFICATION OVERLAY -->
-<div class="verify-overlay" id="verify-overlay">
-    <div class="verify-content">
-        <div class="verify-header">
-            <span class="verify-close" onclick="closeVerifyOverlay()">×</span>
+<!-- Verification Overlay -->
+<div class="verification-overlay" id="verification-overlay">
+    <div class="verification-modal">
+        <div class="modal-header">
             <h2>Get Verified</h2>
             <p>Choose your verification badge</p>
         </div>
-        
-        <div class="verify-options">
-            <!-- Blue Badge -->
-            <div class="verify-card" id="blue-card">
-                <div class="badge-preview blue-badge">🔵</div>
-                <h3>Blue Badge</h3>
-                <ul class="requirements" id="blue-reqs">
-                    <li><i class="fas fa-check"></i> 500+ Followers</li>
-                    <li><i class="fas fa-check"></i> 1,000+ Total Likes</li>
-                    <li><i class="fas fa-check"></i> $2 Payment</li>
-                </ul>
-                <div class="price">$2.00</div>
-                <button class="buy-btn" onclick="purchaseBadge('blue')">Get Blue Badge</button>
+        <div class="modal-body">
+            <div class="badge-options">
+                <div class="badge-card" id="blue-badge-card" data-badge="blue">
+                    <div class="badge-icon blue-badge">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="badge-title">Blue Badge</div>
+                    <div class="badge-price">$2.00</div>
+                    <div class="badge-requirements">
+                        <div class="requirement-item" id="blue-followers">
+                            <i class="fas fa-user-friends"></i>
+                            <span>500 Followers</span>
+                        </div>
+                        <div class="requirement-item" id="blue-likes">
+                            <i class="fas fa-heart"></i>
+                            <span>1,000 Total Likes</span>
+                        </div>
+                        <div class="requirement-item" id="blue-balance">
+                            <i class="fas fa-dollar-sign"></i>
+                            <span>$2.00 Balance</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="badge-card" id="gold-badge-card" data-badge="gold">
+                    <div class="badge-icon gold-badge-card">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="badge-title">Gold Badge</div>
+                    <div class="badge-price">$5.00</div>
+                    <div class="badge-requirements">
+                        <div class="requirement-item" id="gold-followers">
+                            <i class="fas fa-user-friends"></i>
+                            <span>2,000 Followers</span>
+                        </div>
+                        <div class="requirement-item" id="gold-likes">
+                            <i class="fas fa-heart"></i>
+                            <span>5,000 Total Likes</span>
+                        </div>
+                        <div class="requirement-item" id="gold-balance">
+                            <i class="fas fa-dollar-sign"></i>
+                            <span>$5.00 Balance</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-
-            <!-- Gold Badge -->
-            <div class="verify-card gold" id="gold-card">
-                <div class="badge-preview gold-badge">🏆</div>
-                <h3>Gold Badge</h3>
-                <ul class="requirements" id="gold-reqs">
-                    <li><i class="fas fa-check"></i> 2,000+ Followers</li>
-                    <li><i class="fas fa-check"></i> 5,000+ Total Likes</li>
-                    <li><i class="fas fa-check"></i> $5 Payment</li>
-                </ul>
-                <div class="price">$5.00</div>
-                <button class="buy-btn" onclick="purchaseBadge('gold')">Get Gold Badge</button>
-            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn cancel-btn" onclick="closeVerificationOverlay()">Cancel</button>
+            <button class="modal-btn confirm-btn" id="confirm-verification-btn" onclick="purchaseVerification()">Get Verified</button>
         </div>
     </div>
 </div>
@@ -216,7 +469,7 @@ body{background:#f5f5f5;min-height:100vh;}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, query, where, onSnapshot, doc, getDoc, getDocs, updateDoc, arrayUnion, arrayRemove, addDoc, serverTimestamp, runTransaction, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, query, where, onSnapshot, doc, getDoc, getDocs, updateDoc, arrayUnion, arrayRemove, addDoc, serverTimestamp, runTransaction, increment, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -239,142 +492,403 @@ let currentBalance = 0;
 let isOwnProfile = false;
 let profileData = null;
 let totalLikes = 0;
-let totalFollowers = 0;
+let selectedBadge = "blue";
 
 onAuthStateChanged(auth, async (user) => {
-    if (!user) return window.location.href = "login.html";
+    if (!user) { window.location.href = "login.html"; return; }
     currentUser = user;
 
     const mySnap = await getDoc(doc(db, "users", user.uid));
     if (mySnap.exists()) {
-        const data = mySnap.data();
-        currentUsername = data.username || user.email.split("@")[0];
-        currentBalance = data.balance || 0;
+        const userData = mySnap.data();
+        currentUsername = userData.username || user.email.split("@")[0];
+        currentBalance = userData.balance || 0;
     }
 
     if (!profileUid) profileUid = user.uid;
     isOwnProfile = profileUid === user.uid;
 
-    await loadStats();
+    await loadTotalLikes();
     loadProfile();
     loadUserPosts();
 });
 
-async function loadStats() {
+// Load total likes across all user posts
+async function loadTotalLikes() {
     totalLikes = 0;
     const postsQuery = query(collection(db, "posts"), where("userId", "==", profileUid));
-    const snapshot = await getDocs(postsQuery);
-    snapshot.forEach(doc => totalLikes += doc.data().likes || 0);
-
-    const userDoc = await getDoc(doc(db, "users", profileUid));
-    if (userDoc.exists()) {
-        const data = userDoc.data();
-        totalFollowers = (data.followers?.length || 0) + (data.followersCount || 0);
-    }
+    const postsSnapshot = await getDocs(postsQuery);
+    
+    postsSnapshot.forEach(doc => {
+        totalLikes += doc.data().likes || 0;
+    });
 }
 
 function loadProfile() {
     const userRef = doc(db, "users", profileUid);
     onSnapshot(userRef, (snap) => {
-        if (!snap.exists()) return;
+        if (!snap.exists()) {
+            document.getElementById("profile-name").innerText = "User not found";
+            return;
+        }
         profileData = snap.data();
-
+        
+        // Basic info
         document.getElementById("avatar").src = profileData.avatar || `https://i.pravatar.cc/300?u=${profileUid}`;
         document.getElementById("profile-name").innerText = profileData.username || "Anonymous";
         document.getElementById("profile-username").innerText = `@${profileData.username || 'user'}`;
         document.getElementById("profile-bio").innerText = profileData.bio || "No bio yet";
-
+        
+        // Calculate follower count (real + boosted)
+        const realFollowers = profileData.followers?.length || 0;
+        const boostedFollowers = profileData.followersCount || 0;
+        const totalFollowers = realFollowers + boostedFollowers;
         document.getElementById("followers-count").innerText = formatNumber(totalFollowers);
+        
         document.getElementById("following-count").innerText = formatNumber(profileData.following?.length || 0);
-        document.getElementById("posts-count").innerText = "0";
-
+        
+        // Verified badges
         if (profileData.isVerified || profileData.verified) {
             document.getElementById("verified-badge").style.display = "flex";
         }
+        if (profileData.isGoldVerified) {
+            document.getElementById("gold-badge").style.display = "flex";
+        }
 
-        renderActionButtons();
+        // Action buttons
+        const actionsContainer = document.getElementById("profile-actions");
+        actionsContainer.innerHTML = "";
+
+        if (isOwnProfile) {
+            // Own profile buttons
+            actionsContainer.innerHTML = `
+                <button class="action-btn edit-btn" onclick="window.location.href='settings.html'">
+                    <i class="fas fa-edit"></i> Edit Profile
+                </button>
+                <button class="action-btn verify-btn" onclick="openVerificationOverlay()">
+                    <i class="fas fa-check-circle"></i> Get Verified
+                </button>
+            `;
+        } else {
+            // Other user's profile: Only follow button
+            const isFollowing = profileData.followers?.includes(currentUser.uid) || false;
+            actionsContainer.innerHTML = `
+                <button class="action-btn follow-btn ${isFollowing ? 'following' : ''}" 
+                        id="follow-btn" 
+                        onclick="toggleFollow('${isFollowing}', '${profileData.username}')">
+                    <i class="fas fa-${isFollowing ? 'user-check' : 'user-plus'}"></i>
+                    ${isFollowing ? 'Following' : 'Follow'}
+                </button>
+            `;
+        }
     });
 }
 
-function renderActionButtons() {
-    const container = document.getElementById("profile-actions");
-    container.innerHTML = "";
+function loadUserPosts() {
+    const q = query(collection(db, "posts"), where("userId", "==", profileUid));
 
-    if (isOwnProfile) {
-        container.innerHTML = `
-            <button class="action-btn edit-btn" onclick="window.location.href='settings.html'">
-                <i class="fas fa-edit"></i> Edit Profile
-            </button>
-            ${(!profileData.isVerified && !profileData.verified) ? `
-                <button class="action-btn verify-btn" onclick="openVerifyOverlay()">
-                    <i class="fas fa-check-circle"></i> Get Verified
-                </button>` : ''}
-        `;
+    onSnapshot(q, (snapshot) => {
+        const total = snapshot.size;
+        document.getElementById("posts-count").textContent = formatNumber(total);
+
+        const grid = document.getElementById("posts-grid");
+        grid.innerHTML = "";
+
+        if (total === 0) {
+            grid.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon"><i class="fas fa-camera"></i></div>
+                    <h3 class="empty-title">No posts yet</h3>
+                    <p class="empty-text">${isOwnProfile ? 'Share your first post!' : 'This user hasn\'t posted yet'}</p>
+                </div>`;
+            return;
+        }
+
+        // Sort by newest first
+        const sorted = snapshot.docs.sort((a, b) => {
+            const ta = a.data().timestamp?.seconds || 0;
+            const tb = b.data().timestamp?.seconds || 0;
+            return tb - ta;
+        });
+
+        sorted.forEach(doc => {
+            const post = doc.data();
+            const div = document.createElement("div");
+            div.className = "post-thumb";
+
+            if (post.imageBase64) {
+                div.innerHTML = `
+                    <img src="${post.imageBase64}" loading="lazy">
+                    <div class="post-thumb-overlay">
+                        <div class="post-stats-overlay">
+                            <span><i class="fas fa-heart"></i> ${formatNumber(post.likes || 0)}</span>
+                            <span><i class="fas fa-comment"></i> ${formatNumber(post.commentCount || 0)}</span>
+                            <span><i class="fas fa-eye"></i> ${formatNumber(post.views || 0)}</span>
+                        </div>
+                    </div>`;
+            } else {
+                div.style.background = "linear-gradient(135deg, #ff6a00, #ff8a00)";
+                div.style.color = "white";
+                div.style.display = "flex";
+                div.style.alignItems = "center";
+                div.style.justifyContent = "center";
+                div.style.padding = "10px";
+                div.style.fontSize = "12px";
+                div.style.textAlign = "center";
+                div.innerHTML = `<div>${post.content?.substring(0, 80) || "Text post"}</div>`;
+            }
+
+            div.onclick = () => location.href = `post-view.html?postId=${doc.id}`;
+            grid.appendChild(div);
+        });
+    });
+}
+
+// Toggle Follow
+window.toggleFollow = async function(currentlyFollowing, targetUsername) {
+    const btn = document.getElementById("follow-btn");
+    btn.disabled = true;
+
+    currentlyFollowing = currentlyFollowing === 'true';
+
+    try {
+        const profileRef = doc(db, "users", profileUid);
+        const myRef = doc(db, "users", currentUser.uid);
+
+        if (currentlyFollowing) {
+            await updateDoc(profileRef, { followers: arrayRemove(currentUser.uid) });
+            await updateDoc(myRef, { following: arrayRemove(profileUid) });
+            btn.innerHTML = '<i class="fas fa-user-plus"></i> Follow';
+            btn.classList.remove('following');
+        } else {
+            await updateDoc(profileRef, { followers: arrayUnion(currentUser.uid) });
+            await updateDoc(myRef, { following: arrayUnion(profileUid) });
+            btn.innerHTML = '<i class="fas fa-user-check"></i> Following';
+            btn.classList.add('following');
+        }
+    } catch (e) {
+        console.error(e);
+        showToast("Failed to update follow status", "error");
+    }
+    btn.disabled = false;
+};
+
+// Verification Overlay Functions
+window.openVerificationOverlay = function() {
+    document.getElementById("verification-overlay").classList.add("active");
+    updateBadgeEligibility();
+    
+    // Add click listeners to badge cards
+    document.querySelectorAll(".badge-card").forEach(card => {
+        card.addEventListener("click", function() {
+            document.querySelectorAll(".badge-card").forEach(c => c.classList.remove("selected"));
+            this.classList.add("selected");
+            selectedBadge = this.dataset.badge;
+        });
+    });
+    
+    // Select blue badge by default
+    document.getElementById("blue-badge-card").classList.add("selected");
+    selectedBadge = "blue";
+};
+
+window.closeVerificationOverlay = function() {
+    document.getElementById("verification-overlay").classList.remove("active");
+};
+
+function updateBadgeEligibility() {
+    const realFollowers = profileData.followers?.length || 0;
+    const boostedFollowers = profileData.followersCount || 0;
+    const totalFollowers = realFollowers + boostedFollowers;
+    
+    // Blue Badge Eligibility
+    const blueFollowersEligible = totalFollowers >= 500;
+    const blueLikesEligible = totalLikes >= 1000;
+    const blueBalanceEligible = currentBalance >= 2;
+    const blueEligible = blueFollowersEligible && blueLikesEligible && blueBalanceEligible;
+    
+    updateRequirementElement("blue-followers", blueFollowersEligible);
+    updateRequirementElement("blue-likes", blueLikesEligible);
+    updateRequirementElement("blue-balance", blueBalanceEligible);
+    updateBadgeCard("blue-badge-card", blueEligible);
+    
+    // Gold Badge Eligibility
+    const goldFollowersEligible = totalFollowers >= 2000;
+    const goldLikesEligible = totalLikes >= 5000;
+    const goldBalanceEligible = currentBalance >= 5;
+    const goldEligible = goldFollowersEligible && goldLikesEligible && goldBalanceEligible;
+    
+    updateRequirementElement("gold-followers", goldFollowersEligible);
+    updateRequirementElement("gold-likes", goldLikesEligible);
+    updateRequirementElement("gold-balance", goldBalanceEligible);
+    updateBadgeCard("gold-badge-card", goldEligible);
+}
+
+function updateRequirementElement(id, isMet) {
+    const element = document.getElementById(id);
+    if (isMet) {
+        element.classList.add("met");
+        element.classList.remove("not-met");
+        element.querySelector("i").className = "fas fa-check";
     } else {
-        const isFollowing = profileData.followers?.includes(currentUser.uid) || false;
-        container.innerHTML = `
-            <button class="action-btn follow-btn ${isFollowing ? 'following' : ''}" 
-                    onclick="toggleFollow(${isFollowing})">
-                <i class="fas fa-${isFollowing ? 'user-check' : 'user-plus'}"></i>
-                ${isFollowing ? 'Following' : 'Follow'}
-            </button>
-        `;
+        element.classList.add("not-met");
+        element.classList.remove("met");
+        element.querySelector("i").className = "fas fa-times";
     }
 }
 
-// ==================== NEW FULL PAGE OVERLAY ====================
-window.openVerifyOverlay = function() {
-    document.getElementById("verify-overlay").style.display = "flex";
-};
+function updateBadgeCard(id, isEligible) {
+    const card = document.getElementById(id);
+    const existingBadge = card.querySelector(".eligible-badge, .not-eligible-badge");
+    if (existingBadge) existingBadge.remove();
+    
+    if (isEligible) {
+        const eligibleBadge = document.createElement("div");
+        eligibleBadge.className = "eligible-badge";
+        eligibleBadge.textContent = "Eligible";
+        card.appendChild(eligibleBadge);
+    } else {
+        const notEligibleBadge = document.createElement("div");
+        notEligibleBadge.className = "not-eligible-badge";
+        notEligibleBadge.textContent = "Not Eligible";
+        card.appendChild(notEligibleBadge);
+    }
+}
 
-window.closeVerifyOverlay = function() {
-    document.getElementById("verify-overlay").style.display = "none";
-};
-
-window.purchaseBadge = async function(tier) {
-    const isBlue = tier === 'blue';
-    const reqFollowers = isBlue ? 500 : 2000;
-    const reqLikes = isBlue ? 1000 : 5000;
-    const cost = isBlue ? 2 : 5;
-
-    if (totalFollowers < reqFollowers || totalLikes < reqLikes) {
-        showToast(`You need at least ${reqFollowers} followers and ${reqLikes} total likes for the ${isBlue ? 'Blue' : 'Gold'} badge.`, "error");
+window.purchaseVerification = async function() {
+    const realFollowers = profileData.followers?.length || 0;
+    const boostedFollowers = profileData.followersCount || 0;
+    const totalFollowers = realFollowers + boostedFollowers;
+    
+    let requirementsMet = false;
+    let amount = 0;
+    let badgeType = selectedBadge;
+    
+    if (badgeType === "blue") {
+        requirementsMet = totalFollowers >= 500 && totalLikes >= 1000 && currentBalance >= 2;
+        amount = 2;
+    } else if (badgeType === "gold") {
+        requirementsMet = totalFollowers >= 2000 && totalLikes >= 5000 && currentBalance >= 5;
+        amount = 5;
+    }
+    
+    if (!requirementsMet) {
+        showToast("You don't meet the requirements for this badge", "error");
         return;
     }
-
-    if (currentBalance < cost) {
-        showToast(`Insufficient balance. You need $${cost} for this badge.`, "error");
-        return;
-    }
-
-    if (!confirm(`Purchase ${isBlue ? 'Blue' : 'Gold'} Badge for $${cost}?`)) return;
-
+    
+    const btn = document.getElementById("confirm-verification-btn");
+    btn.disabled = true;
+    btn.textContent = "Processing...";
+    
     try {
         await runTransaction(db, async (transaction) => {
             const userRef = doc(db, "users", currentUser.uid);
             const userDoc = await transaction.get(userRef);
-            const balance = userDoc.data().balance || 0;
-
-            if (balance < cost) throw "Insufficient balance";
-
-            transaction.update(userRef, {
-                balance: increment(-cost),
-                isVerified: true,
-                verified: true,
-                badgeType: isBlue ? "blue" : "gold",
+            
+            if (!userDoc.exists()) throw "User not found";
+            
+            const userData = userDoc.data();
+            const currentBal = userData.balance || 0;
+            
+            if (currentBal < amount) throw "Insufficient balance";
+            
+            // Update user: deduct balance and set verified
+            const updateData = {
+                balance: increment(-amount),
                 verifiedDate: serverTimestamp()
+            };
+            
+            if (badgeType === "blue") {
+                updateData.isVerified = true;
+                updateData.verified = true;
+            } else if (badgeType === "gold") {
+                updateData.isGoldVerified = true;
+                updateData.isVerified = true;
+                updateData.verified = true;
+            }
+            
+            transaction.update(userRef, updateData);
+            
+            // Record transaction
+            const transRef = doc(collection(db, "transactions"));
+            transaction.set(transRef, {
+                type: "verification",
+                userId: currentUser.uid,
+                amount: amount,
+                badgeType: badgeType,
+                timestamp: serverTimestamp(),
+                description: `${badgeType.charAt(0).toUpperCase() + badgeType.slice(1)} Verification Badge`
             });
         });
-
-        showToast(`Congratulations! You now have the ${isBlue ? 'Blue' : 'Gold'} Badge!`, "success");
-        closeVerifyOverlay();
+        
+        showToast(`Congratulations! You've earned the ${badgeType === "blue" ? "Blue" : "Gold"} Badge!`, "success");
+        closeVerificationOverlay();
+        
+        // Reload to show badge
         setTimeout(() => location.reload(), 1500);
+        
     } catch (e) {
-        showToast("Transaction failed. Please try again.", "error");
+        console.error(e);
+        showToast("Verification failed. Please try again.", "error");
+        btn.disabled = false;
+        btn.textContent = "Get Verified";
     }
 };
 
-// Utility Functions
+// Tab switching
+window.switchTab = function(tab, element) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    element.classList.add('active');
+    
+    if (tab === 'posts') {
+        loadUserPosts();
+    } else if (tab === 'media') {
+        loadMediaOnly();
+    }
+};
+
+// Load media posts only
+function loadMediaOnly() {
+    const q = query(collection(db, "posts"), where("userId", "==", profileUid));
+    
+    onSnapshot(q, (snapshot) => {
+        const grid = document.getElementById("posts-grid");
+        grid.innerHTML = "";
+        
+        const mediaPosts = snapshot.docs.filter(d => d.data().imageBase64);
+        
+        if (mediaPosts.length === 0) {
+            grid.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon"><i class="fas fa-photo-video"></i></div>
+                    <h3 class="empty-title">No media yet</h3>
+                    <p class="empty-text">Photos and videos will appear here</p>
+                </div>`;
+            return;
+        }
+        
+        mediaPosts.forEach(doc => {
+            const post = doc.data();
+            if (!post.imageBase64) return;
+            
+            const div = document.createElement("div");
+            div.className = "post-thumb";
+            div.innerHTML = `
+                <img src="${post.imageBase64}" loading="lazy">
+                <div class="post-thumb-overlay">
+                    <div class="post-stats-overlay">
+                        <span><i class="fas fa-heart"></i> ${formatNumber(post.likes || 0)}</span>
+                        <span><i class="fas fa-comment"></i> ${formatNumber(post.commentCount || 0)}</span>
+                    </div>
+                </div>`;
+            div.onclick = () => location.href = `post-view.html?postId=${doc.id}`;
+            grid.appendChild(div);
+        });
+    });
+}
+
+// Utility functions
 function formatNumber(num) {
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
     if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
@@ -384,31 +898,43 @@ function formatNumber(num) {
 function showToast(message, type = "success") {
     const toast = document.createElement("div");
     toast.className = `toast ${type}`;
-    toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}`;
+    toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'info' ? 'info-circle' : 'exclamation-circle'}"></i> ${message}`;
     document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 4000);
+    setTimeout(() => toast.remove(), 3000);
 }
 
 window.shareProfile = function() {
-    const url = `${window.location.origin}${window.location.pathname}?uid=${profileUid}`;
-    navigator.clipboard.writeText(url);
-    showToast("Profile link copied to clipboard!", "success");
+    const shareUrl = `${window.location.origin}${window.location.pathname}?uid=${profileUid}`;
+
+    if (navigator.share) {
+        navigator.share({
+            title: `${profileData?.username || 'User'} on CashClique`,
+            text: 'Check out this profile on CashClique',
+            url: shareUrl
+        }).catch(err => {
+            navigator.clipboard.writeText(shareUrl);
+            showToast("Profile link copied to clipboard!", "success");
+        });
+    } else {
+        navigator.clipboard.writeText(shareUrl);
+        showToast("Profile link copied to clipboard!", "success");
+    }
 };
 
-window.toggleFollow = async function(isFollowing) {
-    // Your existing follow logic here
-    showToast("Follow feature working (demo)", "success");
+window.showFollowers = function() {
+    showToast("Followers list coming soon!", "success");
 };
 
-window.switchTab = function(tab, el) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    el.classList.add('active');
-    if (tab === 'posts') loadUserPosts();
-    if (tab === 'media') loadMediaOnly();
+window.showFollowing = function() {
+    showToast("Following list coming soon!", "success");
 };
 
-function loadUserPosts() { /* Your existing function */ }
-function loadMediaOnly() { /* Your existing function */ }
+// Close overlay on outside click
+document.getElementById("verification-overlay").addEventListener("click", (e) => {
+    if (e.target.id === "verification-overlay") {
+        closeVerificationOverlay();
+    }
+});
 </script>
 </body>
 </html>
