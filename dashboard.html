@@ -424,21 +424,6 @@ body{background:#f5f6f8;display:flex;min-height:100vh;}
 .cancel-tip{margin-top:12px;color:#64748b;cursor:pointer;font-size:14px;font-weight:600;}
 .cancel-tip:hover{color:#1e2937;}
 
-/* Tax Info in Tip Modal */
-.tip-tax-info {
-    background: #fef3c7;
-    border-left: 3px solid #f59e0b;
-    padding: 10px 15px;
-    margin: 15px 0;
-    border-radius: 0 8px 8px 0;
-    font-size: 13px;
-    color: #92400e;
-    text-align: left;
-}
-.tip-tax-info i {
-    margin-right: 5px;
-}
-
 .media-modal{position:fixed;inset:0;background:rgba(0,0,0,0.95);display:none;align-items:center;justify-content:center;z-index:3000;cursor:zoom-out;backdrop-filter:blur(5px);}
 .media-modal img{max-width:95%;max-height:95vh;border-radius:12px;}
 .close-modal{position:absolute;top:20px;right:25px;color:white;font-size:35px;cursor:pointer;text-shadow:0 2px 10px rgba(0,0,0,0.5);}
@@ -642,15 +627,6 @@ body{background:#f5f6f8;display:flex;min-height:100vh;}
         
         <input type="number" class="custom-tip" id="custom-tip" placeholder="Enter custom amount" step="0.01" min="0.01">
         
-        <div class="tip-tax-info">
-            <i class="fas fa-info-circle"></i>
-            <strong>30% platform fee applies.</strong> Recipient receives 70% of tip amount.
-        </div>
-        
-        <div id="tip-calculation" style="text-align:left; margin:10px 0; font-size:14px; color:#64748b;">
-            Recipient will receive: <strong style="color:#10b981;">$0.00</strong>
-        </div>
-        
         <button class="send-tip-btn" id="send-tip-btn">Send Tip</button>
         <div class="cancel-tip" onclick="closeTipModal()">Cancel</div>
     </div>
@@ -693,6 +669,7 @@ import {
     writeBatch,
     runTransaction
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 // NEW FCM IMPORTS HERE
 import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js ";
 
@@ -711,11 +688,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 // NEW FCM INITIALIZATION HERE
 const messaging = getMessaging(app);
-
-// Constants
-const TIP_TAX_RATE = 0.30; // 30% platform fee
 
 // Toast Notification Function
 function showToast(message, type = "success") {
@@ -760,11 +735,9 @@ const feed = document.getElementById("feed");
 let currentUser = null;
 let currentUsername = "User";
 let currentBalance = 0;
-let currentUserAvatar = null;
 let viewTimers = {};
 let followingList = [];
 let userVerificationCache = {};
-let userAvatarCache = {};
 
 let allPostsCache = [];
 let approvedApplications = [];
@@ -788,15 +761,10 @@ onAuthStateChanged(auth, async (user) => {
             const data = snap.data();
             currentUsername = data.username || user.email?.split('@')[0] || "User";
             currentBalance = data.balance || 0;
-            currentUserAvatar = data.avatar || null;
             followingList = data.following || [];
             viewedAds = data.viewedAds || [];
             document.getElementById("username").innerText = currentUsername;
-            
-            // Use user's profile avatar or fallback
-            const avatarUrl = currentUserAvatar || `https://i.pravatar.cc/150?u=${user.uid}`;
-            document.getElementById("user-avatar").src = avatarUrl;
-            
+            document.getElementById("user-avatar").src = data.avatar || `https://i.pravatar.cc/150?u=${user.uid}`;
             if (data.isVerified || data.verified) document.getElementById("user-verified-badge").style.display = "inline-flex";
         }
     });
@@ -879,8 +847,8 @@ function loadCSMessages() {
             msgDiv.className = `cs-message ${isUser ? 'user' : 'admin'}`;
             
             let content = `<div>${escapeHtml(msg.text)}</div>`;
-            if (msg.imageBase64) {
-                content += `<img src="${msg.imageBase64}" class="cs-message-image" onclick="viewImage('${msg.imageBase64}')">`;
+            if (msg.imageUrl) {
+                content += `<img src="${msg.imageUrl}" class="cs-message-image" onclick="viewImage('${msg.imageUrl}')">`;
             }
             content += `<div class="cs-message-time">${time}</div>`;
             
@@ -920,10 +888,9 @@ window.handleCSImageSelect = (event) => {
         return;
     }
     
-    // Convert to base64
+    selectedCSImage = file;
     const reader = new FileReader();
     reader.onload = (e) => {
-        selectedCSImage = e.target.result; // Store base64 string
         document.getElementById('cs-preview-img').src = e.target.result;
         document.getElementById('cs-image-preview').classList.add('active');
     };
@@ -950,24 +917,37 @@ window.sendCSMessage = async () => {
     
     input.value = '';
     
-    // Send message with base64 image
+    let imageUrl = null;
+    
+    // Upload image if selected
+    if (selectedCSImage) {
+        try {
+            const imageRef = ref(storage, `supportImages/${csChatId}/${Date.now()}_${selectedCSImage.name}`);
+            await uploadBytes(imageRef, selectedCSImage);
+            imageUrl = await getDownloadURL(imageRef);
+            removeCSImage();
+        } catch (error) {
+            console.error("Image upload failed:", error);
+            showToast('Failed to upload image', 'error');
+            return;
+        }
+    }
+    
+    // Send message
     try {
         await addDoc(collection(db, "supportChats", csChatId, "messages"), {
             sender: 'user',
             text: text || '',
-            imageBase64: selectedCSImage, // Store as base64
+            imageUrl: imageUrl,
             timestamp: serverTimestamp()
         });
         
         // Update chat metadata
         await updateDoc(doc(db, "supportChats", csChatId), {
             lastMessageAt: serverTimestamp(),
-            lastMessage: text || (selectedCSImage ? 'Image' : ''),
+            lastMessage: text || (imageUrl ? 'Image' : ''),
             unreadByAdmin: true
         });
-        
-        // Clear selected image
-        removeCSImage();
         
     } catch (error) {
         console.error("Failed to send message:", error);
@@ -1045,19 +1025,6 @@ async function getUserVerificationStatus(userId) {
     return false;
 }
 
-async function getUserAvatar(userId) {
-    if (userAvatarCache[userId]) return userAvatarCache[userId];
-    try {
-        const userDoc = await getDoc(doc(db, "users", userId));
-        if (userDoc.exists()) {
-            const avatar = userDoc.data().avatar;
-            userAvatarCache[userId] = avatar || `https://i.pravatar.cc/150?u=${userId}`;
-            return userAvatarCache[userId];
-        }
-    } catch (e) { console.error(e); }
-    return `https://i.pravatar.cc/150?u=${userId}`;
-}
-
 async function loadFeed() {
     // Load posts
     const postsQuery = query(collection(db, "posts"), orderBy("timestamp", "desc"));
@@ -1071,14 +1038,12 @@ async function loadFeed() {
             const isVerified = await getUserVerificationStatus(post.userId);
             const isFromFollowed = followingList.includes(post.userId);
             const hasViewed = post.viewedBy && post.viewedBy.includes(currentUser.uid);
-            const userAvatar = await getUserAvatar(post.userId);
             
             allPostsCache.push({ 
                 id: postId, 
                 type: 'post', 
                 userId: post.userId,
                 timestamp: post.timestamp,
-                userAvatar: userAvatar,
                 ...post, 
                 isFromFollowed, 
                 isVerified, 
@@ -1258,9 +1223,6 @@ async function renderPostHTML(post, attachedAd = null) {
     postEl.dataset.postId = postId;
     postEl.dataset.viewed = post.hasViewed;
     
-    // Use the cached avatar from post data
-    const avatarUrl = post.userAvatar || `https://i.pravatar.cc/150?u=${post.userId}`;
-    
     const imgHTML = post.imageBase64 ? `<img src="${post.imageBase64}" class="post-image" onclick="viewImage(this.src)" loading="lazy">` : '';
     const priorityBadge = post.isFromFollowed && !post.hasViewed ? `<div class="priority-badge"><i class="fas fa-star"></i> Following Update</div>` : '';
 
@@ -1284,7 +1246,7 @@ async function renderPostHTML(post, attachedAd = null) {
     postEl.innerHTML = `
         ${priorityBadge}
         <div class="post-header">
-            <img src="${avatarUrl}" class="profile-pic" data-uid="${post.userId}">
+            <img src="${post.userAvatar || 'https://i.pravatar.cc/150?u='+post.userId}" class="profile-pic" data-uid="${post.userId}">
             <div class="post-author">
                 <div class="post-author-name" onclick="window.location.href='profile.html?uid=${post.userId}'">
                     <span>${post.username || "Anonymous"}</span>${verifiedBadge}
@@ -1443,13 +1405,6 @@ function openTipModal(postId, ownerId, username) {
     document.getElementById("tip-modal").style.display = "flex";
     document.querySelectorAll(".tip-btn").forEach(btn => btn.classList.remove("selected"));
     document.getElementById("custom-tip").value = "";
-    updateTipCalculation(0);
-}
-
-function updateTipCalculation(amount) {
-    const netAmount = amount * (1 - TIP_TAX_RATE);
-    document.getElementById('tip-calculation').innerHTML = 
-        `Recipient will receive: <strong style="color:#10b981;">$${netAmount.toFixed(2)}</strong> (after 30% fee)`;
 }
 
 window.closeTipModal = () => document.getElementById("tip-modal").style.display = "none";
@@ -1459,13 +1414,11 @@ document.querySelectorAll(".tip-btn").forEach(btn => {
         document.querySelectorAll(".tip-btn").forEach(b => b.classList.remove("selected"));
         btn.classList.add("selected");
         document.getElementById("custom-tip").value = "";
-        updateTipCalculation(parseFloat(btn.dataset.amount));
     };
 });
 
-document.getElementById("custom-tip").addEventListener("input", (e) => {
+document.getElementById("custom-tip").addEventListener("input", () => {
     document.querySelectorAll(".tip-btn").forEach(btn => btn.classList.remove("selected"));
-    updateTipCalculation(parseFloat(e.target.value) || 0);
 });
 
 document.getElementById("send-tip-btn").addEventListener("click", async () => {
@@ -1475,51 +1428,21 @@ document.getElementById("send-tip-btn").addEventListener("click", async () => {
     if (!amount || amount <= 0) return alert("Enter a valid amount");
     if (amount > currentBalance) return alert("Insufficient balance!");
     
-    // Calculate net amount after 30% tax
-    const taxAmount = amount * TIP_TAX_RATE;
-    const netAmount = amount - taxAmount;
-    
     const btn = document.getElementById("send-tip-btn");
     btn.disabled = true; btn.innerText = "Sending...";
     
     try {
         await runTransaction(db, async (tx) => {
-            // Deduct full amount from sender
             tx.update(doc(db, "users", currentUser.uid), { balance: increment(-amount) });
-            // Add net amount to recipient (70%)
-            tx.update(doc(db, "users", currentTipData.ownerId), { balance: increment(netAmount) });
-            // Log transaction with tax details
+            tx.update(doc(db, "users", currentTipData.ownerId), { balance: increment(amount) });
             tx.set(doc(collection(db, "transactions")), {
-                type: "tip", 
-                from: currentUser.uid, 
-                fromUsername: currentUsername, 
-                to: currentTipData.ownerId, 
-                toUsername: currentTipData.username, 
-                amount: amount,
-                netAmount: netAmount,
-                taxAmount: taxAmount,
-                taxRate: TIP_TAX_RATE,
-                postId: currentTipData.postId, 
-                timestamp: serverTimestamp()
+                type: "tip", from: currentUser.uid, fromUsername: currentUsername, to: currentTipData.ownerId, toUsername: currentTipData.username, amount: amount, postId: currentTipData.postId, timestamp: serverTimestamp()
             });
         });
-        
-        await sendNotification(currentTipData.ownerId, { 
-            type: "earning", 
-            title: `${currentUsername} sent you a $${netAmount.toFixed(2)} tip!`, 
-            message: `You received $${netAmount.toFixed(2)} (after platform fee)`,
-            fromUserId: currentUser.uid, 
-            postId: currentTipData.postId 
-        });
-        
-        showToast(`Tip sent! Recipient received $${netAmount.toFixed(2)}`);
+        await sendNotification(currentTipData.ownerId, { type: "earning", title: `${currentUsername} sent you a $${amount.toFixed(2)} tip!`, fromUserId: currentUser.uid, postId: currentTipData.postId });
+        showToast(`Tip of $${amount.toFixed(2)} sent!`);
         closeTipModal();
-    } catch (e) { 
-        alert("Failed to send tip."); 
-    } finally { 
-        btn.disabled = false; 
-        btn.innerText = "Send Tip"; 
-    }
+    } catch (e) { alert("Failed to send tip."); } finally { btn.disabled = false; btn.innerText = "Send Tip"; }
 });
 
 window.addComment = async function(postId, ownerId) {
