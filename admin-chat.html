@@ -13,66 +13,72 @@
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
 body { background: #f5f6f8; min-height: 100vh; display: flex; }
 
-/* Sidebar */
+/* Login Overlay */
+.login-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#ff6a00,#e65100);display:flex;align-items:center;justify-content:center;z-index:9999;}
+.login-box{background:white;padding:40px;border-radius:16px;width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
+.login-title{text-align:center;margin-bottom:30px;font-size:24px;font-weight:700;color:#333;}
+.login-input{width:100%;padding:15px;margin-bottom:20px;border:2px solid #ddd;border-radius:10px;font-size:16px;outline:none;}
+.login-input:focus{border-color:#ff6a00;}
+.login-btn{width:100%;background:#ff6a00;color:white;padding:15px;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;transition:0.3s;}
+.login-btn:hover{background:#d95600;}
+.error-msg{color:#d32f2f;text-align:center;margin-bottom:15px;font-size:14px;display:none;background:#ffebee;padding:10px;border-radius:8px;}
+
+/* Admin Sidebar - Matching Admin Panel Style */
 .sidebar {
     width: 260px;
     background: #1e293b;
     color: white;
-    padding: 20px;
+    padding: 25px;
     display: flex;
     flex-direction: column;
     gap: 10px;
     position: fixed;
     height: 100%;
-    transition: 0.3s;
-    z-index: 999;
+    z-index: 100;
 }
-.sidebar img { width: 40px; border-radius: 10px; }
-.logo {
+.sidebar h2 {
+    font-size: 22px;
+    margin-bottom: 30px;
+    font-weight: 700;
+    color: #ff6a00;
     display: flex;
     align-items: center;
     gap: 10px;
-    font-weight: 600;
-    font-size: 18px;
-    margin-bottom: 20px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #334155;
 }
 .sidebar a {
-    color: #94a3b8;
+    color: #cbd5e1;
     text-decoration: none;
-    padding: 12px 16px;
+    padding: 14px 16px;
     border-radius: 10px;
     transition: 0.3s;
+    font-weight: 500;
     display: flex;
     align-items: center;
-    gap: 12px;
-    font-size: 14px;
+    gap: 10px;
 }
 .sidebar a:hover, .sidebar a.active {
     background: #ff6a00;
     color: white;
 }
-.sidebar i { width: 20px; text-align: center; }
 
 /* Main Content */
 .main {
     margin-left: 260px;
     width: calc(100% - 260px);
-    padding: 20px 30px;
+    padding: 30px;
     min-height: 100vh;
 }
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 25px;
+    margin-bottom: 30px;
     padding-bottom: 20px;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 2px solid #e2e8f0;
 }
 .header h1 {
-    font-size: 24px;
-    color: #1e2937;
+    font-size: 28px;
+    font-weight: 700;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -122,7 +128,7 @@ body { background: #f5f6f8; min-height: 100vh; display: flex; }
     display: grid;
     grid-template-columns: 350px 1fr;
     gap: 20px;
-    height: calc(100vh - 200px);
+    height: calc(100vh - 220px);
     min-height: 500px;
 }
 
@@ -584,12 +590,11 @@ body { background: #f5f6f8; min-height: 100vh; display: flex; }
         display: flex !important;
     }
 }
-@media (max-width: 768px) {
-    .sidebar { transform: translateX(-100%); }
+@media (max-width: 900px) {
+    .sidebar { transform: translateX(-100%); transition: 0.3s; }
     .sidebar.active { transform: translateX(0); }
     .main { margin-left: 0; width: 100%; padding: 15px; }
     .menu-btn { display: block; }
-    .stats-grid { grid-template-columns: repeat(2, 1fr); }
 }
 .back-btn {
     display: none;
@@ -606,20 +611,26 @@ body { background: #f5f6f8; min-height: 100vh; display: flex; }
 </head>
 <body>
 
-<!-- Sidebar -->
-<div class="sidebar" id="sidebar">
-    <div class="logo">
-        <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg"> 
-        CashClique Admin
+<!-- Login Overlay -->
+<div class="login-overlay" id="login-overlay">
+    <div class="login-box">
+        <h2 class="login-title">🔒 Admin Portal</h2>
+        <div class="error-msg" id="error-msg"></div>
+        <input type="email" class="login-input" id="admin-email" placeholder="Admin Email">
+        <input type="password" class="login-input" id="admin-password" placeholder="Password">
+        <button class="login-btn" onclick="adminLogin()">Secure Login</button>
+        <p style="text-align:center;margin-top:20px;font-size:12px;color:#888;">Authorized Personnel Only</p>
     </div>
-    <a href="admin-dashboard.html"><i class="fas fa-chart-line"></i> Dashboard</a>
-    <a href="admin-users.html"><i class="fas fa-users"></i> Users</a>
-    <a href="admin-posts.html"><i class="fas fa-file-alt"></i> Posts</a>
-    <a href="admin-opportunities.html"><i class="fas fa-briefcase"></i> Opportunities</a>
-    <a href="admin-support.html" class="active"><i class="fas fa-headset"></i> Support</a>
-    <a href="admin-transactions.html"><i class="fas fa-exchange-alt"></i> Transactions</a>
-    <a href="admin-settings.html"><i class="fas fa-cog"></i> Settings</a>
-    <a href="#" id="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+</div>
+
+<!-- Sidebar - Matching Admin Panel -->
+<div class="sidebar" id="sidebar" style="display:none;">
+    <h2><i class="fas fa-shield-halved"></i> Admin</h2>
+    <a href="admin-dashboard.html"><i class="fas fa-chart-pie"></i> Dashboard</a>
+    <a href="admin-opportunities.html"><i class="fas fa-bullhorn"></i> Manage Ads</a>
+    <a href="applications.html"><i class="fas fa-file"></i> Review Applicants</a>
+    <a href="admin-chat.html" class="active"><i class="fas fa-headset"></i> Support</a>
+    <a href="#" onclick="adminLogout()" style="margin-top:auto;"><i class="fas fa-sign-out-alt"></i> Logout</a>
 </div>
 
 <!-- Main Content -->
@@ -745,7 +756,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { 
     getAuth, 
     onAuthStateChanged,
-    signOut 
+    signOut,
+    signInWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { 
     getFirestore, 
@@ -793,18 +805,51 @@ let currentFilter = 'all';
 let selectedImageBase64 = null;
 let allChats = [];
 
+// Login function
+window.adminLogin = async () => {
+    const email = document.getElementById("admin-email").value.trim();
+    const password = document.getElementById("admin-password").value;
+    const errorMsg = document.getElementById("error-msg");
+    errorMsg.style.display = "none";
+
+    if (!AUTHORIZED_ADMINS.includes(email)) {
+        errorMsg.innerText = "Access Denied: Email not authorized";
+        errorMsg.style.display = "block";
+        return;
+    }
+
+    try { 
+        await signInWithEmailAndPassword(auth, email, password); 
+    } catch (e) { 
+        errorMsg.innerText = "Invalid email or password"; 
+        errorMsg.style.display = "block"; 
+    }
+};
+
+// Logout function
+window.adminLogout = () => { 
+    if (confirm("Logout?")) signOut(auth).then(() => location.reload()); 
+};
+
 // Check admin access by email
 onAuthStateChanged(auth, async (user) => {
     if (!user) {
-        window.location.href = 'login.html';
+        document.getElementById('login-overlay').style.display = 'flex';
+        document.getElementById('sidebar').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'none';
+        document.getElementById('accessDenied').style.display = 'none';
         return;
     }
+    
+    // Hide login overlay
+    document.getElementById('login-overlay').style.display = 'none';
     
     // Check if email is authorized
     const userEmail = user.email?.toLowerCase();
     if (!AUTHORIZED_ADMINS.includes(userEmail)) {
         // Show access denied
         document.getElementById('accessDenied').style.display = 'flex';
+        document.getElementById('sidebar').style.display = 'none';
         document.getElementById('mainContent').style.display = 'none';
         showToast('Access denied. Unauthorized email.', 'error');
         return;
@@ -812,6 +857,7 @@ onAuthStateChanged(auth, async (user) => {
     
     // Authorized - show content
     document.getElementById('accessDenied').style.display = 'none';
+    document.getElementById('sidebar').style.display = 'flex';
     document.getElementById('mainContent').style.display = 'block';
     document.getElementById('adminEmail').textContent = userEmail;
     
@@ -1118,12 +1164,6 @@ function showToast(message, type = 'success') {
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 3000);
 }
-
-// Logout
-document.getElementById('logout').addEventListener('click', (e) => {
-    e.preventDefault();
-    signOut(auth).then(() => window.location.href = 'login.html');
-});
 </script>
 
 </body>
