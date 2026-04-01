@@ -1,597 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Admin - Exchange Rates | CashClique</title>
-
-<link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1774094269/logo2_ago4ay.jpg">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-<style>
-* { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
-body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
-
-/* Admin Layout */
-.admin-container { max-width:700px; margin:0 auto; padding:20px; }
-
-/* Header */
-.admin-header {
-    background:linear-gradient(135deg, #ff6a00, #e55d00);
-    color:white;
-    padding:30px 20px;
-    border-radius:20px;
-    margin-bottom:30px;
-    text-align:center;
-}
-.admin-header h1 { font-size:24px; font-weight:700; margin-bottom:5px; }
-.admin-header p { opacity:0.9; font-size:14px; }
-
-/* Tab Navigation */
-.tab-nav {
-    display:flex;
-    gap:10px;
-    margin-bottom:25px;
-    background:white;
-    padding:5px;
-    border-radius:16px;
-    border:2px solid #e2e8f0;
-}
-.tab-btn {
-    flex:1;
-    background:transparent;
-    border:none;
-    padding:12px;
-    border-radius:12px;
-    font-size:14px;
-    font-weight:600;
-    color:#64748b;
-    cursor:pointer;
-    transition:0.3s;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:8px;
-}
-.tab-btn.active {
-    background:#ff6a00;
-    color:white;
-}
-.tab-btn:hover:not(.active) {
-    background:#f1f5f9;
-}
-
-/* Tab Content */
-.tab-content { display:none; }
-.tab-content.active { display:block; }
-
-/* Current Rate Cards */
-.rates-grid {
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:15px;
-    margin-bottom:25px;
-}
-.rate-card {
-    background:white;
-    border-radius:20px;
-    padding:25px;
-    text-align:center;
-    box-shadow:0 10px 40px rgba(0,0,0,0.08);
-    border:2px solid #e2e8f0;
-    transition:0.3s;
-}
-.rate-card:hover {
-    border-color:#ff6a00;
-    transform:translateY(-2px);
-}
-.rate-card.active-card {
-    border-color:#ff6a00;
-    box-shadow:0 10px 40px rgba(255,106,0,0.15);
-}
-.rate-icon {
-    width:50px;
-    height:50px;
-    border-radius:14px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    margin:0 auto 15px;
-    font-size:24px;
-}
-.rate-icon.bank { background:#fff7ed; color:#ff6a00; }
-.rate-icon.crypto { background:#f1f5f9; color:#475569; }
-.rate-label { font-size:13px; color:#64748b; margin-bottom:8px; font-weight:500; }
-.rate-value {
-    font-size:32px;
-    font-weight:700;
-    color:#1e2937;
-    margin-bottom:5px;
-}
-.rate-sub { font-size:12px; color:#94a3b8; }
-.last-updated {
-    margin-top:12px;
-    padding-top:12px;
-    border-top:1px solid #f1f5f9;
-    font-size:11px;
-    color:#64748b;
-}
-.last-updated i { color:#ff6a00; margin-right:5px; }
-
-/* Input Section */
-.input-section {
-    background:white;
-    border-radius:20px;
-    padding:25px;
-    box-shadow:0 4px 6px rgba(0,0,0,0.02);
-    border:2px solid #e2e8f0;
-    margin-bottom:20px;
-}
-.section-title {
-    font-size:18px;
-    font-weight:600;
-    margin-bottom:20px;
-    display:flex;
-    align-items:center;
-    gap:10px;
-}
-.section-title i { color:#ff6a00; }
-
-/* Input Group */
-.input-group { margin-bottom:20px; }
-.input-label {
-    display:block;
-    font-size:14px;
-    font-weight:600;
-    margin-bottom:10px;
-    color:#334155;
-}
-.input-wrapper {
-    position:relative;
-    display:flex;
-    align-items:center;
-}
-.currency-symbol {
-    position:absolute;
-    left:20px;
-    font-size:20px;
-    font-weight:600;
-    color:#ff6a00;
-}
-.rate-input {
-    width:100%;
-    padding:18px 20px 18px 50px;
-    font-size:24px;
-    font-weight:700;
-    border:2px solid #e2e8f0;
-    border-radius:16px;
-    outline:none;
-    transition:0.3s;
-    color:#1e2937;
-}
-.rate-input:focus {
-    border-color:#ff6a00;
-    box-shadow:0 0 0 4px rgba(255,106,0,0.1);
-}
-.rate-input::placeholder { color:#cbd5e1; }
-
-/* Preview Box */
-.preview-box {
-    background:#f8fafc;
-    border-radius:12px;
-    padding:16px;
-    margin-bottom:20px;
-    border:1px dashed #cbd5e1;
-}
-.preview-label { font-size:12px; color:#64748b; margin-bottom:5px; }
-.preview-value { font-size:20px; font-weight:700; color:#1e2937; }
-
-/* Buttons */
-.btn-primary {
-    width:100%;
-    background:linear-gradient(135deg, #ff6a00, #e55d00);
-    color:white;
-    border:none;
-    padding:18px;
-    border-radius:16px;
-    font-size:16px;
-    font-weight:700;
-    cursor:pointer;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-    box-shadow:0 10px 25px rgba(255,106,0,0.3);
-    transition:0.3s;
-}
-.btn-primary:hover:not(:disabled) {
-    transform:translateY(-2px);
-    box-shadow:0 15px 30px rgba(255,106,0,0.4);
-}
-.btn-primary:disabled {
-    opacity:0.6;
-    cursor:not-allowed;
-}
-
-.btn-secondary {
-    width:100%;
-    background:#f1f5f9;
-    color:#475569;
-    border:2px solid #e2e8f0;
-    padding:14px;
-    border-radius:12px;
-    font-size:14px;
-    font-weight:600;
-    cursor:pointer;
-    margin-top:10px;
-    transition:0.3s;
-}
-.btn-secondary:hover {
-    background:#e2e8f0;
-    color:#1e2937;
-}
-
-/* History Section */
-.history-section {
-    background:white;
-    border-radius:20px;
-    padding:25px;
-    border:2px solid #e2e8f0;
-}
-.history-title {
-    font-size:16px;
-    font-weight:600;
-    margin-bottom:15px;
-    display:flex;
-    align-items:center;
-    gap:10px;
-}
-.history-list {
-    max-height:300px;
-    overflow-y:auto;
-}
-.history-item {
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:15px;
-    border-bottom:1px solid #f1f5f9;
-}
-.history-item:last-child { border-bottom:none; }
-.history-type {
-    font-size:11px;
-    padding:4px 10px;
-    border-radius:99px;
-    font-weight:600;
-    margin-bottom:5px;
-    display:inline-block;
-}
-.history-type.bank { background:#fff7ed; color:#ff6a00; }
-.history-type.crypto { background:#f1f5f9; color:#475569; }
-.history-rate { font-weight:700; color:#1e2937; font-size:15px; }
-.history-time { font-size:12px; color:#94a3b8; }
-.history-admin { font-size:11px; color:#64748b; margin-top:2px; }
-
-/* Stats Grid */
-.stats-grid {
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:15px;
-    margin-bottom:25px;
-}
-.stat-card {
-    background:white;
-    padding:20px;
-    border-radius:16px;
-    text-align:center;
-    border:2px solid #e2e8f0;
-}
-.stat-value { font-size:24px; font-weight:700; color:#ff6a00; }
-.stat-label { font-size:12px; color:#64748b; margin-top:5px; }
-
-/* Loader */
-.loader-overlay {
-    position:fixed;
-    inset:0;
-    background:rgba(255,255,255,0.95);
-    z-index:9999;
-    display:none;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    backdrop-filter:blur(5px);
-}
-.loader-overlay.active { display:flex; }
-.spinner {
-    font-size:50px;
-    color:#ff6a00;
-    animation:spin 1s linear infinite;
-    margin-bottom:20px;
-}
-
-/* Toast */
-.toast {
-    position:fixed;
-    bottom:-100px;
-    left:50%;
-    transform:translateX(-50%);
-    background:#1e2937;
-    color:white;
-    padding:16px 30px;
-    border-radius:99px;
-    font-size:14px;
-    font-weight:500;
-    transition:0.4s;
-    z-index:10000;
-    display:flex;
-    align-items:center;
-    gap:10px;
-}
-.toast.show { bottom:30px; }
-.toast.success { background:#10b981; }
-.toast.error { background:#ef4444; }
-
-/* Access Denied */
-.access-denied {
-    text-align:center;
-    padding:60px 20px;
-    max-width:400px;
-    margin:0 auto;
-}
-.access-denied i {
-    font-size:80px;
-    color:#ef4444;
-    margin-bottom:20px;
-}
-.access-denied h2 { font-size:24px; margin-bottom:10px; }
-.access-denied p { color:#64748b; margin-bottom:20px; }
-
-/* Allowed Admins List */
-.allowed-admins {
-    background:#f8fafc;
-    border-radius:12px;
-    padding:15px;
-    margin-top:20px;
-    text-align:left;
-}
-.allowed-admins h4 {
-    font-size:12px;
-    color:#64748b;
-    margin-bottom:10px;
-    text-transform:uppercase;
-    letter-spacing:0.5px;
-}
-.allowed-admins ul {
-    list-style:none;
-    font-size:13px;
-    color:#334155;
-}
-.allowed-admins li {
-    padding:5px 0;
-    display:flex;
-    align-items:center;
-    gap:8px;
-}
-.allowed-admins i {
-    color:#10b981;
-    font-size:12px;
-}
-
-/* Navigation */
-.nav-bar {
-    display:flex;
-    gap:10px;
-    margin-bottom:20px;
-    overflow-x:auto;
-    padding-bottom:5px;
-}
-.nav-btn {
-    background:white;
-    border:2px solid #e2e8f0;
-    padding:10px 20px;
-    border-radius:99px;
-    font-size:14px;
-    font-weight:600;
-    color:#64748b;
-    cursor:pointer;
-    white-space:nowrap;
-    transition:0.3s;
-}
-.nav-btn:hover, .nav-btn.active {
-    background:#ff6a00;
-    color:white;
-    border-color:#ff6a00;
-}
-
-@keyframes spin { 100% { transform:rotate(360deg); } }
-
-/* Responsive */
-@media (max-width:600px) {
-    .rates-grid { grid-template-columns:1fr; }
-    .rate-value { font-size:28px; }
-    .admin-header { padding:25px 15px; }
-    .rate-card, .input-section, .history-section { padding:20px; }
-    .tab-nav { flex-direction:column; }
-    .tab-btn { width:100%; }
-}
-</style>
-</head>
-<body>
-
-<div class="admin-container" id="adminContent" style="display:none;">
-    <!-- Navigation -->
-    <div class="nav-bar">
-        <button class="nav-btn active">
-            <i class="fas fa-exchange-alt"></i> Exchange Rates
-        </button>
-        <button class="nav-btn" onclick="window.location.href='dashboard.html'">
-            <i class="fas fa-arrow-left"></i> Back to Dashboard
-        </button>
-    </div>
-
-    <!-- Header -->
-    <div class="admin-header">
-        <h1><i class="fas fa-cog"></i> Rate Management</h1>
-        <p>Welcome, <span id="adminEmail">Admin</span></p>
-    </div>
-
-    <!-- Stats -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-value" id="totalDeposits">0</div>
-            <div class="stat-label">Total Deposits Today</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value" id="totalVolume">$0</div>
-            <div class="stat-label">Volume Today</div>
-        </div>
-    </div>
-
-    <!-- Current Rates Display -->
-    <div class="rates-grid">
-        <div class="rate-card" id="bankRateCard">
-            <div class="rate-icon bank"><i class="fas fa-building-columns"></i></div>
-            <div class="rate-label">Bank Transfer Rate</div>
-            <div class="rate-value" id="bankRateDisplay">₦1,300</div>
-            <div class="rate-sub">per $1 USD</div>
-            <div class="last-updated">
-                <i class="fas fa-clock"></i>
-                <span id="bankLastUpdated">Never</span>
-            </div>
-        </div>
-        
-        <div class="rate-card" id="cryptoRateCard">
-            <div class="rate-icon crypto"><i class="fab fa-bitcoin"></i></div>
-            <div class="rate-label">Cryptocurrency Rate</div>
-            <div class="rate-value" id="cryptoRateDisplay">₦1,300</div>
-            <div class="rate-sub">per $1 USD</div>
-            <div class="last-updated">
-                <i class="fas fa-clock"></i>
-                <span id="cryptoLastUpdated">Never</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tab Navigation -->
-    <div class="tab-nav">
-        <button class="tab-btn active" onclick="switchTab('bank')">
-            <i class="fas fa-building-columns"></i> Update Bank Rate
-        </button>
-        <button class="tab-btn" onclick="switchTab('crypto')">
-            <i class="fab fa-bitcoin"></i> Update Crypto Rate
-        </button>
-    </div>
-
-    <!-- Bank Rate Update Form -->
-    <div class="tab-content active" id="bankTab">
-        <div class="input-section">
-            <div class="section-title">
-                <i class="fas fa-edit"></i>
-                Update Bank Transfer Rate
-            </div>
-
-            <div class="input-group">
-                <label class="input-label">New Bank Rate (NGN per USD)</label>
-                <div class="input-wrapper">
-                    <span class="currency-symbol">₦</span>
-                    <input type="number" class="rate-input" id="bankRateInput" 
-                           placeholder="1300" min="1" step="1">
-                </div>
-            </div>
-
-            <div class="preview-box">
-                <div class="preview-label">Preview: $100 =</div>
-                <div class="preview-value" id="bankRatePreview">₦0</div>
-            </div>
-
-            <button class="btn-primary" onclick="updateRate('bank')">
-                <i class="fas fa-save"></i> Update Bank Rate
-            </button>
-            
-            <button class="btn-secondary" onclick="resetRate('bank')">
-                Reset Bank Rate to Default (₦1,300)
-            </button>
-        </div>
-    </div>
-
-    <!-- Crypto Rate Update Form -->
-    <div class="tab-content" id="cryptoTab">
-        <div class="input-section">
-            <div class="section-title">
-                <i class="fas fa-edit"></i>
-                Update Cryptocurrency Rate
-            </div>
-
-            <div class="input-group">
-                <label class="input-label">New Crypto Rate (NGN per USD)</label>
-                <div class="input-wrapper">
-                    <span class="currency-symbol">₦</span>
-                    <input type="number" class="rate-input" id="cryptoRateInput" 
-                           placeholder="1300" min="1" step="1">
-                </div>
-            </div>
-
-            <div class="preview-box">
-                <div class="preview-label">Preview: $100 =</div>
-                <div class="preview-value" id="cryptoRatePreview">₦0</div>
-            </div>
-
-            <button class="btn-primary" onclick="updateRate('crypto')">
-                <i class="fas fa-save"></i> Update Crypto Rate
-            </button>
-            
-            <button class="btn-secondary" onclick="resetRate('crypto')">
-                Reset Crypto Rate to Default (₦1,300)
-            </button>
-        </div>
-    </div>
-
-    <!-- Rate History -->
-    <div class="history-section">
-        <div class="history-title">
-            <i class="fas fa-history"></i>
-            Rate Change History
-        </div>
-        <div class="history-list" id="historyList">
-            <div style="text-align:center; color:#94a3b8; padding:20px;">
-                <i class="fas fa-spinner fa-spin"></i> Loading...
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Access Denied (shown to non-admins) -->
-<div class="access-denied" id="accessDenied" style="display:none;">
-    <i class="fas fa-lock"></i>
-    <h2>Access Denied</h2>
-    <p>You don't have permission to view this page. This area is restricted to authorized administrators only.</p>
-    <button class="btn-primary" onclick="window.location.href='dashboard.html'">
-        Go to Dashboard
-    </button>
-    
-    <div class="allowed-admins">
-        <h4><i class="fas fa-shield-alt"></i> Authorized Administrators</h4>
-        <ul>
-            <li><i class="fas fa-check-circle"></i> beniwealth70@gmail.com</li>
-            <li><i class="fas fa-check-circle"></i> baasituoppor01@gmail.com</li>
-        </ul>
-    </div>
-</div>
-
-<!-- Loader -->
-<div class="loader-overlay" id="mainLoader">
-    <i class="fas fa-spinner spinner"></i>
-    <p style="font-weight:600; color:#1e2937;">Processing...</p>
-</div>
-
-<!-- Toast -->
-<div class="toast" id="toastBox">
-    <i class="fas fa-info-circle"></i>
-    <span id="toastMsg">Message</span>
-</div>
-
-<!-- FIREBASE & LOGIC -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -625,7 +31,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// ALLOWED ADMIN EMAILS - Hardcoded for security
+// ONLY THESE TWO EMAILS ALLOWED
 const ALLOWED_ADMINS = [
     "beniwealth70@gmail.com",
     "baasituoppor01@gmail.com"
@@ -634,10 +40,25 @@ const ALLOWED_ADMINS = [
 let currentUser = null;
 let currentRates = {
     bank: 1300,
-    crypto: 1300
+    crypto: {
+        USDT: 1.00,
+        TRX: 0.12,
+        ETH: 3000,
+        BTC: 65000,
+        TON: 5.50
+    }
 };
 
-// Check Auth & Admin Status
+// Default rates for all 5 cryptos
+const DEFAULT_CRYPTO_RATES = {
+    USDT: 1.00,
+    TRX: 0.12,
+    ETH: 3000,
+    BTC: 65000,
+    TON: 5.50
+};
+
+// Check auth on load
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         currentUser = user;
@@ -668,14 +89,14 @@ function initializeAdmin() {
     setupInputListeners();
 }
 
-// Load Both Rates
+// Load both bank and all crypto rates
 async function loadCurrentRates() {
     try {
         // Load Bank Rate
         const bankDoc = await getDoc(doc(db, "settings", "bankRate"));
         if (bankDoc.exists()) {
             currentRates.bank = bankDoc.data().rate || 1300;
-            updateRateDisplay('bank', currentRates.bank, bankDoc.data().updatedAt);
+            updateBankRateDisplay(currentRates.bank, bankDoc.data().updatedAt);
         } else {
             await setDoc(doc(db, "settings", "bankRate"), {
                 rate: 1300,
@@ -683,24 +104,30 @@ async function loadCurrentRates() {
                 updatedBy: currentUser.email,
                 updatedByUid: currentUser.uid
             });
-            currentRates.bank = 1300;
-            updateRateDisplay('bank', 1300, null);
+            updateBankRateDisplay(1300, null);
         }
 
-        // Load Crypto Rate
-        const cryptoDoc = await getDoc(doc(db, "settings", "cryptoRate"));
+        // Load ALL 5 Crypto Rates
+        const cryptoDoc = await getDoc(doc(db, "settings", "cryptoRates"));
         if (cryptoDoc.exists()) {
-            currentRates.crypto = cryptoDoc.data().rate || 1300;
-            updateRateDisplay('crypto', currentRates.crypto, cryptoDoc.data().updatedAt);
+            const data = cryptoDoc.data();
+            currentRates.crypto = {
+                USDT: data.USDT || 1.00,
+                TRX: data.TRX || 0.12,
+                ETH: data.ETH || 3000,
+                BTC: data.BTC || 65000,
+                TON: data.TON || 5.50
+            };
+            updateCryptoRatesDisplay(currentRates.crypto, data.updatedAt);
         } else {
-            await setDoc(doc(db, "settings", "cryptoRate"), {
-                rate: 1300,
+            // Create default if doesn't exist
+            await setDoc(doc(db, "settings", "cryptoRates"), {
+                ...DEFAULT_CRYPTO_RATES,
                 updatedAt: serverTimestamp(),
                 updatedBy: currentUser.email,
                 updatedByUid: currentUser.uid
             });
-            currentRates.crypto = 1300;
-            updateRateDisplay('crypto', 1300, null);
+            updateCryptoRatesDisplay(DEFAULT_CRYPTO_RATES, null);
         }
     } catch (error) {
         console.error("Error loading rates:", error);
@@ -708,154 +135,219 @@ async function loadCurrentRates() {
     }
 }
 
-// Real-time updates
+// Real-time listeners
 function listenToRateChanges() {
-    // Listen to bank rate
+    // Bank rate listener
     onSnapshot(doc(db, "settings", "bankRate"), (doc) => {
         if (doc.exists()) {
             currentRates.bank = doc.data().rate;
-            updateRateDisplay('bank', doc.data().rate, doc.data().updatedAt);
+            updateBankRateDisplay(doc.data().rate, doc.data().updatedAt);
         }
     });
 
-    // Listen to crypto rate
-    onSnapshot(doc(db, "settings", "cryptoRate"), (doc) => {
+    // All crypto rates listener
+    onSnapshot(doc(db, "settings", "cryptoRates"), (doc) => {
         if (doc.exists()) {
-            currentRates.crypto = doc.data().rate;
-            updateRateDisplay('crypto', doc.data().rate, doc.data().updatedAt);
+            const data = doc.data();
+            currentRates.crypto = {
+                USDT: data.USDT || 1.00,
+                TRX: data.TRX || 0.12,
+                ETH: data.ETH || 3000,
+                BTC: data.BTC || 65000,
+                TON: data.TON || 5.50
+            };
+            updateCryptoRatesDisplay(currentRates.crypto, data.updatedAt);
         }
     });
 }
 
-function updateRateDisplay(type, rate, timestamp) {
-    document.getElementById(`${type}RateDisplay`).innerText = `₦${rate.toLocaleString()}`;
+function updateBankRateDisplay(rate, timestamp) {
+    document.getElementById('bankRateDisplay').innerText = `₦${rate.toLocaleString()}`;
     
-    const timeElement = document.getElementById(`${type}LastUpdated`);
+    const timeElement = document.getElementById('bankLastUpdated');
     if (timestamp && timestamp.toDate) {
-        timeElement.innerText = timestamp.toDate().toLocaleString();
+        timeElement.innerText = 'Updated: ' + timestamp.toDate().toLocaleString();
     } else if (timestamp) {
-        timeElement.innerText = new Date(timestamp).toLocaleString();
+        timeElement.innerText = 'Updated: ' + new Date(timestamp).toLocaleString();
     } else {
-        timeElement.innerText = "Just now";
+        timeElement.innerText = "Never updated";
     }
 }
 
+// Update display for ALL 5 cryptos
+function updateCryptoRatesDisplay(rates, timestamp) {
+    document.getElementById('usdtRateDisplay').innerText = `$${rates.USDT.toFixed(2)}`;
+    document.getElementById('trxRateDisplay').innerText = `$${rates.TRX.toFixed(4)}`;
+    document.getElementById('ethRateDisplay').innerText = `$${rates.ETH.toFixed(2)}`;
+    document.getElementById('btcRateDisplay').innerText = `$${rates.BTC.toFixed(2)}`;
+    document.getElementById('tonRateDisplay').innerText = `$${rates.TON.toFixed(2)}`;
+
+    const timeStr = timestamp ? (timestamp.toDate ? timestamp.toDate().toLocaleString() : new Date(timestamp).toLocaleString()) : 'Never';
+    document.getElementById('usdtLastUpdated').innerText = timeStr;
+    document.getElementById('trxLastUpdated').innerText = timeStr;
+    document.getElementById('ethLastUpdated').innerText = timeStr;
+    document.getElementById('btcLastUpdated').innerText = timeStr;
+    document.getElementById('tonLastUpdated').innerText = timeStr;
+}
+
 function setupInputListeners() {
-    // Bank input
+    // Bank rate input
     document.getElementById('bankRateInput').addEventListener('input', function() {
         const rate = parseFloat(this.value) || 0;
         document.getElementById('bankRatePreview').innerText = `₦${(rate * 100).toLocaleString()}`;
     });
 
-    // Crypto input
-    document.getElementById('cryptoRateInput').addEventListener('input', function() {
-        const rate = parseFloat(this.value) || 0;
-        document.getElementById('cryptoRatePreview').innerText = `₦${(rate * 100).toLocaleString()}`;
+    // All crypto rate inputs - update preview
+    const cryptoInputs = ['usdtRateInput', 'trxRateInput', 'ethRateInput', 'btcRateInput', 'tonRateInput'];
+    cryptoInputs.forEach(id => {
+        document.getElementById(id).addEventListener('input', updateCryptoPreview);
     });
 }
 
-// Switch Tabs
+function updateCryptoPreview() {
+    const usdt = parseFloat(document.getElementById('usdtRateInput').value) || currentRates.crypto.USDT;
+    const trx = parseFloat(document.getElementById('trxRateInput').value) || currentRates.crypto.TRX;
+    const eth = parseFloat(document.getElementById('ethRateInput').value) || currentRates.crypto.ETH;
+    const btc = parseFloat(document.getElementById('btcRateInput').value) || currentRates.crypto.BTC;
+    const ton = parseFloat(document.getElementById('tonRateInput').value) || currentRates.crypto.TON;
+    
+    document.getElementById('cryptoPreview').innerHTML = 
+        `100 USDT = $${(100 * usdt).toFixed(2)}<br>` +
+        `100 TRX = $${(100 * trx).toFixed(2)}<br>` +
+        `0.1 ETH = $${(0.1 * eth).toFixed(2)}<br>` +
+        `0.001 BTC = $${(0.001 * btc).toFixed(2)}<br>` +
+        `10 TON = $${(10 * ton).toFixed(2)}`;
+}
+
 window.switchTab = (tab) => {
-    // Update buttons
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     event.target.closest('.tab-btn').classList.add('active');
-
-    // Update content
-    document.querySelectorAll('.tab-content').forEach(content => {
-        content.classList.remove('active');
-    });
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
     document.getElementById(`${tab}Tab`).classList.add('active');
-
-    // Update card highlighting
-    document.getElementById('bankRateCard').classList.toggle('active-card', tab === 'bank');
-    document.getElementById('cryptoRateCard').classList.toggle('active-card', tab === 'crypto');
 };
 
-// Update Rate
+// Update bank rate
 window.updateRate = async (type) => {
-    const inputId = type === 'bank' ? 'bankRateInput' : 'cryptoRateInput';
-    const newRate = parseFloat(document.getElementById(inputId).value);
+    if (type !== 'bank') return;
     
+    const newRate = parseFloat(document.getElementById('bankRateInput').value);
     if (!newRate || newRate < 1) {
         showToast("Please enter a valid rate", "error");
         return;
     }
-    
-    if (newRate === currentRates[type]) {
-        showToast("New rate must be different from current rate", "error");
+    if (newRate === currentRates.bank) {
+        showToast("New rate must be different", "error");
         return;
     }
-    
     if (!isAdmin(currentUser.email)) {
-        showToast("Unauthorized action", "error");
-        setTimeout(() => window.location.href = "dashboard.html", 2000);
+        showToast("Unauthorized", "error");
         return;
     }
-    
+
     showLoader(true);
-    
     try {
-        const docId = type === 'bank' ? 'bankRate' : 'cryptoRate';
-        const previousRate = currentRates[type];
-        
-        // Update rate
-        await updateDoc(doc(db, "settings", docId), {
+        const previousRate = currentRates.bank;
+        await updateDoc(doc(db, "settings", "bankRate"), {
             rate: newRate,
             updatedAt: serverTimestamp(),
             updatedBy: currentUser.email,
             updatedByUid: currentUser.uid
         });
-        
-        // Log to history
+
         await addDoc(collection(db, "rateHistory"), {
-            rateType: type,
+            rateType: 'bank',
             previousRate: previousRate,
             newRate: newRate,
             changedBy: currentUser.email,
             changedByUid: currentUser.uid,
             timestamp: serverTimestamp()
         });
-        
-        // Log admin action
-        await addDoc(collection(db, "adminLogs"), {
-            action: "rate_update",
-            rateType: type,
-            details: `Changed ${type} rate from ₦${previousRate} to ₦${newRate}`,
-            adminEmail: currentUser.email,
-            adminUid: currentUser.uid,
-            timestamp: serverTimestamp()
-        });
-        
-        currentRates[type] = newRate;
-        document.getElementById(inputId).value = '';
-        document.getElementById(`${type}RatePreview`).innerText = '₦0';
-        
+
+        document.getElementById('bankRateInput').value = '';
         showLoader(false);
-        showToast(`${type === 'bank' ? 'Bank' : 'Crypto'} rate updated to ₦${newRate.toLocaleString()}`, "success");
+        showToast(`Bank rate updated to ₦${newRate.toLocaleString()}`, "success");
         loadRateHistory();
-        
     } catch (error) {
-        console.error("Error updating rate:", error);
+        console.error(error);
         showLoader(false);
-        showToast("Failed to update rate: " + error.message, "error");
+        showToast("Failed to update", "error");
     }
 };
 
-// Reset Rate
-window.resetRate = async (type) => {
-    if (!confirm(`Reset ${type} rate to default ₦1,300?`)) return;
-    
-    const inputId = type === 'bank' ? 'bankRateInput' : 'cryptoRateInput';
-    const previewId = type === 'bank' ? 'bankRatePreview' : 'cryptoRatePreview';
-    
-    document.getElementById(inputId).value = '1300';
-    document.getElementById(previewId).innerText = '₦130,000';
-    await updateRate(type);
+// Update ALL 5 crypto rates
+window.updateCryptoRates = async () => {
+    const newRates = {
+        USDT: parseFloat(document.getElementById('usdtRateInput').value) || currentRates.crypto.USDT,
+        TRX: parseFloat(document.getElementById('trxRateInput').value) || currentRates.crypto.TRX,
+        ETH: parseFloat(document.getElementById('ethRateInput').value) || currentRates.crypto.ETH,
+        BTC: parseFloat(document.getElementById('btcRateInput').value) || currentRates.crypto.BTC,
+        TON: parseFloat(document.getElementById('tonRateInput').value) || currentRates.crypto.TON
+    };
+
+    // Validate all rates
+    for (const [coin, rate] of Object.entries(newRates)) {
+        if (!rate || rate <= 0) {
+            showToast(`Invalid rate for ${coin}`, "error");
+            return;
+        }
+    }
+
+    if (!isAdmin(currentUser.email)) {
+        showToast("Unauthorized", "error");
+        return;
+    }
+
+    showLoader(true);
+    try {
+        await updateDoc(doc(db, "settings", "cryptoRates"), {
+            ...newRates,
+            updatedAt: serverTimestamp(),
+            updatedBy: currentUser.email,
+            updatedByUid: currentUser.uid
+        });
+
+        await addDoc(collection(db, "rateHistory"), {
+            rateType: 'crypto',
+            previousRates: currentRates.crypto,
+            newRates: newRates,
+            changedBy: currentUser.email,
+            changedByUid: currentUser.uid,
+            timestamp: serverTimestamp()
+        });
+
+        // Clear all inputs
+        ['usdtRateInput', 'trxRateInput', 'ethRateInput', 'btcRateInput', 'tonRateInput'].forEach(id => {
+            document.getElementById(id).value = '';
+        });
+
+        showLoader(false);
+        showToast("All crypto rates updated", "success");
+        loadRateHistory();
+    } catch (error) {
+        console.error(error);
+        showLoader(false);
+        showToast("Failed to update", "error");
+    }
 };
 
-// Load Rate History
+window.resetRate = async (type) => {
+    if (type === 'bank') {
+        if (!confirm("Reset bank rate to ₦1,300?")) return;
+        document.getElementById('bankRateInput').value = '1300';
+        await updateRate('bank');
+    }
+};
+
+window.resetCryptoRates = async () => {
+    if (!confirm("Reset ALL crypto rates to defaults?")) return;
+    document.getElementById('usdtRateInput').value = '1.00';
+    document.getElementById('trxRateInput').value = '0.12';
+    document.getElementById('ethRateInput').value = '3000';
+    document.getElementById('btcRateInput').value = '65000';
+    document.getElementById('tonRateInput').value = '5.50';
+    await updateCryptoRates();
+};
+
 async function loadRateHistory() {
     try {
         const historyQuery = query(
@@ -876,49 +368,45 @@ async function loadRateHistory() {
             `;
             return;
         }
-        
+
         let html = '';
         snapshot.forEach((doc) => {
             const data = doc.data();
             const time = data.timestamp ? data.timestamp.toDate().toLocaleString() : 'Unknown';
-            const prevRate = data.previousRate || 0;
-            const newRate = data.newRate;
-            const diff = newRate - prevRate;
-            const diffColor = diff > 0 ? '#10b981' : (diff < 0 ? '#ef4444' : '#64748b');
-            const diffIcon = diff > 0 ? '↑' : (diff < 0 ? '↓' : '→');
-            const typeClass = data.rateType === 'bank' ? 'bank' : 'crypto';
-            const typeLabel = data.rateType === 'bank' ? 'BANK' : 'CRYPTO';
             
-            html += `
-                <div class="history-item">
-                    <div>
-                        <div class="history-type ${typeClass}">${typeLabel}</div>
-                        <div class="history-rate">
-                            ₦${prevRate.toLocaleString()} → ₦${newRate.toLocaleString()}
-                            <span style="color:${diffColor}; font-size:13px; margin-left:5px;">
-                                ${diffIcon} ${Math.abs(diff)}
-                            </span>
+            if (data.rateType === 'bank') {
+                html += `
+                    <div class="history-item">
+                        <div>
+                            <div class="history-type bank">BANK</div>
+                            <div class="history-details">
+                                ₦${data.previousRate?.toLocaleString()} → ₦${data.newRate?.toLocaleString()}
+                            </div>
+                            <div class="history-admin">by ${data.changedBy || 'Unknown'}</div>
                         </div>
-                        <div class="history-admin">by ${data.changedBy || 'Unknown'}</div>
+                        <div class="history-time">${time}</div>
                     </div>
-                    <div class="history-time">${time}</div>
-                </div>
-            `;
+                `;
+            } else {
+                html += `
+                    <div class="history-item">
+                        <div>
+                            <div class="history-type crypto">CRYPTO</div>
+                            <div class="history-details">All 5 cryptos updated</div>
+                            <div class="history-admin">by ${data.changedBy || 'Unknown'}</div>
+                        </div>
+                        <div class="history-time">${time}</div>
+                    </div>
+                `;
+            }
         });
         
         historyList.innerHTML = html;
-        
     } catch (error) {
-        console.error("Error loading history:", error);
-        document.getElementById('historyList').innerHTML = `
-            <div style="text-align:center; color:#ef4444; padding:20px;">
-                <i class="fas fa-exclamation-circle"></i> Failed to load history
-            </div>
-        `;
+        console.error(error);
     }
 }
 
-// Load Today's Stats
 async function loadTodayStats() {
     try {
         const today = new Date();
@@ -941,13 +429,11 @@ async function loadTodayStats() {
         
         document.getElementById('totalDeposits').innerText = count;
         document.getElementById('totalVolume').innerText = `$${volume.toLocaleString()}`;
-        
     } catch (error) {
-        console.error("Error loading stats:", error);
+        console.error(error);
     }
 }
 
-// UI Functions
 function showLoader(show) {
     const loader = document.getElementById('mainLoader');
     if (show) loader.classList.add('active');
@@ -956,21 +442,16 @@ function showLoader(show) {
 
 function showToast(message, type = 'info') {
     const toast = document.getElementById('toastBox');
-    const msgSpan = document.getElementById('toastMsg');
-    
-    msgSpan.innerText = message;
+    document.getElementById('toastMsg').innerText = message;
     toast.className = 'toast show ' + type;
-    
-    setTimeout(() => {
-        toast.classList.remove('show');
-    }, 3000);
+    setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
 // Security check every 30 seconds
 setInterval(() => {
     if (currentUser && !isAdmin(currentUser.email)) {
         showToast("Admin access revoked", "error");
-        setTimeout(() => window.location.href = "dashboard.html", 2000);
+        setTimeout(() => window.location.href = 'dashboard.html', 2000);
     }
 }, 30000);
 </script>
