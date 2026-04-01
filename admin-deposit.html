@@ -1,3 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Admin - Exchange Rates | CashClique</title>
+
+<link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1774094269/logo2_ago4ay.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
+
+.admin-container { max-width:800px; margin:0 auto; padding:20px; }
+
+.admin-header {
+    background:linear-gradient(135deg, #ff6a00, #e55d00);
+    color:white;
+    padding:30px 20px;
+    border-radius:20px;
+    margin-bottom:30px;
+    text-align:center;
+}
+.admin-header h1 { font-size:24px; font-weight:700; margin-bottom:5px; }
+.admin-header p { opacity:0.9; font-size:14px; }
+
+/* Tab Navigation */
+.tab-nav {
+    display:flex;
+    gap:10px;
+    margin-bottom:25px;
+    background:white;
+    padding:5px;
+    border-radius:16px;
+    border:2px solid #e2e8f0;
+    overflow-x:auto;
+}
+.tab-btn {
+    flex:1;
+    min-width:140px;
+    background:transparent;
+    border:none;
+    padding:12px;
+    border-radius:12px;
+    font-size:14px;
+    font-weight:600;
+    color:#64748b;
+    cursor:pointer;
+    transition:0.3s;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+}
+.tab-btn.active {
+    background:#ff6a00;
+    color:white;
+}
+.tab-btn:hover:not(.active) {
+    background:#f1f5f9;
+}
+
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+
+/* Rate Cards */
+.rates-grid {
+    display:grid;
+    grid-template-columns:1fr;
+    gap:15px;
+    margin-bottom:25px;
+}
+.rate-card {
+    background:white;
+    border-radius:20px;
+    padding:25px;
+    box-shadow:0 10px 40px rgba(0,0,0,0.08);
+    border:2px solid #e2e8f0;
+}
+.rate-header {
+    display:flex;
+    align-items:center;
+    gap:15px;
+    margin-bottom:20px;
+}
+.rate-icon {
+    width:50px;
+    height:50px;
+    border-radius:14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:24px;
+}
+.rate-icon.bank { background:#fff7ed; color:#ff6a00; }
+.rate-icon.crypto { background:#f1f5f9; color:#475569; }
+.rate-title { font-size:18px; font-weight:700; }
+.rate-subtitle { font-size:13px; color:#64748b; }
+
+/* Crypto Rates List - ALL 5 CRYPTOS */
+.crypto-rates-list {
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
+    gap:15px;
+}
+.crypto-rate-item {
+    background:#f8fafc;
+    border-radius:16px;
+    padding:20px 15px;
+    text-align:center;
+    border:2px solid #e2e8f0;
+    transition:0.3s;
+}
+.crypto-rate-item:hover {
+    border-color:#ff6a00;
+    transform:translateY(-2px);
+}
+.crypto-symbol {
+    font-size:28px;
+    font-weight:700;
+    margin-bottom:5px;
+}
+.crypto-symbol.usdt { color:#26a17b; }
+.crypto-symbol.trx { color:#ff060a; }
+.crypto-symbol.eth { color:#627eea; }
+.crypto-symbol.btc { color:#f7931a; }
+.crypto-symbol.ton { color:#0088cc; }
+.crypto-name { font-size:11px; color:#64748b; margin-bottom:10px; font-weight:600; }
+.crypto-price {
+    font-size:20px;
+    font-weight:700;
+    color:#1e2937;
+    margin-bottom:5px;
+}
+.crypto-unit { font-size:11px; color:#94a3b8; }
+.last-updated {
+    margin-top:10px;
+    font-size:10px;
+    color:#64748b;
+}
+
+/* Input Section */
+.input-section {
+    background:white;
+    border-radius:20px;
+    padding:25px;
+    box-shadow:0 4px 6px rgba(0,0,0,0.02);
+    border:2px solid #e2e8f0;
+    margin-bottom:20px;
+}
+.section-title {
+    font-size:18px;
+    font-weight:600;
+    margin-bottom:20px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+.section-title i { color:#ff6a00; }
+
+/* Form Grid - ALL 5 CRYPTOS */
+.form-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+    gap:15px;
+    margin-bottom:20px;
+}
+.input-group { margin-bottom:0; }
+.input-label {
+    display:block;
+    font-size:13px;
+    font-weight:600;
+    margin-bottom:8px;
+    color:#334155;
+}
+.input-wrapper {
+    position:relative;
+    display:flex;
+    align-items:center;
+}
+.currency-symbol {
+    position:absolute;
+    left:15px;
+    font-size:16px;
+    font-weight:600;
+    color:#ff6a00;
+}
+.rate-input {
+    width:100%;
+    padding:14px 15px 14px 40px;
+    font-size:18px;
+    font-weight:700;
+    border:2px solid #e2e8f0;
+    border-radius:12px;
+    outline:none;
+    transition:0.3s;
+    color:#1e2937;
+}
+.rate-input:focus {
+    border-color:#ff6a00;
+    box-shadow:0 0 0 4px rgba(255,106,0,0.1);
+}
+
+/* Preview Box */
+.preview-box {
+    background:#f8fafc;
+    border-radius:12px;
+    padding:16px;
+    margin-bottom:20px;
+    border:1px dashed #cbd5e1;
+}
+.preview-label { font-size:12px; color:#64748b; margin-bottom:5px; }
+.preview-value { font-size:18px; font-weight:700; color:#1e2937; }
+
+/* Buttons */
+.btn-primary {
+    width:100%;
+    background:linear-gradient(135deg, #ff6a00, #e55d00);
+    color:white;
+    border:none;
+    padding:18px;
+    border-radius:16px;
+    font-size:16px;
+    font-weight:700;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    box-shadow:0 10px 25px rgba(255,106,0,0.3);
+    transition:0.3s;
+}
+.btn-primary:hover:not(:disabled) {
+    transform:translateY(-2px);
+    box-shadow:0 15px 30px rgba(255,106,0,0.4);
+}
+.btn-primary:disabled {
+    opacity:0.6;
+    cursor:not-allowed;
+}
+
+.btn-secondary {
+    width:100%;
+    background:#f1f5f9;
+    color:#475569;
+    border:2px solid #e2e8f0;
+    padding:14px;
+    border-radius:12px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    margin-top:10px;
+    transition:0.3s;
+}
+.btn-secondary:hover {
+    background:#e2e8f0;
+    color:#1e2937;
+}
+
+/* History Section */
+.history-section {
+    background:white;
+    border-radius:20px;
+    padding:25px;
+    border:2px solid #e2e8f0;
+}
+.history-title {
+    font-size:16px;
+    font-weight:600;
+    margin-bottom:15px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+.history-list {
+    max-height:400px;
+    overflow-y:auto;
+}
+.history-item {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px;
+    border-bottom:1px solid #f1f5f9;
+}
+.history-item:last-child { border-bottom:none; }
+.history-type {
+    font-size:11px;
+    padding:4px 10px;
+    border-radius:99px;
+    font-weight:600;
+    margin-bottom:5px;
+    display:inline-block;
+}
+.history-type.bank { background:#fff7ed; color:#ff6a00; }
+.history-type.crypto { background:#f1f5f9; color:#475569; }
+.history-details { font-weight:700; color:#1e2937; font-size:14px; }
+.history-time { font-size:12px; color:#94a3b8; }
+.history-admin { font-size:11px; color:#64748b; margin-top:2px; }
+
+/* Stats Grid */
+.stats-grid {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+    margin-bottom:25px;
+}
+.stat-card {
+    background:white;
+    padding:20px;
+    border-radius:16px;
+    text-align:center;
+    border:2px solid #e2e8f0;
+}
+.stat-value { font-size:24px; font-weight:700; color:#ff6a00; }
+.stat-label { font-size:12px; color:#64748b; margin-top:5px; }
+
+/* Loader */
+.loader-overlay {
+    position:fixed;
+    inset:0;
+    background:rgba(255,255,255,0.95);
+    z-index:9999;
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    backdrop-filter:blur(5px);
+}
+.loader-overlay.active { display:flex; }
+.spinner {
+    font-size:50px;
+    color:#ff6a00;
+    animation:spin 1s linear infinite;
+    margin-bottom:20px;
+}
+
+/* Toast */
+.toast {
+    position:fixed;
+    bottom:-100px;
+    left:50%;
+    transform:translateX(-50%);
+    background:#1e2937;
+    color:white;
+    padding:16px 30px;
+    border-radius:99px;
+    font-size:14px;
+    font-weight:500;
+    transition:0.4s;
+    z-index:10000;
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+.toast.show { bottom:30px; }
+.toast.success { background:#10b981; }
+.toast.error { background:#ef4444; }
+
+/* Access Denied */
+.access-denied {
+    text-align:center;
+    padding:60px 20px;
+    max-width:400px;
+    margin:0 auto;
+}
+.access-denied i {
+    font-size:80px;
+    color:#ef4444;
+    margin-bottom:20px;
+}
+.access-denied h2 { font-size:24px; margin-bottom:10px; }
+.access-denied p { color:#64748b; margin-bottom:20px; }
+
+.allowed-admins {
+    background:#f8fafc;
+    border-radius:12px;
+    padding:15px;
+    margin-top:20px;
+    text-align:left;
+}
+.allowed-admins h4 {
+    font-size:12px;
+    color:#64748b;
+    margin-bottom:10px;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+}
+.allowed-admins ul {
+    list-style:none;
+    font-size:13px;
+    color:#334155;
+}
+.allowed-admins li {
+    padding:5px 0;
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+.allowed-admins i {
+    color:#10b981;
+    font-size:12px;
+}
+
+/* Navigation */
+.nav-bar {
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
+    overflow-x:auto;
+    padding-bottom:5px;
+}
+.nav-btn {
+    background:white;
+    border:2px solid #e2e8f0;
+    padding:10px 20px;
+    border-radius:99px;
+    font-size:14px;
+    font-weight:600;
+    color:#64748b;
+    cursor:pointer;
+    white-space:nowrap;
+    transition:0.3s;
+}
+.nav-btn:hover, .nav-btn.active {
+    background:#ff6a00;
+    color:white;
+    border-color:#ff6a00;
+}
+
+@keyframes spin { 100% { transform:rotate(360deg); } }
+
+@media (max-width:600px) {
+    .form-grid { grid-template-columns:1fr; }
+    .crypto-rates-list { grid-template-columns:repeat(2, 1fr); }
+    .admin-header { padding:25px 15px; }
+}
+</style>
+</head>
+<body>
+
+<div class="admin-container" id="adminContent" style="display:none;">
+    <!-- Navigation -->
+    <div class="nav-bar">
+        <button class="nav-btn active">
+            <i class="fas fa-exchange-alt"></i> Exchange Rates
+        </button>
+        <button class="nav-btn" onclick="window.location.href='dashboard.html'">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </button>
+    </div>
+
+    <!-- Header -->
+    <div class="admin-header">
+        <h1><i class="fas fa-cog"></i> Rate Management</h1>
+        <p>Welcome, <span id="adminEmail">Admin</span></p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value" id="totalDeposits">0</div>
+            <div class="stat-label">Total Deposits Today</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="totalVolume">$0</div>
+            <div class="stat-label">Volume Today</div>
+        </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchTab('bank')">
+            <i class="fas fa-building-columns"></i> Bank Rate (NGN)
+        </button>
+        <button class="tab-btn" onclick="switchTab('crypto')">
+            <i class="fab fa-bitcoin"></i> Crypto Rates (USD)
+        </button>
+    </div>
+
+    <!-- Bank Rate Tab -->
+    <div class="tab-content active" id="bankTab">
+        <div class="rate-card">
+            <div class="rate-header">
+                <div class="rate-icon bank"><i class="fas fa-building-columns"></i></div>
+                <div>
+                    <div class="rate-title">Bank Transfer Rate</div>
+                    <div class="rate-subtitle">How much NGN users pay per $1 USD</div>
+                </div>
+            </div>
+            
+            <div class="crypto-rate-item" style="max-width:300px; margin:0 auto;">
+                <div class="crypto-symbol" style="color:#ff6a00;">₦ → $</div>
+                <div class="crypto-name">Naira to Dollar</div>
+                <div class="crypto-price" id="bankRateDisplay">₦1,300</div>
+                <div class="crypto-unit">per $1 USD</div>
+                <div class="last-updated" id="bankLastUpdated">Never updated</div>
+            </div>
+        </div>
+
+        <div class="input-section">
+            <div class="section-title">
+                <i class="fas fa-edit"></i>
+                Update Bank Rate
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">New Rate (NGN per $1 USD)</label>
+                <div class="input-wrapper">
+                    <span class="currency-symbol">₦</span>
+                    <input type="number" class="rate-input" id="bankRateInput" 
+                           placeholder="1300" min="1" step="1">
+                </div>
+            </div>
+
+            <div class="preview-box">
+                <div class="preview-label">Preview: If user deposits $100, they pay:</div>
+                <div class="preview-value" id="bankRatePreview">₦0</div>
+            </div>
+
+            <button class="btn-primary" onclick="updateRate('bank')">
+                <i class="fas fa-save"></i> Update Bank Rate
+            </button>
+            
+            <button class="btn-secondary" onclick="resetRate('bank')">
+                Reset to Default (₦1,300)
+            </button>
+        </div>
+    </div>
+
+    <!-- Crypto Rate Tab - ALL 5 CRYPTOCURRENCIES -->
+    <div class="tab-content" id="cryptoTab">
+        <div class="rate-card">
+            <div class="rate-header">
+                <div class="rate-icon crypto"><i class="fab fa-bitcoin"></i></div>
+                <div>
+                    <div class="rate-title">Cryptocurrency Rates</div>
+                    <div class="rate-subtitle">Price of 1 coin in USD (how much $1 of each crypto costs)</div>
+                </div>
+            </div>
+            
+            <div class="crypto-rates-list">
+                <!-- USDT -->
+                <div class="crypto-rate-item">
+                    <div class="crypto-symbol usdt">₮</div>
+                    <div class="crypto-name">USDT (BEP20)</div>
+                    <div class="crypto-price" id="usdtRateDisplay">$1.00</div>
+                    <div class="crypto-unit">per 1 USDT</div>
+                    <div class="last-updated" id="usdtLastUpdated">Never</div>
+                </div>
+
+                <!-- TRX -->
+                <div class="crypto-rate-item">
+                    <div class="crypto-symbol trx">₮</div>
+                    <div class="crypto-name">TRX (TRC20)</div>
+                    <div class="crypto-price" id="trxRateDisplay">$0.00</div>
+                    <div class="crypto-unit">per 1 TRX</div>
+                    <div class="last-updated" id="trxLastUpdated">Never</div>
+                </div>
+
+                <!-- ETH -->
+                <div class="crypto-rate-item">
+                    <div class="crypto-symbol eth">Ξ</div>
+                    <div class="crypto-name">ETH (ERC20)</div>
+                    <div class="crypto-price" id="ethRateDisplay">$0.00</div>
+                    <div class="crypto-unit">per 1 ETH</div>
+                    <div class="last-updated" id="ethLastUpdated">Never</div>
+                </div>
+
+                <!-- BTC -->
+                <div class="crypto-rate-item">
+                    <div class="crypto-symbol btc">₿</div>
+                    <div class="crypto-name">BTC</div>
+                    <div class="crypto-price" id="btcRateDisplay">$0.00</div>
+                    <div class="crypto-unit">per 1 BTC</div>
+                    <div class="last-updated" id="btcLastUpdated">Never</div>
+                </div>
+
+                <!-- TON -->
+                <div class="crypto-rate-item">
+                    <div class="crypto-symbol ton">T</div>
+                    <div class="crypto-name">TON</div>
+                    <div class="crypto-price" id="tonRateDisplay">$0.00</div>
+                    <div class="crypto-unit">per 1 TON</div>
+                    <div class="last-updated" id="tonLastUpdated">Never</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-section">
+            <div class="section-title">
+                <i class="fas fa-edit"></i>
+                Update All Crypto Rates (USD per 1 coin)
+            </div>
+
+            <div class="form-grid">
+                <!-- USDT Input -->
+                <div class="input-group">
+                    <label class="input-label">USDT Price ($)</label>
+                    <div class="input-wrapper">
+                        <span class="currency-symbol">$</span>
+                        <input type="number" class="rate-input" id="usdtRateInput" 
+                               placeholder="1.00" min="0.0001" step="0.01">
+                    </div>
+                </div>
+
+                <!-- TRX Input -->
+                <div class="input-group">
+                    <label class="input-label">TRX Price ($)</label>
+                    <div class="input-wrapper">
+                        <span class="currency-symbol">$</span>
+                        <input type="number" class="rate-input" id="trxRateInput" 
+                               placeholder="0.12" min="0.0001" step="0.0001">
+                    </div>
+                </div>
+
+                <!-- ETH Input -->
+                <div class="input-group">
+                    <label class="input-label">ETH Price ($)</label>
+                    <div class="input-wrapper">
+                        <span class="currency-symbol">$</span>
+                        <input type="number" class="rate-input" id="ethRateInput" 
+                               placeholder="3000" min="0.0001" step="0.01">
+                    </div>
+                </div>
+
+                <!-- BTC Input -->
+                <div class="input-group">
+                    <label class="input-label">BTC Price ($)</label>
+                    <div class="input-wrapper">
+                        <span class="currency-symbol">$</span>
+                        <input type="number" class="rate-input" id="btcRateInput" 
+                               placeholder="65000" min="0.0001" step="0.01">
+                    </div>
+                </div>
+
+                <!-- TON Input -->
+                <div class="input-group">
+                    <label class="input-label">TON Price ($)</label>
+                    <div class="input-wrapper">
+                        <span class="currency-symbol">$</span>
+                        <input type="number" class="rate-input" id="tonRateInput" 
+                               placeholder="5.50" min="0.0001" step="0.01">
+                    </div>
+                </div>
+            </div>
+
+            <div class="preview-box">
+                <div class="preview-label">Example calculation preview:</div>
+                <div class="preview-value" id="cryptoPreview">Enter rates to see preview</div>
+            </div>
+
+            <button class="btn-primary" onclick="updateCryptoRates()">
+                <i class="fas fa-save"></i> Update All Crypto Rates
+            </button>
+            
+            <button class="btn-secondary" onclick="resetCryptoRates()">
+                Reset All to Default Values
+            </button>
+        </div>
+    </div>
+
+    <!-- Rate History -->
+    <div class="history-section" style="margin-top:25px;">
+        <div class="history-title">
+            <i class="fas fa-history"></i>
+            Rate Change History
+        </div>
+        <div class="history-list" id="historyList">
+            <div style="text-align:center; color:#94a3b8; padding:20px;">
+                <i class="fas fa-spinner fa-spin"></i> Loading...
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Access Denied -->
+<div class="access-denied" id="accessDenied" style="display:none;">
+    <i class="fas fa-lock"></i>
+    <h2>Access Denied</h2>
+    <p>You don't have permission to view this page.</p>
+    <button class="btn-primary" onclick="window.location.href='dashboard.html'">
+        Go to Dashboard
+    </button>
+    
+    <div class="allowed-admins">
+        <h4><i class="fas fa-shield-alt"></i> Authorized Administrators</h4>
+        <ul>
+            <li><i class="fas fa-check-circle"></i> beniwealth70@gmail.com</li>
+            <li><i class="fas fa-check-circle"></i> baasituoppor01@gmail.com</li>
+        </ul>
+    </div>
+</div>
+
+<!-- Loader -->
+<div class="loader-overlay" id="mainLoader">
+    <i class="fas fa-spinner spinner"></i>
+    <p style="font-weight:600; color:#1e2937;">Processing...</p>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toastBox">
+    <i class="fas fa-info-circle"></i>
+    <span id="toastMsg">Message</span>
+</div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
