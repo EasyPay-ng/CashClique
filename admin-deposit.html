@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Admin - Exchange Rate | CashClique</title>
+<title>Admin - Exchange Rates | CashClique</title>
 
 <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1774094269/logo2_ago4ay.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -14,7 +14,7 @@
 body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
 
 /* Admin Layout */
-.admin-container { max-width:600px; margin:0 auto; padding:20px; }
+.admin-container { max-width:700px; margin:0 auto; padding:20px; }
 
 /* Header */
 .admin-header {
@@ -28,29 +28,93 @@ body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
 .admin-header h1 { font-size:24px; font-weight:700; margin-bottom:5px; }
 .admin-header p { opacity:0.9; font-size:14px; }
 
-/* Current Rate Card */
+/* Tab Navigation */
+.tab-nav {
+    display:flex;
+    gap:10px;
+    margin-bottom:25px;
+    background:white;
+    padding:5px;
+    border-radius:16px;
+    border:2px solid #e2e8f0;
+}
+.tab-btn {
+    flex:1;
+    background:transparent;
+    border:none;
+    padding:12px;
+    border-radius:12px;
+    font-size:14px;
+    font-weight:600;
+    color:#64748b;
+    cursor:pointer;
+    transition:0.3s;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+}
+.tab-btn.active {
+    background:#ff6a00;
+    color:white;
+}
+.tab-btn:hover:not(.active) {
+    background:#f1f5f9;
+}
+
+/* Tab Content */
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+
+/* Current Rate Cards */
+.rates-grid {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+    margin-bottom:25px;
+}
 .rate-card {
     background:white;
     border-radius:20px;
-    padding:30px;
+    padding:25px;
     text-align:center;
     box-shadow:0 10px 40px rgba(0,0,0,0.08);
-    margin-bottom:25px;
     border:2px solid #e2e8f0;
+    transition:0.3s;
 }
-.rate-label { font-size:14px; color:#64748b; margin-bottom:10px; font-weight:500; }
+.rate-card:hover {
+    border-color:#ff6a00;
+    transform:translateY(-2px);
+}
+.rate-card.active-card {
+    border-color:#ff6a00;
+    box-shadow:0 10px 40px rgba(255,106,0,0.15);
+}
+.rate-icon {
+    width:50px;
+    height:50px;
+    border-radius:14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin:0 auto 15px;
+    font-size:24px;
+}
+.rate-icon.bank { background:#fff7ed; color:#ff6a00; }
+.rate-icon.crypto { background:#f1f5f9; color:#475569; }
+.rate-label { font-size:13px; color:#64748b; margin-bottom:8px; font-weight:500; }
 .rate-value {
-    font-size:48px;
+    font-size:32px;
     font-weight:700;
-    color:#ff6a00;
+    color:#1e2937;
     margin-bottom:5px;
 }
-.rate-sub { font-size:14px; color:#94a3b8; }
+.rate-sub { font-size:12px; color:#94a3b8; }
 .last-updated {
-    margin-top:15px;
-    padding-top:15px;
+    margin-top:12px;
+    padding-top:12px;
     border-top:1px solid #f1f5f9;
-    font-size:13px;
+    font-size:11px;
     color:#64748b;
 }
 .last-updated i { color:#ff6a00; margin-right:5px; }
@@ -62,6 +126,7 @@ body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
     padding:25px;
     box-shadow:0 4px 6px rgba(0,0,0,0.02);
     border:2px solid #e2e8f0;
+    margin-bottom:20px;
 }
 .section-title {
     font-size:18px;
@@ -169,7 +234,6 @@ body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
 
 /* History Section */
 .history-section {
-    margin-top:25px;
     background:white;
     border-radius:20px;
     padding:25px;
@@ -195,7 +259,17 @@ body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
     border-bottom:1px solid #f1f5f9;
 }
 .history-item:last-child { border-bottom:none; }
-.history-rate { font-weight:700; color:#1e2937; }
+.history-type {
+    font-size:11px;
+    padding:4px 10px;
+    border-radius:99px;
+    font-weight:600;
+    margin-bottom:5px;
+    display:inline-block;
+}
+.history-type.bank { background:#fff7ed; color:#ff6a00; }
+.history-type.crypto { background:#f1f5f9; color:#475569; }
+.history-rate { font-weight:700; color:#1e2937; font-size:15px; }
 .history-time { font-size:12px; color:#94a3b8; }
 .history-admin { font-size:11px; color:#64748b; margin-top:2px; }
 
@@ -273,32 +347,6 @@ body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
 .access-denied h2 { font-size:24px; margin-bottom:10px; }
 .access-denied p { color:#64748b; margin-bottom:20px; }
 
-/* Navigation */
-.nav-bar {
-    display:flex;
-    gap:10px;
-    margin-bottom:20px;
-    overflow-x:auto;
-    padding-bottom:5px;
-}
-.nav-btn {
-    background:white;
-    border:2px solid #e2e8f0;
-    padding:10px 20px;
-    border-radius:99px;
-    font-size:14px;
-    font-weight:600;
-    color:#64748b;
-    cursor:pointer;
-    white-space:nowrap;
-    transition:0.3s;
-}
-.nav-btn:hover, .nav-btn.active {
-    background:#ff6a00;
-    color:white;
-    border-color:#ff6a00;
-}
-
 /* Allowed Admins List */
 .allowed-admins {
     background:#f8fafc;
@@ -330,13 +378,42 @@ body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
     font-size:12px;
 }
 
+/* Navigation */
+.nav-bar {
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
+    overflow-x:auto;
+    padding-bottom:5px;
+}
+.nav-btn {
+    background:white;
+    border:2px solid #e2e8f0;
+    padding:10px 20px;
+    border-radius:99px;
+    font-size:14px;
+    font-weight:600;
+    color:#64748b;
+    cursor:pointer;
+    white-space:nowrap;
+    transition:0.3s;
+}
+.nav-btn:hover, .nav-btn.active {
+    background:#ff6a00;
+    color:white;
+    border-color:#ff6a00;
+}
+
 @keyframes spin { 100% { transform:rotate(360deg); } }
 
 /* Responsive */
-@media (max-width:480px) {
-    .rate-value { font-size:36px; }
+@media (max-width:600px) {
+    .rates-grid { grid-template-columns:1fr; }
+    .rate-value { font-size:28px; }
     .admin-header { padding:25px 15px; }
     .rate-card, .input-section, .history-section { padding:20px; }
+    .tab-nav { flex-direction:column; }
+    .tab-btn { width:100%; }
 }
 </style>
 </head>
@@ -346,7 +423,7 @@ body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
     <!-- Navigation -->
     <div class="nav-bar">
         <button class="nav-btn active">
-            <i class="fas fa-exchange-alt"></i> Exchange Rate
+            <i class="fas fa-exchange-alt"></i> Exchange Rates
         </button>
         <button class="nav-btn" onclick="window.location.href='dashboard.html'">
             <i class="fas fa-arrow-left"></i> Back to Dashboard
@@ -371,45 +448,103 @@ body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
         </div>
     </div>
 
-    <!-- Current Rate Display -->
-    <div class="rate-card">
-        <div class="rate-label">Current Exchange Rate</div>
-        <div class="rate-value" id="currentRateDisplay">₦1,300</div>
-        <div class="rate-sub">per $1 USD</div>
-        <div class="last-updated">
-            <i class="fas fa-clock"></i>
-            Last updated: <span id="lastUpdated">Never</span>
+    <!-- Current Rates Display -->
+    <div class="rates-grid">
+        <div class="rate-card" id="bankRateCard">
+            <div class="rate-icon bank"><i class="fas fa-building-columns"></i></div>
+            <div class="rate-label">Bank Transfer Rate</div>
+            <div class="rate-value" id="bankRateDisplay">₦1,300</div>
+            <div class="rate-sub">per $1 USD</div>
+            <div class="last-updated">
+                <i class="fas fa-clock"></i>
+                <span id="bankLastUpdated">Never</span>
+            </div>
+        </div>
+        
+        <div class="rate-card" id="cryptoRateCard">
+            <div class="rate-icon crypto"><i class="fab fa-bitcoin"></i></div>
+            <div class="rate-label">Cryptocurrency Rate</div>
+            <div class="rate-value" id="cryptoRateDisplay">₦1,300</div>
+            <div class="rate-sub">per $1 USD</div>
+            <div class="last-updated">
+                <i class="fas fa-clock"></i>
+                <span id="cryptoLastUpdated">Never</span>
+            </div>
         </div>
     </div>
 
-    <!-- Update Rate Form -->
-    <div class="input-section">
-        <div class="section-title">
-            <i class="fas fa-edit"></i>
-            Update Rate
-        </div>
+    <!-- Tab Navigation -->
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchTab('bank')">
+            <i class="fas fa-building-columns"></i> Update Bank Rate
+        </button>
+        <button class="tab-btn" onclick="switchTab('crypto')">
+            <i class="fab fa-bitcoin"></i> Update Crypto Rate
+        </button>
+    </div>
 
-        <div class="input-group">
-            <label class="input-label">New Rate (NGN per USD)</label>
-            <div class="input-wrapper">
-                <span class="currency-symbol">₦</span>
-                <input type="number" class="rate-input" id="newRateInput" 
-                       placeholder="1300" min="1" step="1">
+    <!-- Bank Rate Update Form -->
+    <div class="tab-content active" id="bankTab">
+        <div class="input-section">
+            <div class="section-title">
+                <i class="fas fa-edit"></i>
+                Update Bank Transfer Rate
             </div>
-        </div>
 
-        <div class="preview-box">
-            <div class="preview-label">Preview: $100 =</div>
-            <div class="preview-value" id="ratePreview">₦0</div>
-        </div>
+            <div class="input-group">
+                <label class="input-label">New Bank Rate (NGN per USD)</label>
+                <div class="input-wrapper">
+                    <span class="currency-symbol">₦</span>
+                    <input type="number" class="rate-input" id="bankRateInput" 
+                           placeholder="1300" min="1" step="1">
+                </div>
+            </div>
 
-        <button class="btn-primary" id="updateBtn" onclick="updateRate()">
-            <i class="fas fa-save"></i> Update Rate
-        </button>
-        
-        <button class="btn-secondary" onclick="resetToDefault()">
-            Reset to Default (₦1,300)
-        </button>
+            <div class="preview-box">
+                <div class="preview-label">Preview: $100 =</div>
+                <div class="preview-value" id="bankRatePreview">₦0</div>
+            </div>
+
+            <button class="btn-primary" onclick="updateRate('bank')">
+                <i class="fas fa-save"></i> Update Bank Rate
+            </button>
+            
+            <button class="btn-secondary" onclick="resetRate('bank')">
+                Reset Bank Rate to Default (₦1,300)
+            </button>
+        </div>
+    </div>
+
+    <!-- Crypto Rate Update Form -->
+    <div class="tab-content" id="cryptoTab">
+        <div class="input-section">
+            <div class="section-title">
+                <i class="fas fa-edit"></i>
+                Update Cryptocurrency Rate
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">New Crypto Rate (NGN per USD)</label>
+                <div class="input-wrapper">
+                    <span class="currency-symbol">₦</span>
+                    <input type="number" class="rate-input" id="cryptoRateInput" 
+                           placeholder="1300" min="1" step="1">
+                </div>
+            </div>
+
+            <div class="preview-box">
+                <div class="preview-label">Preview: $100 =</div>
+                <div class="preview-value" id="cryptoRatePreview">₦0</div>
+            </div>
+
+            <button class="btn-primary" onclick="updateRate('crypto')">
+                <i class="fas fa-save"></i> Update Crypto Rate
+            </button>
+            
+            <button class="btn-secondary" onclick="resetRate('crypto')">
+                Reset Crypto Rate to Default (₦1,300)
+            </button>
+        </div>
     </div>
 
     <!-- Rate History -->
@@ -497,131 +632,176 @@ const ALLOWED_ADMINS = [
 ];
 
 let currentUser = null;
-let currentRate = 1300;
+let currentRates = {
+    bank: 1300,
+    crypto: 1300
+};
 
 // Check Auth & Admin Status
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         currentUser = user;
-        // Check if user's email is in allowed list
         if (isAdmin(user.email)) {
             document.getElementById('adminContent').style.display = 'block';
             document.getElementById('accessDenied').style.display = 'none';
             document.getElementById('adminEmail').innerText = user.email;
             initializeAdmin();
         } else {
-            // Not authorized - show access denied
             document.getElementById('adminContent').style.display = 'none';
             document.getElementById('accessDenied').style.display = 'block';
-            console.log("Unauthorized access attempt by:", user.email);
         }
     } else {
-        // Not logged in - redirect to login
         window.location.href = "login.html";
     }
 });
 
-// Check if email is admin
 function isAdmin(email) {
     if (!email) return false;
     return ALLOWED_ADMINS.includes(email.toLowerCase().trim());
 }
 
-// Initialize Admin Page
 function initializeAdmin() {
-    loadCurrentRate();
+    loadCurrentRates();
     listenToRateChanges();
     loadRateHistory();
     loadTodayStats();
-    setupInputListener();
+    setupInputListeners();
 }
 
-// Load Current Rate
-async function loadCurrentRate() {
+// Load Both Rates
+async function loadCurrentRates() {
     try {
-        const rateDoc = await getDoc(doc(db, "settings", "exchangeRate"));
-        if (rateDoc.exists()) {
-            currentRate = rateDoc.data().rate || 1300;
-            updateRateDisplay(currentRate, rateDoc.data().updatedAt);
+        // Load Bank Rate
+        const bankDoc = await getDoc(doc(db, "settings", "bankRate"));
+        if (bankDoc.exists()) {
+            currentRates.bank = bankDoc.data().rate || 1300;
+            updateRateDisplay('bank', currentRates.bank, bankDoc.data().updatedAt);
         } else {
-            // Create default rate if doesn't exist
-            await setDoc(doc(db, "settings", "exchangeRate"), {
+            await setDoc(doc(db, "settings", "bankRate"), {
                 rate: 1300,
                 updatedAt: serverTimestamp(),
                 updatedBy: currentUser.email,
                 updatedByUid: currentUser.uid
             });
-            currentRate = 1300;
-            updateRateDisplay(1300, null);
+            currentRates.bank = 1300;
+            updateRateDisplay('bank', 1300, null);
+        }
+
+        // Load Crypto Rate
+        const cryptoDoc = await getDoc(doc(db, "settings", "cryptoRate"));
+        if (cryptoDoc.exists()) {
+            currentRates.crypto = cryptoDoc.data().rate || 1300;
+            updateRateDisplay('crypto', currentRates.crypto, cryptoDoc.data().updatedAt);
+        } else {
+            await setDoc(doc(db, "settings", "cryptoRate"), {
+                rate: 1300,
+                updatedAt: serverTimestamp(),
+                updatedBy: currentUser.email,
+                updatedByUid: currentUser.uid
+            });
+            currentRates.crypto = 1300;
+            updateRateDisplay('crypto', 1300, null);
         }
     } catch (error) {
-        console.error("Error loading rate:", error);
-        showToast("Failed to load current rate", "error");
+        console.error("Error loading rates:", error);
+        showToast("Failed to load rates", "error");
     }
 }
 
-// Real-time rate updates
+// Real-time updates
 function listenToRateChanges() {
-    const rateRef = doc(db, "settings", "exchangeRate");
-    onSnapshot(rateRef, (doc) => {
+    // Listen to bank rate
+    onSnapshot(doc(db, "settings", "bankRate"), (doc) => {
         if (doc.exists()) {
-            currentRate = doc.data().rate;
-            updateRateDisplay(currentRate, doc.data().updatedAt);
+            currentRates.bank = doc.data().rate;
+            updateRateDisplay('bank', doc.data().rate, doc.data().updatedAt);
+        }
+    });
+
+    // Listen to crypto rate
+    onSnapshot(doc(db, "settings", "cryptoRate"), (doc) => {
+        if (doc.exists()) {
+            currentRates.crypto = doc.data().rate;
+            updateRateDisplay('crypto', doc.data().rate, doc.data().updatedAt);
         }
     });
 }
 
-// Update Rate Display
-function updateRateDisplay(rate, timestamp) {
-    document.getElementById('currentRateDisplay').innerText = `₦${rate.toLocaleString()}`;
+function updateRateDisplay(type, rate, timestamp) {
+    document.getElementById(`${type}RateDisplay`).innerText = `₦${rate.toLocaleString()}`;
     
+    const timeElement = document.getElementById(`${type}LastUpdated`);
     if (timestamp && timestamp.toDate) {
-        const date = timestamp.toDate();
-        document.getElementById('lastUpdated').innerText = date.toLocaleString();
+        timeElement.innerText = timestamp.toDate().toLocaleString();
     } else if (timestamp) {
-        document.getElementById('lastUpdated').innerText = new Date(timestamp).toLocaleString();
+        timeElement.innerText = new Date(timestamp).toLocaleString();
     } else {
-        document.getElementById('lastUpdated').innerText = "Just now";
+        timeElement.innerText = "Just now";
     }
 }
 
-// Setup input listener for preview
-function setupInputListener() {
-    const input = document.getElementById('newRateInput');
-    input.addEventListener('input', function() {
+function setupInputListeners() {
+    // Bank input
+    document.getElementById('bankRateInput').addEventListener('input', function() {
         const rate = parseFloat(this.value) || 0;
-        document.getElementById('ratePreview').innerText = `₦${(rate * 100).toLocaleString()}`;
+        document.getElementById('bankRatePreview').innerText = `₦${(rate * 100).toLocaleString()}`;
+    });
+
+    // Crypto input
+    document.getElementById('cryptoRateInput').addEventListener('input', function() {
+        const rate = parseFloat(this.value) || 0;
+        document.getElementById('cryptoRatePreview').innerText = `₦${(rate * 100).toLocaleString()}`;
     });
 }
 
+// Switch Tabs
+window.switchTab = (tab) => {
+    // Update buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.closest('.tab-btn').classList.add('active');
+
+    // Update content
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    document.getElementById(`${tab}Tab`).classList.add('active');
+
+    // Update card highlighting
+    document.getElementById('bankRateCard').classList.toggle('active-card', tab === 'bank');
+    document.getElementById('cryptoRateCard').classList.toggle('active-card', tab === 'crypto');
+};
+
 // Update Rate
-window.updateRate = async () => {
-    const newRate = parseFloat(document.getElementById('newRateInput').value);
+window.updateRate = async (type) => {
+    const inputId = type === 'bank' ? 'bankRateInput' : 'cryptoRateInput';
+    const newRate = parseFloat(document.getElementById(inputId).value);
     
     if (!newRate || newRate < 1) {
         showToast("Please enter a valid rate", "error");
         return;
     }
     
-    if (newRate === currentRate) {
+    if (newRate === currentRates[type]) {
         showToast("New rate must be different from current rate", "error");
         return;
     }
     
-    // Extra security check
     if (!isAdmin(currentUser.email)) {
         showToast("Unauthorized action", "error");
-        setTimeout(() => {
-            window.location.href = "dashboard.html";
-        }, 2000);
+        setTimeout(() => window.location.href = "dashboard.html", 2000);
         return;
     }
     
     showLoader(true);
     
     try {
-        // Update rate in settings
-        await updateDoc(doc(db, "settings", "exchangeRate"), {
+        const docId = type === 'bank' ? 'bankRate' : 'cryptoRate';
+        const previousRate = currentRates[type];
+        
+        // Update rate
+        await updateDoc(doc(db, "settings", docId), {
             rate: newRate,
             updatedAt: serverTimestamp(),
             updatedBy: currentUser.email,
@@ -630,7 +810,8 @@ window.updateRate = async () => {
         
         // Log to history
         await addDoc(collection(db, "rateHistory"), {
-            previousRate: currentRate,
+            rateType: type,
+            previousRate: previousRate,
             newRate: newRate,
             changedBy: currentUser.email,
             changedByUid: currentUser.uid,
@@ -640,20 +821,19 @@ window.updateRate = async () => {
         // Log admin action
         await addDoc(collection(db, "adminLogs"), {
             action: "rate_update",
-            details: `Changed rate from ₦${currentRate} to ₦${newRate}`,
+            rateType: type,
+            details: `Changed ${type} rate from ₦${previousRate} to ₦${newRate}`,
             adminEmail: currentUser.email,
             adminUid: currentUser.uid,
             timestamp: serverTimestamp()
         });
         
-        currentRate = newRate;
-        document.getElementById('newRateInput').value = '';
-        document.getElementById('ratePreview').innerText = '₦0';
+        currentRates[type] = newRate;
+        document.getElementById(inputId).value = '';
+        document.getElementById(`${type}RatePreview`).innerText = '₦0';
         
         showLoader(false);
-        showToast(`Rate updated to ₦${newRate.toLocaleString()} per $1`, "success");
-        
-        // Refresh history
+        showToast(`${type === 'bank' ? 'Bank' : 'Crypto'} rate updated to ₦${newRate.toLocaleString()}`, "success");
         loadRateHistory();
         
     } catch (error) {
@@ -663,13 +843,16 @@ window.updateRate = async () => {
     }
 };
 
-// Reset to Default
-window.resetToDefault = async () => {
-    if (!confirm("Reset rate to default ₦1,300?")) return;
+// Reset Rate
+window.resetRate = async (type) => {
+    if (!confirm(`Reset ${type} rate to default ₦1,300?`)) return;
     
-    document.getElementById('newRateInput').value = '1300';
-    document.getElementById('ratePreview').innerText = '₦130,000';
-    await updateRate();
+    const inputId = type === 'bank' ? 'bankRateInput' : 'cryptoRateInput';
+    const previewId = type === 'bank' ? 'bankRatePreview' : 'cryptoRatePreview';
+    
+    document.getElementById(inputId).value = '1300';
+    document.getElementById(previewId).innerText = '₦130,000';
+    await updateRate(type);
 };
 
 // Load Rate History
@@ -678,7 +861,7 @@ async function loadRateHistory() {
         const historyQuery = query(
             collection(db, "rateHistory"),
             orderBy("timestamp", "desc"),
-            limit(10)
+            limit(20)
         );
         
         const snapshot = await getDocs(historyQuery);
@@ -703,13 +886,16 @@ async function loadRateHistory() {
             const diff = newRate - prevRate;
             const diffColor = diff > 0 ? '#10b981' : (diff < 0 ? '#ef4444' : '#64748b');
             const diffIcon = diff > 0 ? '↑' : (diff < 0 ? '↓' : '→');
+            const typeClass = data.rateType === 'bank' ? 'bank' : 'crypto';
+            const typeLabel = data.rateType === 'bank' ? 'BANK' : 'CRYPTO';
             
             html += `
                 <div class="history-item">
                     <div>
+                        <div class="history-type ${typeClass}">${typeLabel}</div>
                         <div class="history-rate">
                             ₦${prevRate.toLocaleString()} → ₦${newRate.toLocaleString()}
-                            <span style="color:${diffColor}; font-size:14px; margin-left:5px;">
+                            <span style="color:${diffColor}; font-size:13px; margin-left:5px;">
                                 ${diffIcon} ${Math.abs(diff)}
                             </span>
                         </div>
@@ -780,13 +966,11 @@ function showToast(message, type = 'info') {
     }, 3000);
 }
 
-// Security: Check admin status every 30 seconds
+// Security check every 30 seconds
 setInterval(() => {
     if (currentUser && !isAdmin(currentUser.email)) {
         showToast("Admin access revoked", "error");
-        setTimeout(() => {
-            window.location.href = "dashboard.html";
-        }, 2000);
+        setTimeout(() => window.location.href = "dashboard.html", 2000);
     }
 }, 30000);
 </script>
