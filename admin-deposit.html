@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Admin - Exchange Rate | CashClique</title>
+
+<link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1774094269/logo2_ago4ay.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
+
+/* Admin Layout */
+.admin-container { max-width:600px; margin:0 auto; padding:20px; }
+
+/* Header */
+.admin-header {
+    background:linear-gradient(135deg, #ff6a00, #e55d00);
+    color:white;
+    padding:30px 20px;
+    border-radius:20px;
+    margin-bottom:30px;
+    text-align:center;
+}
+.admin-header h1 { font-size:24px; font-weight:700; margin-bottom:5px; }
+.admin-header p { opacity:0.9; font-size:14px; }
+
+/* Current Rate Card */
+.rate-card {
+    background:white;
+    border-radius:20px;
+    padding:30px;
+    text-align:center;
+    box-shadow:0 10px 40px rgba(0,0,0,0.08);
+    margin-bottom:25px;
+    border:2px solid #e2e8f0;
+}
+.rate-label { font-size:14px; color:#64748b; margin-bottom:10px; font-weight:500; }
+.rate-value {
+    font-size:48px;
+    font-weight:700;
+    color:#ff6a00;
+    margin-bottom:5px;
+}
+.rate-sub { font-size:14px; color:#94a3b8; }
+.last-updated {
+    margin-top:15px;
+    padding-top:15px;
+    border-top:1px solid #f1f5f9;
+    font-size:13px;
+    color:#64748b;
+}
+.last-updated i { color:#ff6a00; margin-right:5px; }
+
+/* Input Section */
+.input-section {
+    background:white;
+    border-radius:20px;
+    padding:25px;
+    box-shadow:0 4px 6px rgba(0,0,0,0.02);
+    border:2px solid #e2e8f0;
+}
+.section-title {
+    font-size:18px;
+    font-weight:600;
+    margin-bottom:20px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+.section-title i { color:#ff6a00; }
+
+/* Input Group */
+.input-group { margin-bottom:20px; }
+.input-label {
+    display:block;
+    font-size:14px;
+    font-weight:600;
+    margin-bottom:10px;
+    color:#334155;
+}
+.input-wrapper {
+    position:relative;
+    display:flex;
+    align-items:center;
+}
+.currency-symbol {
+    position:absolute;
+    left:20px;
+    font-size:20px;
+    font-weight:600;
+    color:#ff6a00;
+}
+.rate-input {
+    width:100%;
+    padding:18px 20px 18px 50px;
+    font-size:24px;
+    font-weight:700;
+    border:2px solid #e2e8f0;
+    border-radius:16px;
+    outline:none;
+    transition:0.3s;
+    color:#1e2937;
+}
+.rate-input:focus {
+    border-color:#ff6a00;
+    box-shadow:0 0 0 4px rgba(255,106,0,0.1);
+}
+.rate-input::placeholder { color:#cbd5e1; }
+
+/* Preview Box */
+.preview-box {
+    background:#f8fafc;
+    border-radius:12px;
+    padding:16px;
+    margin-bottom:20px;
+    border:1px dashed #cbd5e1;
+}
+.preview-label { font-size:12px; color:#64748b; margin-bottom:5px; }
+.preview-value { font-size:20px; font-weight:700; color:#1e2937; }
+
+/* Buttons */
+.btn-primary {
+    width:100%;
+    background:linear-gradient(135deg, #ff6a00, #e55d00);
+    color:white;
+    border:none;
+    padding:18px;
+    border-radius:16px;
+    font-size:16px;
+    font-weight:700;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    box-shadow:0 10px 25px rgba(255,106,0,0.3);
+    transition:0.3s;
+}
+.btn-primary:hover:not(:disabled) {
+    transform:translateY(-2px);
+    box-shadow:0 15px 30px rgba(255,106,0,0.4);
+}
+.btn-primary:disabled {
+    opacity:0.6;
+    cursor:not-allowed;
+}
+
+.btn-secondary {
+    width:100%;
+    background:#f1f5f9;
+    color:#475569;
+    border:2px solid #e2e8f0;
+    padding:14px;
+    border-radius:12px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    margin-top:10px;
+    transition:0.3s;
+}
+.btn-secondary:hover {
+    background:#e2e8f0;
+    color:#1e2937;
+}
+
+/* History Section */
+.history-section {
+    margin-top:25px;
+    background:white;
+    border-radius:20px;
+    padding:25px;
+    border:2px solid #e2e8f0;
+}
+.history-title {
+    font-size:16px;
+    font-weight:600;
+    margin-bottom:15px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+.history-list {
+    max-height:300px;
+    overflow-y:auto;
+}
+.history-item {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px;
+    border-bottom:1px solid #f1f5f9;
+}
+.history-item:last-child { border-bottom:none; }
+.history-rate { font-weight:700; color:#1e2937; }
+.history-time { font-size:12px; color:#94a3b8; }
+.history-admin { font-size:11px; color:#64748b; margin-top:2px; }
+
+/* Stats Grid */
+.stats-grid {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+    margin-bottom:25px;
+}
+.stat-card {
+    background:white;
+    padding:20px;
+    border-radius:16px;
+    text-align:center;
+    border:2px solid #e2e8f0;
+}
+.stat-value { font-size:24px; font-weight:700; color:#ff6a00; }
+.stat-label { font-size:12px; color:#64748b; margin-top:5px; }
+
+/* Loader */
+.loader-overlay {
+    position:fixed;
+    inset:0;
+    background:rgba(255,255,255,0.95);
+    z-index:9999;
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    backdrop-filter:blur(5px);
+}
+.loader-overlay.active { display:flex; }
+.spinner {
+    font-size:50px;
+    color:#ff6a00;
+    animation:spin 1s linear infinite;
+    margin-bottom:20px;
+}
+
+/* Toast */
+.toast {
+    position:fixed;
+    bottom:-100px;
+    left:50%;
+    transform:translateX(-50%);
+    background:#1e2937;
+    color:white;
+    padding:16px 30px;
+    border-radius:99px;
+    font-size:14px;
+    font-weight:500;
+    transition:0.4s;
+    z-index:10000;
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+.toast.show { bottom:30px; }
+.toast.success { background:#10b981; }
+.toast.error { background:#ef4444; }
+
+/* Access Denied */
+.access-denied {
+    text-align:center;
+    padding:60px 20px;
+    max-width:400px;
+    margin:0 auto;
+}
+.access-denied i {
+    font-size:80px;
+    color:#ef4444;
+    margin-bottom:20px;
+}
+.access-denied h2 { font-size:24px; margin-bottom:10px; }
+.access-denied p { color:#64748b; margin-bottom:20px; }
+
+/* Navigation */
+.nav-bar {
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
+    overflow-x:auto;
+    padding-bottom:5px;
+}
+.nav-btn {
+    background:white;
+    border:2px solid #e2e8f0;
+    padding:10px 20px;
+    border-radius:99px;
+    font-size:14px;
+    font-weight:600;
+    color:#64748b;
+    cursor:pointer;
+    white-space:nowrap;
+    transition:0.3s;
+}
+.nav-btn:hover, .nav-btn.active {
+    background:#ff6a00;
+    color:white;
+    border-color:#ff6a00;
+}
+
+/* Allowed Admins List */
+.allowed-admins {
+    background:#f8fafc;
+    border-radius:12px;
+    padding:15px;
+    margin-top:20px;
+    text-align:left;
+}
+.allowed-admins h4 {
+    font-size:12px;
+    color:#64748b;
+    margin-bottom:10px;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+}
+.allowed-admins ul {
+    list-style:none;
+    font-size:13px;
+    color:#334155;
+}
+.allowed-admins li {
+    padding:5px 0;
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+.allowed-admins i {
+    color:#10b981;
+    font-size:12px;
+}
+
+@keyframes spin { 100% { transform:rotate(360deg); } }
+
+/* Responsive */
+@media (max-width:480px) {
+    .rate-value { font-size:36px; }
+    .admin-header { padding:25px 15px; }
+    .rate-card, .input-section, .history-section { padding:20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="admin-container" id="adminContent" style="display:none;">
+    <!-- Navigation -->
+    <div class="nav-bar">
+        <button class="nav-btn active">
+            <i class="fas fa-exchange-alt"></i> Exchange Rate
+        </button>
+        <button class="nav-btn" onclick="window.location.href='dashboard.html'">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </button>
+    </div>
+
+    <!-- Header -->
+    <div class="admin-header">
+        <h1><i class="fas fa-cog"></i> Rate Management</h1>
+        <p>Welcome, <span id="adminEmail">Admin</span></p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value" id="totalDeposits">0</div>
+            <div class="stat-label">Total Deposits Today</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="totalVolume">$0</div>
+            <div class="stat-label">Volume Today</div>
+        </div>
+    </div>
+
+    <!-- Current Rate Display -->
+    <div class="rate-card">
+        <div class="rate-label">Current Exchange Rate</div>
+        <div class="rate-value" id="currentRateDisplay">₦1,300</div>
+        <div class="rate-sub">per $1 USD</div>
+        <div class="last-updated">
+            <i class="fas fa-clock"></i>
+            Last updated: <span id="lastUpdated">Never</span>
+        </div>
+    </div>
+
+    <!-- Update Rate Form -->
+    <div class="input-section">
+        <div class="section-title">
+            <i class="fas fa-edit"></i>
+            Update Rate
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">New Rate (NGN per USD)</label>
+            <div class="input-wrapper">
+                <span class="currency-symbol">₦</span>
+                <input type="number" class="rate-input" id="newRateInput" 
+                       placeholder="1300" min="1" step="1">
+            </div>
+        </div>
+
+        <div class="preview-box">
+            <div class="preview-label">Preview: $100 =</div>
+            <div class="preview-value" id="ratePreview">₦0</div>
+        </div>
+
+        <button class="btn-primary" id="updateBtn" onclick="updateRate()">
+            <i class="fas fa-save"></i> Update Rate
+        </button>
+        
+        <button class="btn-secondary" onclick="resetToDefault()">
+            Reset to Default (₦1,300)
+        </button>
+    </div>
+
+    <!-- Rate History -->
+    <div class="history-section">
+        <div class="history-title">
+            <i class="fas fa-history"></i>
+            Rate Change History
+        </div>
+        <div class="history-list" id="historyList">
+            <div style="text-align:center; color:#94a3b8; padding:20px;">
+                <i class="fas fa-spinner fa-spin"></i> Loading...
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Access Denied (shown to non-admins) -->
+<div class="access-denied" id="accessDenied" style="display:none;">
+    <i class="fas fa-lock"></i>
+    <h2>Access Denied</h2>
+    <p>You don't have permission to view this page. This area is restricted to authorized administrators only.</p>
+    <button class="btn-primary" onclick="window.location.href='dashboard.html'">
+        Go to Dashboard
+    </button>
+    
+    <div class="allowed-admins">
+        <h4><i class="fas fa-shield-alt"></i> Authorized Administrators</h4>
+        <ul>
+            <li><i class="fas fa-check-circle"></i> beniwealth70@gmail.com</li>
+            <li><i class="fas fa-check-circle"></i> baasituoppor01@gmail.com</li>
+        </ul>
+    </div>
+</div>
+
+<!-- Loader -->
+<div class="loader-overlay" id="mainLoader">
+    <i class="fas fa-spinner spinner"></i>
+    <p style="font-weight:600; color:#1e2937;">Processing...</p>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toastBox">
+    <i class="fas fa-info-circle"></i>
+    <span id="toastMsg">Message</span>
+</div>
+
+<!-- FIREBASE & LOGIC -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { 
+    getFirestore, 
+    doc, 
+    getDoc, 
+    updateDoc, 
+    setDoc, 
+    serverTimestamp, 
+    collection, 
+    addDoc, 
+    query, 
+    orderBy, 
+    limit, 
+    onSnapshot,
+    getDocs,
+    where 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
+    authDomain: "cashclique-31718.firebaseapp.com",
+    projectId: "cashclique-31718",
+    storageBucket: "cashclique-31718.firebasestorage.app",
+    messagingSenderId: "1064282591269",
+    appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// ALLOWED ADMIN EMAILS - Hardcoded for security
+const ALLOWED_ADMINS = [
+    "beniwealth70@gmail.com",
+    "baasituoppor01@gmail.com"
+];
+
+let currentUser = null;
+let currentRate = 1300;
+
+// Check Auth & Admin Status
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        currentUser = user;
+        // Check if user's email is in allowed list
+        if (isAdmin(user.email)) {
+            document.getElementById('adminContent').style.display = 'block';
+            document.getElementById('accessDenied').style.display = 'none';
+            document.getElementById('adminEmail').innerText = user.email;
+            initializeAdmin();
+        } else {
+            // Not authorized - show access denied
+            document.getElementById('adminContent').style.display = 'none';
+            document.getElementById('accessDenied').style.display = 'block';
+            console.log("Unauthorized access attempt by:", user.email);
+        }
+    } else {
+        // Not logged in - redirect to login
+        window.location.href = "login.html";
+    }
+});
+
+// Check if email is admin
+function isAdmin(email) {
+    if (!email) return false;
+    return ALLOWED_ADMINS.includes(email.toLowerCase().trim());
+}
+
+// Initialize Admin Page
+function initializeAdmin() {
+    loadCurrentRate();
+    listenToRateChanges();
+    loadRateHistory();
+    loadTodayStats();
+    setupInputListener();
+}
+
+// Load Current Rate
+async function loadCurrentRate() {
+    try {
+        const rateDoc = await getDoc(doc(db, "settings", "exchangeRate"));
+        if (rateDoc.exists()) {
+            currentRate = rateDoc.data().rate || 1300;
+            updateRateDisplay(currentRate, rateDoc.data().updatedAt);
+        } else {
+            // Create default rate if doesn't exist
+            await setDoc(doc(db, "settings", "exchangeRate"), {
+                rate: 1300,
+                updatedAt: serverTimestamp(),
+                updatedBy: currentUser.email,
+                updatedByUid: currentUser.uid
+            });
+            currentRate = 1300;
+            updateRateDisplay(1300, null);
+        }
+    } catch (error) {
+        console.error("Error loading rate:", error);
+        showToast("Failed to load current rate", "error");
+    }
+}
+
+// Real-time rate updates
+function listenToRateChanges() {
+    const rateRef = doc(db, "settings", "exchangeRate");
+    onSnapshot(rateRef, (doc) => {
+        if (doc.exists()) {
+            currentRate = doc.data().rate;
+            updateRateDisplay(currentRate, doc.data().updatedAt);
+        }
+    });
+}
+
+// Update Rate Display
+function updateRateDisplay(rate, timestamp) {
+    document.getElementById('currentRateDisplay').innerText = `₦${rate.toLocaleString()}`;
+    
+    if (timestamp && timestamp.toDate) {
+        const date = timestamp.toDate();
+        document.getElementById('lastUpdated').innerText = date.toLocaleString();
+    } else if (timestamp) {
+        document.getElementById('lastUpdated').innerText = new Date(timestamp).toLocaleString();
+    } else {
+        document.getElementById('lastUpdated').innerText = "Just now";
+    }
+}
+
+// Setup input listener for preview
+function setupInputListener() {
+    const input = document.getElementById('newRateInput');
+    input.addEventListener('input', function() {
+        const rate = parseFloat(this.value) || 0;
+        document.getElementById('ratePreview').innerText = `₦${(rate * 100).toLocaleString()}`;
+    });
+}
+
+// Update Rate
+window.updateRate = async () => {
+    const newRate = parseFloat(document.getElementById('newRateInput').value);
+    
+    if (!newRate || newRate < 1) {
+        showToast("Please enter a valid rate", "error");
+        return;
+    }
+    
+    if (newRate === currentRate) {
+        showToast("New rate must be different from current rate", "error");
+        return;
+    }
+    
+    // Extra security check
+    if (!isAdmin(currentUser.email)) {
+        showToast("Unauthorized action", "error");
+        setTimeout(() => {
+            window.location.href = "dashboard.html";
+        }, 2000);
+        return;
+    }
+    
+    showLoader(true);
+    
+    try {
+        // Update rate in settings
+        await updateDoc(doc(db, "settings", "exchangeRate"), {
+            rate: newRate,
+            updatedAt: serverTimestamp(),
+            updatedBy: currentUser.email,
+            updatedByUid: currentUser.uid
+        });
+        
+        // Log to history
+        await addDoc(collection(db, "rateHistory"), {
+            previousRate: currentRate,
+            newRate: newRate,
+            changedBy: currentUser.email,
+            changedByUid: currentUser.uid,
+            timestamp: serverTimestamp()
+        });
+        
+        // Log admin action
+        await addDoc(collection(db, "adminLogs"), {
+            action: "rate_update",
+            details: `Changed rate from ₦${currentRate} to ₦${newRate}`,
+            adminEmail: currentUser.email,
+            adminUid: currentUser.uid,
+            timestamp: serverTimestamp()
+        });
+        
+        currentRate = newRate;
+        document.getElementById('newRateInput').value = '';
+        document.getElementById('ratePreview').innerText = '₦0';
+        
+        showLoader(false);
+        showToast(`Rate updated to ₦${newRate.toLocaleString()} per $1`, "success");
+        
+        // Refresh history
+        loadRateHistory();
+        
+    } catch (error) {
+        console.error("Error updating rate:", error);
+        showLoader(false);
+        showToast("Failed to update rate: " + error.message, "error");
+    }
+};
+
+// Reset to Default
+window.resetToDefault = async () => {
+    if (!confirm("Reset rate to default ₦1,300?")) return;
+    
+    document.getElementById('newRateInput').value = '1300';
+    document.getElementById('ratePreview').innerText = '₦130,000';
+    await updateRate();
+};
+
+// Load Rate History
+async function loadRateHistory() {
+    try {
+        const historyQuery = query(
+            collection(db, "rateHistory"),
+            orderBy("timestamp", "desc"),
+            limit(10)
+        );
+        
+        const snapshot = await getDocs(historyQuery);
+        const historyList = document.getElementById('historyList');
+        
+        if (snapshot.empty) {
+            historyList.innerHTML = `
+                <div style="text-align:center; color:#94a3b8; padding:20px;">
+                    <i class="fas fa-inbox" style="font-size:40px; margin-bottom:10px;"></i>
+                    <p>No rate changes yet</p>
+                </div>
+            `;
+            return;
+        }
+        
+        let html = '';
+        snapshot.forEach((doc) => {
+            const data = doc.data();
+            const time = data.timestamp ? data.timestamp.toDate().toLocaleString() : 'Unknown';
+            const prevRate = data.previousRate || 0;
+            const newRate = data.newRate;
+            const diff = newRate - prevRate;
+            const diffColor = diff > 0 ? '#10b981' : (diff < 0 ? '#ef4444' : '#64748b');
+            const diffIcon = diff > 0 ? '↑' : (diff < 0 ? '↓' : '→');
+            
+            html += `
+                <div class="history-item">
+                    <div>
+                        <div class="history-rate">
+                            ₦${prevRate.toLocaleString()} → ₦${newRate.toLocaleString()}
+                            <span style="color:${diffColor}; font-size:14px; margin-left:5px;">
+                                ${diffIcon} ${Math.abs(diff)}
+                            </span>
+                        </div>
+                        <div class="history-admin">by ${data.changedBy || 'Unknown'}</div>
+                    </div>
+                    <div class="history-time">${time}</div>
+                </div>
+            `;
+        });
+        
+        historyList.innerHTML = html;
+        
+    } catch (error) {
+        console.error("Error loading history:", error);
+        document.getElementById('historyList').innerHTML = `
+            <div style="text-align:center; color:#ef4444; padding:20px;">
+                <i class="fas fa-exclamation-circle"></i> Failed to load history
+            </div>
+        `;
+    }
+}
+
+// Load Today's Stats
+async function loadTodayStats() {
+    try {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const transactionsQuery = query(
+            collection(db, "transactions"),
+            where("timestamp", ">=", today),
+            where("type", "==", "deposit")
+        );
+        
+        const snapshot = await getDocs(transactionsQuery);
+        let count = 0;
+        let volume = 0;
+        
+        snapshot.forEach((doc) => {
+            count++;
+            volume += doc.data().amountUSD || 0;
+        });
+        
+        document.getElementById('totalDeposits').innerText = count;
+        document.getElementById('totalVolume').innerText = `$${volume.toLocaleString()}`;
+        
+    } catch (error) {
+        console.error("Error loading stats:", error);
+    }
+}
+
+// UI Functions
+function showLoader(show) {
+    const loader = document.getElementById('mainLoader');
+    if (show) loader.classList.add('active');
+    else loader.classList.remove('active');
+}
+
+function showToast(message, type = 'info') {
+    const toast = document.getElementById('toastBox');
+    const msgSpan = document.getElementById('toastMsg');
+    
+    msgSpan.innerText = message;
+    toast.className = 'toast show ' + type;
+    
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3000);
+}
+
+// Security: Check admin status every 30 seconds
+setInterval(() => {
+    if (currentUser && !isAdmin(currentUser.email)) {
+        showToast("Admin access revoked", "error");
+        setTimeout(() => {
+            window.location.href = "dashboard.html";
+        }, 2000);
+    }
+}, 30000);
+</script>
+</body>
+</html>
