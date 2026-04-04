@@ -563,3 +563,1051 @@ body{background:var(--bg-body);display:flex;min-height:100vh;-webkit-font-smooth
         <div class="notification-panel" id="notification-panel"></div>
     </div>
 </div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc, collection, query, where, getDocs, onSnapshot, arrayUnion, arrayRemove, orderBy, addDoc, increment, serverTimestamp, writeBatch, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
+    authDomain: "cashclique-31718.firebaseapp.com",
+    projectId: "cashclique-31718",
+    storageBucket: "cashclique-31718.firebasestorage.app",
+    messagingSenderId: "1064282591269",
+    appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc",
+    measurementId: "G-V5WHJB6LS0"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const messaging = getMessaging(app);
+
+// ==================== USER AVATAR CACHE ====================
+// Cache to store user avatars from Firestore to avoid repeated reads
+const userAvatarCache = {};
+
+// Function to get user avatar from Firestore with caching
+async function getUserAvatar(userId) {
+    // Return from cache if available
+    if (userAvatarCache[userId]) {
+        return userAvatarCache[userId];
+    }
+    
+    try {
+        const userDoc = await getDoc(doc(db, "users", userId));
+        if (userDoc.exists()) {
+            const userData = userDoc.data();
+            // Use uploaded avatar or fallback to initial-based placeholder
+            const avatar = userData.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.username || 'U')}&background=ff6a00&color=fff&size=150`;
+            userAvatarCache[userId] = avatar;
+            return avatar;
+        }
+    } catch (error) {
+        console.error("Error fetching user avatar:", error);
+    }
+    
+    // Fallback to generic placeholder
+    return `https://ui-avatars.com/api/?name=U&background=ff6a00&color=fff&size=150`;
+}
+
+// ==================== TOAST NOTIFICATIONS ====================
+function showToast(message, type = "success", duration = 4000) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    const icons = {
+        success: 'check-circle',
+        error: 'exclamation-circle',
+        info: 'info-circle'
+    };
+    
+    toast.innerHTML = `<i class="fas fa-${icons[type]}"></i> ${message}`;
+    container.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.classList.add('removing');
+        setTimeout(() => toast.remove(), 300);
+    }, duration);
+}
+
+// ==================== GLOBAL VARIABLES ====================
+const feed = document.getElementById("feed");
+let currentUser = null;
+let currentUsername = "User";
+let currentBalance = 0;
+let currentUserAvatar = "";
+let viewTimers = {};
+let followingList = [];
+let userVerificationCache = {};
+let allPostsCache = [];
+let approvedApplications = [];
+let opportunitiesCache = {};
+let viewedAds = [];
+let currentFeedTab = localStorage.getItem('cashclique_feed_tab') || 'all';
+let searchQuery = "";
+let csChatId = null;
+let csUnsubscribe = null;
+let selectedCSImageBase64 = null;
+let replyToComment = null;
+let currentTipData = null;
+
+// ==================== AUTH STATE ====================
+onAuthStateChanged(auth, async (user) => {
+    if (!user) { 
+        window.location.href = "login.html"; 
+        return; 
+    }
+    currentUser = user;
+
+    // Load current user data including avatar
+    const userRef = doc(db, "users", user.uid);
+    onSnapshot(userRef, async (snap) => {
+        if (snap.exists()) {
+            const data = snap.data();
+            currentUsername = data.username || user.email?.split('@')[0] || "User";
+            currentBalance = data.balance || 0;
+            followingList = data.following || [];
+            viewedAds = data.viewedAds || [];
+            
+            // Use Firestore avatar or generate from username
+            currentUserAvatar = data.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUsername)}&background=ff6a00&color=fff&size=150`;
+            
+            document.getElementById("username").innerText = currentUsername;
+            document.getElementById("user-avatar").src = currentUserAvatar;
+            
+            // Cache current user avatar
+            userAvatarCache[user.uid] = currentUserAvatar;
+            
+            if (data.isVerified || data.verified) {
+                document.getElementById("user-verified-badge").style.display = "inline-flex";
+            }
+        }
+    });
+
+    setupPushNotifications(user);
+    initCSChat();
+    loadFeed();
+    loadNotifications();
+    attachUIEvents();
+    listenForNewPostsFromFollowing();
+});
+
+async function setupPushNotifications(currentUser) {
+    try {
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') return;
+        const token = await getToken(messaging, { 
+            vapidKey: "BC3tPo2214pVm2EsUTT4esaS_UfDHY_Gkh948zqU7xsPztiZXE03CdPXiKncElOKXoRJC1i1KwP7RtA0Us7-qgg" 
+        });
+        if (token) {
+            await updateDoc(doc(db, "users", currentUser.uid), {
+                pushTokens: arrayUnion(token)
+            });
+        }
+        onMessage(messaging, (payload) => {
+            showToast(payload.notification.body, "info");
+        });
+    } catch (error) {
+        console.error("FCM setup failed:", error);
+    }
+}
+
+// ==================== CS CHAT ====================
+async function initCSChat() {
+    const chatsQuery = query(collection(db, "supportChats"), where("userId", "==", currentUser.uid));
+    const snapshot = await getDocs(chatsQuery);
+    if (!snapshot.empty) {
+        csChatId = snapshot.docs[0].id;
+        loadCSMessages();
+    }
+}
+
+window.openCSChat = async () => {
+    document.getElementById('cs-overlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    if (!csChatId) {
+        const chatDoc = await addDoc(collection(db, "supportChats"), {
+            userId: currentUser.uid,
+            userEmail: currentUser.email,
+            userName: currentUsername,
+            status: 'open',
+            createdAt: serverTimestamp(),
+            lastMessageAt: serverTimestamp(),
+            unreadByUser: false,
+            unreadByAdmin: false
+        });
+        csChatId = chatDoc.id;
+        loadCSMessages();
+    }
+    await updateDoc(doc(db, "supportChats", csChatId), { unreadByUser: false });
+    document.getElementById('cs-btn').classList.remove('has-unread');
+};
+
+window.closeCSChat = () => {
+    document.getElementById('cs-overlay').classList.remove('active');
+    document.body.style.overflow = '';
+};
+
+function loadCSMessages() {
+    if (csUnsubscribe) csUnsubscribe();
+    const messagesQuery = query(collection(db, "supportChats", csChatId, "messages"), orderBy("timestamp", "asc"));
+    csUnsubscribe = onSnapshot(messagesQuery, (snapshot) => {
+        const messagesContainer = document.getElementById('cs-messages');
+        messagesContainer.innerHTML = '';
+        snapshot.forEach(doc => {
+            const msg = doc.data();
+            const isUser = msg.sender === 'user';
+            const time = msg.timestamp ? formatTime(msg.timestamp.toDate()) : 'Just now';
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `cs-message ${isUser ? 'user' : 'admin'}`;
+            let content = `<div>${escapeHtml(msg.text)}</div>`;
+            if (msg.imageBase64) {
+                content += `<img src="${msg.imageBase64}" class="cs-message-image" onclick="viewImage('${msg.imageBase64}')">`;
+            }
+            content += `<div class="cs-message-time">${time}</div>`;
+            msgDiv.innerHTML = content;
+            messagesContainer.appendChild(msgDiv);
+        });
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        
+        snapshot.docChanges().forEach(change => {
+            if (change.type === 'added' && change.doc.data().sender === 'admin') {
+                if (!document.getElementById('cs-overlay').classList.contains('active')) {
+                    document.getElementById('cs-btn').classList.add('has-unread');
+                }
+            }
+        });
+    });
+}
+
+window.handleCSImageSelect = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+        showToast('Please select an image file', 'error');
+        return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+        showToast('Image must be less than 5MB', 'error');
+        return;
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        selectedCSImageBase64 = e.target.result;
+        document.getElementById('cs-preview-img').src = selectedCSImageBase64;
+        document.getElementById('cs-image-preview').classList.add('active');
+    };
+    reader.readAsDataURL(file);
+};
+
+window.removeCSImage = () => {
+    selectedCSImageBase64 = null;
+    document.getElementById('cs-image-preview').classList.remove('active');
+    document.getElementById('cs-file-input').value = '';
+};
+
+window.handleCSKeyPress = (event) => {
+    if (event.key === 'Enter') sendCSMessage();
+};
+
+window.sendCSMessage = async () => {
+    const input = document.getElementById('cs-input');
+    const text = input.value.trim();
+    if (!text && !selectedCSImageBase64) return;
+    input.value = '';
+    
+    try {
+        await addDoc(collection(db, "supportChats", csChatId, "messages"), {
+            sender: 'user',
+            text: text || '',
+            imageBase64: selectedCSImageBase64 || null,
+            timestamp: serverTimestamp()
+        });
+        await updateDoc(doc(db, "supportChats", csChatId), {
+            lastMessageAt: serverTimestamp(),
+            lastMessage: text || (selectedCSImageBase64 ? 'Image' : ''),
+            unreadByAdmin: true
+        });
+        removeCSImage();
+    } catch (error) {
+        console.error("Failed to send message:", error);
+        showToast('Failed to send message', 'error');
+    }
+};
+
+// ==================== FOLLOW SYSTEM ====================
+window.toggleFollow = async (userId, button) => {
+    if (userId === currentUser.uid) {
+        showToast("You can't follow yourself!", "error");
+        return;
+    }
+    const isFollowing = followingList.includes(userId);
+    const userRef = doc(db, "users", currentUser.uid);
+    const targetUserRef = doc(db, "users", userId);
+    
+    try {
+        if (isFollowing) {
+            await updateDoc(userRef, { following: arrayRemove(userId) });
+            await updateDoc(targetUserRef, { followers: arrayRemove(currentUser.uid) });
+            followingList = followingList.filter(id => id !== userId);
+            button.innerHTML = '<i class="fas fa-plus"></i> Follow';
+            button.classList.remove('following');
+            showToast("Unfollowed successfully");
+        } else {
+            await updateDoc(userRef, { following: arrayUnion(userId) });
+            await updateDoc(targetUserRef, { followers: arrayUnion(currentUser.uid) });
+            followingList.push(userId);
+            button.innerHTML = '<i class="fas fa-check"></i> Following';
+            button.classList.add('following');
+            showToast("Following now!");
+            
+            await sendNotification(userId, {
+                type: "follow",
+                title: `${currentUsername} started following you`,
+                fromUserId: currentUser.uid
+            });
+        }
+    } catch (error) {
+        console.error("Follow error:", error);
+        showToast("Failed to update follow status", "error");
+    }
+};
+
+async function getUserVerificationStatus(userId) {
+    if (userVerificationCache[userId] !== undefined) return userVerificationCache[userId];
+    try {
+        const userDoc = await getDoc(doc(db, "users", userId));
+        if (userDoc.exists()) {
+            const isVerified = userDoc.data().isVerified || userDoc.data().verified || false;
+            userVerificationCache[userId] = isVerified;
+            return isVerified;
+        }
+    } catch (e) { console.error(e); }
+    return false;
+}
+
+// ==================== FEED LOADING ====================
+async function loadFeed() {
+    const postsQuery = query(collection(db, "posts"), orderBy("timestamp", "desc"));
+    onSnapshot(postsQuery, async (snapshot) => {
+        allPostsCache = [];
+        
+        // Pre-load all user avatars for posts
+        const userIds = new Set();
+        snapshot.docs.forEach(doc => userIds.add(doc.data().userId));
+        
+        // Batch load avatars
+        await Promise.all(Array.from(userIds).map(id => getUserAvatar(id)));
+        
+        for (const postDoc of snapshot.docs) {
+            const post = postDoc.data();
+            const postId = postDoc.id;
+            const isVerified = await getUserVerificationStatus(post.userId);
+            const isFromFollowed = followingList.includes(post.userId);
+            const hasViewed = post.viewedBy && post.viewedBy.includes(currentUser.uid);
+            
+            // Get avatar from cache
+            const userAvatar = await getUserAvatar(post.userId);
+            
+            allPostsCache.push({ 
+                id: postId, 
+                type: 'post', 
+                userId: post.userId,
+                timestamp: post.timestamp,
+                userAvatar: userAvatar, // Use Firestore avatar
+                ...post, 
+                isFromFollowed, 
+                isVerified, 
+                hasViewed 
+            });
+        }
+        renderFeed();
+    });
+
+    // Load ads
+    const applicationsQuery = query(collection(db, "applications"), where("status", "==", "approved"));
+    onSnapshot(applicationsQuery, async (snapshot) => {
+        approvedApplications = [];
+        const opportunityIds = new Set();
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            if (data.opportunityId) opportunityIds.add(data.opportunityId);
+        });
+        
+        const opportunityPromises = Array.from(opportunityIds).map(async (oppId) => {
+            try {
+                const oppDoc = await getDoc(doc(db, "opportunities", oppId));
+                if (oppDoc.exists()) opportunitiesCache[oppId] = oppDoc.data();
+            } catch (e) {}
+        });
+        await Promise.all(opportunityPromises);
+        
+        snapshot.forEach(appDoc => {
+            const appData = appDoc.data();
+            const oppData = opportunitiesCache[appData.opportunityId] || {};
+            approvedApplications.push({
+                id: appDoc.id,
+                creatorId: appData.creatorId,
+                opportunityId: appData.opportunityId,
+                status: appData.status,
+                title: oppData.title || appData.opportunityTitle || 'Advertisement',
+                description: oppData.description || '',
+                flyer: oppData.flyer || '',
+                targetUrl: oppData.targetUrl || '',
+                advertiserName: oppData.advertiserName || appData.advertiserName || 'Advertiser'
+            });
+        });
+        renderFeed();
+    });
+}
+
+function distributeAdsForCreator(posts, ads) {
+    const adsWithPosts = [];
+    const numAds = ads.length;
+    const numPosts = posts.length;
+    if (numPosts === 0 || numAds === 0) return adsWithPosts;
+    
+    posts.sort((a, b) => {
+        const aTime = a.timestamp?.toDate?.() || new Date(0);
+        const bTime = b.timestamp?.toDate?.() || new Date(0);
+        return bTime - aTime;
+    });
+    
+    const postsPerAd = Math.floor(numPosts / numAds);
+    const remainder = numPosts % numAds;
+    let postIndex = 0;
+    
+    for (let i = 0; i < numAds; i++) {
+        const postsForThisAd = postsPerAd + (i < remainder ? 1 : 0);
+        for (let j = 0; j < postsForThisAd && postIndex < numPosts; j++) {
+            adsWithPosts.push({ postId: posts[postIndex].id, ad: ads[i] });
+            postIndex++;
+        }
+    }
+    return adsWithPosts;
+}
+
+async function renderFeed() {
+    feed.innerHTML = "";
+    let filteredPosts = [...allPostsCache];
+    
+    if (currentFeedTab === 'following') {
+        filteredPosts = filteredPosts.filter(item => item.isFromFollowed);
+    }
+    
+    if (searchQuery.trim() !== "") {
+        const sq = searchQuery.toLowerCase();
+        filteredPosts = filteredPosts.filter(item =>
+            (item.content && item.content.toLowerCase().includes(sq)) ||
+            (item.username && item.username.toLowerCase().includes(sq))
+        );
+    }
+    
+    filteredPosts.sort((a, b) => {
+        const aTime = a.timestamp?.toDate?.() || new Date(0);
+        const bTime = b.timestamp?.toDate?.() || new Date(0);
+        return bTime - aTime;
+    });
+    
+    if (filteredPosts.length === 0) {
+        let msg = searchQuery !== "" ? "No posts match your search." : 
+                  (currentFeedTab === 'following' ? "You aren't following anyone who has posted yet." : "No posts found.");
+        feed.innerHTML = `
+            <div class="empty-feed">
+                <i class="fas fa-folder-open"></i>
+                <h3>${msg}</h3>
+                <p>Check back later or try following more creators!</p>
+            </div>`;
+        return;
+    }
+    
+    // Distribute ads
+    const adsByCreator = {};
+    approvedApplications.forEach(app => {
+        const creatorId = app.creatorId;
+        if (!creatorId) return;
+        if (!adsByCreator[creatorId]) adsByCreator[creatorId] = [];
+        adsByCreator[creatorId].push(app);
+    });
+    
+    const postsByUser = {};
+    filteredPosts.forEach(post => {
+        if (!postsByUser[post.userId]) postsByUser[post.userId] = [];
+        postsByUser[post.userId].push(post);
+    });
+    
+    const adToPostMap = new Map();
+    Object.keys(adsByCreator).forEach(creatorId => {
+        const creatorAds = adsByCreator[creatorId];
+        const creatorPosts = postsByUser[creatorId] || [];
+        if (creatorPosts.length > 0 && creatorAds.length > 0) {
+            const distributed = distributeAdsForCreator(creatorPosts, creatorAds);
+            distributed.forEach(({ postId, ad }) => {
+                if (!adToPostMap.has(postId)) adToPostMap.set(postId, ad);
+            });
+        }
+    });
+    
+    for (const post of filteredPosts) {
+        await renderPostHTML(post, adToPostMap.get(post.id));
+    }
+    attachEventHandlers();
+}
+
+async function renderPostHTML(post, attachedAd = null) {
+    const postId = post.id;
+    const isLiked = post.likedBy && post.likedBy.includes(currentUser.uid);
+    const timestamp = post.timestamp ? formatTime(post.timestamp.toDate()) : "Just now";
+    const verifiedBadge = post.isVerified ? `<span class="verified-badge-post" title="Verified Account"><i class="fas fa-check"></i></span>` : '';
+    const isFollowing = followingList.includes(post.userId);
+    const showFollowBtn = post.userId !== currentUser.uid;
+    
+    const followBtnHTML = showFollowBtn ? 
+        `<button class="follow-btn ${isFollowing ? 'following' : ''}" onclick="toggleFollow('${post.userId}', this)">
+            <i class="fas fa-${isFollowing ? 'check' : 'plus'}"></i> ${isFollowing ? 'Following' : 'Follow'}
+        </button>` : '';
+    
+    const postEl = document.createElement("div");
+    postEl.className = "post";
+    postEl.dataset.postId = postId;
+    postEl.dataset.viewed = post.hasViewed;
+    
+    // Use the userAvatar from post data (loaded from Firestore)
+    const imgHTML = post.imageBase64 ? `<img src="${post.imageBase64}" class="post-image" onclick="viewImage(this.src)" loading="lazy">` : '';
+    const priorityBadge = post.isFromFollowed && !post.hasViewed ? `<div class="priority-badge"><i class="fas fa-star"></i> Following Update</div>` : '';
+    
+    let adHTML = '';
+    if (attachedAd) {
+        const hasViewed = viewedAds.includes(attachedAd.id);
+        const adImgHTML = attachedAd.flyer ? `<img src="${attachedAd.flyer}" class="ad-image">` : '';
+        adHTML = `
+            <div class="ad-container" data-ad-id="${attachedAd.id}" data-viewed="${hasViewed}" onclick="handleAdClick('${attachedAd.id}', '${attachedAd.targetUrl}')">
+                <span class="ad-tag">SPONSORED</span>
+                <div class="ad-title">${attachedAd.title || 'Advertisement'}</div>
+                <div class="ad-description">${attachedAd.description || ''}</div>
+                ${adImgHTML}
+            </div>
+        `;
+        if (!hasViewed) trackAdView(attachedAd.id);
+    }
+    
+    // KEY FIX: Use post.userAvatar which comes from Firestore via getUserAvatar()
+    postEl.innerHTML = `
+        ${priorityBadge}
+        <div class="post-header">
+            <img src="${post.userAvatar}" class="profile-pic" data-uid="${post.userId}" onclick="window.location.href='profile.html?uid=${post.userId}'" loading="lazy">
+            <div class="post-author">
+                <div class="post-author-name" onclick="window.location.href='profile.html?uid=${post.userId}'">
+                    <span>${post.username || "Anonymous"}</span>${verifiedBadge}
+                </div>
+                <div class="post-time">${timestamp}</div>
+            </div>
+            ${followBtnHTML}
+            <i class="fas fa-ellipsis-v three-dot" onclick="window.location.href='post-view.html?postId=${postId}'"></i>
+        </div>
+        <p>${post.content}</p>
+        ${imgHTML}
+        <div class="post-actions">
+            <span class="action-item like-btn ${isLiked ? 'liked' : ''}" data-id="${postId}" data-owner="${post.userId}" data-liked="${isLiked}">
+                <i class="${isLiked ? 'fas' : 'far'} fa-heart"></i> ${post.likes || 0}
+            </span>
+            <span class="action-item comment-toggle" data-post-id="${postId}">
+                <i class="far fa-comment"></i> ${post.commentCount || 0}
+            </span>
+            <span class="action-item">
+                <i class="far fa-eye"></i> ${post.views || 0}
+            </span>
+            <span class="action-item tip-jar" data-id="${postId}" data-owner="${post.userId}" data-username="${post.username}">
+                <i class="fas fa-hand-holding-dollar"></i> Tip
+            </span>
+        </div>
+        <div class="comments-section" id="comments-${postId}">
+            <div class="comments-header">
+                <span class="comments-title">Comments (${post.commentCount || 0})</span>
+                <button class="close-comments" onclick="toggleComments('${postId}')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="comment-list" id="comment-list-${postId}"></div>
+            <div class="comment-input-area">
+                <div class="reply-indicator" id="reply-indicator-${postId}">
+                    <i class="fas fa-reply"></i>
+                    <span>Replying to <strong id="reply-to-name-${postId}"></strong></span>
+                    <button class="cancel-reply" onclick="cancelReply('${postId}')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="comment-input-wrapper">
+                    <textarea class="comment-input" id="comment-input-${postId}" placeholder="Write a comment..." rows="1"></textarea>
+                    <button class="comment-submit" onclick="addComment('${postId}', '${post.userId}')">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        ${adHTML}
+    `;
+    feed.appendChild(postEl);
+    if (!post.hasViewed) trackView(postId);
+    loadComments(postId);
+}
+
+// ==================== COMMENTS ====================
+function loadComments(postId) {
+    const commentsRef = query(collection(db, "posts", postId, "comments"), orderBy("timestamp", "asc"));
+    onSnapshot(commentsRef, async (cSnap) => {
+        const list = document.getElementById(`comment-list-${postId}`);
+        if (!list) return;
+        list.innerHTML = "";
+        
+        updateDoc(doc(db, "posts", postId), { commentCount: cSnap.size }).catch(() => {});
+        
+        const titleEl = list.parentElement.querySelector('.comments-title');
+        if (titleEl) titleEl.textContent = `Comments (${cSnap.size})`;
+        
+        for (const c of cSnap.docs) {
+            const d = c.data();
+            const cVerified = await getUserVerificationStatus(d.userId);
+            const vBadge = cVerified ? `<span class="verified-badge-post" style="width:14px;height:14px;font-size:9px;"><i class="fas fa-check"></i></span>` : '';
+            const isReply = d.replyTo && d.replyTo.commentId;
+            const replyToHTML = isReply ? `<div class="comment-reply-to"><i class="fas fa-reply" style="font-size:10px;"></i> Replying to ${d.replyTo.username || 'comment'}</div>` : '';
+            
+            // Get commenter avatar from cache or fetch
+            const commenterAvatar = await getUserAvatar(d.userId);
+            
+            const div = document.createElement("div");
+            div.className = `comment-item ${isReply ? 'replying-to' : ''}`;
+            div.id = `comment-${c.id}`;
+            div.innerHTML = `
+                <img src="${commenterAvatar}" class="comment-avatar" onclick="window.location.href='profile.html?uid=${d.userId}'">
+                <div class="comment-content">
+                    <div class="comment-header">
+                        <span class="comment-author" onclick="window.location.href='profile.html?uid=${d.userId}'">${d.username || "User"}${vBadge}</span>
+                        <span class="comment-time">${d.timestamp ? formatTime(d.timestamp.toDate()) : 'Just now'}</span>
+                    </div>
+                    ${replyToHTML}
+                    <div class="comment-text">${escapeHtml(d.text)}</div>
+                    <div class="comment-actions">
+                        <span class="comment-action" onclick="setReply('${postId}', '${c.id}', '${d.username}', '${d.userId}')">
+                            <i class="fas fa-reply"></i> Reply
+                        </span>
+                    </div>
+                </div>
+            `;
+            list.appendChild(div);
+        }
+    });
+}
+
+// ==================== VIEW TRACKING ====================
+function trackView(postId) {
+    if (viewTimers[postId]) clearTimeout(viewTimers[postId]);
+    viewTimers[postId] = setTimeout(async () => {
+        const postEl = document.querySelector(`[data-post-id="${postId}"]`);
+        if (postEl && postEl.dataset.viewed !== "true") {
+            try {
+                await updateDoc(doc(db, "posts", postId), { 
+                    views: increment(1), 
+                    viewedBy: arrayUnion(currentUser.uid) 
+                });
+                postEl.dataset.viewed = "true";
+            } catch (e) {}
+        }
+    }, 2000);
+}
+
+function trackAdView(adId) {
+    if (viewTimers[adId]) clearTimeout(viewTimers[adId]);
+    viewTimers[adId] = setTimeout(async () => {
+        const adEl = document.querySelector(`[data-ad-id="${adId}"]`);
+        if (adEl && adEl.dataset.viewed !== "true") {
+            try {
+                await updateDoc(doc(db, "applications", adId), { currentViews: increment(1) });
+                await updateDoc(doc(db, "users", currentUser.uid), { viewedAds: arrayUnion(adId) });
+                adEl.dataset.viewed = "true";
+            } catch (e) {}
+        }
+    }, 2000);
+}
+
+window.handleAdClick = async function(adId, targetUrl) {
+    if (targetUrl) {
+        window.open(targetUrl, '_blank');
+        try {
+            await updateDoc(doc(db, "applications", adId), { clicks: increment(1) });
+        } catch (e) {}
+    }
+};
+
+// ==================== EVENT HANDLERS ====================
+function attachUIEvents() {
+    document.querySelectorAll('.feed-tab').forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            document.querySelectorAll('.feed-tab').forEach(t => t.classList.remove('active'));
+            e.target.classList.add('active');
+            currentFeedTab = e.target.dataset.tab;
+            localStorage.setItem('cashclique_feed_tab', currentFeedTab);
+            renderFeed();
+        });
+    });
+    
+    let searchTimeout;
+    document.getElementById('search-input').addEventListener('input', (e) => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            searchQuery = e.target.value;
+            renderFeed();
+        }, 300);
+    });
+}
+
+function attachEventHandlers() {
+    document.querySelectorAll(".like-btn").forEach(btn => {
+        btn.onclick = async () => {
+            if (btn.dataset.liked === "true") return;
+            const postId = btn.dataset.id;
+            const ownerId = btn.dataset.owner;
+            try {
+                await updateDoc(doc(db, "posts", postId), { 
+                    likes: increment(1), 
+                    likedBy: arrayUnion(currentUser.uid) 
+                });
+                btn.dataset.liked = "true";
+                btn.classList.add("liked");
+                btn.innerHTML = `<i class="fas fa-heart"></i> ${(parseInt(btn.innerText) || 0) + 1}`;
+                
+                if (ownerId !== currentUser.uid) {
+                    await sendNotification(ownerId, { 
+                        type: "like", 
+                        title: `${currentUsername} liked your post`, 
+                        fromUserId: currentUser.uid, 
+                        postId: postId 
+                    });
+                }
+            } catch (e) { console.error("Like failed:", e); }
+        };
+    });
+    
+    document.querySelectorAll(".tip-jar").forEach(btn => {
+        btn.onclick = () => {
+            if (btn.dataset.owner === currentUser.uid) {
+                showToast("You can't tip yourself!", "error");
+                return;
+            }
+            openTipModal(btn.dataset.id, btn.dataset.owner, btn.dataset.username);
+        };
+    });
+    
+    document.querySelectorAll(".comment-toggle").forEach(btn => {
+        btn.onclick = () => {
+            const postId = btn.dataset.postId;
+            toggleComments(postId);
+        };
+    });
+}
+
+// ==================== TIP MODAL ====================
+function openTipModal(postId, ownerId, username) {
+    currentTipData = { postId, ownerId, username };
+    document.getElementById("tip-recipient-name").innerText = username || "this creator";
+    document.getElementById("tip-modal").classList.add('active');
+    document.body.style.overflow = 'hidden';
+    document.querySelectorAll(".tip-btn").forEach(btn => btn.classList.remove("selected"));
+    document.getElementById("custom-tip").value = "";
+}
+
+window.closeTipModal = () => {
+    document.getElementById("tip-modal").classList.remove('active');
+    document.body.style.overflow = '';
+};
+
+document.querySelectorAll(".tip-btn").forEach(btn => {
+    btn.onclick = () => {
+        document.querySelectorAll(".tip-btn").forEach(b => b.classList.remove("selected"));
+        btn.classList.add("selected");
+        document.getElementById("custom-tip").value = "";
+    };
+});
+
+document.getElementById("custom-tip").addEventListener("input", () => {
+    document.querySelectorAll(".tip-btn").forEach(btn => btn.classList.remove("selected"));
+});
+
+document.getElementById("send-tip-btn").addEventListener("click", async () => {
+    if (!currentTipData) return;
+    
+    let amount = parseFloat(document.querySelector(".tip-btn.selected")?.dataset.amount || document.getElementById("custom-tip").value);
+    if (!amount || amount <= 0) {
+        showToast("Enter a valid amount", "error");
+        return;
+    }
+    if (amount > currentBalance) {
+        showToast("Insufficient balance!", "error");
+        return;
+    }
+    
+    const platformFee = amount * 0.30;
+    const recipientAmount = amount * 0.70;
+    const btn = document.getElementById("send-tip-btn");
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading-spinner" style="width:20px;height:20px;border:3px solid rgba(255,255,255,0.3);border-top-color:white;display:inline-block;vertical-align:middle;margin-right:8px;"></span> Sending...';
+    
+    try {
+        await runTransaction(db, async (tx) => {
+            tx.update(doc(db, "users", currentUser.uid), { balance: increment(-amount) });
+            tx.update(doc(db, "users", currentTipData.ownerId), { balance: increment(recipientAmount) });
+            tx.set(doc(collection(db, "transactions")), {
+                type: "tip",
+                from: currentUser.uid,
+                fromUsername: currentUsername,
+                to: currentTipData.ownerId,
+                toUsername: currentTipData.username,
+                amount: amount,
+                recipientAmount: recipientAmount,
+                platformFee: platformFee,
+                postId: currentTipData.postId,
+                timestamp: serverTimestamp()
+            });
+        });
+        
+        await sendNotification(currentTipData.ownerId, { 
+            type: "earning", 
+            title: `${currentUsername} sent you a $${recipientAmount.toFixed(2)} tip!`, 
+            fromUserId: currentUser.uid, 
+            postId: currentTipData.postId 
+        });
+        
+        showToast(`Tip sent! $${recipientAmount.toFixed(2)} to creator`, "success");
+        closeTipModal();
+        btn.disabled = false;
+        btn.innerHTML = 'Send Tip';
+    } catch (e) { 
+        showToast("Failed to send tip.", "error");
+        btn.disabled = false;
+        btn.innerHTML = 'Send Tip';
+    }
+});
+
+// ==================== COMMENT FUNCTIONS ====================
+window.setReply = (postId, commentId, username, userId) => {
+    replyToComment = { commentId, username, userId };
+    const indicator = document.getElementById(`reply-indicator-${postId}`);
+    const nameSpan = document.getElementById(`reply-to-name-${postId}`);
+    indicator.classList.add('active');
+    nameSpan.textContent = username;
+    document.getElementById(`comment-input-${postId}`).focus();
+};
+
+window.cancelReply = (postId) => {
+    replyToComment = null;
+    document.getElementById(`reply-indicator-${postId}`).classList.remove('active');
+};
+
+window.addComment = async function(postId, ownerId) {
+    const input = document.getElementById(`comment-input-${postId}`);
+    const text = input.value.trim();
+    if (!text) return;
+    
+    const commentData = {
+        userId: currentUser.uid,
+        username: currentUsername,
+        userAvatar: currentUserAvatar, // Store current user's avatar with comment
+        text: text,
+        timestamp: serverTimestamp()
+    };
+    
+    if (replyToComment) {
+        commentData.replyTo = {
+            commentId: replyToComment.commentId,
+            username: replyToComment.username,
+            userId: replyToComment.userId
+        };
+    }
+    
+    await addDoc(collection(db, "posts", postId, "comments"), commentData);
+    
+    if (ownerId !== currentUser.uid) {
+        await sendNotification(ownerId, {
+            type: "comment",
+            title: `${currentUsername} commented on your post`,
+            message: text,
+            fromUserId: currentUser.uid,
+            postId: postId
+        });
+    }
+    
+    input.value = "";
+    cancelReply(postId);
+};
+
+// ==================== NOTIFICATIONS ====================
+async function sendNotification(toUserId, data) {
+    try { 
+        await addDoc(collection(db, "users", toUserId, "notifications"), { 
+            ...data, 
+            read: false, 
+            timestamp: serverTimestamp() 
+        });
+    } catch(e){}
+}
+
+function loadNotifications() {
+    onSnapshot(query(collection(db, "users", currentUser.uid, "notifications"), orderBy("timestamp", "desc")), (snap) => {
+        const panel = document.getElementById("notification-panel");
+        panel.innerHTML = "";
+        let unread = 0;
+        
+        if (snap.empty) {
+            panel.innerHTML = `
+                <div class="empty-notif">
+                    <i class="fas fa-bell-slash"></i>
+                    <p>No notifications yet</p>
+                </div>`;
+        } else {
+            snap.forEach(nDoc => {
+                const n = nDoc.data();
+                if (!n.read) unread++;
+                
+                const div = document.createElement("div");
+                div.className = `notification-item ${n.read ? '' : 'unread'}`;
+                
+                let icon = n.type === "like" ? "heart" : 
+                          n.type === "comment" ? "comment" : 
+                          n.type === "follow" ? "user-plus" : 
+                          n.type === "new_post" ? "file-alt" : "dollar-sign";
+                
+                div.innerHTML = `
+                    <div class="notif-icon"><i class="fas fa-${icon}"></i></div>
+                    <div class="notif-content">
+                        <strong>${n.title}</strong>
+                        ${n.message ? `<p>${n.message}</p>` : ''}
+                        <small>${n.timestamp ? formatTime(n.timestamp.toDate()) : "Just now"}</small>
+                    </div>
+                `;
+                
+                div.onclick = async () => {
+                    await updateDoc(doc(db, "users", currentUser.uid, "notifications", nDoc.id), { read: true });
+                    if(n.postId) window.location.href = `post-view.html?postId=${n.postId}`;
+                    else if(n.fromUserId) window.location.href = `profile.html?uid=${n.fromUserId}`;
+                };
+                panel.appendChild(div);
+            });
+        }
+        
+        const badge = document.getElementById("notif-count");
+        badge.innerText = unread > 99 ? "99+" : unread;
+        badge.style.display = unread > 0 ? "flex" : "none";
+    });
+}
+
+window.toggleNotifications = () => {
+    const overlay = document.getElementById("notification-overlay");
+    overlay.classList.toggle('active');
+};
+
+window.closeNotifications = () => {
+    document.getElementById("notification-overlay").classList.remove('active');
+};
+
+document.getElementById("mark-all-read").addEventListener("click", async (e) => {
+    e.stopPropagation();
+    const snap = await getDocs(collection(db, "users", currentUser.uid, "notifications"));
+    const batch = writeBatch(db);
+    snap.forEach(d => { 
+        if (!d.data().read) batch.update(d.ref, { read: true }); 
+    });
+    await batch.commit();
+    showToast("All notifications marked as read", "success");
+});
+
+// ==================== UTILITY FUNCTIONS ====================
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function formatTime(d) {
+    const diff = Math.floor((new Date() - d) / 1000);
+    if(diff < 60) return "Just now";
+    if(diff < 3600) return `${Math.floor(diff/60)}m ago`;
+    if(diff < 86400) return `${Math.floor(diff/3600)}h ago`;
+    if(diff < 604800) return `${Math.floor(diff/86400)}d ago`;
+    return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
+
+window.viewImage = (src) => { 
+    document.getElementById("modal-image").src = src; 
+    document.getElementById("media-modal").classList.add('active');
+    document.body.style.overflow = 'hidden';
+};
+
+window.closeMediaModal = () => {
+    document.getElementById("media-modal").classList.remove('active');
+    document.body.style.overflow = '';
+};
+
+window.toggleMenu = () => document.getElementById("sidebar").classList.toggle("active");
+
+window.toggleComments = (id) => { 
+    const el = document.getElementById("comments-"+id); 
+    el.classList.toggle('active');
+    if (el.classList.contains('active')) {
+        document.getElementById(`comment-input-${id}`).focus();
+    }
+};
+
+// ==================== LISTENERS ====================
+document.getElementById("logout").addEventListener("click", (e) => { 
+    e.preventDefault(); 
+    signOut(auth).then(() => window.location.href = "login.html"); 
+});
+
+// Close modals on outside click
+document.getElementById('tip-modal').addEventListener('click', (e) => {
+    if (e.target.id === 'tip-modal') closeTipModal();
+});
+
+document.getElementById('media-modal').addEventListener('click', (e) => {
+    if (e.target.id === 'media-modal') closeMediaModal();
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeTipModal();
+        closeMediaModal();
+        closeNotifications();
+        closeCSChat();
+    }
+});
+
+// Listen for new posts from followed users
+function listenForNewPostsFromFollowing() {
+    if (followingList.length === 0) return;
+    const postsQuery = query(collection(db, "posts"), where("userId", "in", followingList), orderBy("timestamp", "desc"));
+    onSnapshot(postsQuery, (snapshot) => {
+        snapshot.docChanges().forEach(change => {
+            if (change.type === "added") {
+                const post = change.doc.data();
+                const postId = change.doc.id;
+                const postTime = post.timestamp?.toDate?.() || new Date();
+                const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+                if (postTime > fiveMinutesAgo && post.userId !== currentUser.uid) {
+                    sendNotification(currentUser.uid, {
+                        type: "new_post",
+                        title: `${post.username || "Someone you follow"} posted new content`,
+                        fromUserId: post.userId,
+                        postId: postId
+                    });
+                }
+            }
+        });
+    });
+}
+</script>
+</body>
+</html>
