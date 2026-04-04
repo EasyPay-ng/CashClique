@@ -10,321 +10,213 @@
 <link rel="manifest" href="/manifest.json">
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{background:#f5f5f5;min-height:100vh;}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;-webkit-tap-highlight-color:transparent;}
+body{background:#f5f5f5;min-height:100vh;-webkit-font-smoothing:antialiased;}
 
 /* Header */
 .header{background:white;box-shadow:0 2px 10px rgba(0,0,0,0.1);position:sticky;top:0;z-index:100;}
-.header-content{max-width:600px;margin:0 auto;padding:15px 20px;display:flex;align-items:center;justify-content:space-between;}
-.back-btn{background:none;color:#333;border:none;font-size:20px;cursor:pointer;padding:8px;display:flex;align-items:center;gap:8px;font-weight:500;transition:0.2s;}
+.header-content{max-width:600px;margin:0 auto;padding:12px 15px;display:flex;align-items:center;justify-content:space-between;}
+.back-btn{background:none;color:#333;border:none;font-size:16px;cursor:pointer;padding:8px;display:flex;align-items:center;gap:6px;font-weight:500;transition:0.2s;touch-action:manipulation;}
+.back-btn:active{transform:scale(0.95);}
 .back-btn:hover{color:#ff6a00;}
-.back-btn i{font-size:18px;}
-.header-actions{display:flex;gap:10px;}
-.header-action{background:none;border:none;color:#666;font-size:20px;cursor:pointer;padding:8px;transition:0.2s;}
+.back-btn i{font-size:16px;}
+.header-actions{display:flex;gap:8px;}
+.header-action{background:none;border:none;color:#666;font-size:18px;cursor:pointer;padding:8px;transition:0.2s;touch-action:manipulation;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:50%;}
+.header-action:active{background:#f0f0f0;transform:scale(0.95);}
 .header-action:hover{color:#ff6a00;}
 
-.profile-container{max-width:600px;margin:0 auto;padding:20px 20px 40px;}
+.profile-container{max-width:600px;margin:0 auto;padding:15px 15px 30px;}
 
 /* Profile Card */
-.profile-card{background:white;border-radius:16px;padding:30px;box-shadow:0 5px 20px rgba(0,0,0,0.08);margin-bottom:25px;position:relative;}
-.profile-header{display:flex;align-items:flex-start;gap:20px;margin-bottom:20px;}
-.profile-avatar-container{position:relative;}
-.profile-avatar{width:100px;height:100px;border-radius:50%;border:3px solid #ff6a00;object-fit:cover;}
-.verified-badge{position:absolute;bottom:0;right:0;background:#1DA1F2;color:white;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid white;font-size:14px;}
-.gold-badge{position:absolute;bottom:0;right:0;background:#FFD700;color:#1a1a1a;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid white;font-size:14px;font-weight:700;}
-.profile-info{flex:1;}
-.profile-name-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
-.profile-name{font-size:22px;font-weight:600;color:#333;}
-.profile-username{color:#666;font-size:14px;margin-bottom:10px;}
-.profile-bio{color:#555;font-size:14px;line-height:1.6;}
+.profile-card{background:white;border-radius:16px;padding:20px 15px;box-shadow:0 5px 20px rgba(0,0,0,0.08);margin-bottom:20px;position:relative;}
+.profile-header{display:flex;align-items:center;gap:15px;margin-bottom:20px;}
+.profile-avatar-container{position:relative;flex-shrink:0;}
+.profile-avatar{width:90px;height:90px;border-radius:50%;border:3px solid #ff6a00;object-fit:cover;background:#f0f0f0;}
+.verified-badge{position:absolute;bottom:2px;right:2px;background:#1DA1F2;color:white;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid white;font-size:12px;z-index:2;}
+.gold-badge{position:absolute;bottom:2px;right:2px;background:#FFD700;color:#1a1a1a;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid white;font-size:12px;font-weight:700;z-index:2;}
+
+/* Avatar Upload Overlay - Only on own profile */
+.avatar-upload-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.5);border-radius:50%;display:none;flex-direction:column;align-items:center;justify-content:center;color:white;cursor:pointer;transition:0.3s;z-index:3;}
+.avatar-upload-overlay i{font-size:24px;margin-bottom:4px;}
+.avatar-upload-overlay span{font-size:10px;font-weight:500;text-align:center;padding:0 8px;}
+.profile-avatar-container:hover .avatar-upload-overlay{display:flex;}
+.profile-avatar-container.own-profile .avatar-upload-overlay{display:flex;background:rgba(0,0,0,0.3);}
+.profile-avatar-container.own-profile:active .avatar-upload-overlay{background:rgba(0,0,0,0.5);}
+
+/* Mobile: Always show upload hint on own profile */
+@media(max-width:768px){
+    .profile-avatar-container.own-profile .avatar-upload-overlay{display:flex;background:linear-gradient(transparent 50%,rgba(0,0,0,0.7) 100%);}
+    .profile-avatar-container.own-profile .avatar-upload-overlay i{font-size:20px;margin-bottom:2px;}
+    .profile-avatar-container.own-profile .avatar-upload-overlay span{font-size:9px;}
+}
+
+.profile-info{flex:1;min-width:0;}
+.profile-name-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap;}
+.profile-name{font-size:20px;font-weight:600;color:#333;line-height:1.2;word-break:break-word;}
+.profile-username{color:#666;font-size:13px;margin-bottom:8px;}
+.profile-bio{color:#555;font-size:13px;line-height:1.5;word-break:break-word;}
 
 /* Stats Section */
-.profile-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin:20px 0;padding:20px 0;border-top:1px solid #eee;border-bottom:1px solid #eee;}
-.stat{text-align:center;cursor:pointer;transition:0.2s;}
-.stat:hover{opacity:0.7;}
-.stat-num{font-size:22px;font-weight:700;color:#333;}
-.stat-label{font-size:12px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;}
+.profile-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:15px 0;padding:15px 0;border-top:1px solid #eee;border-bottom:1px solid #eee;}
+.stat{text-align:center;cursor:pointer;transition:0.2s;padding:8px;border-radius:8px;touch-action:manipulation;}
+.stat:active{background:#f5f5f5;transform:scale(0.98);}
+.stat-num{font-size:18px;font-weight:700;color:#333;}
+.stat-label{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;}
 
 /* Action Buttons */
-.profile-actions{display:flex;gap:10px;margin-top:20px;}
-.action-btn{flex:1;padding:12px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.3s;border:none;display:flex;align-items:center;justify-content:center;gap:8px;}
+.profile-actions{display:flex;gap:8px;margin-top:15px;}
+.action-btn{flex:1;padding:10px 12px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;border:none;display:flex;align-items:center;justify-content:center;gap:6px;touch-action:manipulation;-webkit-touch-callout:none;}
+.action-btn:active{transform:scale(0.98);}
 .follow-btn{background:#ff6a00;color:white;}
-.follow-btn:hover{background:#e55d00;transform:translateY(-2px);box-shadow:0 5px 15px rgba(255,106,0,0.3);}
+.follow-btn:hover{background:#e55d00;}
 .follow-btn.following{background:#e3e3e3;color:#333;}
 .follow-btn.following:hover{background:#d0d0d0;}
-.edit-btn{background:transparent;border:2px solid #ff6a00;color:#ff6a00;}
+.edit-btn{background:transparent;border:2px solid #ff6a00;color:#ff6a00;padding:8px 12px;}
 .edit-btn:hover{background:#ff6a00;color:white;}
 .verify-btn{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;}
-.verify-btn:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(102,126,234,0.4);}
+.verify-btn:hover{transform:translateY(-1px);box-shadow:0 5px 15px rgba(102,126,234,0.4);}
 .verify-btn.disabled{opacity:0.5;cursor:not-allowed;background:#ccc;color:#666;}
 .action-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
-.action-btn i{font-size:14px;}
+.action-btn i{font-size:13px;}
 
 /* Tabs */
-.tabs{display:flex;background:white;border-radius:12px;padding:5px;box-shadow:0 2px 10px rgba(0,0,0,0.05);margin-bottom:20px;}
-.tab{flex:1;padding:12px;background:transparent;border:none;font-size:14px;font-weight:500;color:#666;cursor:pointer;transition:0.3s;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:6px;}
+.tabs{display:flex;background:white;border-radius:12px;padding:4px;box-shadow:0 2px 10px rgba(0,0,0,0.05);margin-bottom:15px;gap:4px;}
+.tab{flex:1;padding:10px 8px;background:transparent;border:none;font-size:13px;font-weight:500;color:#666;cursor:pointer;transition:0.3s;border-radius:8px;display:flex;align-items:center;justify-content:center;gap:5px;touch-action:manipulation;-webkit-touch-callout:none;}
+.tab:active{transform:scale(0.98);}
 .tab:hover{color:#ff6a00;}
 .tab.active{background:#ff6a00;color:white;}
-.tab i{font-size:16px;}
+.tab i{font-size:14px;}
 
 /* Posts Grid */
-.posts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-.post-thumb{aspect-ratio:1;background:#fff;border-radius:12px;overflow:hidden;cursor:pointer;transition:0.3s;box-shadow:0 2px 8px rgba(0,0,0,0.08);position:relative;}
-.post-thumb:hover{transform:scale(1.05);box-shadow:0 5px 20px rgba(0,0,0,0.15);}
+.posts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.post-thumb{aspect-ratio:1;background:#fff;border-radius:12px;overflow:hidden;cursor:pointer;transition:0.3s;box-shadow:0 2px 8px rgba(0,0,0,0.08);position:relative;touch-action:manipulation;-webkit-touch-callout:none;}
+.post-thumb:active{transform:scale(0.98);}
 .post-thumb img{width:100%;height:100%;object-fit:cover;}
-.post-thumb-overlay{position:absolute;inset:0;background:linear-gradient(transparent,rgba(0,0,0,0.5));opacity:0;transition:0.3s;display:flex;align-items:flex-end;padding:10px;color:white;}
+.post-thumb-overlay{position:absolute;inset:0;background:linear-gradient(transparent,rgba(0,0,0,0.6));opacity:0;transition:0.3s;display:flex;align-items:flex-end;padding:10px;color:white;}
 .post-thumb:hover .post-thumb-overlay{opacity:1;}
-.post-stats-overlay{display:flex;gap:15px;font-size:12px;}
+.post-stats-overlay{display:flex;gap:12px;font-size:11px;}
 .post-stats-overlay span{display:flex;align-items:center;gap:4px;}
 
 /* Empty State */
-.empty-state{grid-column:1/-1;text-align:center;padding:60px 20px;background:white;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.05);}
-.empty-icon{font-size:48px;color:#ddd;margin-bottom:15px;}
-.empty-title{font-size:18px;color:#333;margin-bottom:8px;}
-.empty-text{font-size:14px;color:#888;}
+.empty-state{grid-column:1/-1;text-align:center;padding:40px 20px;background:white;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.05);}
+.empty-icon{font-size:40px;color:#ddd;margin-bottom:12px;}
+.empty-title{font-size:16px;color:#333;margin-bottom:6px;}
+.empty-text{font-size:13px;color:#888;}
+
+/* Image Upload Modal */
+.upload-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:3000;display:none;align-items:center;justify-content:center;padding:15px;backdrop-filter:blur(4px);}
+.upload-modal-overlay.active{display:flex;}
+.upload-modal{background:white;border-radius:20px;width:100%;max-width:400px;overflow:hidden;animation:modalSlideIn 0.3s ease;}
+.upload-modal-header{background:linear-gradient(135deg,#ff6a00 0%,#ff8a00 100%);color:white;padding:20px;text-align:center;}
+.upload-modal-header h2{font-size:18px;margin-bottom:4px;}
+.upload-modal-header p{font-size:12px;opacity:0.9;}
+.upload-modal-body{padding:20px;}
+.upload-preview{width:150px;height:150px;border-radius:50%;margin:0 auto 20px;border:3px solid #ff6a00;object-fit:cover;display:none;background:#f0f0f0;}
+.upload-preview.active{display:block;}
+.upload-placeholder{width:150px;height:150px;border-radius:50%;margin:0 auto 20px;border:3px dashed #ccc;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#999;gap:8px;}
+.upload-placeholder i{font-size:40px;}
+.upload-placeholder span{font-size:12px;text-align:center;padding:0 20px;}
+.file-input{display:none;}
+.upload-btn{width:100%;padding:14px;border-radius:12px;border:none;background:#ff6a00;color:white;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px;touch-action:manipulation;}
+.upload-btn:active{transform:scale(0.98);}
+.upload-btn:disabled{opacity:0.5;cursor:not-allowed;}
+.upload-btn.secondary{background:#f0f0f0;color:#333;}
+.upload-actions{display:flex;gap:10px;}
+.upload-actions .upload-btn{flex:1;}
+.upload-loading{display:none;text-align:center;padding:20px;}
+.upload-loading.active{display:block;}
+.upload-loading i{font-size:32px;color:#ff6a00;animation:spin 1s linear infinite;margin-bottom:10px;}
+.upload-loading p{color:#666;font-size:13px;}
+
+/* Cropper Container */
+.cropper-container{display:none;margin-bottom:20px;}
+.cropper-container.active{display:block;}
+.cropper-image{max-height:300px;width:100%;object-fit:contain;border-radius:8px;}
+.cropper-controls{display:flex;gap:10px;justify-content:center;margin-top:15px;}
+.cropper-btn{padding:10px 20px;border-radius:8px;border:none;background:#f0f0f0;color:#333;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;touch-action:manipulation;}
+.cropper-btn.primary{background:#ff6a00;color:white;}
+.cropper-btn:active{transform:scale(0.98);}
 
 /* Verification Overlay */
-.verification-overlay{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,0.8);
-    z-index:2000;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    padding:15px;
-    backdrop-filter:blur(4px);
-}
-.verification-overlay.active{
-    display:flex;
-}
-.verification-modal{
-    background:white;
-    border-radius:20px;
-    width:100%;
-    max-width:500px;
-    overflow:hidden;
-    animation:modalSlideIn 0.3s ease;
-}
-@keyframes modalSlideIn{
-    from{transform:scale(0.9);opacity:0;}
-    to{transform:scale(1);opacity:1;}
-}
-.modal-header{
-    background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-    color:white;
-    padding:20px;
-    text-align:center;
-}
-.modal-header h2{
-    font-size:20px;
-    margin-bottom:6px;
-}
-.modal-header p{
-    font-size:13px;
-    opacity:0.9;
-}
-.modal-body{
-    padding:20px 15px;
-}
-.badge-options{
-    display:grid;
-    grid-template-columns:1fr;
-    gap:15px;
-    margin-bottom:25px;
-}
-.badge-card{
-    border:2px solid #e2e8f0;
-    border-radius:16px;
-    padding:18px;
-    text-align:center;
-    cursor:pointer;
-    transition:all 0.3s;
-    position:relative;
-}
-.badge-card:hover{
-    border-color:#ff6a00;
-    transform:translateY(-2px);
-    box-shadow:0 10px 20px rgba(0,0,0,0.1);
-}
-.badge-card.selected{
-    border-color:#ff6a00;
-    background:#fff7ed;
-}
-.badge-icon{
-    width:45px;
-    height:45px;
-    border-radius:50%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    margin:0 auto 12px;
-    font-size:20px;
-}
-.blue-badge{
-    background:#1DA1F2;
-    color:white;
-}
-.gold-badge-card{
-    background:#FFD700;
-    color:#1a1a1a;
-}
-.badge-title{
-    font-size:16px;
-    font-weight:600;
-    margin-bottom:6px;
-}
-.badge-price{
-    font-size:20px;
-    font-weight:700;
-    color:#ff6a00;
-    margin-bottom:10px;
-}
-.badge-requirements{
-    text-align:left;
-    font-size:12px;
-    color:#666;
-    margin-bottom:12px;
-}
-.requirement-item{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    margin-bottom:5px;
-}
-.requirement-item i{
-    width:16px;
-    text-align:center;
-}
-.requirement-item.met{
-    color:#22c55e;
-}
-.requirement-item.not-met{
-    color:#ef4444;
-}
-.eligible-badge{
-    position:absolute;
-    top:10px;
-    right:10px;
-    background:#22c55e;
-    color:white;
-    padding:4px 8px;
-    border-radius:12px;
-    font-size:10px;
-    font-weight:600;
-}
-.not-eligible-badge{
-    position:absolute;
-    top:10px;
-    right:10px;
-    background:#ef4444;
-    color:white;
-    padding:4px 8px;
-    border-radius:12px;
-    font-size:10px;
-    font-weight:600;
-}
-.modal-footer{
-    padding:15px;
-    border-top:1px solid #e2e8f0;
-    display:flex;
-    gap:10px;
-}
-.modal-btn{
-    flex:1;
-    padding:12px;
-    border-radius:10px;
-    font-size:14px;
-    font-weight:600;
-    cursor:pointer;
-    transition:0.3s;
-    border:none;
-}
-.confirm-btn{
-    background:#ff6a00;
-    color:white;
-}
-.confirm-btn:hover{
-    background:#e55d00;
-    transform:translateY(-1px);
-}
-.confirm-btn:disabled{
-    opacity:0.5;
-    cursor:not-allowed;
-    transform:none;
-}
-.cancel-btn{
-    background:#f0f0f0;
-    color:#666;
-}
-.cancel-btn:hover{
-    background:#e0e0e0;
-}
+.verification-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:2000;display:none;align-items:center;justify-content:center;padding:15px;backdrop-filter:blur(4px);}
+.verification-overlay.active{display:flex;}
+.verification-modal{background:white;border-radius:20px;width:100%;max-width:500px;overflow:hidden;animation:modalSlideIn 0.3s ease;}
+@keyframes modalSlideIn{from{transform:scale(0.9);opacity:0;}to{transform:scale(1);opacity:1;}}
+.modal-header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:18px;text-align:center;}
+.modal-header h2{font-size:18px;margin-bottom:4px;}
+.modal-header p{font-size:12px;opacity:0.9;}
+.modal-body{padding:18px 15px;}
+.badge-options{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:20px;}
+.badge-card{border:2px solid #e2e8f0;border-radius:16px;padding:15px;text-align:center;cursor:pointer;transition:all 0.3s;position:relative;touch-action:manipulation;}
+.badge-card:active{transform:scale(0.98);}
+.badge-card:hover{border-color:#ff6a00;transform:translateY(-2px);box-shadow:0 10px 20px rgba(0,0,0,0.1);}
+.badge-card.selected{border-color:#ff6a00;background:#fff7ed;}
+.badge-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:18px;}
+.blue-badge{background:#1DA1F2;color:white;}
+.gold-badge-card{background:#FFD700;color:#1a1a1a;}
+.badge-title{font-size:15px;font-weight:600;margin-bottom:4px;}
+.badge-price{font-size:18px;font-weight:700;color:#ff6a00;margin-bottom:8px;}
+.badge-requirements{text-align:left;font-size:11px;color:#666;margin-bottom:10px;}
+.requirement-item{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.requirement-item i{width:14px;text-align:center;font-size:12px;}
+.requirement-item.met{color:#22c55e;}
+.requirement-item.not-met{color:#ef4444;}
+.eligible-badge{position:absolute;top:8px;right:8px;background:#22c55e;color:white;padding:3px 8px;border-radius:10px;font-size:9px;font-weight:600;}
+.not-eligible-badge{position:absolute;top:8px;right:8px;background:#ef4444;color:white;padding:3px 8px;border-radius:10px;font-size:9px;font-weight:600;}
+.modal-footer{padding:15px;border-top:1px solid #e2e8f0;display:flex;gap:10px;}
+.modal-btn{flex:1;padding:12px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:0.3s;border:none;touch-action:manipulation;}
+.modal-btn:active{transform:scale(0.98);}
+.confirm-btn{background:#ff6a00;color:white;}
+.confirm-btn:hover{background:#e55d00;}
+.confirm-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+.cancel-btn{background:#f0f0f0;color:#666;}
+.cancel-btn:hover{background:#e0e0e0;}
 
 /* Toast Notifications */
-.toast {
-    position:fixed; bottom:20px; right:20px; padding:12px 20px; border-radius:8px; 
-    background:#22c55e; color:white; font-size:14px; display:flex; align-items:center; gap:8px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.15); z-index:9999; animation:slideIn 0.3s ease;
-    max-width:90%;
-}
-.toast.error { background:#ef4444; }
-.toast.info { background:#3b82f6; }
-@keyframes slideIn { from { transform:translateX(100%); opacity:0; } to { transform:translateX(0); opacity:1; } }
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:12px 20px;border-radius:25px;color:white;font-size:13px;display:flex;align-items:center;gap:8px;box-shadow:0 4px 15px rgba(0,0,0,0.2);z-index:9999;animation:toastSlideUp 0.3s ease;max-width:90%;min-width:200px;justify-content:center;text-align:center;}
+.toast.error{background:#ef4444;}
+.toast.success{background:#22c55e;}
+.toast.info{background:#3b82f6;}
+@keyframes toastSlideUp{from{transform:translateX(-50%) translateY(100%);opacity:0;}to{transform:translateX(-50%) translateY(0);opacity:1;}}
 
 /* Loading */
-.loading{text-align:center;padding:40px;color:#888;}
-.loading i{font-size:32px;color:#ff6a00;animation:spin 1s linear infinite;}
+.loading{text-align:center;padding:40px 20px;color:#888;background:white;border-radius:12px;}
+.loading i{font-size:28px;color:#ff6a00;animation:spin 1s linear infinite;margin-bottom:10px;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
-/* ===== MOBILE RESPONSIVE STYLES ===== */
-@media(max-width:600px){
-    .header-content{padding:12px 15px;}
-    .profile-container{padding:15px 15px 30px;}
-    .profile-card{padding:20px 15px;}
-    .profile-header{flex-direction:column;align-items:center;text-align:center;gap:15px;}
-    .profile-avatar{width:80px;height:80px;}
-    .profile-name{font-size:20px;}
-    .profile-username{font-size:13px;}
-    .profile-bio{font-size:13px;text-align:center;}
-    .profile-stats{grid-template-columns:repeat(3,1fr);gap:10px;padding:15px 0;}
-    .stat-num{font-size:18px;}
-    .stat-label{font-size:11px;}
-    .profile-actions{flex-direction:column;gap:8px;}
-    .action-btn{padding:10px;font-size:14px;}
-    .tabs{margin-bottom:15px;}
-    .tab{padding:10px;font-size:13px;}
-    .posts-grid{grid-template-columns:repeat(2,1fr);gap:8px;}
-    .post-thumb{border-radius:10px;}
+/* Mobile Optimizations */
+@media(max-width:480px){
+    .profile-header{flex-direction:column;text-align:center;gap:12px;}
+    .profile-avatar{width:100px;height:100px;}
+    .profile-avatar-container.own-profile .avatar-upload-overlay{background:linear-gradient(transparent 60%,rgba(0,0,0,0.8) 100%);}
+    .profile-info{width:100%;}
+    .profile-name{font-size:18px;justify-content:center;}
+    .profile-username{font-size:12px;}
+    .profile-bio{font-size:12px;}
+    .profile-actions{flex-direction:column;}
+    .action-btn{width:100%;}
+    .posts-grid{grid-template-columns:repeat(2,1fr);gap:6px;}
+    .post-thumb{border-radius:8px;}
     .post-thumb-overlay{padding:8px;}
-    .post-stats-overlay{gap:10px;font-size:11px;}
-    .empty-state{padding:40px 15px;}
-    .empty-title{font-size:16px;}
-    .empty-text{font-size:13px;}
-    
-    /* Verification Modal Mobile */
-    .verification-overlay{padding:10px;}
-    .modal-header{padding:18px 15px;}
-    .modal-header h2{font-size:18px;}
-    .modal-body{padding:18px 15px;}
-    .badge-options{gap:12px;margin-bottom:20px;}
-    .badge-card{padding:15px;}
-    .badge-icon{width:40px;height:40px;font-size:18px;margin-bottom:10px;}
-    .badge-title{font-size:15px;}
-    .badge-price{font-size:18px;}
-    .badge-requirements{font-size:11px;}
-    .modal-footer{padding:12px;gap:8px;}
-    .modal-btn{padding:10px;font-size:13px;}
+    .post-stats-overlay{gap:8px;font-size:10px;}
+    .upload-modal{border-radius:16px;}
+    .upload-preview,.upload-placeholder{width:120px;height:120px;}
+    .badge-card{padding:12px;}
+    .badge-icon{width:36px;height:36px;font-size:16px;}
+    .modal-footer{padding:12px;}
 }
 
-@media(max-width:360px){
-    .profile-avatar{width:70px;height:70px;}
+@media(min-width:481px) and (max-width:600px){
+    .profile-avatar{width:80px;height:80px;}
     .profile-name{font-size:18px;}
-    .profile-stats{gap:8px;}
-    .stat-num{font-size:16px;}
-    .stat-label{font-size:10px;}
-    .posts-grid{grid-template-columns:1fr;gap:10px;}
-    .post-thumb{aspect-ratio:1.5/1;}
+    .posts-grid{grid-template-columns:repeat(3,1fr);}
+}
+
+/* Safe area for notched phones */
+@supports(padding:max(0px)){
+    .header{padding-top:max(12px,env(safe-area-inset-top));}
+    .profile-container{padding-bottom:max(30px,env(safe-area-inset-bottom));}
+    .toast{bottom:max(20px,env(safe-area-inset-bottom));}
 }
 </style>
 </head>
@@ -349,13 +241,17 @@ body{background:#f5f5f5;min-height:100vh;}
     <!-- Profile Card -->
     <div class="profile-card">
         <div class="profile-header">
-            <div class="profile-avatar-container">
-                <img class="profile-avatar" id="avatar" src="https://i.pravatar.cc/300" alt="Avatar">
+            <div class="profile-avatar-container" id="avatar-container">
+                <img class="profile-avatar" id="avatar" src="https://i.pravatar.cc/300" alt="Avatar" loading="lazy">
                 <div class="verified-badge" id="verified-badge" style="display:none;">
                     <i class="fas fa-check"></i>
                 </div>
                 <div class="gold-badge" id="gold-badge" style="display:none;">
                     <i class="fas fa-star"></i>
+                </div>
+                <div class="avatar-upload-overlay" id="avatar-upload-overlay" onclick="openUploadModal()">
+                    <i class="fas fa-camera"></i>
+                    <span>Change Photo</span>
                 </div>
             </div>
             <div class="profile-info">
@@ -402,6 +298,49 @@ body{background:#f5f5f5;min-height:100vh;}
         <div class="loading">
             <i class="fas fa-spinner"></i><br>
             Loading content...
+        </div>
+    </div>
+</div>
+
+<!-- Image Upload Modal -->
+<div class="upload-modal-overlay" id="upload-modal">
+    <div class="upload-modal">
+        <div class="upload-modal-header">
+            <h2><i class="fas fa-camera"></i> Update Profile Photo</h2>
+            <p>Choose a photo from your gallery</p>
+        </div>
+        <div class="upload-modal-body">
+            <input type="file" id="file-input" class="file-input" accept="image/*" onchange="handleFileSelect(event)">
+            
+            <div class="upload-placeholder" id="upload-placeholder">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span>Tap to select photo<br>Max 2MB</span>
+            </div>
+            
+            <img class="upload-preview" id="upload-preview" alt="Preview">
+            
+            <div class="cropper-container" id="cropper-container">
+                <img id="cropper-image" class="cropper-image">
+                <div class="cropper-controls">
+                    <button class="cropper-btn" onclick="rotateImage(-90)"><i class="fas fa-undo"></i> Rotate</button>
+                    <button class="cropper-btn primary" onclick="cropImage()"><i class="fas fa-crop"></i> Crop</button>
+                </div>
+            </div>
+            
+            <div class="upload-loading" id="upload-loading">
+                <i class="fas fa-spinner"></i>
+                <p>Uploading...</p>
+            </div>
+            
+            <div class="upload-actions" id="upload-actions">
+                <button class="upload-btn secondary" onclick="closeUploadModal()">Cancel</button>
+                <button class="upload-btn" id="select-file-btn" onclick="document.getElementById('file-input').click()">
+                    <i class="fas fa-image"></i> Select Photo
+                </button>
+                <button class="upload-btn" id="save-photo-btn" onclick="saveProfilePhoto()" style="display:none;">
+                    <i class="fas fa-check"></i> Save Photo
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -465,7 +404,6 @@ body{background:#f5f5f5;min-height:100vh;}
         </div>
     </div>
 </div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -494,6 +432,11 @@ let profileData = null;
 let totalLikes = 0;
 let selectedBadge = "blue";
 
+// Image upload variables
+let selectedFile = null;
+let croppedImageBase64 = null;
+let cropper = null;
+
 onAuthStateChanged(auth, async (user) => {
     if (!user) { window.location.href = "login.html"; return; }
     currentUser = user;
@@ -507,6 +450,11 @@ onAuthStateChanged(auth, async (user) => {
 
     if (!profileUid) profileUid = user.uid;
     isOwnProfile = profileUid === user.uid;
+
+    // Show upload overlay only on own profile
+    if (isOwnProfile) {
+        document.getElementById('avatar-container').classList.add('own-profile');
+    }
 
     await loadTotalLikes();
     loadProfile();
@@ -534,7 +482,8 @@ function loadProfile() {
         profileData = snap.data();
         
         // Basic info
-        document.getElementById("avatar").src = profileData.avatar || `https://i.pravatar.cc/300?u=${profileUid}`;
+        const avatarUrl = profileData.avatar || `https://i.pravatar.cc/300?u=${profileUid}`;
+        document.getElementById("avatar").src = avatarUrl;
         document.getElementById("profile-name").innerText = profileData.username || "Anonymous";
         document.getElementById("profile-username").innerText = `@${profileData.username || 'user'}`;
         document.getElementById("profile-bio").innerText = profileData.bio || "No bio yet";
@@ -560,7 +509,6 @@ function loadProfile() {
         actionsContainer.innerHTML = "";
 
         if (isOwnProfile) {
-            // Own profile buttons
             actionsContainer.innerHTML = `
                 <button class="action-btn edit-btn" onclick="window.location.href='settings.html'">
                     <i class="fas fa-edit"></i> Edit Profile
@@ -570,7 +518,6 @@ function loadProfile() {
                 </button>
             `;
         } else {
-            // Other user's profile: Only follow button
             const isFollowing = profileData.followers?.includes(currentUser.uid) || false;
             actionsContainer.innerHTML = `
                 <button class="action-btn follow-btn ${isFollowing ? 'following' : ''}" 
@@ -604,7 +551,6 @@ function loadUserPosts() {
             return;
         }
 
-        // Sort by newest first
         const sorted = snapshot.docs.sort((a, b) => {
             const ta = a.data().timestamp?.seconds || 0;
             const tb = b.data().timestamp?.seconds || 0;
@@ -644,7 +590,214 @@ function loadUserPosts() {
     });
 }
 
-// Toggle Follow
+// ==================== PROFILE PHOTO UPLOAD ====================
+
+window.openUploadModal = function() {
+    if (!isOwnProfile) return;
+    document.getElementById('upload-modal').classList.add('active');
+    resetUploadModal();
+};
+
+window.closeUploadModal = function() {
+    document.getElementById('upload-modal').classList.remove('active');
+    resetUploadModal();
+};
+
+function resetUploadModal() {
+    selectedFile = null;
+    croppedImageBase64 = null;
+    document.getElementById('file-input').value = '';
+    document.getElementById('upload-placeholder').style.display = 'flex';
+    document.getElementById('upload-preview').style.display = 'none';
+    document.getElementById('upload-preview').classList.remove('active');
+    document.getElementById('upload-preview').src = '';
+    document.getElementById('cropper-container').classList.remove('active');
+    document.getElementById('upload-loading').classList.remove('active');
+    document.getElementById('select-file-btn').style.display = 'block';
+    document.getElementById('save-photo-btn').style.display = 'none';
+    
+    if (cropper) {
+        cropper.destroy();
+        cropper = null;
+    }
+}
+
+window.handleFileSelect = function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+        showToast('Image too large. Max 2MB allowed.', 'error');
+        return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+        showToast('Please select an image file.', 'error');
+        return;
+    }
+
+    selectedFile = file;
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+            // Show preview
+            document.getElementById('upload-placeholder').style.display = 'none';
+            document.getElementById('upload-preview').src = e.target.result;
+            document.getElementById('upload-preview').style.display = 'block';
+            document.getElementById('upload-preview').classList.add('active');
+            
+            // Show cropper for large images
+            if (img.width > 400 || img.height > 400) {
+                showCropper(e.target.result);
+            } else {
+                croppedImageBase64 = e.target.result;
+                showSaveButton();
+            }
+        };
+        img.src = e.target.result;
+    };
+    
+    reader.readAsDataURL(file);
+};
+
+function showCropper(imageSrc) {
+    document.getElementById('upload-preview').style.display = 'none';
+    document.getElementById('cropper-container').classList.add('active');
+    document.getElementById('cropper-image').src = imageSrc;
+    
+    // Initialize simple cropper
+    const cropperImg = document.getElementById('cropper-image');
+    cropperImg.style.maxHeight = '300px';
+    cropperImg.style.width = '100%';
+    cropperImg.style.objectFit = 'contain';
+    
+    showSaveButton();
+}
+
+window.rotateImage = function(degrees) {
+    const img = document.getElementById('cropper-image');
+    const currentRotation = img.dataset.rotation || 0;
+    const newRotation = parseInt(currentRotation) + degrees;
+    img.style.transform = `rotate(${newRotation}deg)`;
+    img.dataset.rotation = newRotation;
+};
+
+window.cropImage = function() {
+    // Simple center crop to square
+    const img = document.getElementById('cropper-image');
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    const size = Math.min(img.naturalWidth, img.naturalHeight);
+    canvas.width = 400;
+    canvas.height = 400;
+    
+    ctx.drawImage(
+        img, 
+        (img.naturalWidth - size) / 2, 
+        (img.naturalHeight - size) / 2, 
+        size, size,
+        0, 0, 400, 400
+    );
+    
+    croppedImageBase64 = canvas.toDataURL('image/jpeg', 0.9);
+    document.getElementById('upload-preview').src = croppedImageBase64;
+    document.getElementById('upload-preview').style.display = 'block';
+    document.getElementById('cropper-container').classList.remove('active');
+};
+
+function showSaveButton() {
+    document.getElementById('select-file-btn').style.display = 'none';
+    document.getElementById('save-photo-btn').style.display = 'block';
+}
+
+window.saveProfilePhoto = async function() {
+    const imageToSave = croppedImageBase64 || document.getElementById('upload-preview').src;
+    
+    if (!imageToSave || imageToSave.includes('pravatar.cc')) {
+        showToast('Please select a photo first.', 'error');
+        return;
+    }
+
+    // Show loading
+    document.getElementById('upload-loading').classList.add('active');
+    document.getElementById('upload-actions').style.display = 'none';
+    document.getElementById('upload-preview').style.display = 'none';
+    document.getElementById('cropper-container').classList.remove('active');
+
+    try {
+        // Compress base64 if too large (max 500KB for Firestore)
+        let compressedBase64 = await compressImage(imageToSave, 500);
+        
+        // Update Firestore
+        const userRef = doc(db, "users", currentUser.uid);
+        await updateDoc(userRef, {
+            avatar: compressedBase64,
+            updatedAt: serverTimestamp()
+        });
+
+        showToast('Profile photo updated!', 'success');
+        closeUploadModal();
+        
+        // Update displayed avatar immediately
+        document.getElementById('avatar').src = compressedBase64;
+        
+    } catch (error) {
+        console.error('Upload error:', error);
+        showToast('Failed to upload photo. Try again.', 'error');
+        document.getElementById('upload-loading').classList.remove('active');
+        document.getElementById('upload-actions').style.display = 'flex';
+        document.getElementById('upload-preview').style.display = 'block';
+    }
+};
+
+async function compressImage(base64String, maxSizeKB) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Calculate new dimensions (max 400x400)
+            let width = img.width;
+            let height = img.height;
+            const maxDim = 400;
+            
+            if (width > maxDim || height > maxDim) {
+                if (width > height) {
+                    height = (height / width) * maxDim;
+                    width = maxDim;
+                } else {
+                    width = (width / height) * maxDim;
+                    height = maxDim;
+                }
+            }
+            
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            // Compress in steps
+            let quality = 0.9;
+            let result = canvas.toDataURL('image/jpeg', quality);
+            
+            while (result.length > maxSizeKB * 1024 && quality > 0.1) {
+                quality -= 0.1;
+                result = canvas.toDataURL('image/jpeg', quality);
+            }
+            
+            resolve(result);
+        };
+        img.src = base64String;
+    });
+}
+
+// ==================== FOLLOW & VERIFICATION ====================
+
 window.toggleFollow = async function(currentlyFollowing, targetUsername) {
     const btn = document.getElementById("follow-btn");
     btn.disabled = true;
@@ -673,12 +826,11 @@ window.toggleFollow = async function(currentlyFollowing, targetUsername) {
     btn.disabled = false;
 };
 
-// Verification Overlay Functions
 window.openVerificationOverlay = function() {
+    if (!isOwnProfile) return;
     document.getElementById("verification-overlay").classList.add("active");
     updateBadgeEligibility();
     
-    // Add click listeners to badge cards
     document.querySelectorAll(".badge-card").forEach(card => {
         card.addEventListener("click", function() {
             document.querySelectorAll(".badge-card").forEach(c => c.classList.remove("selected"));
@@ -687,7 +839,6 @@ window.openVerificationOverlay = function() {
         });
     });
     
-    // Select blue badge by default
     document.getElementById("blue-badge-card").classList.add("selected");
     selectedBadge = "blue";
 };
@@ -701,7 +852,6 @@ function updateBadgeEligibility() {
     const boostedFollowers = profileData.followersCount || 0;
     const totalFollowers = realFollowers + boostedFollowers;
     
-    // Blue Badge Eligibility
     const blueFollowersEligible = totalFollowers >= 500;
     const blueLikesEligible = totalLikes >= 1000;
     const blueBalanceEligible = currentBalance >= 2;
@@ -712,7 +862,6 @@ function updateBadgeEligibility() {
     updateRequirementElement("blue-balance", blueBalanceEligible);
     updateBadgeCard("blue-badge-card", blueEligible);
     
-    // Gold Badge Eligibility
     const goldFollowersEligible = totalFollowers >= 2000;
     const goldLikesEligible = totalLikes >= 5000;
     const goldBalanceEligible = currentBalance >= 5;
@@ -793,7 +942,6 @@ window.purchaseVerification = async function() {
             
             if (currentBal < amount) throw "Insufficient balance";
             
-            // Update user: deduct balance and set verified
             const updateData = {
                 balance: increment(-amount),
                 verifiedDate: serverTimestamp()
@@ -810,7 +958,6 @@ window.purchaseVerification = async function() {
             
             transaction.update(userRef, updateData);
             
-            // Record transaction
             const transRef = doc(collection(db, "transactions"));
             transaction.set(transRef, {
                 type: "verification",
@@ -824,8 +971,6 @@ window.purchaseVerification = async function() {
         
         showToast(`Congratulations! You've earned the ${badgeType === "blue" ? "Blue" : "Gold"} Badge!`, "success");
         closeVerificationOverlay();
-        
-        // Reload to show badge
         setTimeout(() => location.reload(), 1500);
         
     } catch (e) {
@@ -836,7 +981,8 @@ window.purchaseVerification = async function() {
     }
 };
 
-// Tab switching
+// ==================== TABS & UTILITY ====================
+
 window.switchTab = function(tab, element) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     element.classList.add('active');
@@ -848,7 +994,6 @@ window.switchTab = function(tab, element) {
     }
 };
 
-// Load media posts only
 function loadMediaOnly() {
     const q = query(collection(db, "posts"), where("userId", "==", profileUid));
     
@@ -888,7 +1033,6 @@ function loadMediaOnly() {
     });
 }
 
-// Utility functions
 function formatNumber(num) {
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
     if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
@@ -896,6 +1040,9 @@ function formatNumber(num) {
 }
 
 function showToast(message, type = "success") {
+    const existing = document.querySelector('.toast');
+    if (existing) existing.remove();
+    
     const toast = document.createElement("div");
     toast.className = `toast ${type}`;
     toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'info' ? 'info-circle' : 'exclamation-circle'}"></i> ${message}`;
@@ -911,28 +1058,46 @@ window.shareProfile = function() {
             title: `${profileData?.username || 'User'} on CashClique`,
             text: 'Check out this profile on CashClique',
             url: shareUrl
-        }).catch(err => {
+        }).catch(() => {
             navigator.clipboard.writeText(shareUrl);
-            showToast("Profile link copied to clipboard!", "success");
+            showToast("Profile link copied!", "success");
         });
     } else {
         navigator.clipboard.writeText(shareUrl);
-        showToast("Profile link copied to clipboard!", "success");
+        showToast("Profile link copied!", "success");
     }
 };
 
 window.showFollowers = function() {
-    showToast("Followers list coming soon!", "success");
+    showToast("Followers list coming soon!", "info");
 };
 
 window.showFollowing = function() {
-    showToast("Following list coming soon!", "success");
+    showToast("Following list coming soon!", "info");
 };
 
-// Close overlay on outside click
+window.showPosts = function() {
+    document.querySelector('.tab').click();
+};
+
+// Close overlays on outside click
+document.getElementById("upload-modal").addEventListener("click", (e) => {
+    if (e.target.id === "upload-modal") closeUploadModal();
+});
+
 document.getElementById("verification-overlay").addEventListener("click", (e) => {
-    if (e.target.id === "verification-overlay") {
+    if (e.target.id === "verification-overlay") closeVerificationOverlay();
+});
+
+// Handle back button on mobile
+window.addEventListener('popstate', function() {
+    if (document.getElementById('upload-modal').classList.contains('active')) {
+        closeUploadModal();
+        history.pushState(null, null, location.href);
+    }
+    if (document.getElementById('verification-overlay').classList.contains('active')) {
         closeVerificationOverlay();
+        history.pushState(null, null, location.href);
     }
 });
 </script>
