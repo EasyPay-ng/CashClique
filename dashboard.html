@@ -11,410 +11,224 @@
 <link rel="manifest" href="/manifest.json">
 
 <style>
-:root{
-    --primary:#ff6a00;
-    --primary-light:#ff8a00;
-    --primary-glow:rgba(255,106,0,0.15);
-    --success:#22c55e;
-    --error:#ef4444;
-    --info:#3b82f6;
-    --verified-blue:#1DA1F2;
-    --verified-gold:#FFD700;
-    --bg-body:#f8f9fa;
-    --bg-card:#ffffff;
-    --bg-elevated:#ffffff;
-    --text-primary:#1a1a1a;
-    --text-secondary:#666666;
-    --text-muted:#888888;
-    --border-light:#e8e8e8;
-    --shadow-sm:0 2px 8px rgba(0,0,0,0.04);
-    --shadow-md:0 4px 20px rgba(0,0,0,0.08);
-    --shadow-lg:0 8px 40px rgba(0,0,0,0.12);
-    --radius-sm:8px;
-    --radius-md:12px;
-    --radius-lg:16px;
-    --radius-xl:20px;
-    --transition-fast:0.15s cubic-bezier(0.4,0,0.2,1);
-    --transition-base:0.3s cubic-bezier(0.4,0,0.2,1);
-    --transition-slow:0.5s cubic-bezier(0.4,0,0.2,1);
-    --transition-bounce:0.5s cubic-bezier(0.34,1.56,0.64,1);
-}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{background:#f5f6f8;display:flex;min-height:100vh;}
+.sidebar{width:240px;background:#ff6a00;color:white;padding:20px;display:flex;flex-direction:column;gap:20px;position:fixed;height:100%;transition:0.3s;z-index:999;}
+.sidebar img{width:45px;border-radius:10px;}
+.logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:18px;}
+.sidebar a{color:white;text-decoration:none;padding:12px;border-radius:8px;transition:0.3s;display:flex;align-items:center;gap:10px;}
+.sidebar a:hover{background:rgba(255,255,255,0.2);}
+.sidebar a.active{background:rgba(255,255,255,0.2);}
+.sidebar i{width:20px;text-align:center;}
 
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;-webkit-tap-highlight-color:transparent;}
-html{scroll-behavior:smooth;}
-body{background:var(--bg-body);display:flex;min-height:100vh;-webkit-font-smoothing:antialiased;color:var(--text-primary);line-height:1.6;}
-
-/* Toast Container */
-.toast-container{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:12px;pointer-events:none;}
-.toast{padding:16px 24px;border-radius:50px;color:white;font-size:14px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,0.2);animation:toastSlideUp 0.4s var(--transition-bounce);pointer-events:auto;min-width:280px;justify-content:center;font-weight:600;}
-.toast.error{background:var(--error);box-shadow:0 8px 32px rgba(239,68,68,0.3);}
-.toast.success{background:var(--success);box-shadow:0 8px 32px rgba(34,197,94,0.3);}
-.toast.info{background:var(--info);box-shadow:0 8px 32px rgba(59,130,246,0.3);}
-@keyframes toastSlideUp{0%{transform:translateX(-50%) translateY(100px) scale(0.8);opacity:0;}70%{transform:translateX(-50%) translateY(-10px) scale(1.02);}100%{transform:translateX(-50%) translateY(0) scale(1);opacity:1;}}
-.toast.removing{animation:toastSlideDown 0.3s forwards;}
-@keyframes toastSlideDown{to{transform:translateX(-50%) translateY(100px) scale(0.8);opacity:0;}}
-
-/* Sidebar */
-.sidebar{width:260px;background:linear-gradient(180deg,var(--primary) 0%,var(--primary-light) 100%);color:white;padding:24px;display:flex;flex-direction:column;gap:8px;position:fixed;height:100%;transition:var(--transition-base);z-index:999;box-shadow:4px 0 20px rgba(0,0,0,0.1);}
-.sidebar img{width:48px;height:48px;border-radius:12px;object-fit:cover;border:2px solid rgba(255,255,255,0.3);box-shadow:0 4px 12px rgba(0,0,0,0.2);}
-.logo{display:flex;align-items:center;gap:12px;font-weight:700;font-size:20px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.2);}
-.sidebar a{color:white;text-decoration:none;padding:12px 16px;border-radius:var(--radius-md);transition:var(--transition-fast);display:flex;align-items:center;gap:12px;font-weight:500;font-size:15px;position:relative;overflow:hidden;}
-.sidebar a::before{content:'';position:absolute;inset:0;background:rgba(255,255,255,0.1);opacity:0;transition:var(--transition-fast);}
-.sidebar a:hover::before{opacity:1;}
-.sidebar a:hover{transform:translateX(4px);}
-.sidebar a.active{background:rgba(255,255,255,0.15);}
-.sidebar a i{width:20px;text-align:center;font-size:18px;}
-.sidebar-close{position:absolute;top:15px;right:15px;background:none;border:none;color:white;font-size:24px;cursor:pointer;display:none;width:40px;height:40px;border-radius:50%;align-items:center;justify-content:center;transition:var(--transition-fast);}
+.sidebar-close {position:absolute;top:15px;right:15px;background:none;border:none;color:white;font-size:24px;cursor:pointer;display:none;width:35px;height:35px;border-radius:50%;align-items:center;justify-content:center;transition:0.2s;}
 .sidebar-close:hover{background:rgba(255,255,255,0.2);}
 
-/* Main Content */
-.main{margin-left:280px;width:calc(100% - 280px);padding:24px 32px;transition:var(--transition-base);}
+.main{margin-left:240px;width:calc(100% - 240px);padding:20px 32px;max-width:none;margin-right:0;}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.header-right{display:flex;align-items:center;gap:15px;}
+.user{display:flex;align-items:center;gap:10px;cursor:pointer;padding:8px 12px;border-radius:25px;transition:0.2s;}
+.user:hover{background:rgba(0,0,0,0.05);}
+.user img{width:35px;height:35px;border-radius:50%;object-fit:cover;}
+.user-info{display:flex;align-items:center;gap:5px;}
 
-/* Header */
-.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding:8px 0;}
-.header-right{display:flex;align-items:center;gap:16px;}
-.menu-btn{display:none;font-size:24px;cursor:pointer;color:var(--text-primary);padding:8px;border-radius:var(--radius-md);transition:var(--transition-fast);}
-.menu-btn:hover{background:var(--bg-body);color:var(--primary);}
+.verified-badge{background:#1DA1F2;color:white;width:16px;height:16px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;margin-left:3px;}
+.verified-badge-post{background:#1DA1F2;color:white;width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;margin-left:5px;vertical-align:middle;}
 
-/* User Profile in Header */
-.user{display:flex;align-items:center;gap:12px;cursor:pointer;padding:8px 16px;border-radius:50px;transition:var(--transition-fast);background:var(--bg-card);box-shadow:var(--shadow-sm);border:1px solid var(--border-light);}
-.user:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:var(--primary);}
-.user img{width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid var(--primary);transition:var(--transition-base);}
-.user:hover img{transform:scale(1.05);}
-.user-info{display:flex;align-items:center;gap:8px;}
-.user-info span{font-weight:600;font-size:14px;color:var(--text-primary);}
-.verified-badge{background:var(--verified-blue);color:white;width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;animation:badgePop 0.5s var(--transition-bounce);}
-@keyframes badgePop{0%{transform:scale(0);}70%{transform:scale(1.2);}100%{transform:scale(1);}}
+.notification-bell{position:relative;cursor:pointer;font-size:20px;padding:8px;transition:0.2s;color:#333;}
+.notification-bell:hover{color:#ff6a00;}
+.badge{position:absolute;top:0;right:0;background:#ff0000;color:white;font-size:10px;min-width:16px;height:16px;padding:2px 4px;border-radius:50%;font-weight:600;display:none;text-align:center;line-height:12px;}
 
-/* Notification Bell */
-.notification-bell{position:relative;cursor:pointer;font-size:22px;padding:12px;border-radius:50%;transition:var(--transition-fast);color:var(--text-secondary);background:var(--bg-card);box-shadow:var(--shadow-sm);border:1px solid var(--border-light);}
-.notification-bell:hover{color:var(--primary);transform:translateY(-2px) scale(1.05);box-shadow:var(--shadow-md);}
-.notification-bell:active{transform:scale(0.95);}
-.badge{position:absolute;top:0;right:0;background:var(--error);color:white;font-size:11px;min-width:20px;height:20px;padding:2px 6px;border-radius:50%;font-weight:700;display:none;align-items:center;justify-content:center;animation:badgePop 0.5s var(--transition-bounce);border:2px solid white;box-shadow:0 2px 8px rgba(239,68,68,0.4);}
+.controls-section{background:white;padding:15px 20px;border-radius:16px;box-shadow:0 4px 15px rgba(0,0,0,0.03);margin-bottom:25px;border:1px solid #e2e8f0;display:flex;flex-direction:column;gap:15px;}
+.search-bar{display:flex;align-items:center;background:#f8fafc;border-radius:12px;padding:12px 16px;border:2px solid #e2e8f0;transition:0.3s;}
+.search-bar:focus-within{border-color:#ff6a00;background:white;box-shadow:0 0 0 4px rgba(255,106,0,0.1);}
+.search-bar i{color:#94a3b8;margin-right:12px;font-size:16px;}
+.search-bar input{border:none;background:transparent;outline:none;width:100%;font-size:14px;font-family:'Poppins',sans-serif;color:#1e2937;}
+.search-bar input::placeholder{color:#94a3b8;}
 
-/* Controls Section */
-.controls-section{background:var(--bg-card);padding:20px 24px;border-radius:var(--radius-xl);box-shadow:var(--shadow-md);margin-bottom:28px;border:1px solid rgba(0,0,0,0.02);animation:slideUp 0.5s var(--transition-base);}
-@keyframes slideUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.feed-tabs{display:flex;gap:15px;border-bottom:2px solid #f1f5f9;width:100%;}
+.feed-tab{flex:1;text-align:center;background:none;border:none;padding:10px 5px;font-size:14.5px;font-weight:600;color:#64748b;cursor:pointer;position:relative;transition:0.3s;font-family:'Poppins',sans-serif;}
+.feed-tab:hover{color:#ff6a00;}
+.feed-tab.active{color:#ff6a00;}
+.feed-tab.active::after{content:'';position:absolute;bottom:-2px;left:0;width:100%;height:3px;background:#ff6a00;border-radius:3px 3px 0 0;}
 
-/* Search Bar */
-.search-bar{display:flex;align-items:center;background:var(--bg-body);border-radius:var(--radius-lg);padding:14px 20px;border:2px solid var(--border-light);transition:var(--transition-base);margin-bottom:20px;}
-.search-bar:focus-within{border-color:var(--primary);background:white;box-shadow:0 0 0 4px var(--primary-glow);}
-.search-bar i{color:var(--text-muted);margin-right:14px;font-size:18px;transition:var(--transition-fast);}
-.search-bar:focus-within i{color:var(--primary);}
-.search-bar input{border:none;background:transparent;outline:none;width:100%;font-size:15px;font-family:'Poppins',sans-serif;color:var(--text-primary);font-weight:500;}
-.search-bar input::placeholder{color:var(--text-muted);}
-
-/* Feed Tabs */
-.feed-tabs{display:flex;gap:8px;border-bottom:2px solid var(--border-light);padding-bottom:4px;}
-.feed-tab{flex:1;text-align:center;background:none;border:none;padding:14px 8px;font-size:15px;font-weight:600;color:var(--text-muted);cursor:pointer;position:relative;transition:var(--transition-fast);border-radius:var(--radius-md);}
-.feed-tab:hover{color:var(--primary);background:rgba(255,106,0,0.05);}
-.feed-tab.active{color:var(--primary);}
-.feed-tab.active::after{content:'';position:absolute;bottom:-6px;left:0;width:100%;height:3px;background:var(--primary);border-radius:3px 3px 0 0;animation:tabSlide 0.3s var(--transition-base);}
-@keyframes tabSlide{from{transform:scaleX(0);}to{transform:scaleX(1);}}
-
-/* Feed */
-.feed{display:flex;flex-direction:column;gap:24px;}
-
-/* Post Card */
-.post{background:var(--bg-card);padding:24px;border-radius:var(--radius-xl);box-shadow:var(--shadow-md);position:relative;border:1px solid rgba(0,0,0,0.02);animation:cardEnter 0.6s var(--transition-bounce);transition:var(--transition-base);}
-.post:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px);}
-@keyframes cardEnter{from{opacity:0;transform:translateY(30px) scale(0.96);}to{opacity:1;transform:translateY(0) scale(1);}}
-
-/* Post Header */
-.post-header{display:flex;align-items:center;gap:14px;margin-bottom:16px;position:relative;padding-right:40px;}
-.post-header .profile-pic{width:48px;height:48px;border-radius:50%;cursor:pointer;object-fit:cover;border:3px solid transparent;transition:var(--transition-fast);box-shadow:0 4px 12px rgba(0,0,0,0.1);}
-.post-header .profile-pic:hover{border-color:var(--primary);transform:scale(1.08);}
+.feed{display:flex;flex-direction:column;gap:20px;}
+.post{background:white;padding:20px;border-radius:16px;box-shadow:0 4px 15px rgba(0,0,0,0.03);position:relative;border:1px solid #e2e8f0;}
+.post-header{display:flex;align-items:center;gap:12px;margin-bottom:12px;position:relative;padding-right:30px;}
+.post-header img{width:40px;height:40px;border-radius:50%;cursor:pointer;object-fit:cover;}
 .post-author{display:flex;flex-direction:column;flex:1;}
-.post-author-name{display:flex;align-items:center;gap:8px;font-weight:700;color:var(--text-primary);font-size:16px;cursor:pointer;transition:var(--transition-fast);}
-.post-author-name:hover{color:var(--primary);}
-.post-author-name span{position:relative;}
-.post-author-name span::after{content:'';position:absolute;bottom:-2px;left:0;width:0;height:2px;background:var(--primary);transition:var(--transition-base);}
-.post-author-name:hover span::after{width:100%;}
-.post-time{font-size:13px;color:var(--text-muted);margin-top:4px;font-weight:500;display:flex;align-items:center;gap:6px;}
-.post-time::before{content:'•';font-size:10px;opacity:0.5;}
+.post-author-name{display:flex;align-items:center;font-weight:600;color:#1e2937;font-size:15px;cursor:pointer;}
+.post-author-name:hover{text-decoration:underline;}
+.post-time{font-size:12px;color:#64748b;margin-top:2px;}
+.post p{color:#334155;line-height:1.6;font-size:14.5px;}
 
-/* Verified Badge on Posts */
-.verified-badge-post{background:var(--verified-blue);color:white;width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;animation:badgePop 0.5s var(--transition-bounce);box-shadow:0 2px 8px rgba(29,161,242,0.4);}
+.post-actions{display:flex;gap:25px;margin-top:15px;padding-top:15px;border-top:1px solid #f1f5f9;align-items:center;flex-wrap:wrap;}
+.action-item{display:flex;align-items:center;gap:6px;cursor:pointer;transition:0.2s;color:#64748b;font-size:14px;font-weight:600;}
+.action-item:hover{color:#ff6a00;}
+.action-item i{font-size:18px;}
+.action-item.liked{color:#ef4444;}
+.action-item.liked i{font-weight:900;}
 
-/* Priority Badge */
-.priority-badge{position:absolute;top:-12px;left:-12px;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:white;padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;display:flex;align-items:center;gap:6px;box-shadow:0 4px 16px var(--primary-glow);animation:badgeSlide 0.5s var(--transition-bounce);z-index:10;}
-@keyframes badgeSlide{0%{transform:translateX(-20px) scale(0.8);opacity:0;}100%{transform:translateX(0) scale(1);opacity:1;}}
-.priority-badge i{font-size:12px;}
+.follow-btn{background:linear-gradient(135deg,#ff6a00,#e55d00);color:white;border:none;padding:6px 16px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;transition:0.2s;display:flex;align-items:center;gap:4px;}
+.follow-btn:hover{transform:scale(1.05);box-shadow:0 4px 12px rgba(255,106,0,0.3);}
+.follow-btn.following{background:#e2e8f0;color:#64748b;}
+.follow-btn.following:hover{background:#fee2e2;color:#ef4444;}
 
-/* Post Content */
-.post > p{color:var(--text-secondary);line-height:1.7;font-size:15px;margin-bottom:16px;}
-
-/* Post Image */
-.post-image{margin-top:16px;width:100%;max-height:500px;border-radius:var(--radius-lg);object-fit:cover;cursor:pointer;border:1px solid var(--border-light);transition:var(--transition-slow);box-shadow:var(--shadow-sm);}
-.post-image:hover{transform:scale(1.01);box-shadow:var(--shadow-md);}
-
-/* Three Dot Menu */
-.three-dot{position:absolute;top:20px;right:20px;cursor:pointer;font-size:20px;color:var(--text-muted);padding:8px;border-radius:50%;transition:var(--transition-fast);width:36px;height:36px;display:flex;align-items:center;justify-content:center;}
-.three-dot:hover{background:var(--bg-body);color:var(--primary);transform:rotate(90deg);}
-
-/* Post Actions */
-.post-actions{display:flex;gap:32px;margin-top:20px;padding-top:20px;border-top:1px solid var(--border-light);align-items:center;flex-wrap:wrap;}
-.action-item{display:flex;align-items:center;gap:8px;cursor:pointer;transition:var(--transition-fast);color:var(--text-muted);font-size:14px;font-weight:600;padding:8px 12px;border-radius:var(--radius-md);}
-.action-item:hover{color:var(--primary);background:rgba(255,106,0,0.05);transform:translateY(-2px);}
-.action-item:active{transform:scale(0.95);}
-.action-item i{font-size:20px;transition:var(--transition-fast);}
-.action-item:hover i{transform:scale(1.1);}
-.action-item.liked{color:var(--error);background:rgba(239,68,68,0.05);}
-.action-item.liked i{font-weight:900;animation:heartBeat 0.5s;}
-@keyframes heartBeat{0%,100%{transform:scale(1);}25%{transform:scale(1.2);}50%{transform:scale(1);}75%{transform:scale(1.1);}}
-
-/* Follow Button in Post */
-.follow-btn{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:white;border:none;padding:8px 18px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;transition:var(--transition-fast);display:flex;align-items:center;gap:6px;box-shadow:0 4px 12px var(--primary-glow);}
-.follow-btn:hover{transform:scale(1.05);box-shadow:0 6px 20px rgba(255,106,0,0.35);}
-.follow-btn:active{transform:scale(0.95);}
-.follow-btn.following{background:var(--bg-body);color:var(--text-muted);box-shadow:none;border:2px solid var(--border-light);}
-.follow-btn.following:hover{background:rgba(239,68,68,0.1);color:var(--error);border-color:var(--error);}
-
-/* Comments Section */
-.comments-section{margin-top:20px;padding-top:20px;border-top:1px solid var(--border-light);display:none;animation:slideDown 0.3s var(--transition-base);}
+.comments-section{margin-top:15px;padding-top:15px;border-top:1px solid #f1f5f9;display:none;}
 .comments-section.active{display:block;}
-@keyframes slideDown{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
-.comments-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
-.comments-title{font-weight:700;color:var(--text-primary);font-size:15px;}
-.close-comments{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:20px;padding:8px;border-radius:50%;transition:var(--transition-fast);width:36px;height:36px;display:flex;align-items:center;justify-content:center;}
-.close-comments:hover{color:var(--error);background:rgba(239,68,68,0.1);transform:rotate(90deg);}
-
-/* Comment List */
-.comment-list{display:flex;flex-direction:column;gap:16px;max-height:450px;overflow-y:auto;padding-right:8px;}
-.comment-list::-webkit-scrollbar{width:6px;}
-.comment-list::-webkit-scrollbar-track{background:transparent;}
-.comment-list::-webkit-scrollbar-thumb{background:var(--border-light);border-radius:10px;}
-.comment-list::-webkit-scrollbar-thumb:hover{background:var(--text-muted);}
-.comment-item{display:flex;gap:14px;padding:16px;background:var(--bg-body);border-radius:var(--radius-lg);transition:var(--transition-fast);animation:slideUp 0.3s var(--transition-base);}
-.comment-item:hover{background:#f0f0f0;transform:translateX(4px);}
-.comment-item.replying-to{border-left:4px solid var(--primary);background:#fff7ed;}
-.comment-avatar{width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid white;box-shadow:var(--shadow-sm);transition:var(--transition-fast);}
-.comment-item:hover .comment-avatar{transform:scale(1.1);}
+.comments-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;}
+.comments-title{font-weight:600;color:#1e2937;font-size:14px;}
+.close-comments{background:none;border:none;color:#64748b;cursor:pointer;font-size:18px;padding:5px;transition:0.2s;}
+.close-comments:hover{color:#ef4444;}
+.comment-list{display:flex;flex-direction:column;gap:12px;max-height:400px;overflow-y:auto;padding-right:5px;}
+.comment-item{display:flex;gap:10px;padding:12px;background:#f8fafc;border-radius:12px;transition:0.2s;}
+.comment-item:hover{background:#f1f5f9;}
+.comment-item.replying-to{border-left:3px solid #ff6a00;background:#fff7ed;}
+.comment-avatar{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;}
 .comment-content{flex:1;min-width:0;}
-.comment-header{display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap;}
-.comment-author{font-weight:700;color:var(--text-primary);font-size:14px;cursor:pointer;transition:var(--transition-fast);}
-.comment-author:hover{color:var(--primary);}
-.comment-time{font-size:12px;color:var(--text-muted);font-weight:500;}
-.comment-text{color:var(--text-secondary);font-size:14px;line-height:1.6;word-wrap:break-word;}
-.comment-reply-to{font-size:12px;color:var(--primary);margin-bottom:6px;display:flex;align-items:center;gap:6px;font-weight:500;}
-.comment-actions{display:flex;gap:16px;margin-top:10px;}
-.comment-action{font-size:13px;color:var(--text-muted);cursor:pointer;transition:var(--transition-fast);display:flex;align-items:center;gap:6px;font-weight:500;padding:4px 8px;border-radius:var(--radius-sm);}
-.comment-action:hover{color:var(--primary);background:rgba(255,106,0,0.05);}
-
-/* Comment Input */
-.comment-input-area{display:flex;flex-direction:column;gap:12px;margin-top:20px;padding-top:20px;border-top:1px solid var(--border-light);}
-.reply-indicator{display:none;align-items:center;gap:10px;padding:12px 16px;background:#fff7ed;border-radius:var(--radius-md);font-size:13px;color:var(--primary);font-weight:500;animation:slideUp 0.3s;}
+.comment-header{display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap;}
+.comment-author{font-weight:600;color:#1e2937;font-size:13px;cursor:pointer;}
+.comment-author:hover{color:#ff6a00;}
+.comment-time{font-size:11px;color:#94a3b8;}
+.comment-text{color:#475569;font-size:13px;line-height:1.5;word-wrap:break-word;}
+.comment-reply-to{font-size:12px;color:#ff6a00;margin-bottom:4px;display:flex;align-items:center;gap:4px;}
+.comment-actions{display:flex;gap:12px;margin-top:6px;}
+.comment-action{font-size:12px;color:#64748b;cursor:pointer;transition:0.2s;display:flex;align-items:center;gap:4px;}
+.comment-action:hover{color:#ff6a00;}
+.comment-input-area{display:flex;flex-direction:column;gap:10px;margin-top:15px;padding-top:15px;border-top:1px solid #e2e8f0;}
+.reply-indicator{display:none;align-items:center;gap:8px;padding:8px 12px;background:#fff7ed;border-radius:8px;font-size:12px;color:#ff6a00;}
 .reply-indicator.active{display:flex;}
-.reply-indicator i{font-size:14px;}
 .reply-indicator span{flex:1;}
-.cancel-reply{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;padding:4px;border-radius:50%;transition:var(--transition-fast);width:28px;height:28px;display:flex;align-items:center;justify-content:center;}
-.cancel-reply:hover{color:var(--error);background:rgba(239,68,68,0.1);}
-.comment-input-wrapper{display:flex;gap:12px;align-items:flex-end;}
-.comment-input{flex:1;padding:14px 18px;border:2px solid var(--border-light);border-radius:24px;outline:none;font-family:'Poppins',sans-serif;font-size:14px;resize:none;min-height:48px;max-height:140px;transition:var(--transition-base);background:var(--bg-body);}
-.comment-input:focus{border-color:var(--primary);background:white;box-shadow:0 0 0 4px var(--primary-glow);}
-.comment-submit{background:var(--primary);color:white;border:none;width:48px;height:48px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--transition-fast);flex-shrink:0;box-shadow:0 4px 16px var(--primary-glow);}
-.comment-submit:hover{background:var(--primary-light);transform:scale(1.05);box-shadow:0 6px 20px rgba(255,106,0,0.4);}
-.comment-submit:active{transform:scale(0.95);}
-.comment-submit i{font-size:18px;}
+.cancel-reply{background:none;border:none;color:#64748b;cursor:pointer;font-size:14px;}
+.comment-input-wrapper{display:flex;gap:10px;align-items:flex-end;}
+.comment-input{flex:1;padding:12px 16px;border:2px solid #e2e8f0;border-radius:20px;outline:none;font-family:'Poppins',sans-serif;font-size:13px;resize:none;min-height:40px;max-height:120px;}
+.comment-input:focus{border-color:#ff6a00;}
+.comment-submit{background:#ff6a00;color:white;border:none;width:40px;height:40px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:0.2s;flex-shrink:0;}
+.comment-submit:hover{background:#e55d00;transform:scale(1.05);}
 
-/* Ad Container */
-.ad-container{margin-top:20px;padding:20px;background:var(--bg-body);border-radius:var(--radius-lg);border:1px solid var(--border-light);cursor:pointer;transition:var(--transition-base);}
-.ad-container:hover{background:#f0f0f0;border-color:var(--primary);transform:translateY(-2px);box-shadow:var(--shadow-md);}
-.ad-tag{background:var(--primary);color:white;font-size:11px;padding:4px 10px;border-radius:6px;font-weight:700;display:inline-block;margin-bottom:12px;box-shadow:0 2px 8px var(--primary-glow);}
-.ad-title{font-weight:700;color:var(--text-primary);font-size:15px;margin-bottom:8px;}
-.ad-description{color:var(--text-secondary);font-size:14px;line-height:1.6;margin-bottom:12px;}
-.ad-image{width:100%;max-height:320px;border-radius:var(--radius-md);object-fit:cover;border:1px solid var(--border-light);transition:var(--transition-slow);}
-.ad-container:hover .ad-image{transform:scale(1.01);}
+.post-image{margin-top:12px;width:100%;max-height:450px;border-radius:12px;object-fit:cover;cursor:pointer;border:1px solid #f1f5f9;}
+.three-dot{position:absolute;top:10px;right:10px;cursor:pointer;font-size:20px;color:#94a3b8;padding:5px;transition:0.2s;}
+.three-dot:hover{color:#334155;}
 
-/* Create Button */
-.create-btn{position:fixed;bottom:32px;right:32px;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:white;border:none;width:64px;height:64px;border-radius:50%;font-size:28px;cursor:pointer;box-shadow:0 10px 30px var(--primary-glow);transition:var(--transition-base);z-index:99;display:flex;align-items:center;justify-content:center;animation:bounceIn 0.6s var(--transition-bounce);}
-@keyframes bounceIn{0%{transform:scale(0) rotate(-180deg);}70%{transform:scale(1.1) rotate(10deg);}100%{transform:scale(1) rotate(0);}}
-.create-btn:hover{transform:scale(1.1) rotate(90deg);box-shadow:0 15px 40px rgba(255,106,0,0.4);}
-.create-btn:active{transform:scale(0.95);}
+.priority-badge{position:absolute;top:-8px;left:-8px;background:linear-gradient(135deg,#ff6a00,#e55d00);color:white;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700;display:flex;align-items:center;gap:4px;box-shadow:0 4px 10px rgba(255,106,0,0.3);}
+.priority-badge i{font-size:10px;}
 
-/* Customer Support Button */
-.cs-btn{position:fixed;bottom:108px;right:32px;background:linear-gradient(135deg,#10b981,#059669);color:white;border:none;width:64px;height:64px;border-radius:50%;font-size:28px;cursor:pointer;box-shadow:0 10px 30px rgba(16,185,129,0.3);transition:var(--transition-base);z-index:99;display:flex;align-items:center;justify-content:center;animation:bounceIn 0.6s var(--transition-bounce) 0.1s both;}
-.cs-btn:hover{transform:scale(1.1);box-shadow:0 15px 40px rgba(16,185,129,0.4);}
-.cs-btn:active{transform:scale(0.95);}
-.cs-btn.has-unread::after{content:'';position:absolute;top:5px;right:5px;width:14px;height:14px;background:var(--error);border-radius:50%;border:3px solid white;animation:pulse 2s infinite;box-shadow:0 2px 8px rgba(239,68,68,0.4);}
-@keyframes pulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.1);opacity:0.8;}}
+.ad-container{margin-top:15px;padding:15px;background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;cursor:pointer;transition:0.2s;}
+.ad-container:hover{background:#f1f5f9;border-color:#cbd5e1;}
+.ad-tag{background:#ff6a00;color:white;font-size:10px;padding:3px 8px;border-radius:4px;font-weight:600;display:inline-block;margin-bottom:8px;}
+.ad-title{font-weight:600;color:#1e2937;font-size:14px;margin-bottom:4px;}
+.ad-description{color:#64748b;font-size:13px;line-height:1.5;}
+.ad-image{width:100%;max-height:300px;border-radius:8px;object-fit:cover;margin-top:10px;border:1px solid #e2e8f0;}
 
-/* CS Chat Overlay */
-.cs-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:3000;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;}
-.cs-overlay.active{display:flex;opacity:1;}
-.cs-chat-container{width:90%;max-width:480px;height:85vh;max-height:650px;background:white;border-radius:var(--radius-xl);display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow-lg);transform:scale(0.9) translateY(20px);transition:var(--transition-bounce);}
-.cs-overlay.active .cs-chat-container{transform:scale(1) translateY(0);}
-.cs-header{background:linear-gradient(135deg,#10b981,#059669);color:white;padding:24px;display:flex;align-items:center;justify-content:space-between;}
-.cs-header-left{display:flex;align-items:center;gap:16px;}
-.cs-avatar{width:56px;height:56px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;font-size:28px;color:#10b981;box-shadow:0 4px 16px rgba(0,0,0,0.2);animation:avatarFloat 3s ease-in-out infinite;}
-@keyframes avatarFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
-.cs-status{display:flex;align-items:center;gap:8px;font-size:13px;opacity:0.9;font-weight:500;}
-.cs-status-dot{width:10px;height:10px;background:#4ade80;border-radius:50%;animation:pulse 2s infinite;}
-.cs-close{background:none;border:none;color:white;font-size:28px;cursor:pointer;padding:8px;border-radius:50%;transition:var(--transition-fast);width:44px;height:44px;display:flex;align-items:center;justify-content:center;}
-.cs-close:hover{background:rgba(255,255,255,0.2);transform:rotate(90deg);}
-    .cs-messages{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:16px;background:#f8fafc;}
-.cs-message{max-width:85%;padding:16px 20px;border-radius:20px;font-size:15px;line-height:1.6;word-wrap:break-word;animation:messageSlide 0.3s var(--transition-base);}
-@keyframes messageSlide{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
-.cs-message.user{align-self:flex-end;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:white;border-bottom-right-radius:6px;box-shadow:0 4px 16px var(--primary-glow);}
-.cs-message.admin{align-self:flex-start;background:white;color:var(--text-primary);border-bottom-left-radius:6px;box-shadow:var(--shadow-sm);border:1px solid var(--border-light);}
-.cs-message-image{max-width:220px;border-radius:var(--radius-lg);margin-top:12px;cursor:pointer;transition:var(--transition-fast);box-shadow:var(--shadow-sm);}
-.cs-message-image:hover{transform:scale(1.02);box-shadow:var(--shadow-md);}
-.cs-message-time{font-size:11px;opacity:0.7;margin-top:8px;text-align:right;font-weight:500;}
-.cs-typing{display:none;align-items:center;gap:10px;padding:16px 24px;font-size:13px;color:var(--text-muted);font-weight:500;}
-.cs-typing.active{display:flex;animation:fadeIn 0.3s;}
+.create-btn{position:fixed;bottom:30px;right:30px;background:#ff6a00;color:white;border:none;width:60px;height:60px;border-radius:50%;font-size:24px;cursor:pointer;box-shadow:0 10px 25px rgba(255,106,0,0.3);transition:0.3s;z-index:99;display:flex;align-items:center;justify-content:center;}
+.create-btn:hover{transform:scale(1.1);background:#e55d00;}
+
+.cs-btn{position:fixed;bottom:100px;right:30px;background:linear-gradient(135deg,#10b981,#059669);color:white;border:none;width:60px;height:60px;border-radius:50%;font-size:24px;cursor:pointer;box-shadow:0 10px 25px rgba(16,185,129,0.3);transition:0.3s;z-index:99;display:flex;align-items:center;justify-content:center;}
+.cs-btn:hover{transform:scale(1.1);background:#059669;}
+.cs-btn.has-unread::after{content:'';position:absolute;top:5px;right:5px;width:12px;height:12px;background:#ef4444;border-radius:50%;border:2px solid white;}
+
+.cs-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:3000;backdrop-filter:blur(4px);}
+.cs-overlay.active{display:flex;}
+.cs-chat-container{width:90%;max-width:450px;height:80vh;max-height:600px;background:white;border-radius:20px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
+.cs-header{background:linear-gradient(135deg,#10b981,#059669);color:white;padding:20px;display:flex;align-items:center;justify-content:space-between;}
+.cs-header-left{display:flex;align-items:center;gap:12px;}
+.cs-avatar{width:45px;height:45px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;font-size:20px;color:#10b981;}
+.cs-status{display:flex;align-items:center;gap:6px;font-size:12px;opacity:0.9;}
+.cs-status-dot{width:8px;height:8px;background:#4ade80;border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
+.cs-close{background:none;border:none;color:white;font-size:24px;cursor:pointer;padding:5px;}
+.cs-messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px;background:#f8fafc;}
+.cs-message{max-width:80%;padding:12px 16px;border-radius:16px;font-size:14px;line-height:1.5;word-wrap:break-word;}
+.cs-message.user{align-self:flex-end;background:linear-gradient(135deg,#ff6a00,#e55d00);color:white;border-bottom-right-radius:4px;}
+.cs-message.admin{align-self:flex-start;background:white;color:#1e2937;border-bottom-left-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,0.08);}
+.cs-message-image{max-width:200px;border-radius:12px;margin-top:8px;cursor:pointer;}
+.cs-message-time{font-size:10px;opacity:0.7;margin-top:4px;text-align:right;}
+.cs-input-area{padding:15px 20px;background:white;border-top:1px solid #e2e8f0;display:flex;flex-direction:column;gap:10px;}
+.cs-input-wrapper{display:flex;align-items:center;gap:10px;}
+.cs-input{flex:1;padding:12px 16px;border:2px solid #e2e8f0;border-radius:25px;outline:none;font-size:14px;transition:0.2s;}
+.cs-input:focus{border-color:#10b981;}
+.cs-send-btn,.cs-attach-btn{width:45px;height:45px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:0.2s;font-size:18px;}
+.cs-send-btn{background:linear-gradient(135deg,#10b981,#059669);color:white;}
+.cs-send-btn:hover{transform:scale(1.05);}
+.cs-attach-btn{background:#f1f5f9;color:#64748b;}
+.cs-attach-btn:hover{background:#e2e8f0;}
+.cs-image-preview{display:none;align-items:center;gap:10px;padding:10px;background:#f1f5f9;border-radius:12px;}
+.cs-image-preview.active{display:flex;}
+.cs-image-preview img{height:60px;border-radius:8px;}
+.cs-image-preview button{background:#ef4444;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;}
+.cs-typing{display:none;align-items:center;gap:8px;padding:10px 20px;font-size:12px;color:#64748b;}
+.cs-typing.active{display:flex;}
 .cs-typing-dots{display:flex;gap:4px;}
-.cs-typing-dots span{width:8px;height:8px;background:var(--border-light);border-radius:50%;animation:typingBounce 1.4s infinite;}
+.cs-typing-dots span{width:6px;height:6px;background:#cbd5e1;border-radius:50%;animation:typing 1.4s infinite;}
 .cs-typing-dots span:nth-child(2){animation-delay:0.2s;}
 .cs-typing-dots span:nth-child(3){animation-delay:0.4s;}
-@keyframes typingBounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-6px);}}
-.cs-input-area{padding:20px 24px;background:white;border-top:1px solid var(--border-light);}
-.cs-image-preview{display:none;align-items:center;gap:12px;padding:12px 16px;background:var(--bg-body);border-radius:var(--radius-md);margin-bottom:12px;animation:slideUp 0.3s;}
-.cs-image-preview.active{display:flex;}
-.cs-image-preview img{height:70px;border-radius:var(--radius-md);box-shadow:var(--shadow-sm);}
-.cs-image-preview button{background:var(--error);color:white;border:none;padding:8px 16px;border-radius:var(--radius-md);cursor:pointer;font-size:12px;font-weight:600;transition:var(--transition-fast);}
-.cs-image-preview button:hover{background:#dc2626;transform:scale(1.05);}
-.cs-input-wrapper{display:flex;align-items:center;gap:12px;}
-.cs-attach-btn{width:48px;height:48px;border-radius:50%;border:none;background:var(--bg-body);color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--transition-fast);font-size:20px;}
-.cs-attach-btn:hover{background:var(--primary);color:white;transform:scale(1.05);}
-.cs-input{flex:1;padding:14px 20px;border:2px solid var(--border-light);border-radius:28px;outline:none;font-size:15px;transition:var(--transition-base);background:var(--bg-body);}
-.cs-input:focus{border-color:var(--primary);background:white;box-shadow:0 0 0 4px rgba(16,185,129,0.1);}
-.cs-send-btn{width:48px;height:48px;border-radius:50%;border:none;background:linear-gradient(135deg,#10b981,#059669);color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--transition-fast);font-size:18px;box-shadow:0 4px 16px rgba(16,185,129,0.3);}
-.cs-send-btn:hover{transform:scale(1.05);box-shadow:0 6px 20px rgba(16,185,129,0.4);}
-.cs-send-btn:active{transform:scale(0.95);}
+@keyframes typing{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-4px);}}
 
-/* Tip Modal */
-.tip-modal{position:fixed;inset:0;background:rgba(15,23,42,0.8);display:none;align-items:center;justify-content:center;z-index:2000;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;}
-.tip-modal.active{display:flex;opacity:1;}
-.tip-content{background:white;padding:40px;border-radius:var(--radius-xl);width:90%;max-width:440px;text-align:center;box-shadow:var(--shadow-lg);transform:scale(0.9) translateY(20px);transition:var(--transition-bounce);}
-.tip-modal.active .tip-content{transform:scale(1) translateY(0);}
-.tip-content h3{color:var(--text-primary);margin-bottom:20px;display:flex;align-items:center;justify-content:center;gap:12px;font-size:22px;font-weight:700;}
-.tip-content h3 i{font-size:28px;color:var(--primary);animation:bounceIn 0.6s;}
-.tip-recipient{color:var(--text-secondary);margin-bottom:24px;font-size:15px;}
-.tip-recipient strong{color:var(--text-primary);font-weight:700;}
-.tip-options{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:24px 0;}
-.tip-btn{padding:16px;background:var(--bg-body);border:2px solid var(--border-light);border-radius:var(--radius-lg);cursor:pointer;font-weight:700;transition:var(--transition-fast);font-size:16px;color:var(--text-primary);position:relative;overflow:hidden;}
-.tip-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--primary),var(--primary-light));opacity:0;transition:var(--transition-fast);z-index:0;}
-.tip-btn:hover,.tip-btn.selected{border-color:var(--primary);color:var(--primary);transform:translateY(-2px);box-shadow:var(--shadow-sm);}
-.tip-btn.selected{background:var(--primary);color:white;border-color:var(--primary);box-shadow:0 4px 16px var(--primary-glow);}
-.tip-btn.selected::before{opacity:1;}
-.tip-btn span{position:relative;z-index:1;}
-.custom-tip{width:100%;padding:16px;border:2px solid var(--border-light);border-radius:var(--radius-lg);margin:20px 0;font-size:16px;outline:none;transition:var(--transition-base);font-weight:600;text-align:center;}
-.custom-tip:focus{border-color:var(--primary);box-shadow:0 0 0 4px var(--primary-glow);}
-.tip-info{background:var(--bg-body);padding:16px;border-radius:var(--radius-md);margin:20px 0;font-size:13px;color:var(--text-muted);font-weight:500;display:flex;align-items:center;gap:10px;}
-.tip-info i{color:var(--primary);}
-.tip-info strong{color:var(--primary);font-weight:700;}
-.send-tip-btn{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:white;border:none;padding:18px;border-radius:var(--radius-lg);font-size:17px;font-weight:700;cursor:pointer;width:100%;transition:var(--transition-base);box-shadow:0 4px 16px var(--primary-glow);position:relative;overflow:hidden;}
-.send-tip-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);transform:translateX(-100%);transition:0.6s;}
-.send-tip-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(255,106,0,0.35);}
-.send-tip-btn:hover::after{transform:translateX(100%);}
-.send-tip-btn:active{transform:scale(0.97);}
-.send-tip-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
-.cancel-tip{margin-top:16px;color:var(--text-muted);cursor:pointer;font-size:15px;font-weight:600;transition:var(--transition-fast);padding:8px 16px;border-radius:var(--radius-md);}
-.cancel-tip:hover{color:var(--text-primary);background:var(--bg-body);}
+.tip-modal{position:fixed;inset:0;background:rgba(15,23,42,0.7);display:none;align-items:center;justify-content:center;z-index:2000;backdrop-filter:blur(4px);}
+.tip-content{background:white;padding:30px;border-radius:20px;width:90%;max-width:400px;text-align:center;}
+.tip-content h3{color:#1e2937;margin-bottom:15px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:20px;}
+.tip-content h3 i{font-size:24px;color:#ff6a00;}
+.tip-options{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0;}
+.tip-btn{padding:12px;background:#f8fafc;border:2px solid #e2e8f0;border-radius:12px;cursor:pointer;font-weight:600;transition:0.2s;font-size:15px;color:#334155;}
+.tip-btn:hover,.tip-btn.selected{background:#ff6a00;color:white;border-color:#ff6a00;}
+.custom-tip{width:100%;padding:14px;border:2px solid #e2e8f0;border-radius:12px;margin:15px 0;font-size:15px;outline:none;transition:0.3s;}
+.custom-tip:focus{border-color:#ff6a00;box-shadow:0 0 0 4px rgba(255,106,0,0.1);}
+.tip-info{background:#f8fafc;padding:10px;border-radius:8px;margin:10px 0;font-size:12px;color:#64748b;}
+.tip-info strong{color:#ff6a00;}
+.send-tip-btn{background:#ff6a00;color:white;border:none;padding:14px;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;width:100%;transition:0.2s;}
+.send-tip-btn:hover{background:#e55d00;}
+.send-tip-btn:disabled{opacity:0.6;cursor:not-allowed;}
+.cancel-tip{margin-top:12px;color:#64748b;cursor:pointer;font-size:14px;font-weight:600;}
+.cancel-tip:hover{color:#1e2937;}
 
-/* Media Modal */
-.media-modal{position:fixed;inset:0;background:rgba(0,0,0,0.95);display:none;align-items:center;justify-content:center;z-index:3000;cursor:zoom-out;backdrop-filter:blur(10px);opacity:0;transition:opacity 0.3s;}
-.media-modal.active{display:flex;opacity:1;}
-.media-modal img{max-width:95%;max-height:95vh;border-radius:var(--radius-lg);box-shadow:0 20px 60px rgba(0,0,0,0.5);animation:zoomIn 0.3s var(--transition-base);cursor:default;}
-@keyframes zoomIn{from{transform:scale(0.8);opacity:0;}to{transform:scale(1);opacity:1;}}
-.close-modal{position:absolute;top:30px;right:40px;color:white;font-size:40px;cursor:pointer;text-shadow:0 2px 10px rgba(0,0,0,0.5);transition:var(--transition-fast);width:50px;height:50px;display:flex;align-items:center;justify-content:center;border-radius:50%;}
-.close-modal:hover{background:rgba(255,255,255,0.1);transform:rotate(90deg);}
+.media-modal{position:fixed;inset:0;background:rgba(0,0,0,0.95);display:none;align-items:center;justify-content:center;z-index:3000;cursor:zoom-out;backdrop-filter:blur(5px);}
+.media-modal img{max-width:95%;max-height:95vh;border-radius:12px;}
+.close-modal{position:absolute;top:20px;right:25px;color:white;font-size:35px;cursor:pointer;text-shadow:0 2px 10px rgba(0,0,0,0.5);}
 
-/* Notification Overlay */
-.notification-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:none;z-index:1000;align-items:flex-start;justify-content:flex-end;padding:90px 30px 30px;backdrop-filter:blur(4px);opacity:0;transition:opacity 0.3s;}
-.notification-overlay.active{display:flex;opacity:1;}
-.notification-panel-wrap{width:380px;background:white;border-radius:var(--radius-xl);box-shadow:var(--shadow-lg);overflow:hidden;max-height:80vh;border:1px solid var(--border-light);transform:translateX(20px);transition:var(--transition-bounce);}
-.notification-overlay.active .notification-panel-wrap{transform:translateX(0);}
-.notification-header{padding:20px 24px;border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;align-items:center;font-weight:700;background:var(--bg-body);color:var(--text-primary);font-size:16px;}
-.notification-header i{color:var(--primary);margin-right:10px;}
-.mark-all-read{color:var(--primary);font-size:13px;cursor:pointer;transition:var(--transition-fast);padding:6px 12px;border-radius:var(--radius-md);font-weight:600;}
-.mark-all-read:hover{background:rgba(255,106,0,0.1);}
-.notification-panel{max-height:450px;overflow-y:auto;padding:8px;}
-.notification-item{padding:16px 20px;border-bottom:1px solid var(--border-light);cursor:pointer;transition:var(--transition-fast);display:flex;gap:14px;align-items:flex-start;animation:slideUp 0.3s;border-radius:var(--radius-md);margin:4px;}
-.notification-item:hover{background:var(--bg-body);transform:translateX(4px);}
-.notification-item.unread{background:#fff7ed;border-left:4px solid var(--primary);}
-.notif-icon{font-size:22px;flex-shrink:0;width:40px;height:40px;display:flex;align-items:center;justify-content:center;background:var(--bg-body);border-radius:50%;color:var(--primary);}
-.notification-item.unread .notif-icon{background:var(--primary);color:white;}
-.notif-content{flex:1;min-width:0;}
-.notif-content strong{display:block;font-size:14px;margin-bottom:4px;color:var(--text-primary);font-weight:600;}
-.notif-content p{color:var(--text-secondary);font-size:13px;line-height:1.5;margin-bottom:4px;}
-.notif-content small{color:var(--text-muted);font-size:12px;font-weight:500;}
-.empty-notif{padding:50px 20px;text-align:center;color:var(--text-muted);}
-.empty-notif i{font-size:56px;margin-bottom:16px;color:var(--border-light);opacity:0.7;}
-.empty-notif p{font-size:15px;font-weight:500;}
+.notification-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);display:none;z-index:1000;align-items:flex-start;justify-content:flex-end;padding:70px 20px 20px;}
+.notification-panel-wrap{width:350px;background:white;border-radius:16px;box-shadow:0 15px 40px rgba(0,0,0,0.15);overflow:hidden;max-height:80vh;border:1px solid #e2e8f0;}
+.notification-header{padding:15px 20px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;font-weight:700;background:#f8fafc;color:#1e2937;}
+.notification-panel{max-height:400px;overflow-y:auto;}
+.notification-item{padding:15px 20px;border-bottom:1px solid #f1f5f9;cursor:pointer;transition:0.2s;display:flex;gap:12px;align-items:flex-start;}
+.notification-item:hover{background:#f8fafc;}
+.notification-item.unread{background:#fff7ed;border-left:3px solid #ff6a00;}
+.notif-icon{font-size:20px;flex-shrink:0;width:24px;text-align:center;color:#ff6a00;margin-top:2px;}
+.notif-content strong{display:block;font-size:13.5px;margin-bottom:3px;color:#1e2937;}
+.notif-content small{color:#64748b;font-size:12px;}
+.empty-notif{padding:40px 20px;text-align:center;color:#94a3b8;}
+.empty-notif i{font-size:40px;margin-bottom:10px;opacity:0.5;}
 
-/* Loading State */
-.loading-state{text-align:center;padding:60px 20px;color:var(--text-muted);background:var(--bg-card);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm);}
-.loading-state i{font-size:48px;color:var(--primary);animation:spin 1s linear infinite;margin-bottom:20px;display:block;}
-.loading-state p{font-size:16px;font-weight:500;}
+.menu-btn{display:none;font-size:22px;cursor:pointer;color:#1e2937;}
 
-/* Empty State */
-.empty-feed{text-align:center;padding:60px 30px;background:var(--bg-card);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm);animation:float 3s ease-in-out infinite;}
-@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
-.empty-feed i{font-size:64px;color:var(--border-light);margin-bottom:24px;opacity:0.7;}
-.empty-feed h3{font-size:22px;color:var(--text-primary);margin-bottom:12px;font-weight:700;}
-.empty-feed p{color:var(--text-muted);font-size:16px;font-weight:500;max-width:320px;margin:0 auto;line-height:1.6;}
+.toast{position:fixed;bottom:20px;right:20px;padding:12px 20px;border-radius:8px;background:#22c55e;color:white;font-size:14px;display:flex;align-items:center;gap:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:9999;animation:slideIn 0.3s ease;}
+.toast.info{background:#3b82f6;}
+.toast.error{background:#ef4444;}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
 
-/* Mobile Responsive */
 @media(max-width:900px){
-.sidebar{transform:translateX(-100%);width:280px;}
+.sidebar{transform:translateX(-100%);}
 .sidebar.active{transform:translateX(0);}
 .sidebar-close{display:flex;}
-.main{margin-left:0;padding:20px;width:100%;}
-.menu-btn{display:flex;}
-.header-right{gap:12px;}
-.user{padding:6px 12px;}
-.user img{width:36px;height:36px;}
-.user-info span{display:none;}
-.notification-bell{padding:10px;font-size:20px;}
-.notification-overlay{right:0;left:0;padding:80px 16px 16px;}
-.notification-panel-wrap{width:100%;max-width:none;}
+.main{margin-left:0;padding:15px;max-width:100%;width:100%;}
+.menu-btn{display:block;}
+.notification-overlay{right:10px;left:10px;width:auto;padding:70px 10px 10px;}
+.notification-panel-wrap{width:100%;}
 .tip-options{grid-template-columns:repeat(2,1fr);}
-.create-btn,.cs-btn{width:56px;height:56px;font-size:24px;right:20px;bottom:20px;}
-.cs-btn{bottom:88px;}
-.cs-chat-container{width:95%;height:90vh;}
-.post-actions{gap:20px;}
-.action-item{padding:6px 8px;}
-.action-item span{display:none;}
-}
-
-@media(max-width:480px){
-.controls-section{padding:16px;}
-.search-bar{padding:12px 16px;}
-.feed-tab{padding:12px 6px;font-size:14px;}
-.post{padding:20px;}
-.post-header .profile-pic{width:44px;height:44px;}
-.post-author-name{font-size:15px;}
-.tip-options{grid-template-columns:1fr 1fr;}
-.tip-content{padding:28px 24px;}
-.comment-input-wrapper{gap:8px;}
-.comment-submit{width:44px;height:44px;}
-}
-
-/* Safe area for notched phones */
-@supports(padding:max(0px)){
-.sidebar{padding-top:max(24px,env(safe-area-inset-top));}
-.main{padding-top:max(24px,env(safe-area-inset-top));padding-bottom:max(24px,env(safe-area-inset-bottom));}
-.notification-overlay{padding-top:max(90px,env(safe-area-inset-top));}
-.toast-container{bottom:max(24px,env(safe-area-inset-bottom));}
-.create-btn,.cs-btn{bottom:max(32px,env(safe-area-inset-bottom));right:max(32px,env(safe-area-inset-right));}
-.cs-btn{bottom:max(108px,env(safe-area-inset-bottom));}
+.cs-btn{bottom:90px;right:20px;width:50px;height:50px;font-size:20px;}
+.create-btn{bottom:20px;right:20px;width:50px;height:50px;font-size:20px;}
 }
 </style>
 </head>
 <body>
-<!-- Toast Container -->
-<div class="toast-container" id="toast-container"></div>
-
 <!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
     <button class="sidebar-close" onclick="toggleMenu()">
         <i class="fas fa-times"></i>
     </button>
     <div class="logo">
-        <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg" alt="Logo"> CashClique
+        <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg"> CashClique
     </div>
-    <a href="dashboard.html" class="active"><i class="fas fa-home"></i> Dashboard</a>
+    <a href="#" class="active"><i class="fas fa-home"></i> Dashboard</a>
     <a href="my-content.html"><i class="fas fa-file-alt"></i> My Content</a>
     <a href="earnings.html"><i class="fas fa-dollar-sign"></i> Earnings</a>
     <a href="opportunities.html"><i class="fas fa-fire"></i> Opportunities</a>
@@ -428,14 +242,14 @@ body{background:var(--bg-body);display:flex;min-height:100vh;-webkit-font-smooth
         <div class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
         <div style="flex:1;"></div>
         <div class="header-right">
-            <div class="notification-bell" id="notification-bell" onclick="toggleNotifications()">
+            <div class="notification-bell" id="notification-bell">
                 <i class="fas fa-bell"></i>
                 <span class="badge" id="notif-count">0</span>
             </div>
             <div class="user" onclick="window.location.href='profile.html'">
-                <img id="user-avatar" src="" alt="Me">
+                <img id="user-avatar" src="https://i.pravatar.cc/150?img=3">
                 <div class="user-info">
-                    <span id="username">Loading...</span>
+                    <span id="username" style="font-weight:600;font-size:14px;">Loading...</span>
                     <span id="user-verified-badge" class="verified-badge" style="display:none;"><i class="fas fa-check"></i></span>
                 </div>
             </div>
@@ -454,18 +268,18 @@ body{background:var(--bg-body);display:flex;min-height:100vh;-webkit-font-smooth
     </div>
 
     <div class="feed" id="feed">
-        <div class="loading-state">
-            <i class="fas fa-spinner"></i>
+        <div style="text-align:center; padding:40px; color:#888;">
+            <i class="fas fa-spinner fa-spin" style="font-size:30px; color:#ff6a00; margin-bottom:10px;"></i>
             <p>Loading your feed...</p>
         </div>
     </div>
 </div>
 
-<button class="create-btn" onclick="window.location.href='post.html'" title="Create Post">
+<button class="create-btn" onclick="window.location.href='post.html'">
     <i class="fas fa-plus"></i>
 </button>
 
-<button class="cs-btn" id="cs-btn" onclick="openCSChat()" title="Customer Support">
+<button class="cs-btn" id="cs-btn" onclick="openCSChat()">
     <i class="fas fa-headset"></i>
 </button>
 
@@ -477,7 +291,7 @@ body{background:var(--bg-body);display:flex;min-height:100vh;-webkit-font-smooth
                     <i class="fas fa-headset"></i>
                 </div>
                 <div>
-                    <div style="font-weight:700;font-size:18px;">Customer Support</div>
+                    <div style="font-weight:700;">Customer Support</div>
                     <div class="cs-status">
                         <span class="cs-status-dot"></span>
                         <span>Online</span>
@@ -526,21 +340,21 @@ body{background:var(--bg-body);display:flex;min-height:100vh;-webkit-font-smooth
 
 <div class="media-modal" id="media-modal" onclick="closeMediaModal()">
     <span class="close-modal">&times;</span>
-    <img id="modal-image" src="" alt="Full size">
+    <img id="modal-image" src="">
 </div>
 
 <div class="tip-modal" id="tip-modal">
     <div class="tip-content">
         <h3><i class="fas fa-hand-holding-dollar"></i> Send a Tip</h3>
-        <p class="tip-recipient">Support <strong id="tip-recipient-name">this creator</strong></p>
+        <p style="color:#64748b;margin-bottom:15px;">Support <strong id="tip-recipient" style="color:#1e2937;">this creator</strong></p>
         
         <div class="tip-options">
-            <button class="tip-btn" data-amount="1"><span>$1</span></button>
-            <button class="tip-btn" data-amount="5"><span>$5</span></button>
-            <button class="tip-btn" data-amount="10"><span>$10</span></button>
-            <button class="tip-btn" data-amount="20"><span>$20</span></button>
-            <button class="tip-btn" data-amount="50"><span>$50</span></button>
-            <button class="tip-btn" data-amount="100"><span>$100</span></button>
+            <button class="tip-btn" data-amount="1">$1</button>
+            <button class="tip-btn" data-amount="5">$5</button>
+            <button class="tip-btn" data-amount="10">$10</button>
+            <button class="tip-btn" data-amount="20">$20</button>
+            <button class="tip-btn" data-amount="50">$50</button>
+            <button class="tip-btn" data-amount="100">$100</button>
         </div>
         
         <input type="number" class="custom-tip" id="custom-tip" placeholder="Enter custom amount" step="0.01" min="0.01">
@@ -557,16 +371,18 @@ body{background:var(--bg-body);display:flex;min-height:100vh;-webkit-font-smooth
 <div class="notification-overlay" id="notification-overlay" onclick="closeNotifications()">
     <div class="notification-panel-wrap" onclick="event.stopPropagation()">
         <div class="notification-header">
-            <span><i class="fas fa-bell"></i> Notifications</span>
-            <span class="mark-all-read" id="mark-all-read">Mark all read</span>
+            <span><i class="fas fa-bell" style="color:#ff6a00;margin-right:8px;"></i> Notifications</span>
+            <span style="font-size:12px;color:#ff6a00;cursor:pointer;font-weight:600;" id="mark-all-read">Mark all read</span>
         </div>
         <div class="notification-panel" id="notification-panel"></div>
     </div>
 </div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, updateDoc, collection, query, where, getDocs, onSnapshot, arrayUnion, arrayRemove, orderBy, addDoc, increment, serverTimestamp, writeBatch, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getStorage } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
 
 const firebaseConfig = {
@@ -585,10 +401,8 @@ const db = getFirestore(app);
 const messaging = getMessaging(app);
 
 // ==================== USER AVATAR CACHE ====================
-// Cache to store user avatars from Firestore to avoid repeated reads
 const userAvatarCache = {};
 
-// Function to get user avatar from Firestore with caching
 async function getUserAvatar(userId) {
     // Return from cache if available
     if (userAvatarCache[userId]) {
@@ -599,7 +413,7 @@ async function getUserAvatar(userId) {
         const userDoc = await getDoc(doc(db, "users", userId));
         if (userDoc.exists()) {
             const userData = userDoc.data();
-            // Use uploaded avatar or fallback to initial-based placeholder
+            // Use uploaded avatar from Firestore, fallback to generated
             const avatar = userData.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.username || 'U')}&background=ff6a00&color=fff&size=150`;
             userAvatarCache[userId] = avatar;
             return avatar;
@@ -612,33 +426,37 @@ async function getUserAvatar(userId) {
     return `https://ui-avatars.com/api/?name=U&background=ff6a00&color=fff&size=150`;
 }
 
-// ==================== TOAST NOTIFICATIONS ====================
-function showToast(message, type = "success", duration = 4000) {
-    const container = document.getElementById('toast-container');
+function showToast(message, type = "success") {
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    
-    const icons = {
-        success: 'check-circle',
-        error: 'exclamation-circle',
-        info: 'info-circle'
-    };
-    
-    toast.innerHTML = `<i class="fas fa-${icons[type]}"></i> ${message}`;
-    container.appendChild(toast);
-    
-    setTimeout(() => {
-        toast.classList.add('removing');
-        setTimeout(() => toast.remove(), 300);
-    }, duration);
+    toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'info' ? 'info-circle' : 'exclamation-circle'}"></i> ${message}`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
 }
 
-// ==================== GLOBAL VARIABLES ====================
-const feed = document.getElementById("feed");
+async function setupPushNotifications(currentUser) {
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') return;
+    const token = await getToken(messaging, { 
+      vapidKey: "BC3tPo2214pVm2EsUTT4esaS_UfDHY_Gkh948zqU7xsPztiZXE03CdPXiKncElOKXoRJC1i1KwP7RtA0Us7-qgg" 
+    });
+    if (token) {
+      await updateDoc(doc(db, "users", currentUser.uid), {
+        pushTokens: arrayUnion(token)
+      });
+    }
+    onMessage(messaging, (payload) => {
+      showToast(payload.notification.body, "info");
+    });
+  } catch (error) {
+    console.error("FCM setup failed:", error);
+  }
+}
+    const feed = document.getElementById("feed");
 let currentUser = null;
 let currentUsername = "User";
 let currentBalance = 0;
-let currentUserAvatar = "";
 let viewTimers = {};
 let followingList = [];
 let userVerificationCache = {};
@@ -652,38 +470,22 @@ let csChatId = null;
 let csUnsubscribe = null;
 let selectedCSImageBase64 = null;
 let replyToComment = null;
-let currentTipData = null;
 
-// ==================== AUTH STATE ====================
 onAuthStateChanged(auth, async (user) => {
-    if (!user) { 
-        window.location.href = "login.html"; 
-        return; 
-    }
+    if (!user) { window.location.href = "login.html"; return; }
     currentUser = user;
 
-    // Load current user data including avatar
     const userRef = doc(db, "users", user.uid);
-    onSnapshot(userRef, async (snap) => {
+    onSnapshot(userRef, (snap) => {
         if (snap.exists()) {
             const data = snap.data();
             currentUsername = data.username || user.email?.split('@')[0] || "User";
             currentBalance = data.balance || 0;
             followingList = data.following || [];
             viewedAds = data.viewedAds || [];
-            
-            // Use Firestore avatar or generate from username
-            currentUserAvatar = data.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUsername)}&background=ff6a00&color=fff&size=150`;
-            
             document.getElementById("username").innerText = currentUsername;
-            document.getElementById("user-avatar").src = currentUserAvatar;
-            
-            // Cache current user avatar
-            userAvatarCache[user.uid] = currentUserAvatar;
-            
-            if (data.isVerified || data.verified) {
-                document.getElementById("user-verified-badge").style.display = "inline-flex";
-            }
+            document.getElementById("user-avatar").src = data.avatar || `https://i.pravatar.cc/150?u=${user.uid}`;
+            if (data.isVerified || data.verified) document.getElementById("user-verified-badge").style.display = "inline-flex";
         }
     });
 
@@ -695,27 +497,29 @@ onAuthStateChanged(auth, async (user) => {
     listenForNewPostsFromFollowing();
 });
 
-async function setupPushNotifications(currentUser) {
-    try {
-        const permission = await Notification.requestPermission();
-        if (permission !== 'granted') return;
-        const token = await getToken(messaging, { 
-            vapidKey: "BC3tPo2214pVm2EsUTT4esaS_UfDHY_Gkh948zqU7xsPztiZXE03CdPXiKncElOKXoRJC1i1KwP7RtA0Us7-qgg" 
+function listenForNewPostsFromFollowing() {
+    if (followingList.length === 0) return;
+    const postsQuery = query(collection(db, "posts"), where("userId", "in", followingList), orderBy("timestamp", "desc"));
+    onSnapshot(postsQuery, (snapshot) => {
+        snapshot.docChanges().forEach(change => {
+            if (change.type === "added") {
+                const post = change.doc.data();
+                const postId = change.doc.id;
+                const postTime = post.timestamp?.toDate?.() || new Date();
+                const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+                if (postTime > fiveMinutesAgo && post.userId !== currentUser.uid) {
+                    sendNotification(currentUser.uid, {
+                        type: "new_post",
+                        title: `${post.username || "Someone you follow"} posted new content`,
+                        fromUserId: post.userId,
+                        postId: postId
+                    });
+                }
+            }
         });
-        if (token) {
-            await updateDoc(doc(db, "users", currentUser.uid), {
-                pushTokens: arrayUnion(token)
-            });
-        }
-        onMessage(messaging, (payload) => {
-            showToast(payload.notification.body, "info");
-        });
-    } catch (error) {
-        console.error("FCM setup failed:", error);
-    }
+    });
 }
 
-// ==================== CS CHAT ====================
 async function initCSChat() {
     const chatsQuery = query(collection(db, "supportChats"), where("userId", "==", currentUser.uid));
     const snapshot = await getDocs(chatsQuery);
@@ -727,7 +531,6 @@ async function initCSChat() {
 
 window.openCSChat = async () => {
     document.getElementById('cs-overlay').classList.add('active');
-    document.body.style.overflow = 'hidden';
     if (!csChatId) {
         const chatDoc = await addDoc(collection(db, "supportChats"), {
             userId: currentUser.uid,
@@ -748,7 +551,6 @@ window.openCSChat = async () => {
 
 window.closeCSChat = () => {
     document.getElementById('cs-overlay').classList.remove('active');
-    document.body.style.overflow = '';
 };
 
 function loadCSMessages() {
@@ -772,10 +574,11 @@ function loadCSMessages() {
             messagesContainer.appendChild(msgDiv);
         });
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        
         snapshot.docChanges().forEach(change => {
             if (change.type === 'added' && change.doc.data().sender === 'admin') {
-                if (!document.getElementById('cs-overlay').classList.contains('active')) {
+                if (document.getElementById('cs-overlay').classList.contains('active')) {
+                    updateDoc(doc(db, "supportChats", csChatId), { unreadByUser: false });
+                } else {
                     document.getElementById('cs-btn').classList.add('has-unread');
                 }
             }
@@ -818,7 +621,6 @@ window.sendCSMessage = async () => {
     const text = input.value.trim();
     if (!text && !selectedCSImageBase64) return;
     input.value = '';
-    
     try {
         await addDoc(collection(db, "supportChats", csChatId, "messages"), {
             sender: 'user',
@@ -838,7 +640,12 @@ window.sendCSMessage = async () => {
     }
 };
 
-// ==================== FOLLOW SYSTEM ====================
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 window.toggleFollow = async (userId, button) => {
     if (userId === currentUser.uid) {
         showToast("You can't follow yourself!", "error");
@@ -847,7 +654,6 @@ window.toggleFollow = async (userId, button) => {
     const isFollowing = followingList.includes(userId);
     const userRef = doc(db, "users", currentUser.uid);
     const targetUserRef = doc(db, "users", userId);
-    
     try {
         if (isFollowing) {
             await updateDoc(userRef, { following: arrayRemove(userId) });
@@ -863,7 +669,6 @@ window.toggleFollow = async (userId, button) => {
             button.innerHTML = '<i class="fas fa-check"></i> Following';
             button.classList.add('following');
             showToast("Following now!");
-            
             await sendNotification(userId, {
                 type: "follow",
                 title: `${currentUsername} started following you`,
@@ -888,19 +693,18 @@ async function getUserVerificationStatus(userId) {
     } catch (e) { console.error(e); }
     return false;
 }
-
-// ==================== FEED LOADING ====================
-async function loadFeed() {
+    async function loadFeed() {
     const postsQuery = query(collection(db, "posts"), orderBy("timestamp", "desc"));
     onSnapshot(postsQuery, async (snapshot) => {
         allPostsCache = [];
         
-        // Pre-load all user avatars for posts
+        // Collect all unique user IDs from posts
         const userIds = new Set();
         snapshot.docs.forEach(doc => userIds.add(doc.data().userId));
         
-        // Batch load avatars
-        await Promise.all(Array.from(userIds).map(id => getUserAvatar(id)));
+        // Pre-fetch all user avatars in parallel
+        const avatarPromises = Array.from(userIds).map(id => getUserAvatar(id));
+        await Promise.all(avatarPromises);
         
         for (const postDoc of snapshot.docs) {
             const post = postDoc.data();
@@ -909,7 +713,7 @@ async function loadFeed() {
             const isFromFollowed = followingList.includes(post.userId);
             const hasViewed = post.viewedBy && post.viewedBy.includes(currentUser.uid);
             
-            // Get avatar from cache
+            // Get avatar from cache (already fetched above)
             const userAvatar = await getUserAvatar(post.userId);
             
             allPostsCache.push({ 
@@ -927,7 +731,6 @@ async function loadFeed() {
         renderFeed();
     });
 
-    // Load ads
     const applicationsQuery = query(collection(db, "applications"), where("status", "==", "approved"));
     onSnapshot(applicationsQuery, async (snapshot) => {
         approvedApplications = [];
@@ -936,7 +739,6 @@ async function loadFeed() {
             const data = doc.data();
             if (data.opportunityId) opportunityIds.add(data.opportunityId);
         });
-        
         const opportunityPromises = Array.from(opportunityIds).map(async (oppId) => {
             try {
                 const oppDoc = await getDoc(doc(db, "opportunities", oppId));
@@ -944,7 +746,6 @@ async function loadFeed() {
             } catch (e) {}
         });
         await Promise.all(opportunityPromises);
-        
         snapshot.forEach(appDoc => {
             const appData = appDoc.data();
             const oppData = opportunitiesCache[appData.opportunityId] || {};
@@ -969,17 +770,14 @@ function distributeAdsForCreator(posts, ads) {
     const numAds = ads.length;
     const numPosts = posts.length;
     if (numPosts === 0 || numAds === 0) return adsWithPosts;
-    
     posts.sort((a, b) => {
         const aTime = a.timestamp?.toDate?.() || new Date(0);
         const bTime = b.timestamp?.toDate?.() || new Date(0);
         return bTime - aTime;
     });
-    
     const postsPerAd = Math.floor(numPosts / numAds);
     const remainder = numPosts % numAds;
     let postIndex = 0;
-    
     for (let i = 0; i < numAds; i++) {
         const postsForThisAd = postsPerAd + (i < remainder ? 1 : 0);
         for (let j = 0; j < postsForThisAd && postIndex < numPosts; j++) {
@@ -993,11 +791,9 @@ function distributeAdsForCreator(posts, ads) {
 async function renderFeed() {
     feed.innerHTML = "";
     let filteredPosts = [...allPostsCache];
-    
     if (currentFeedTab === 'following') {
         filteredPosts = filteredPosts.filter(item => item.isFromFollowed);
     }
-    
     if (searchQuery.trim() !== "") {
         const sq = searchQuery.toLowerCase();
         filteredPosts = filteredPosts.filter(item =>
@@ -1005,26 +801,17 @@ async function renderFeed() {
             (item.username && item.username.toLowerCase().includes(sq))
         );
     }
-    
     filteredPosts.sort((a, b) => {
         const aTime = a.timestamp?.toDate?.() || new Date(0);
         const bTime = b.timestamp?.toDate?.() || new Date(0);
         return bTime - aTime;
     });
-    
     if (filteredPosts.length === 0) {
         let msg = searchQuery !== "" ? "No posts match your search." : 
                   (currentFeedTab === 'following' ? "You aren't following anyone who has posted yet." : "No posts found.");
-        feed.innerHTML = `
-            <div class="empty-feed">
-                <i class="fas fa-folder-open"></i>
-                <h3>${msg}</h3>
-                <p>Check back later or try following more creators!</p>
-            </div>`;
+        feed.innerHTML = `<div class="post" style="text-align:center; padding:40px 20px;"><i class="fas fa-folder-open" style="font-size:40px;color:#cbd5e1;margin-bottom:15px;"></i><p style="color:#64748b;font-weight:500;">${msg}</p></div>`;
         return;
     }
-    
-    // Distribute ads
     const adsByCreator = {};
     approvedApplications.forEach(app => {
         const creatorId = app.creatorId;
@@ -1032,13 +819,11 @@ async function renderFeed() {
         if (!adsByCreator[creatorId]) adsByCreator[creatorId] = [];
         adsByCreator[creatorId].push(app);
     });
-    
     const postsByUser = {};
     filteredPosts.forEach(post => {
         if (!postsByUser[post.userId]) postsByUser[post.userId] = [];
         postsByUser[post.userId].push(post);
     });
-    
     const adToPostMap = new Map();
     Object.keys(adsByCreator).forEach(creatorId => {
         const creatorAds = adsByCreator[creatorId];
@@ -1050,7 +835,6 @@ async function renderFeed() {
             });
         }
     });
-    
     for (const post of filteredPosts) {
         await renderPostHTML(post, adToPostMap.get(post.id));
     }
@@ -1064,21 +848,16 @@ async function renderPostHTML(post, attachedAd = null) {
     const verifiedBadge = post.isVerified ? `<span class="verified-badge-post" title="Verified Account"><i class="fas fa-check"></i></span>` : '';
     const isFollowing = followingList.includes(post.userId);
     const showFollowBtn = post.userId !== currentUser.uid;
-    
     const followBtnHTML = showFollowBtn ? 
         `<button class="follow-btn ${isFollowing ? 'following' : ''}" onclick="toggleFollow('${post.userId}', this)">
             <i class="fas fa-${isFollowing ? 'check' : 'plus'}"></i> ${isFollowing ? 'Following' : 'Follow'}
         </button>` : '';
-    
     const postEl = document.createElement("div");
     postEl.className = "post";
     postEl.dataset.postId = postId;
     postEl.dataset.viewed = post.hasViewed;
-    
-    // Use the userAvatar from post data (loaded from Firestore)
     const imgHTML = post.imageBase64 ? `<img src="${post.imageBase64}" class="post-image" onclick="viewImage(this.src)" loading="lazy">` : '';
     const priorityBadge = post.isFromFollowed && !post.hasViewed ? `<div class="priority-badge"><i class="fas fa-star"></i> Following Update</div>` : '';
-    
     let adHTML = '';
     if (attachedAd) {
         const hasViewed = viewedAds.includes(attachedAd.id);
@@ -1094,7 +873,7 @@ async function renderPostHTML(post, attachedAd = null) {
         if (!hasViewed) trackAdView(attachedAd.id);
     }
     
-    // KEY FIX: Use post.userAvatar which comes from Firestore via getUserAvatar()
+    // KEY FIX: Use post.userAvatar which now comes from Firestore via getUserAvatar()
     postEl.innerHTML = `
         ${priorityBadge}
         <div class="post-header">
@@ -1154,17 +933,13 @@ async function renderPostHTML(post, attachedAd = null) {
     if (!post.hasViewed) trackView(postId);
     loadComments(postId);
 }
-
-// ==================== COMMENTS ====================
-function loadComments(postId) {
+    function loadComments(postId) {
     const commentsRef = query(collection(db, "posts", postId, "comments"), orderBy("timestamp", "asc"));
     onSnapshot(commentsRef, async (cSnap) => {
         const list = document.getElementById(`comment-list-${postId}`);
         if (!list) return;
         list.innerHTML = "";
-        
         updateDoc(doc(db, "posts", postId), { commentCount: cSnap.size }).catch(() => {});
-        
         const titleEl = list.parentElement.querySelector('.comments-title');
         if (titleEl) titleEl.textContent = `Comments (${cSnap.size})`;
         
@@ -1175,7 +950,7 @@ function loadComments(postId) {
             const isReply = d.replyTo && d.replyTo.commentId;
             const replyToHTML = isReply ? `<div class="comment-reply-to"><i class="fas fa-reply" style="font-size:10px;"></i> Replying to ${d.replyTo.username || 'comment'}</div>` : '';
             
-            // Get commenter avatar from cache or fetch
+            // Get commenter avatar from cache
             const commenterAvatar = await getUserAvatar(d.userId);
             
             const div = document.createElement("div");
@@ -1202,17 +977,13 @@ function loadComments(postId) {
     });
 }
 
-// ==================== VIEW TRACKING ====================
 function trackView(postId) {
     if (viewTimers[postId]) clearTimeout(viewTimers[postId]);
     viewTimers[postId] = setTimeout(async () => {
         const postEl = document.querySelector(`[data-post-id="${postId}"]`);
         if (postEl && postEl.dataset.viewed !== "true") {
             try {
-                await updateDoc(doc(db, "posts", postId), { 
-                    views: increment(1), 
-                    viewedBy: arrayUnion(currentUser.uid) 
-                });
+                await updateDoc(doc(db, "posts", postId), { views: increment(1), viewedBy: arrayUnion(currentUser.uid) });
                 postEl.dataset.viewed = "true";
             } catch (e) {}
         }
@@ -1242,7 +1013,6 @@ window.handleAdClick = async function(adId, targetUrl) {
     }
 };
 
-// ==================== EVENT HANDLERS ====================
 function attachUIEvents() {
     document.querySelectorAll('.feed-tab').forEach(tab => {
         tab.addEventListener('click', (e) => {
@@ -1253,7 +1023,6 @@ function attachUIEvents() {
             renderFeed();
         });
     });
-    
     let searchTimeout;
     document.getElementById('search-input').addEventListener('input', (e) => {
         clearTimeout(searchTimeout);
@@ -1271,36 +1040,22 @@ function attachEventHandlers() {
             const postId = btn.dataset.id;
             const ownerId = btn.dataset.owner;
             try {
-                await updateDoc(doc(db, "posts", postId), { 
-                    likes: increment(1), 
-                    likedBy: arrayUnion(currentUser.uid) 
-                });
+                await updateDoc(doc(db, "posts", postId), { likes: increment(1), likedBy: arrayUnion(currentUser.uid) });
                 btn.dataset.liked = "true";
                 btn.classList.add("liked");
                 btn.innerHTML = `<i class="fas fa-heart"></i> ${(parseInt(btn.innerText) || 0) + 1}`;
-                
                 if (ownerId !== currentUser.uid) {
-                    await sendNotification(ownerId, { 
-                        type: "like", 
-                        title: `${currentUsername} liked your post`, 
-                        fromUserId: currentUser.uid, 
-                        postId: postId 
-                    });
+                    await sendNotification(ownerId, { type: "like", title: `${currentUsername} liked your post`, fromUserId: currentUser.uid, postId: postId });
                 }
             } catch (e) { console.error("Like failed:", e); }
         };
     });
-    
     document.querySelectorAll(".tip-jar").forEach(btn => {
         btn.onclick = () => {
-            if (btn.dataset.owner === currentUser.uid) {
-                showToast("You can't tip yourself!", "error");
-                return;
-            }
+            if (btn.dataset.owner === currentUser.uid) return alert("You can't tip yourself!");
             openTipModal(btn.dataset.id, btn.dataset.owner, btn.dataset.username);
         };
     });
-    
     document.querySelectorAll(".comment-toggle").forEach(btn => {
         btn.onclick = () => {
             const postId = btn.dataset.postId;
@@ -1309,20 +1064,16 @@ function attachEventHandlers() {
     });
 }
 
-// ==================== TIP MODAL ====================
+let currentTipData = null;
 function openTipModal(postId, ownerId, username) {
     currentTipData = { postId, ownerId, username };
-    document.getElementById("tip-recipient-name").innerText = username || "this creator";
-    document.getElementById("tip-modal").classList.add('active');
-    document.body.style.overflow = 'hidden';
+    document.getElementById("tip-recipient").innerText = username || "this creator";
+    document.getElementById("tip-modal").style.display = "flex";
     document.querySelectorAll(".tip-btn").forEach(btn => btn.classList.remove("selected"));
     document.getElementById("custom-tip").value = "";
 }
 
-window.closeTipModal = () => {
-    document.getElementById("tip-modal").classList.remove('active');
-    document.body.style.overflow = '';
-};
+window.closeTipModal = () => document.getElementById("tip-modal").style.display = "none";
 
 document.querySelectorAll(".tip-btn").forEach(btn => {
     btn.onclick = () => {
@@ -1338,60 +1089,27 @@ document.getElementById("custom-tip").addEventListener("input", () => {
 
 document.getElementById("send-tip-btn").addEventListener("click", async () => {
     if (!currentTipData) return;
-    
     let amount = parseFloat(document.querySelector(".tip-btn.selected")?.dataset.amount || document.getElementById("custom-tip").value);
-    if (!amount || amount <= 0) {
-        showToast("Enter a valid amount", "error");
-        return;
-    }
-    if (amount > currentBalance) {
-        showToast("Insufficient balance!", "error");
-        return;
-    }
-    
+    if (!amount || amount <= 0) return alert("Enter a valid amount");
+    if (amount > currentBalance) return alert("Insufficient balance!");
     const platformFee = amount * 0.30;
     const recipientAmount = amount * 0.70;
     const btn = document.getElementById("send-tip-btn");
-    btn.disabled = true;
-    btn.innerHTML = '<span class="loading-spinner" style="width:20px;height:20px;border:3px solid rgba(255,255,255,0.3);border-top-color:white;display:inline-block;vertical-align:middle;margin-right:8px;"></span> Sending...';
-    
+    btn.disabled = true; btn.innerText = "Sending...";
     try {
         await runTransaction(db, async (tx) => {
             tx.update(doc(db, "users", currentUser.uid), { balance: increment(-amount) });
             tx.update(doc(db, "users", currentTipData.ownerId), { balance: increment(recipientAmount) });
             tx.set(doc(collection(db, "transactions")), {
-                type: "tip",
-                from: currentUser.uid,
-                fromUsername: currentUsername,
-                to: currentTipData.ownerId,
-                toUsername: currentTipData.username,
-                amount: amount,
-                recipientAmount: recipientAmount,
-                platformFee: platformFee,
-                postId: currentTipData.postId,
-                timestamp: serverTimestamp()
+                type: "tip", from: currentUser.uid, fromUsername: currentUsername, to: currentTipData.ownerId, toUsername: currentTipData.username, amount: amount, recipientAmount: recipientAmount, platformFee: platformFee, postId: currentTipData.postId, timestamp: serverTimestamp()
             });
         });
-        
-        await sendNotification(currentTipData.ownerId, { 
-            type: "earning", 
-            title: `${currentUsername} sent you a $${recipientAmount.toFixed(2)} tip!`, 
-            fromUserId: currentUser.uid, 
-            postId: currentTipData.postId 
-        });
-        
-        showToast(`Tip sent! $${recipientAmount.toFixed(2)} to creator`, "success");
+        await sendNotification(currentTipData.ownerId, { type: "earning", title: `${currentUsername} sent you a $${recipientAmount.toFixed(2)} tip!`, fromUserId: currentUser.uid, postId: currentTipData.postId });
+        showToast(`Tip sent! $${recipientAmount.toFixed(2)} to creator (30% fee applied)`);
         closeTipModal();
-        btn.disabled = false;
-        btn.innerHTML = 'Send Tip';
-    } catch (e) { 
-        showToast("Failed to send tip.", "error");
-        btn.disabled = false;
-        btn.innerHTML = 'Send Tip';
-    }
+    } catch (e) { alert("Failed to send tip."); } finally { btn.disabled = false; btn.innerText = "Send Tip"; }
 });
 
-// ==================== COMMENT FUNCTIONS ====================
 window.setReply = (postId, commentId, username, userId) => {
     replyToComment = { commentId, username, userId };
     const indicator = document.getElementById(`reply-indicator-${postId}`);
@@ -1410,15 +1128,13 @@ window.addComment = async function(postId, ownerId) {
     const input = document.getElementById(`comment-input-${postId}`);
     const text = input.value.trim();
     if (!text) return;
-    
     const commentData = {
         userId: currentUser.uid,
         username: currentUsername,
-        userAvatar: currentUserAvatar, // Store current user's avatar with comment
+        userAvatar: document.getElementById('user-avatar').src,
         text: text,
         timestamp: serverTimestamp()
     };
-    
     if (replyToComment) {
         commentData.replyTo = {
             commentId: replyToComment.commentId,
@@ -1426,9 +1142,7 @@ window.addComment = async function(postId, ownerId) {
             userId: replyToComment.userId
         };
     }
-    
     await addDoc(collection(db, "posts", postId, "comments"), commentData);
-    
     if (ownerId !== currentUser.uid) {
         await sendNotification(ownerId, {
             type: "comment",
@@ -1438,12 +1152,10 @@ window.addComment = async function(postId, ownerId) {
             postId: postId
         });
     }
-    
     input.value = "";
     cancelReply(postId);
 };
 
-// ==================== NOTIFICATIONS ====================
 async function sendNotification(toUserId, data) {
     try { 
         await addDoc(collection(db, "users", toUserId, "notifications"), { 
@@ -1459,35 +1171,16 @@ function loadNotifications() {
         const panel = document.getElementById("notification-panel");
         panel.innerHTML = "";
         let unread = 0;
-        
         if (snap.empty) {
-            panel.innerHTML = `
-                <div class="empty-notif">
-                    <i class="fas fa-bell-slash"></i>
-                    <p>No notifications yet</p>
-                </div>`;
+            panel.innerHTML = `<div class="empty-notif"><i class="fas fa-bell-slash"></i><br>No notifications yet</div>`;
         } else {
             snap.forEach(nDoc => {
                 const n = nDoc.data();
                 if (!n.read) unread++;
-                
                 const div = document.createElement("div");
                 div.className = `notification-item ${n.read ? '' : 'unread'}`;
-                
-                let icon = n.type === "like" ? "heart" : 
-                          n.type === "comment" ? "comment" : 
-                          n.type === "follow" ? "user-plus" : 
-                          n.type === "new_post" ? "file-alt" : "dollar-sign";
-                
-                div.innerHTML = `
-                    <div class="notif-icon"><i class="fas fa-${icon}"></i></div>
-                    <div class="notif-content">
-                        <strong>${n.title}</strong>
-                        ${n.message ? `<p>${n.message}</p>` : ''}
-                        <small>${n.timestamp ? formatTime(n.timestamp.toDate()) : "Just now"}</small>
-                    </div>
-                `;
-                
+                let icon = n.type === "like" ? "fa-heart" : n.type === "comment" ? "fa-comment" : n.type === "follow" ? "fa-user-plus" : n.type === "new_post" ? "fa-file-alt" : "fa-dollar-sign";
+                div.innerHTML = `<i class="fas ${icon} notif-icon"></i><div class="notif-content"><strong>${n.title}</strong><small>${n.message||""}</small><br><small>${n.timestamp?formatTime(n.timestamp.toDate()):"Just now"}</small></div>`;
                 div.onclick = async () => {
                     await updateDoc(doc(db, "users", currentUser.uid, "notifications", nDoc.id), { read: true });
                     if(n.postId) window.location.href = `post-view.html?postId=${n.postId}`;
@@ -1496,39 +1189,38 @@ function loadNotifications() {
                 panel.appendChild(div);
             });
         }
-        
-        const badge = document.getElementById("notif-count");
-        badge.innerText = unread > 99 ? "99+" : unread;
-        badge.style.display = unread > 0 ? "flex" : "none";
+        document.getElementById("notif-count").innerText = unread > 99 ? "99+" : unread;
+        document.getElementById("notif-count").style.display = unread > 0 ? "flex" : "none";
     });
 }
 
-window.toggleNotifications = () => {
-    const overlay = document.getElementById("notification-overlay");
-    overlay.classList.toggle('active');
+const bell = document.getElementById("notification-bell");
+const overlay = document.getElementById("notification-overlay");
+
+window.openNotifications = () => {
+    overlay.style.display = "flex";
 };
 
 window.closeNotifications = () => {
-    document.getElementById("notification-overlay").classList.remove('active');
+    overlay.style.display = "none";
 };
 
-document.getElementById("mark-all-read").addEventListener("click", async (e) => {
-    e.stopPropagation();
-    const snap = await getDocs(collection(db, "users", currentUser.uid, "notifications"));
-    const batch = writeBatch(db);
-    snap.forEach(d => { 
-        if (!d.data().read) batch.update(d.ref, { read: true }); 
-    });
-    await batch.commit();
-    showToast("All notifications marked as read", "success");
+bell.addEventListener("click", (e) => { 
+    e.stopPropagation(); 
+    overlay.style.display = overlay.style.display === "flex" ? "none" : "flex"; 
 });
 
-// ==================== UTILITY FUNCTIONS ====================
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
+document.getElementById("mark-all-read").addEventListener("click", async () => {
+    const snap = await getDocs(collection(db, "users", currentUser.uid, "notifications"));
+    const batch = writeBatch(db);
+    snap.forEach(d => { if (!d.data().read) batch.update(d.ref, { read: true }); });
+    await batch.commit();
+});
+
+document.addEventListener("click", (e) => { 
+    if (!bell.contains(e.target) && !overlay.contains(e.target)) overlay.style.display = "none"; 
+    if (e.target.id === "tip-modal") closeTipModal();
+});
 
 function formatTime(d) {
     const diff = Math.floor((new Date() - d) / 1000);
@@ -1541,73 +1233,22 @@ function formatTime(d) {
 
 window.viewImage = (src) => { 
     document.getElementById("modal-image").src = src; 
-    document.getElementById("media-modal").classList.add('active');
-    document.body.style.overflow = 'hidden';
+    document.getElementById("media-modal").style.display = "flex"; 
 };
 
-window.closeMediaModal = () => {
-    document.getElementById("media-modal").classList.remove('active');
-    document.body.style.overflow = '';
-};
+window.closeMediaModal = () => document.getElementById("media-modal").style.display = "none";
 
 window.toggleMenu = () => document.getElementById("sidebar").classList.toggle("active");
 
 window.toggleComments = (id) => { 
     const el = document.getElementById("comments-"+id); 
     el.classList.toggle('active');
-    if (el.classList.contains('active')) {
-        document.getElementById(`comment-input-${id}`).focus();
-    }
 };
 
-// ==================== LISTENERS ====================
 document.getElementById("logout").addEventListener("click", (e) => { 
     e.preventDefault(); 
     signOut(auth).then(() => window.location.href = "login.html"); 
 });
-
-// Close modals on outside click
-document.getElementById('tip-modal').addEventListener('click', (e) => {
-    if (e.target.id === 'tip-modal') closeTipModal();
-});
-
-document.getElementById('media-modal').addEventListener('click', (e) => {
-    if (e.target.id === 'media-modal') closeMediaModal();
-});
-
-// Keyboard shortcuts
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        closeTipModal();
-        closeMediaModal();
-        closeNotifications();
-        closeCSChat();
-    }
-});
-
-// Listen for new posts from followed users
-function listenForNewPostsFromFollowing() {
-    if (followingList.length === 0) return;
-    const postsQuery = query(collection(db, "posts"), where("userId", "in", followingList), orderBy("timestamp", "desc"));
-    onSnapshot(postsQuery, (snapshot) => {
-        snapshot.docChanges().forEach(change => {
-            if (change.type === "added") {
-                const post = change.doc.data();
-                const postId = change.doc.id;
-                const postTime = post.timestamp?.toDate?.() || new Date();
-                const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-                if (postTime > fiveMinutesAgo && post.userId !== currentUser.uid) {
-                    sendNotification(currentUser.uid, {
-                        type: "new_post",
-                        title: `${post.username || "Someone you follow"} posted new content`,
-                        fromUserId: post.userId,
-                        postId: postId
-                    });
-                }
-            }
-        });
-    });
-}
 </script>
 </body>
 </html>
