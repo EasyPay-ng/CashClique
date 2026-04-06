@@ -23,7 +23,7 @@ body { background: #f5f6f8; min-height: 100vh; display: flex; }
 .login-btn:hover{background:#d95600;}
 .error-msg{color:#d32f2f;text-align:center;margin-bottom:15px;font-size:14px;display:none;background:#ffebee;padding:10px;border-radius:8px;}
 
-/* Admin Sidebar - Matching Admin Panel Style */
+/* Admin Sidebar */
 .sidebar {
     width: 260px;
     background: #1e293b;
@@ -141,6 +141,7 @@ body { background: #f5f6f8; min-height: 100vh; display: flex; }
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    transition: transform 0.3s ease;
 }
 .chat-list-header {
     padding: 20px;
@@ -186,6 +187,7 @@ body { background: #f5f6f8; min-height: 100vh; display: flex; }
     transition: 0.2s;
     margin-bottom: 5px;
     position: relative;
+    -webkit-tap-highlight-color: transparent;
 }
 .chat-item:hover {
     background: #f8fafc;
@@ -283,6 +285,7 @@ body { background: #f5f6f8; min-height: 100vh; display: flex; }
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    position: relative;
 }
 .chat-header {
     padding: 20px;
@@ -464,6 +467,7 @@ body { background: #f5f6f8; min-height: 100vh; display: flex; }
     justify-content: center;
     transition: 0.2s;
     font-size: 18px;
+    flex-shrink: 0;
 }
 .attach-btn {
     background: #f1f5f9;
@@ -479,6 +483,9 @@ body { background: #f5f6f8; min-height: 100vh; display: flex; }
 .send-btn:hover {
     transform: scale(1.05);
 }
+.send-btn:active {
+    transform: scale(0.95);
+}
 .message-input {
     flex: 1;
     padding: 12px 20px;
@@ -487,9 +494,29 @@ body { background: #f5f6f8; min-height: 100vh; display: flex; }
     outline: none;
     font-size: 14px;
     transition: 0.2s;
+    min-width: 0;
 }
 .message-input:focus {
     border-color: #ff6a00;
+}
+
+/* Mobile Back Button */
+.mobile-back-btn {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    font-size: 14px;
+    margin-bottom: 15px;
+    padding: 8px;
+    border-radius: 8px;
+    transition: 0.2s;
+}
+.mobile-back-btn:hover {
+    background: #f1f5f9;
 }
 
 /* Media Modal */
@@ -571,41 +598,107 @@ body { background: #f5f6f8; min-height: 100vh; display: flex; }
     to { transform: translateX(0); opacity: 1; }
 }
 
-/* Responsive */
+/* ===== RESPONSIVE FIXES ===== */
+
+/* Tablet */
 @media (max-width: 1024px) {
     .support-layout {
         grid-template-columns: 1fr;
+        position: relative;
     }
+    
     .chat-list-container {
-        display: none;
-    }
-    .chat-list-container.mobile-visible {
-        display: flex;
-        position: fixed;
+        position: absolute;
         inset: 0;
-        z-index: 100;
-        border-radius: 0;
+        z-index: 10;
+        border-radius: 16px;
+        transform: translateX(0);
     }
-    .back-btn {
-        display: flex !important;
+    
+    .chat-list-container.hidden-mobile {
+        transform: translateX(-100%);
+        opacity: 0;
+        pointer-events: none;
+    }
+    
+    .chat-window {
+        position: absolute;
+        inset: 0;
+        z-index: 20;
+        transform: translateX(100%);
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.3s ease;
+    }
+    
+    .chat-window.active-mobile {
+        transform: translateX(0);
+        opacity: 1;
+        pointer-events: all;
+    }
+    
+    .mobile-back-btn {
+        display: flex;
     }
 }
+
+/* Mobile */
 @media (max-width: 900px) {
-    .sidebar { transform: translateX(-100%); transition: 0.3s; }
-    .sidebar.active { transform: translateX(0); }
-    .main { margin-left: 0; width: 100%; padding: 15px; }
-    .menu-btn { display: block; }
+    .sidebar { 
+        transform: translateX(-100%); 
+        transition: 0.3s; 
+    }
+    .sidebar.active { 
+        transform: translateX(0); 
+    }
+    .main { 
+        margin-left: 0; 
+        width: 100%; 
+        padding: 15px; 
+    }
+    .menu-btn { 
+        display: block; 
+    }
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .stat-card .value {
+        font-size: 22px;
+    }
 }
-.back-btn {
-    display: none;
-    align-items: center;
-    gap: 8px;
-    background: none;
-    border: none;
-    color: #64748b;
-    cursor: pointer;
-    font-size: 14px;
-    margin-bottom: 15px;
+
+/* Small Mobile */
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    .chat-header {
+        padding: 15px;
+    }
+    .chat-header-info h3 {
+        font-size: 14px;
+    }
+    .chat-action-btn {
+        padding: 6px 12px;
+        font-size: 11px;
+    }
+    .message {
+        max-width: 85%;
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+    .input-wrapper {
+        gap: 8px;
+    }
+    .attach-btn, .send-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+    .message-input {
+        padding: 10px 15px;
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
 }
 </style>
 </head>
@@ -623,13 +716,13 @@ body { background: #f5f6f8; min-height: 100vh; display: flex; }
     </div>
 </div>
 
-<!-- Sidebar - Matching Admin Panel -->
+<!-- Sidebar -->
 <div class="sidebar" id="sidebar" style="display:none;">
     <h2><i class="fas fa-shield-halved"></i> Admin</h2>
     <a href="admin-dashboard.html"><i class="fas fa-chart-pie"></i> Dashboard</a>
     <a href="admin-opportunities.html"><i class="fas fa-bullhorn"></i> Manage Ads</a>
     <a href="applications.html"><i class="fas fa-file"></i> Review Applicants</a>
-     <a href="admin-deposit.html"><i class="fas fa-chart-line"></i> Rates</a>
+    <a href="admin-deposit.html"><i class="fas fa-chart-line"></i> Rates</a>
     <a href="admin-chat.html" class="active"><i class="fas fa-headset"></i> Support</a>
     <a href="#" onclick="adminLogout()" style="margin-top:auto;"><i class="fas fa-sign-out-alt"></i> Logout</a>
 </div>
@@ -689,7 +782,7 @@ body { background: #f5f6f8; min-height: 100vh; display: flex; }
 
         <!-- Chat Window -->
         <div class="chat-window" id="chatWindow">
-            <button class="back-btn" id="backBtn" onclick="showChatList()">
+            <button class="mobile-back-btn" id="mobileBackBtn" onclick="showChatList()">
                 <i class="fas fa-arrow-left"></i> Back to conversations
             </button>
             
@@ -751,7 +844,6 @@ body { background: #f5f6f8; min-height: 100vh; display: flex; }
     <button class="close-modal">&times;</button>
     <img id="modalImage" src="">
 </div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { 
@@ -776,28 +868,24 @@ import {
     increment
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// Firebase Config
 const firebaseConfig = {
     apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
     authDomain: "cashclique-31718.firebaseapp.com",
     projectId: "cashclique-31718",
     storageBucket: "cashclique-31718.firebasestorage.app",
     messagingSenderId: "1064282591269",
-    appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc",
-    measurementId: "G-V5WHJB6LS0"
+    appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Authorized admin emails
 const AUTHORIZED_ADMINS = [
     'beniwealth70@gmail.com',
     'baasituoppor01@gmail.com'
 ];
 
-// State
 let currentAdmin = null;
 let selectedChatId = null;
 let selectedChatData = null;
@@ -805,8 +893,27 @@ let messagesUnsubscribe = null;
 let currentFilter = 'all';
 let selectedImageBase64 = null;
 let allChats = [];
+let isMobileView = window.innerWidth <= 1024;
 
-// Login function
+// Track window resize
+window.addEventListener('resize', () => {
+    const newIsMobile = window.innerWidth <= 1024;
+    if (isMobileView !== newIsMobile) {
+        isMobileView = newIsMobile;
+        // Reset views on breakpoint change
+        if (!isMobileView) {
+            // Desktop: show both
+            document.getElementById('chatListContainer').classList.remove('hidden-mobile');
+            document.getElementById('chatWindow').classList.remove('active-mobile');
+        } else if (selectedChatId) {
+            // Mobile with selected chat: show chat
+            document.getElementById('chatListContainer').classList.add('hidden-mobile');
+            document.getElementById('chatWindow').classList.add('active-mobile');
+        }
+    }
+});
+
+// Login
 window.adminLogin = async () => {
     const email = document.getElementById("admin-email").value.trim();
     const password = document.getElementById("admin-password").value;
@@ -827,12 +934,10 @@ window.adminLogin = async () => {
     }
 };
 
-// Logout function
 window.adminLogout = () => { 
     if (confirm("Logout?")) signOut(auth).then(() => location.reload()); 
 };
 
-// Check admin access by email
 onAuthStateChanged(auth, async (user) => {
     if (!user) {
         document.getElementById('login-overlay').style.display = 'flex';
@@ -842,13 +947,10 @@ onAuthStateChanged(auth, async (user) => {
         return;
     }
     
-    // Hide login overlay
     document.getElementById('login-overlay').style.display = 'none';
     
-    // Check if email is authorized
     const userEmail = user.email?.toLowerCase();
     if (!AUTHORIZED_ADMINS.includes(userEmail)) {
-        // Show access denied
         document.getElementById('accessDenied').style.display = 'flex';
         document.getElementById('sidebar').style.display = 'none';
         document.getElementById('mainContent').style.display = 'none';
@@ -856,7 +958,6 @@ onAuthStateChanged(auth, async (user) => {
         return;
     }
     
-    // Authorized - show content
     document.getElementById('accessDenied').style.display = 'none';
     document.getElementById('sidebar').style.display = 'flex';
     document.getElementById('mainContent').style.display = 'block';
@@ -867,7 +968,6 @@ onAuthStateChanged(auth, async (user) => {
     updateStats();
 });
 
-// Load all support chats
 function loadChats() {
     const chatsQuery = query(collection(db, 'supportChats'), orderBy('lastMessageAt', 'desc'));
     
@@ -881,7 +981,6 @@ function loadChats() {
     });
 }
 
-// Render chat list
 function renderChatList() {
     const listEl = document.getElementById('chatList');
     const filteredChats = allChats.filter(chat => {
@@ -906,7 +1005,8 @@ function renderChatList() {
         
         return `
             <div class="chat-item ${selectedChatId === chat.id ? 'active' : ''} ${isUnread ? 'unread' : ''}" 
-                 onclick="selectChat('${chat.id}')" data-chat-id="${chat.id}">
+                 onclick="selectChat('${chat.id}')" 
+                 data-chat-id="${chat.id}">
                 <div class="chat-avatar">${initials}</div>
                 <div class="chat-info">
                     <div class="chat-name">${chat.userName || 'Unknown User'}</div>
@@ -921,7 +1021,7 @@ function renderChatList() {
     }).join('');
 }
 
-// Select a chat
+// FIXED: Mobile chat selection
 window.selectChat = async (chatId) => {
     selectedChatId = chatId;
     selectedChatData = allChats.find(c => c.id === chatId);
@@ -929,9 +1029,10 @@ window.selectChat = async (chatId) => {
     // Update UI
     renderChatList();
     
-    // Show chat window on mobile
+    // FIXED: Proper mobile view handling
     if (window.innerWidth <= 1024) {
-        document.getElementById('chatListContainer').classList.add('mobile-visible');
+        document.getElementById('chatListContainer').classList.add('hidden-mobile');
+        document.getElementById('chatWindow').classList.add('active-mobile');
     }
     
     // Update header
@@ -942,20 +1043,16 @@ window.selectChat = async (chatId) => {
     document.getElementById('headerEmail').textContent = selectedChatData.userEmail || 'No email';
     header.style.display = 'flex';
     
-    // Update close/reopen button
     updateTicketButton();
     
-    // Show input area
     document.getElementById('chatInputArea').style.display = 'block';
     
     // Mark as read
     await updateDoc(doc(db, 'supportChats', chatId), { unreadByAdmin: false });
     
-    // Load messages
     loadMessages(chatId);
 };
 
-// Load messages for selected chat
 function loadMessages(chatId) {
     if (messagesUnsubscribe) messagesUnsubscribe();
     
@@ -990,12 +1087,10 @@ function loadMessages(chatId) {
             container.appendChild(msgDiv);
         });
         
-        // Scroll to bottom
         container.scrollTop = container.scrollHeight;
     });
 }
 
-// Send message
 window.sendMessage = async () => {
     if (!selectedChatId) return;
     
@@ -1027,7 +1122,6 @@ window.sendMessage = async () => {
     }
 };
 
-// Handle image selection
 window.handleImageSelect = (event) => {
     const file = event.target.files[0];
     if (!file) return;
@@ -1061,7 +1155,6 @@ window.handleKeyPress = (event) => {
     if (event.key === 'Enter') sendMessage();
 };
 
-// Toggle ticket status
 window.toggleTicketStatus = async () => {
     if (!selectedChatId || !selectedChatData) return;
     
@@ -1102,7 +1195,6 @@ document.querySelectorAll('.filter-tab').forEach(tab => {
     });
 });
 
-// Update stats
 function updateStats() {
     const openCount = allChats.filter(c => c.status !== 'closed').length;
     const today = new Date();
@@ -1117,7 +1209,13 @@ function updateStats() {
     document.getElementById('today-count').textContent = todayCount;
 }
 
-// Helper functions
+// FIXED: Show chat list on mobile
+window.showChatList = () => {
+    document.getElementById('chatListContainer').classList.remove('hidden-mobile');
+    document.getElementById('chatWindow').classList.remove('active-mobile');
+    // Don't clear selectedChatId so we can return to the same chat
+};
+
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
@@ -1136,13 +1234,8 @@ function formatTime(date) {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-// UI Functions
 window.toggleSidebar = () => {
     document.getElementById('sidebar').classList.toggle('active');
-};
-
-window.showChatList = () => {
-    document.getElementById('chatListContainer').classList.remove('mobile-visible');
 };
 
 window.viewImage = (src) => {
