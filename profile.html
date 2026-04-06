@@ -216,51 +216,250 @@ body{background:var(--bg-body);min-height:100vh;-webkit-font-smoothing:antialias
 .cropper-btn.primary{background:var(--primary);color:white;box-shadow:0 4px 16px var(--primary-glow);}
 .cropper-btn.primary:hover{background:var(--primary-light);box-shadow:0 6px 20px rgba(255,106,0,0.4);}
 
-/* Verification Overlay */
-.verification-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:2000;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;}
-.verification-overlay.active{display:flex;opacity:1;}
-.verification-modal{background:var(--bg-card);border-radius:var(--radius-xl);width:100%;max-width:520px;overflow:hidden;box-shadow:var(--shadow-lg);transform:scale(0.9) translateY(20px);transition:var(--transition-bounce);}
-.verification-overlay.active .verification-modal{transform:scale(1) translateY(0);}
-.modal-header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:28px 24px;text-align:center;position:relative;overflow:hidden;}
-.modal-header::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");opacity:0.5;}
-.modal-header h2{font-size:22px;font-weight:700;margin-bottom:8px;position:relative;}
-.modal-header p{font-size:14px;opacity:0.9;position:relative;}
-.modal-body{padding:28px 24px;}
-.badge-options{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:28px;}
-.badge-card{border:2.5px solid var(--border-light);border-radius:var(--radius-lg);padding:24px;text-align:center;cursor:pointer;transition:var(--transition-base);position:relative;overflow:hidden;background:var(--bg-card);}
-.badge-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--primary-glow),transparent);opacity:0;transition:var(--transition-base);}
-.badge-card:hover{border-color:var(--primary);transform:translateY(-4px);box-shadow:var(--shadow-md);}
-.badge-card:hover::before{opacity:1;}
-.badge-card:active{transform:scale(0.98);}
-.badge-card.selected{border-color:var(--primary);background:linear-gradient(135deg,#fff7ed 0%,white 100%);box-shadow:0 8px 32px var(--primary-glow);}
-.badge-card.selected::before{opacity:1;}
-.badge-icon{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px;box-shadow:0 8px 24px rgba(0,0,0,0.15);transition:var(--transition-bounce);}
-.badge-card:hover .badge-icon{transform:scale(1.1) rotate(5deg);}
+/* ===== FIXED VERIFICATION OVERLAY - MOBILE FRIENDLY ===== */
+.verification-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.85);
+    z-index:2000;
+    display:none;
+    align-items:flex-start;
+    justify-content:center;
+    padding:20px;
+    backdrop-filter:blur(8px);
+    opacity:0;
+    transition:opacity 0.3s;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+}
+.verification-overlay.active{
+    display:flex;
+    opacity:1;
+}
+.verification-modal{
+    background:var(--bg-card);
+    border-radius:var(--radius-xl);
+    width:100%;
+    max-width:520px;
+    max-height:calc(100vh - 40px);
+    overflow:hidden;
+    box-shadow:var(--shadow-lg);
+    transform:scale(0.9) translateY(20px);
+    transition:var(--transition-bounce);
+    display:flex;
+    flex-direction:column;
+    margin:auto;
+}
+.verification-overlay.active .verification-modal{
+    transform:scale(1) translateY(0);
+}
+.modal-header{
+    background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+    color:white;
+    padding:24px 20px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+    flex-shrink:0;
+}
+.modal-header::before{
+    content:'';
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity:0.5;
+}
+.modal-header h2{
+    font-size:20px;
+    font-weight:700;
+    margin-bottom:6px;
+    position:relative;
+}
+.modal-header p{
+    font-size:13px;
+    opacity:0.9;
+    position:relative;
+}
+.modal-body{
+    padding:20px;
+    overflow-y:auto;
+    flex:1;
+    -webkit-overflow-scrolling:touch;
+}
+.badge-options{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+}
+.badge-card{
+    border:2.5px solid var(--border-light);
+    border-radius:var(--radius-lg);
+    padding:20px;
+    text-align:center;
+    cursor:pointer;
+    transition:var(--transition-base);
+    position:relative;
+    overflow:hidden;
+    background:var(--bg-card);
+    flex-shrink:0;
+}
+.badge-card::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    background:linear-gradient(135deg,var(--primary-glow),transparent);
+    opacity:0;
+    transition:var(--transition-base);
+}
+.badge-card:hover{
+    border-color:var(--primary);
+    transform:translateY(-2px);
+    box-shadow:var(--shadow-md);
+}
+.badge-card:hover::before{
+    opacity:1;
+}
+.badge-card:active{
+    transform:scale(0.98);
+}
+.badge-card.selected{
+    border-color:var(--primary);
+    background:linear-gradient(135deg,#fff7ed 0%,white 100%);
+    box-shadow:0 8px 32px var(--primary-glow);
+}
+.badge-card.selected::before{
+    opacity:1;
+}
+.badge-icon{
+    width:48px;
+    height:48px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin:0 auto 12px;
+    font-size:20px;
+    box-shadow:0 8px 24px rgba(0,0,0,0.15);
+    transition:var(--transition-bounce);
+}
+.badge-card:hover .badge-icon{
+    transform:scale(1.1) rotate(5deg);
+}
 .blue-badge{background:var(--verified-blue);color:white;}
 .gold-badge-card{background:var(--verified-gold);color:#1a1a1a;}
-.badge-title{font-size:18px;font-weight:700;margin-bottom:8px;color:var(--text-primary);}
-.badge-price{font-size:28px;font-weight:800;color:var(--primary);margin-bottom:16px;}
-.badge-requirements{text-align:left;font-size:13px;color:var(--text-secondary);margin-bottom:16px;padding:16px;background:var(--bg-body);border-radius:var(--radius-md);}
-.requirement-item{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-weight:500;}
+.badge-title{font-size:16px;font-weight:700;margin-bottom:6px;color:var(--text-primary);}
+.badge-price{font-size:24px;font-weight:800;color:var(--primary);margin-bottom:12px;}
+.badge-requirements{
+    text-align:left;
+    font-size:12px;
+    color:var(--text-secondary);
+    margin-bottom:12px;
+    padding:12px;
+    background:var(--bg-body);
+    border-radius:var(--radius-md);
+}
+.requirement-item{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:6px;
+    font-weight:500;
+}
 .requirement-item:last-child{margin-bottom:0;}
-.requirement-item i{width:20px;text-align:center;font-size:14px;transition:var(--transition-fast);}
+.requirement-item i{width:18px;text-align:center;font-size:12px;transition:var(--transition-fast);}
 .requirement-item.met{color:var(--success);}
 .requirement-item.met i{transform:scale(1.2);}
 .requirement-item.not-met{color:var(--error);}
 .requirement-item.not-met i{animation:shake 0.5s;}
 @keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-5px);}75%{transform:translateX(5px);}}
-.eligible-badge{position:absolute;top:16px;right:16px;background:var(--success);color:white;padding:6px 12px;border-radius:20px;font-size:11px;font-weight:700;box-shadow:0 4px 12px rgba(34,197,94,0.3);animation:badgePop 0.5s var(--transition-bounce);}
-.not-eligible-badge{position:absolute;top:16px;right:16px;background:var(--error);color:white;padding:6px 12px;border-radius:20px;font-size:11px;font-weight:700;box-shadow:0 4px 12px rgba(239,68,68,0.3);}
-.modal-footer{padding:20px 24px;border-top:1px solid var(--border-light);display:flex;gap:12px;background:var(--bg-body);}
-.modal-btn{flex:1;padding:14px;border-radius:var(--radius-md);font-size:15px;font-weight:600;cursor:pointer;transition:var(--transition-base);border:none;position:relative;overflow:hidden;}
-.modal-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);transform:translateX(-100%);transition:0.6s;}
-.modal-btn:hover::before{transform:translateX(100%);}
-.modal-btn:active{transform:scale(0.97);}
-.confirm-btn{background:var(--primary);color:white;box-shadow:0 4px 16px var(--primary-glow);}
-.confirm-btn:hover{background:var(--primary-light);transform:translateY(-2px);box-shadow:0 8px 28px rgba(255,106,0,0.35);}
-.confirm-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;filter:grayscale(1);}
-.cancel-btn{background:white;color:var(--text-secondary);border:2px solid var(--border-light);}
-.cancel-btn:hover{background:var(--bg-body);border-color:var(--text-muted);color:var(--text-primary);}
+.eligible-badge{
+    position:absolute;
+    top:12px;
+    right:12px;
+    background:var(--success);
+    color:white;
+    padding:4px 10px;
+    border-radius:20px;
+    font-size:10px;
+    font-weight:700;
+    box-shadow:0 4px 12px rgba(34,197,94,0.3);
+    animation:badgePop 0.5s var(--transition-bounce);
+}
+.not-eligible-badge{
+    position:absolute;
+    top:12px;
+    right:12px;
+    background:var(--error);
+    color:white;
+    padding:4px 10px;
+    border-radius:20px;
+    font-size:10px;
+    font-weight:700;
+    box-shadow:0 4px 12px rgba(239,68,68,0.3);
+}
+.modal-footer{
+    padding:16px 20px;
+    border-top:1px solid var(--border-light);
+    display:flex;
+    gap:12px;
+    background:var(--bg-body);
+    flex-shrink:0;
+}
+.modal-btn{
+    flex:1;
+    padding:12px;
+    border-radius:var(--radius-md);
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    transition:var(--transition-base);
+    border:none;
+    position:relative;
+    overflow:hidden;
+}
+.modal-btn::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);
+    transform:translateX(-100%);
+    transition:0.6s;
+}
+.modal-btn:hover::before{
+    transform:translateX(100%);
+}
+.modal-btn:active{
+    transform:scale(0.97);
+}
+.confirm-btn{
+    background:var(--primary);
+    color:white;
+    box-shadow:0 4px 16px var(--primary-glow);
+}
+.confirm-btn:hover{
+    background:var(--primary-light);
+    transform:translateY(-2px);
+    box-shadow:0 8px 28px rgba(255,106,0,0.35);
+}
+.confirm-btn:disabled{
+    opacity:0.5;
+    cursor:not-allowed;
+    transform:none;
+    filter:grayscale(1);
+}
+.cancel-btn{
+    background:white;
+    color:var(--text-secondary);
+    border:2px solid var(--border-light);
+}
+.cancel-btn:hover{
+    background:var(--bg-body);
+    border-color:var(--text-muted);
+    color:var(--text-primary);
+}
 
 /* Toast Notifications */
 .toast-container{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:12px;pointer-events:none;}
@@ -276,60 +475,281 @@ body{background:var(--bg-body);min-height:100vh;-webkit-font-smoothing:antialias
 .loading{text-align:center;padding:48px 24px;color:var(--text-muted);background:var(--bg-card);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);}
 .loading i{font-size:36px;color:var(--primary);animation:spin 1s linear infinite;margin-bottom:16px;display:block;}
 .loading p{font-size:15px;font-weight:500;}
+</style>
+</head>
 
-/* Mobile Optimizations */
-@media(max-width:480px){
-    .header-content{padding:12px 16px;}
-    .profile-container{padding:20px 16px 32px;}
-    .profile-card{padding:24px 20px;margin-bottom:24px;border-radius:var(--radius-lg);}
-    .profile-header{flex-direction:column;text-align:center;gap:20px;}
-    .profile-avatar{width:120px;height:120px;}
-    .profile-avatar-container.own-profile .avatar-upload-overlay{padding-bottom:20px;}
-    .profile-info{width:100%;padding-top:0;}
-    .profile-name{font-size:24px;justify-content:center;}
-    .profile-username{font-size:13px;}
-    .profile-bio{font-size:14px;}
-    .profile-stats{gap:12px;margin:24px 0;padding:20px 0;}
-    .profile-stats::before,.profile-stats::after{display:none;}
-    .stat{padding:10px 6px;}
-    .stat-num{font-size:20px;}
-    .stat-label{font-size:10px;}
-    .profile-actions{flex-direction:column;gap:10px;}
-    .action-btn{width:100%;padding:16px;}
-    .tabs{margin-bottom:24px;padding:5px;}
-    .tab{padding:12px 10px;font-size:13px;}
-    .posts-grid{grid-template-columns:repeat(2,1fr);gap:10px;}
-    .post-thumb{border-radius:var(--radius-sm);}
-    .post-thumb-overlay{padding:12px;}
-    .post-stats-overlay{gap:12px;font-size:12px;}
-    .empty-state{padding:48px 24px;}
-    .empty-icon{font-size:48px;}
-    .empty-title{font-size:18px;}
-    .upload-modal{border-radius:var(--radius-lg);}
-    .upload-preview,.upload-placeholder{width:140px;height:140px;}
-    .upload-modal-header{padding:24px 20px;}
-    .upload-modal-body{padding:24px 20px;}
-    .badge-card{padding:20px;}
-    .badge-icon{width:48px;height:48px;font-size:20px;}
-    .badge-title{font-size:16px;}
-    .badge-price{font-size:24px;}
-    .modal-footer{padding:16px 20px;}
-    .modal-btn{padding:14px;font-size:14px;}
-    .toast{min-width:260px;padding:14px 20px;font-size:13px;}
-}
+<body>
 
-@media(min-width:481px) and (max-width:600px){
-    .profile-avatar{width:100px;height:100px;}
-    .profile-name{font-size:22px;}
-    .posts-grid{grid-template-columns:repeat(3,1fr);}
-}
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container"></div>
 
-/* Safe area for notched phones */
-@supports(padding:max(0px)){
-    .header{padding-top:max(16px,env(safe-area-inset-top));}
-    .profile-container{padding-bottom:max(32px,env(safe-area-inset-bottom));padding-left:max(20px,env(safe-area-inset-left));padding-right:max(20px,env(safe-area-inset-right));}
-    .toast-container{bottom:max(24px,env(safe-area-inset-bottom));}
-}
+<!-- Header -->
+<div class="header" id="header">
+    <div class="header-content">
+        <button class="back-btn" onclick="history.back()">
+            <i class="fas fa-arrow-left"></i> Back
+        </button>
+        <div class="header-actions">
+            <button class="header-action" onclick="shareProfile()">
+                <i class="fas fa-share-alt"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="profile-container">
+    <!-- Profile Card -->
+    <div class="profile-card">
+        <div class="profile-header">
+            <div class="profile-avatar-container" id="avatar-container">
+                <img class="profile-avatar" id="avatar" src="https://i.pravatar.cc/300" alt="Avatar" loading="lazy">
+                <div class="verified-badge" id="verified-badge" style="display:none;">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div class="gold-badge" id="gold-badge" style="display:none;">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="avatar-upload-overlay" id="avatar-upload-overlay" onclick="openUploadModal()">
+                    <i class="fas fa-camera"></i>
+                    <span>Change Photo</span>
+                </div>
+            </div>
+            <div class="profile-info">
+                <div class="profile-name-row">
+                    <h2 class="profile-name" id="profile-name">Loading...</h2>
+                </div>
+                <p class="profile-username" id="profile-username">loading</p>
+                <p class="profile-bio" id="profile-bio">Loading bio...</p>
+            </div>
+        </div>
+        
+        <div class="profile-stats">
+            <div class="stat" onclick="showPosts()">
+                <div class="stat-num" id="posts-count">0</div>
+                <div class="stat-label">Posts</div>
+            </div>
+            <div class="stat" onclick="showFollowers()">
+                <div class="stat-num" id="followers-count">0</div>
+                <div class="stat-label">Followers</div>
+            </div>
+            <div class="stat" onclick="showFollowing()">
+                <div class="stat-num" id="following-count">0</div>
+                <div class="stat-label">Following</div>
+            </div>
+        </div>
+        
+        <div class="profile-actions" id="profile-actions">
+            <!-- Actions load here -->
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab('posts', this)">
+            <i class="fas fa-th"></i> Posts
+        </button>
+        <button class="tab" onclick="switchTab('media', this)">
+            <i class="fas fa-photo-video"></i> Media
+        </button>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="posts-grid" id="posts-grid">
+        <div class="loading">
+            <i class="fas fa-spinner"></i>
+            <p>Loading content...</p>
+        </div>
+    </div>
+</div>
+<!-- Image Upload Modal -->
+<div class="upload-modal-overlay" id="upload-modal">
+    <div class="upload-modal">
+        <div class="upload-modal-header">
+            <h2><i class="fas fa-camera"></i> Update Profile Photo</h2>
+            <p>Choose a photo from your gallery</p>
+        </div>
+        <div class="upload-modal-body">
+            <input type="file" id="file-input" class="file-input" accept="image/*" onchange="handleFileSelect(event)">
+            
+            <div class="upload-placeholder" id="upload-placeholder" onclick="document.getElementById('file-input').click()">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span>Tap to select photo<br>Max 2MB</span>
+            </div>
+            
+            <img class="upload-preview" id="upload-preview" alt="Preview">
+            
+            <div class="cropper-container" id="cropper-container">
+                <img id="cropper-image" class="cropper-image">
+                <div class="cropper-controls">
+                    <button class="cropper-btn" onclick="rotateImage(-90)"><i class="fas fa-undo"></i> Rotate</button>
+                    <button class="cropper-btn primary" onclick="cropImage()"><i class="fas fa-crop"></i> Crop</button>
+                </div>
+            </div>
+            
+            <div class="upload-loading" id="upload-loading">
+                <i class="fas fa-spinner"></i>
+                <p>Uploading...</p>
+            </div>
+            
+            <div class="upload-actions" id="upload-actions">
+                <button class="upload-btn secondary" onclick="closeUploadModal()">Cancel</button>
+                <button class="upload-btn" id="select-file-btn" onclick="document.getElementById('file-input').click()">
+                    <i class="fas fa-image"></i> Select Photo
+                </button>
+                <button class="upload-btn" id="save-photo-btn" onclick="saveProfilePhoto()" style="display:none;">
+                    <i class="fas fa-check"></i> Save Photo
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Verification Overlay - FIXED FOR MOBILE -->
+<div class="verification-overlay" id="verification-overlay">
+    <div class="verification-modal">
+        <div class="modal-header">
+            <h2>Get Verified</h2>
+            <p>Choose your verification badge</p>
+        </div>
+        <div class="modal-body">
+            <div class="badge-options">
+                <div class="badge-card" id="blue-badge-card" data-badge="blue">
+                    <div class="badge-icon blue-badge">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="badge-title">Blue Badge</div>
+                    <div class="badge-price">$2.00</div>
+                    <div class="badge-requirements">
+                        <div class="requirement-item" id="blue-followers">
+                            <i class="fas fa-user-friends"></i>
+                            <span>500 Followers</span>
+                        </div>
+                        <div class="requirement-item" id="blue-likes">
+                            <i class="fas fa-heart"></i>
+                            <span>1,000 Total Likes</span>
+                        </div>
+                        <div class="requirement-item" id="blue-balance">
+                            <i class="fas fa-dollar-sign"></i>
+                            <span>$2.00 Balance</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="badge-card" id="gold-badge-card" data-badge="gold">
+                    <div class="badge-icon gold-badge-card">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="badge-title">Gold Badge</div>
+                    <div class="badge-price">$5.00</div>
+                    <div class="badge-requirements">
+                        <div class="requirement-item" id="gold-followers">
+                            <i class="fas fa-user-friends"></i>
+                            <span>2,000 Followers</span>
+                        </div>
+                        <div class="requirement-item" id="gold-likes">
+                            <i class="fas fa-heart"></i>
+                            <span>5,000 Total Likes</span>
+                        </div>
+                        <div class="requirement-item" id="gold-balance">
+                            <i class="fas fa-dollar-sign"></i>
+                            <span>$5.00 Balance</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn cancel-btn" onclick="closeVerificationOverlay()">Cancel</button>
+            <button class="modal-btn confirm-btn" id="confirm-verification-btn" onclick="purchaseVerification()">Get Verified</button>
+        </div>
+    </div>
+</div>
+    .not-eligible-badge{
+        position:absolute;
+        top:12px;
+        right:12px;
+        background:var(--error);
+        color:white;
+        padding:4px 10px;
+        border-radius:20px;
+        font-size:10px;
+        font-weight:700;
+        box-shadow:0 4px 12px rgba(239,68,68,0.3);
+    }
+    .modal-footer{
+        padding:16px 20px;
+        border-top:1px solid var(--border-light);
+        display:flex;
+        gap:12px;
+        background:var(--bg-body);
+        flex-shrink:0;
+    }
+    .modal-btn{
+        flex:1;
+        padding:12px;
+        border-radius:var(--radius-md);
+        font-size:14px;
+        font-weight:600;
+        cursor:pointer;
+        transition:var(--transition-base);
+        border:none;
+        position:relative;
+        overflow:hidden;
+    }
+    .modal-btn::before{
+        content:'';
+        position:absolute;
+        inset:0;
+        background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);
+        transform:translateX(-100%);
+        transition:0.6s;
+    }
+    .modal-btn:hover::before{
+        transform:translateX(100%);
+    }
+    .modal-btn:active{
+        transform:scale(0.97);
+    }
+    .confirm-btn{
+        background:var(--primary);
+        color:white;
+        box-shadow:0 4px 16px var(--primary-glow);
+    }
+    .confirm-btn:hover{
+        background:var(--primary-light);
+        transform:translateY(-2px);
+        box-shadow:0 8px 28px rgba(255,106,0,0.35);
+    }
+    .confirm-btn:disabled{
+        opacity:0.5;
+        cursor:not-allowed;
+        transform:none;
+        filter:grayscale(1);
+    }
+    .cancel-btn{
+        background:white;
+        color:var(--text-secondary);
+        border:2px solid var(--border-light);
+    }
+    .cancel-btn:hover{
+        background:var(--bg-body);
+        border-color:var(--text-muted);
+        color:var(--text-primary);
+    }
+
+    /* Toast Notifications */
+    .toast-container{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:12px;pointer-events:none;}
+    .toast{padding:16px 24px;border-radius:50px;color:white;font-size:14px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,0.2);animation:toastSlideUp 0.4s var(--transition-bounce);pointer-events:auto;min-width:280px;justify-content:center;font-weight:600;}
+    .toast.error{background:var(--error);box-shadow:0 8px 32px rgba(239,68,68,0.3);}
+    .toast.success{background:var(--success);box-shadow:0 8px 32px rgba(34,197,94,0.3);}
+    .toast.info{background:var(--info);box-shadow:0 8px 32px rgba(59,130,246,0.3);}
+    @keyframes toastSlideUp{0%{transform:translateX(-50%) translateY(100px) scale(0.8);opacity:0;}70%{transform:translateX(-50%) translateY(-10px) scale(1.02);}100%{transform:translateX(-50%) translateY(0) scale(1);opacity:1;}}
+    .toast.removing{animation:toastSlideDown 0.3s forwards;}
+    @keyframes toastSlideDown{to{transform:translateX(-50%) translateY(100px) scale(0.8);opacity:0;}}
+
+    /* Loading */
+    .loading{text-align:center;padding:48px 24px;color:var(--text-muted);background:var(--bg-card);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);}
+    .loading i{font-size:36px;color:var(--primary);animation:spin 1s linear infinite;margin-bottom:16px;display:block;}
+    .loading p{font-size:15px;font-weight:500;}
 </style>
 </head>
 
@@ -460,7 +880,7 @@ body{background:var(--bg-body);min-height:100vh;-webkit-font-smoothing:antialias
     </div>
 </div>
 
-<!-- Verification Overlay -->
+<!-- Verification Overlay - FIXED FOR MOBILE -->
 <div class="verification-overlay" id="verification-overlay">
     <div class="verification-modal">
         <div class="modal-header">
@@ -519,6 +939,7 @@ body{background:var(--bg-body);min-height:100vh;-webkit-font-smoothing:antialias
         </div>
     </div>
 </div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -1261,5 +1682,73 @@ document.addEventListener('keydown', (e) => {
     }
 });
 </script>
+
+<style>
+/* Mobile Optimizations - Enhanced for Verification Modal */
+@media(max-width:480px){
+    .header-content{padding:12px 16px;}
+    .profile-container{padding:20px 16px 32px;}
+    .profile-card{padding:24px 20px;margin-bottom:24px;border-radius:var(--radius-lg);}
+    .profile-header{flex-direction:column;text-align:center;gap:20px;}
+    .profile-avatar{width:120px;height:120px;}
+    .profile-avatar-container.own-profile .avatar-upload-overlay{padding-bottom:20px;}
+    .profile-info{width:100%;padding-top:0;}
+    .profile-name{font-size:24px;justify-content:center;}
+    .profile-username{font-size:13px;}
+    .profile-bio{font-size:14px;}
+    .profile-stats{gap:12px;margin:24px 0;padding:20px 0;}
+    .profile-stats::before,.profile-stats::after{display:none;}
+    .stat{padding:10px 6px;}
+    .stat-num{font-size:20px;}
+    .stat-label{font-size:10px;}
+    .profile-actions{flex-direction:column;gap:10px;}
+    .action-btn{width:100%;padding:16px;}
+    .tabs{margin-bottom:24px;padding:5px;}
+    .tab{padding:12px 10px;font-size:13px;}
+    .posts-grid{grid-template-columns:repeat(2,1fr);gap:10px;}
+    .post-thumb{border-radius:var(--radius-sm);}
+    .post-thumb-overlay{padding:12px;}
+    .post-stats-overlay{gap:12px;font-size:12px;}
+    .empty-state{padding:48px 24px;}
+    .empty-icon{font-size:48px;}
+    .empty-title{font-size:18px;}
+    .upload-modal{border-radius:var(--radius-lg);}
+    .upload-preview,.upload-placeholder{width:140px;height:140px;}
+    .upload-modal-header{padding:24px 20px;}
+    .upload-modal-body{padding:24px 20px;}
+    .toast{min-width:260px;padding:14px 20px;font-size:13px;}
+    
+    /* FIXED: Verification Modal Mobile Styles */
+    .verification-overlay{padding:10px;align-items:flex-start;}
+    .verification-modal{max-height:calc(100vh - 20px);border-radius:var(--radius-lg);}
+    .modal-header{padding:20px 16px;}
+    .modal-header h2{font-size:18px;}
+    .modal-header p{font-size:12px;}
+    .modal-body{padding:16px;}
+    .badge-card{padding:16px;}
+    .badge-icon{width:40px;height:40px;font-size:18px;}
+    .badge-title{font-size:15px;}
+    .badge-price{font-size:22px;}
+    .badge-requirements{padding:10px;font-size:11px;}
+    .requirement-item{gap:6px;margin-bottom:4px;}
+    .eligible-badge,.not-eligible-badge{padding:3px 8px;font-size:9px;top:10px;right:10px;}
+    .modal-footer{padding:12px 16px;}
+    .modal-btn{padding:12px;font-size:13px;}
+}
+
+@media(min-width:481px) and (max-width:600px){
+    .profile-avatar{width:100px;height:100px;}
+    .profile-name{font-size:22px;}
+    .posts-grid{grid-template-columns:repeat(3,1fr);}
+}
+
+/* Safe area for notched phones */
+@supports(padding:max(0px)){
+    .header{padding-top:max(16px,env(safe-area-inset-top));}
+    .profile-container{padding-bottom:max(32px,env(safe-area-inset-bottom));padding-left:max(20px,env(safe-area-inset-left));padding-right:max(20px,env(safe-area-inset-right));}
+    .toast-container{bottom:max(24px,env(safe-area-inset-bottom));}
+    .verification-overlay{padding-top:max(20px,env(safe-area-inset-top));padding-bottom:max(20px,env(safe-area-inset-bottom));}
+}
+</style>
 </body>
 </html>
