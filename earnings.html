@@ -162,7 +162,7 @@ body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;overflow-x:hidd
 /* Naira Equiv */
 .naira-eqv{text-align:right;font-size:14px;color:#64748b;margin-top:8px;font-weight:500;}
 .naira-eqv span{color:#ff6a00;font-weight:700;font-size:16px;}
-.tax-note{font-size:12px;color:#ef4444;margin-top:4px;text-align:right;}
+.tax-note{font-size:12px;color:#ef4444;margin-top:4px;text-align:right;font-weight:600;}
 
 /* Submit Button */
 .btn-primary{width:100%;background:linear-gradient(135deg,#ff6a00,#e55d00);color:white;border:none;padding:16px;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;transition:0.3s;margin-top:10px;}
@@ -171,6 +171,11 @@ body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;overflow-x:hidd
 
 /* Address Display */
 .address-display{background:#f8fafc;border:2px solid #e2e8f0;border-radius:12px;padding:15px;margin-top:10px;word-break:break-all;font-family:monospace;font-size:13px;color:#334155;}
+
+/* Fee Info Box */
+.fee-info-box{background:#fef2f2;border:2px solid #fecaca;border-radius:12px;padding:15px;margin-bottom:20px;text-align:center;}
+.fee-info-box .label{font-size:12px;color:#991b1b;margin-bottom:5px;font-weight:600;}
+.fee-info-box .value{font-size:18px;font-weight:700;color:#dc2626;}
 
 /* Toast */
 .toast{position:fixed;bottom:-100px;left:50%;transform:translateX(-50%);background:#1e2937;color:white;padding:14px 24px;border-radius:99px;font-size:14px;font-weight:500;transition:0.4s;z-index:10000;display:flex;align-items:center;gap:10px;}
@@ -315,7 +320,11 @@ body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;overflow-x:hidd
         <div class="overlay-title">Withdraw Funds</div>
     </div>
     <div class="overlay-content">
-        <p style="color:#64748b; margin-bottom:20px;">Select how you want to receive your funds. Minimum withdrawal is $1.00. A 5% processing tax applies to all withdrawals.</p>
+        <div class="fee-info-box">
+            <div class="label">Withdrawal Fee</div>
+            <div class="value">10% Processing Fee Applies</div>
+        </div>
+        <p style="color:#64748b; margin-bottom:20px;">Select how you want to receive your funds. Minimum withdrawal is <strong>$1.00</strong>.</p>
 
         <button class="channel-btn" onclick="selectBank()">
             <div class="channel-left">
@@ -348,12 +357,17 @@ body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;overflow-x:hidd
         <div class="overlay-title">Bank Details</div>
     </div>
     <div class="overlay-content">
+        <div class="fee-info-box">
+            <div class="label">10% Fee Deducted</div>
+            <div class="value" style="font-size:16px;">You receive 90% of amount</div>
+        </div>
+
         <div style="background:#fff7ed; padding:15px; border-radius:12px; margin-bottom:20px; border-left:4px solid #ff6a00;">
             <strong style="color:#9a3412;">Available Balance: <span id="formAvailBalance">$0.00</span></strong>
         </div>
 
         <div class="input-group">
-            <label class="input-label">Amount to Withdraw (USD)</label>
+            <label class="input-label">Amount to Withdraw (USD) - Min $1</label>
             <div class="amount-wrapper">
                 <span>$</span>
                 <input type="number" id="wdAmount" class="form-input amount-input" placeholder="0.00" min="1" step="0.01">
@@ -362,7 +376,7 @@ body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;overflow-x:hidd
                 You will receive: <span id="wdNairaOutput">₦0</span>
             </div>
             <div class="tax-note">
-                <i class="fas fa-info-circle"></i> 5% processing tax will be deducted
+                <i class="fas fa-exclamation-circle"></i> 10% fee deducted (Min withdrawal: $1.00)
             </div>
         </div>
 
@@ -392,6 +406,11 @@ body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;overflow-x:hidd
         <div class="overlay-title">Select Cryptocurrency</div>
     </div>
     <div class="overlay-content">
+        <div class="fee-info-box">
+            <div class="label">10% Fee Applies</div>
+            <div class="value" style="font-size:16px;">Minimum withdrawal: $1.00</div>
+        </div>
+
         <div class="rate-info">
             <div class="label">Live Crypto Rates (USD)</div>
             <div class="value" id="cryptoRatesSummary">Loading...</div>
@@ -470,6 +489,11 @@ body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;overflow-x:hidd
         <div class="overlay-title" id="cryptoFormTitle">Withdraw Crypto</div>
     </div>
     <div class="overlay-content">
+        <div class="fee-info-box">
+            <div class="label">10% Fee Deducted</div>
+            <div class="value" style="font-size:16px;">You receive 90% of USD value</div>
+        </div>
+
         <div class="rate-info">
             <div class="label">Current Rate</div>
             <div class="value" id="selectedCryptoRate">Loading...</div>
@@ -481,7 +505,7 @@ body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;overflow-x:hidd
 
         <!-- Amount Input -->
         <div class="input-group">
-            <label class="input-label">Amount to Withdraw (USD)</label>
+            <label class="input-label">Amount to Withdraw (USD) - Min $1</label>
             <div class="amount-wrapper">
                 <span>$</span>
                 <input type="number" id="cryptoWdAmount" class="form-input amount-input" placeholder="0.00" min="1" step="0.01">
@@ -491,7 +515,7 @@ body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;overflow-x:hidd
                 <div class="value" id="cryptoAmountOutput">0.00000000 <span id="cryptoSymbol">USDT</span></div>
             </div>
             <div class="tax-note">
-                <i class="fas fa-info-circle"></i> 5% processing tax will be deducted from USD amount
+                <i class="fas fa-exclamation-circle"></i> 10% fee deducted (Min: $1.00)
             </div>
         </div>
 
@@ -546,7 +570,9 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 const RATE = 1300;
-const TAX_RATE = 0.05; // 5% tax
+const FEE_RATE = 0.10; // 10% fee
+const MIN_WITHDRAWAL = 1.00; // $1 minimum
+
 let currentUser = null;
 let balance = 0;
 
@@ -597,7 +623,7 @@ onAuthStateChanged(auth, async (user) => {
     listenToRateChanges();
 });
 
-// Fetch crypto rates from Firestore (same as deposit page)
+// Fetch crypto rates from Firestore
 async function fetchCryptoRates() {
     try {
         const cryptoDoc = await getDoc(doc(db, "settings", "cryptoRates"));
@@ -631,7 +657,6 @@ function listenToRateChanges() {
                 TON: data.TON || 5.50
             };
             updateCryptoRateDisplays();
-            // Recalculate if amount entered
             const cryptoInput = document.getElementById('cryptoWdAmount');
             if (cryptoInput && cryptoInput.value) {
                 calculateCryptoWithdrawal();
@@ -642,12 +667,10 @@ function listenToRateChanges() {
 
 // Update all crypto rate displays
 function updateCryptoRateDisplays() {
-    // Summary in selection overlay
     document.getElementById('cryptoRatesSummary').innerHTML = 
         `USDT: $${currentRates.USDT} | TRX: $${currentRates.TRX}<br>` +
         `ETH: $${currentRates.ETH} | BTC: $${currentRates.BTC} | TON: $${currentRates.TON}`;
     
-    // Individual crypto rates
     document.getElementById('usdtRateText').innerText = `1 USDT = $${currentRates.USDT.toFixed(2)}`;
     document.getElementById('trxRateText').innerText = `1 TRX = $${currentRates.TRX.toFixed(4)}`;
     document.getElementById('ethRateText').innerText = `1 ETH = $${currentRates.ETH.toFixed(2)}`;
@@ -665,7 +688,7 @@ window.showToast = (msg) => {
 
 // Overlay Helpers
 window.openWithdrawOverlay = () => {
-    if(balance < 1) return showToast("Minimum withdrawal is $1.00.");
+    if(balance < MIN_WITHDRAWAL) return showToast(`Minimum withdrawal is $${MIN_WITHDRAWAL.toFixed(2)}.`);
     document.getElementById('overlayMethod').classList.add('active');
 };
 window.closeOverlay = (id) => document.getElementById(id).classList.remove('active');
@@ -674,7 +697,6 @@ window.closeOverlay = (id) => document.getElementById(id).classList.remove('acti
 window.selectBank = () => {
     document.getElementById('overlayMethod').classList.remove('active');
     document.getElementById('formAvailBalance').innerText = `$${balance.toFixed(2)}`;
-    document.getElementById('wdAmount').max = balance;
     document.getElementById('wdAmount').value = '';
     document.getElementById('wdNairaOutput').innerText = '₦0';
     document.getElementById('overlayForm').classList.add('active');
@@ -731,17 +753,17 @@ function selectNetwork(network, btnElement) {
     btnElement.classList.add('active');
 }
 
-// Calculate crypto amount based on USD input
+// Calculate crypto amount based on USD input (with 10% fee)
 function calculateCryptoWithdrawal() {
     const usd = parseFloat(document.getElementById('cryptoWdAmount').value) || 0;
-    if (usd < 1) {
+    if (usd < MIN_WITHDRAWAL) {
         document.getElementById('cryptoAmountOutput').innerText = `0.00000000 ${selectedCrypto}`;
         return;
     }
     
-    // Apply 5% tax
-    const tax = usd * TAX_RATE;
-    const netUsd = usd - tax;
+    // Apply 10% fee
+    const fee = usd * FEE_RATE;
+    const netUsd = usd - fee;
     
     // Convert to crypto amount
     const rate = currentRates[selectedCrypto];
@@ -756,7 +778,7 @@ function calculateCryptoWithdrawal() {
     
     document.getElementById('cryptoAmountOutput').innerHTML = 
         `${cryptoAmount.toFixed(decimals)} <span id="cryptoSymbol">${selectedCrypto}</span><br>` +
-        `<small style="color:#64748b;font-size:12px;">Net: $${netUsd.toFixed(2)} after $${tax.toFixed(2)} tax</small>`;
+        `<small style="color:#64748b;font-size:12px;">Net: $${netUsd.toFixed(2)} after $${fee.toFixed(2)} fee (10%)</small>`;
 }
 
 document.getElementById('cryptoWdAmount').addEventListener('input', calculateCryptoWithdrawal);
@@ -769,8 +791,8 @@ window.submitCryptoWithdrawal = async () => {
     const btn = document.getElementById('submitCryptoWdBtn');
     
     // Validation
-    if (!usdAmount || usdAmount < 1) {
-        return showToast("Minimum withdrawal is $1.00.");
+    if (!usdAmount || usdAmount < MIN_WITHDRAWAL) {
+        return showToast(`Minimum withdrawal is $${MIN_WITHDRAWAL.toFixed(2)}.`);
     }
     if (usdAmount > balance) {
         return showToast("Insufficient available balance.");
@@ -789,9 +811,9 @@ window.submitCryptoWithdrawal = async () => {
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
     
     try {
-        // Calculate amounts
-        const tax = usdAmount * TAX_RATE;
-        const netUsd = usdAmount - tax;
+        // Calculate amounts with 10% fee
+        const fee = usdAmount * FEE_RATE;
+        const netUsd = usdAmount - fee;
         const rate = currentRates[selectedCrypto];
         const cryptoAmount = netUsd / rate;
         
@@ -802,7 +824,8 @@ window.submitCryptoWithdrawal = async () => {
             email: currentUser.email,
             amount: usdAmount,
             netAmount: netUsd,
-            taxAmount: tax,
+            feeAmount: fee,
+            feeRate: FEE_RATE,
             method: "crypto",
             cryptoType: selectedCrypto,
             cryptoAmount: cryptoAmount,
@@ -819,7 +842,7 @@ window.submitCryptoWithdrawal = async () => {
             balance: increment(-usdAmount)
         });
         
-        showToast(`Crypto withdrawal submitted! You will receive ${cryptoAmount.toFixed(6)} ${selectedCrypto} on ${selectedNetwork} network.`);
+        showToast(`Crypto withdrawal submitted! You will receive ${cryptoAmount.toFixed(6)} ${selectedCrypto} (10% fee deducted).`);
         
         // Reset and close
         document.getElementById('cryptoWdAmount').value = '';
@@ -858,20 +881,20 @@ function validateCryptoAddress(crypto, address) {
     }
 }
 
-// Real-time Naira Converter for Bank Withdrawal (with 5% tax deduction)
+// Real-time Naira Converter for Bank Withdrawal (with 10% fee)
 document.getElementById('wdAmount').addEventListener('input', function(e) {
     const usd = parseFloat(this.value) || 0;
-    if (usd < 1) {
-        document.getElementById('wdNairaOutput').innerText = '₦0';
+    if (usd < MIN_WITHDRAWAL) {
+        document.getElementById('wdNairaOutput').innerText = `Minimum $${MIN_WITHDRAWAL.toFixed(2)} required`;
         return;
     }
     
-    const tax = usd * TAX_RATE;
-    const netUsd = usd - tax;
+    const fee = usd * FEE_RATE;
+    const netUsd = usd - fee;
     const netNaira = netUsd * RATE;
     
     document.getElementById('wdNairaOutput').innerText = 
-        `₦${netNaira.toLocaleString()} (Net: $${netUsd.toFixed(2)} after $${tax.toFixed(2)} tax)`;
+        `₦${netNaira.toLocaleString()} (Net: $${netUsd.toFixed(2)} after $${fee.toFixed(2)} fee)`;
 });
 
 // Load User Balance
@@ -882,10 +905,10 @@ function loadUserBalance() {
             document.getElementById('total-balance').textContent = `$${balance.toFixed(2)}`;
             
             const withdrawBtn = document.getElementById('withdraw-btn');
-            withdrawBtn.disabled = balance < 1;
-            withdrawBtn.innerHTML = balance >= 1 
+            withdrawBtn.disabled = balance < MIN_WITHDRAWAL;
+            withdrawBtn.innerHTML = balance >= MIN_WITHDRAWAL 
                 ? `<i class="fas fa-building-columns"></i> Withdraw $${balance.toFixed(2)}` 
-                : `<i class="fas fa-building-columns"></i> Min. $1 (Need $${(1 - balance).toFixed(2)})`;
+                : `<i class="fas fa-building-columns"></i> Min. $${MIN_WITHDRAWAL} (Need $${(MIN_WITHDRAWAL - balance).toFixed(2)})`;
         }
     });
 }
@@ -905,7 +928,7 @@ function sortDocs(docs) {
     });
 }
 
-// 1. DEPOSITS - UPDATED TO SHOW CORRECT METHOD
+// 1. DEPOSITS
 function loadDeposits() {
     const q = query(collection(db, "transactions"), where("userId", "==", currentUser.uid));
     onSnapshot(q, (snapshot) => {
@@ -945,7 +968,7 @@ function loadDeposits() {
     });
 }
 
-// 2. WITHDRAWALS (FIXED: Properly handles "rejected" status and includes crypto)
+// 2. WITHDRAWALS (includes crypto)
 function loadWithdrawals() {
     const q = query(collection(db, "withdrawals"), where("userId", "==", currentUser.uid));
     onSnapshot(q, (snapshot) => {
@@ -974,7 +997,6 @@ function loadWithdrawals() {
             if (stat === 'completed') tWithdrawn += amt;
             else if (stat === 'pending') pAmount += amt;
 
-            // Determine icon and method display
             const isCrypto = data.method === "crypto";
             const methodIcon = isCrypto ? '<i class="fab fa-bitcoin"></i>' : '<i class="fas fa-building-columns"></i>';
             const methodTitle = isCrypto 
@@ -1079,7 +1101,7 @@ function loadRevenue() {
     });
 }
 
-// Bank Form Submission Logic
+// Bank Form Submission Logic (with 10% fee)
 window.submitWithdrawal = async () => {
     const amt = parseFloat(document.getElementById('wdAmount').value);
     const bName = document.getElementById('wdBankName').value.trim();
@@ -1087,7 +1109,7 @@ window.submitWithdrawal = async () => {
     const aName = document.getElementById('wdAccName').value.trim();
     const btn = document.getElementById('submitWdBtn');
 
-    if(!amt || amt < 1) return showToast("Minimum withdrawal is $1.00.");
+    if(!amt || amt < MIN_WITHDRAWAL) return showToast(`Minimum withdrawal is $${MIN_WITHDRAWAL.toFixed(2)}.`);
     if(amt > balance) return showToast("Insufficient available balance.");
     if(!bName || !aNo || !aName) return showToast("Please fill in all bank details.");
 
@@ -1095,14 +1117,15 @@ window.submitWithdrawal = async () => {
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
 
     try {
-        const tax = amt * TAX_RATE;
-        const netAmt = amt - tax;
+        const fee = amt * FEE_RATE;
+        const netAmt = amt - fee;
 
         await addDoc(collection(db, "withdrawals"), {
             userId: currentUser.uid,
             username: currentUser.email.split('@')[0],
             amount: amt,
-            taxAmount: tax,
+            feeAmount: fee,
+            feeRate: FEE_RATE,
             netAmount: netAmt,
             method: `${bName} | Acc: ${aNo} | Name: ${aName}`,
             status: 'pending',
@@ -1114,7 +1137,7 @@ window.submitWithdrawal = async () => {
             balance: increment(-amt)
         });
 
-        showToast("Withdrawal Request Submitted Successfully! 5% tax has been deducted from your payout.");
+        showToast(`Withdrawal submitted! 10% fee ($${fee.toFixed(2)}) deducted. You receive $${netAmt.toFixed(2)}.`);
         
         document.getElementById('wdAmount').value = '';
         document.getElementById('wdBankName').value = '';
