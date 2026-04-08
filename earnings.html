@@ -122,6 +122,23 @@ body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;overflow-x:hidd
 .channel-text h3{font-size:16px;font-weight:600;color:#1e2937;}
 .channel-text span{font-size:13px;color:#64748b;}
 
+/* Crypto Option Buttons */
+.crypto-option{width:100%;background:white;border:2px solid #e2e8f0;border-radius:16px;padding:20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:15px;transition:0.3s;text-align:left;}
+.crypto-option:hover{border-color:#ff6a00;transform:translateY(-2px);box-shadow:0 10px 20px rgba(255,106,0,0.1);}
+.crypto-icon{width:45px;height:45px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;}
+.crypto-icon.trx{background:#ff060a;color:white;}
+.crypto-icon.usdt{background:#26a17b;color:white;}
+.crypto-icon.eth{background:#627eea;color:white;}
+.crypto-icon.btc{background:#f7931a;color:white;}
+.crypto-icon.ton{background:#0088cc;color:white;}
+.crypto-info h3{font-size:16px;font-weight:600;color:#1e2937;}
+.crypto-info span{font-size:13px;color:#64748b;}
+
+/* Rate Info Box */
+.rate-info{background:#f0fdf4;border:2px solid #86efac;border-radius:12px;padding:15px;margin-bottom:20px;text-align:center;}
+.rate-info .label{font-size:12px;color:#166534;margin-bottom:5px;}
+.rate-info .value{font-size:20px;font-weight:700;color:#15803d;}
+
 /* Form Inputs */
 .input-group{margin-bottom:20px;}
 .input-label{display:block;font-size:14px;font-weight:600;margin-bottom:8px;color:#334155;}
@@ -131,23 +148,33 @@ body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;overflow-x:hidd
 .amount-wrapper span{position:absolute;left:16px;font-size:18px;font-weight:600;color:#94a3b8;}
 .amount-input{padding-left:35px;font-weight:700;}
 
+/* Network Selector */
+.network-selector{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px;}
+.network-btn{background:white;border:2px solid #e2e8f0;border-radius:12px;padding:12px;text-align:center;cursor:pointer;transition:0.3s;font-size:13px;font-weight:600;}
+.network-btn:hover{border-color:#ff6a00;}
+.network-btn.active{background:#ff6a00;color:white;border-color:#ff6a00;}
+
+/* Crypto Calculation Display */
+.crypto-calc{background:#f8fafc;border-radius:12px;padding:15px;margin-top:10px;text-align:center;}
+.crypto-calc .label{font-size:12px;color:#64748b;}
+.crypto-calc .value{font-size:18px;font-weight:700;color:#1e2937;margin-top:5px;}
+
 /* Naira Equiv */
-.naira-eqv {text-align:right; font-size:14px; color:#64748b; margin-top:8px; font-weight:500;}
-.naira-eqv span {color:#ff6a00; font-weight:700; font-size:16px;}
-.tax-note {font-size:12px; color:#ef4444; margin-top:4px; text-align:right;}
+.naira-eqv{text-align:right;font-size:14px;color:#64748b;margin-top:8px;font-weight:500;}
+.naira-eqv span{color:#ff6a00;font-weight:700;font-size:16px;}
+.tax-note{font-size:12px;color:#ef4444;margin-top:4px;text-align:right;}
 
 /* Submit Button */
 .btn-primary{width:100%;background:linear-gradient(135deg,#ff6a00,#e55d00);color:white;border:none;padding:16px;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;transition:0.3s;margin-top:10px;}
 .btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(255,106,0,0.3);}
 .btn-primary:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
 
+/* Address Display */
+.address-display{background:#f8fafc;border:2px solid #e2e8f0;border-radius:12px;padding:15px;margin-top:10px;word-break:break-all;font-family:monospace;font-size:13px;color:#334155;}
+
 /* Toast */
-.toast {
-    position:fixed; bottom:-100px; left:50%; transform:translateX(-50%);
-    background:#1e2937; color:white; padding:14px 24px; border-radius:99px;
-    font-size:14px; font-weight:500; transition:0.4s; z-index:10000; display:flex; align-items:center; gap:10px;
-}
-.toast.show { bottom:30px; }
+.toast{position:fixed;bottom:-100px;left:50%;transform:translateX(-50%);background:#1e2937;color:white;padding:14px 24px;border-radius:99px;font-size:14px;font-weight:500;transition:0.4s;z-index:10000;display:flex;align-items:center;gap:10px;}
+.toast.show{bottom:30px;}
 
 /* Mobile Responsive */
 @media(max-width:900px){
@@ -162,8 +189,9 @@ body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;overflow-x:hidd
   .table-row{grid-template-columns:1fr;border:1px solid #e2e8f0;margin-bottom:12px;border-radius:12px;gap:10px;}
   .mobile-label{display:inline-block;font-weight:600;color:#64748b;margin-right:5px;width:70px;}
   .action-btn{width:100%;justify-content:center;}
+  .network-selector{grid-template-columns:1fr;}
 }
-@media(min-width:901px){ .mobile-label{display:none;} }
+@media(min-width:901px){.mobile-label{display:none;}}
 </style>
 </head>
 
@@ -305,7 +333,7 @@ body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;overflow-x:hidd
                 <div class="channel-icon icon-crypto"><i class="fab fa-bitcoin"></i></div>
                 <div class="channel-text">
                     <h3>Cryptocurrency</h3>
-                    <span>USDT, BTC, ETH</span>
+                    <span>USDT, BTC, ETH, TRX, TON</span>
                 </div>
             </div>
             <i class="fas fa-chevron-right" style="color:#cbd5e1;"></i>
@@ -357,15 +385,152 @@ body{background:#f5f6f8;min-height:100vh;padding:0;color:#1e2937;overflow-x:hidd
     </div>
 </div>
 
+<!-- CRYPTO WITHDRAWAL OVERLAY 1: Select Crypto -->
+<div class="page-overlay" id="overlayCryptoSelect">
+    <div class="overlay-header">
+        <button class="back-btn" onclick="closeOverlay('overlayCryptoSelect'); document.getElementById('overlayMethod').classList.add('active');"><i class="fas fa-arrow-left"></i></button>
+        <div class="overlay-title">Select Cryptocurrency</div>
+    </div>
+    <div class="overlay-content">
+        <div class="rate-info">
+            <div class="label">Live Crypto Rates (USD)</div>
+            <div class="value" id="cryptoRatesSummary">Loading...</div>
+        </div>
+
+        <div style="background:#fff7ed; padding:15px; border-radius:12px; margin-bottom:20px; border-left:4px solid #ff6a00;">
+            <strong style="color:#9a3412;">Available Balance: <span id="cryptoAvailBalance">$0.00</span></strong>
+        </div>
+
+        <!-- USDT -->
+        <button class="crypto-option" onclick="selectCryptoType('USDT')">
+            <div class="channel-left">
+                <div class="crypto-icon usdt">₮</div>
+                <div class="crypto-info">
+                    <h3>USDT (Tether)</h3>
+                    <span id="usdtRateText">1 USDT = $1.00</span>
+                </div>
+            </div>
+            <i class="fas fa-chevron-right" style="color:#cbd5e1;"></i>
+        </button>
+
+        <!-- TRX -->
+        <button class="crypto-option" onclick="selectCryptoType('TRX')">
+            <div class="channel-left">
+                <div class="crypto-icon trx">₮</div>
+                <div class="crypto-info">
+                    <h3>TRON (TRX)</h3>
+                    <span id="trxRateText">1 TRX = $0.00</span>
+                </div>
+            </div>
+            <i class="fas fa-chevron-right" style="color:#cbd5e1;"></i>
+        </button>
+
+        <!-- ETH -->
+        <button class="crypto-option" onclick="selectCryptoType('ETH')">
+            <div class="channel-left">
+                <div class="crypto-icon eth">Ξ</div>
+                <div class="crypto-info">
+                    <h3>Ethereum (ETH)</h3>
+                    <span id="ethRateText">1 ETH = $0.00</span>
+                </div>
+            </div>
+            <i class="fas fa-chevron-right" style="color:#cbd5e1;"></i>
+        </button>
+
+        <!-- BTC -->
+        <button class="crypto-option" onclick="selectCryptoType('BTC')">
+            <div class="channel-left">
+                <div class="crypto-icon btc">₿</div>
+                <div class="crypto-info">
+                    <h3>Bitcoin (BTC)</h3>
+                    <span id="btcRateText">1 BTC = $0.00</span>
+                </div>
+            </div>
+            <i class="fas fa-chevron-right" style="color:#cbd5e1;"></i>
+        </button>
+
+        <!-- TON -->
+        <button class="crypto-option" onclick="selectCryptoType('TON')">
+            <div class="channel-left">
+                <div class="crypto-icon ton">T</div>
+                <div class="crypto-info">
+                    <h3>TON (The Open Network)</h3>
+                    <span id="tonRateText">1 TON = $0.00</span>
+                </div>
+            </div>
+            <i class="fas fa-chevron-right" style="color:#cbd5e1;"></i>
+        </button>
+    </div>
+</div>
+
+<!-- CRYPTO WITHDRAWAL OVERLAY 2: Network & Address -->
+<div class="page-overlay" id="overlayCryptoForm">
+    <div class="overlay-header">
+        <button class="back-btn" onclick="closeOverlay('overlayCryptoForm'); document.getElementById('overlayCryptoSelect').classList.add('active');"><i class="fas fa-arrow-left"></i></button>
+        <div class="overlay-title" id="cryptoFormTitle">Withdraw Crypto</div>
+    </div>
+    <div class="overlay-content">
+        <div class="rate-info">
+            <div class="label">Current Rate</div>
+            <div class="value" id="selectedCryptoRate">Loading...</div>
+        </div>
+
+        <div style="background:#fff7ed; padding:15px; border-radius:12px; margin-bottom:20px; border-left:4px solid #ff6a00;">
+            <strong style="color:#9a3412;">Available Balance: <span id="cryptoFormBalance">$0.00</span></strong>
+        </div>
+
+        <!-- Amount Input -->
+        <div class="input-group">
+            <label class="input-label">Amount to Withdraw (USD)</label>
+            <div class="amount-wrapper">
+                <span>$</span>
+                <input type="number" id="cryptoWdAmount" class="form-input amount-input" placeholder="0.00" min="1" step="0.01">
+            </div>
+            <div class="crypto-calc">
+                <div class="label">You will receive:</div>
+                <div class="value" id="cryptoAmountOutput">0.00000000 <span id="cryptoSymbol">USDT</span></div>
+            </div>
+            <div class="tax-note">
+                <i class="fas fa-info-circle"></i> 5% processing tax will be deducted from USD amount
+            </div>
+        </div>
+
+        <!-- Network Selection -->
+        <div class="input-group">
+            <label class="input-label">Select Network</label>
+            <div class="network-selector" id="networkSelector">
+                <!-- Networks will be populated dynamically -->
+            </div>
+        </div>
+
+        <!-- Wallet Address -->
+        <div class="input-group">
+            <label class="input-label">Wallet Address</label>
+            <input type="text" id="cryptoWalletAddress" class="form-input" placeholder="Enter your wallet address">
+            <div style="font-size:12px;color:#64748b;margin-top:5px;">
+                <i class="fas fa-exclamation-triangle" style="color:#f59e0b;"></i> 
+                Double-check your address - wrong address = permanent loss
+            </div>
+        </div>
+
+        <!-- Confirm Address -->
+        <div class="input-group">
+            <label class="input-label">Confirm Wallet Address</label>
+            <input type="text" id="cryptoWalletAddressConfirm" class="form-input" placeholder="Re-enter wallet address">
+        </div>
+
+        <button class="btn-primary" id="submitCryptoWdBtn" onclick="submitCryptoWithdrawal()">Submit Crypto Withdrawal</button>
+    </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toastBox">
     <i class="fas fa-info-circle"></i> <span id="toastMsg">Message</span>
 </div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc, serverTimestamp, addDoc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc, serverTimestamp, addDoc, increment, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -385,6 +550,40 @@ const TAX_RATE = 0.05; // 5% tax
 let currentUser = null;
 let balance = 0;
 
+// Dynamic crypto rates from Firestore
+let currentRates = {
+    USDT: 1.00,
+    TRX: 0.12,
+    ETH: 3000,
+    BTC: 65000,
+    TON: 5.50
+};
+
+// Network configurations for each crypto
+const CRYPTO_NETWORKS = {
+    'USDT': [
+        { network: 'BEP20', name: 'BNB Smart Chain (BEP20)', fee: 'Low' },
+        { network: 'ERC20', name: 'Ethereum (ERC20)', fee: 'High' },
+        { network: 'TRC20', name: 'TRON (TRC20)', fee: 'Low' }
+    ],
+    'TRX': [
+        { network: 'TRC20', name: 'TRON (TRC20)', fee: 'Low' }
+    ],
+    'ETH': [
+        { network: 'ERC20', name: 'Ethereum (ERC20)', fee: 'High' },
+        { network: 'BEP20', name: 'BNB Smart Chain (BEP20)', fee: 'Low' }
+    ],
+    'BTC': [
+        { network: 'BTC', name: 'Bitcoin Network', fee: 'Medium' }
+    ],
+    'TON': [
+        { network: 'TON', name: 'The Open Network', fee: 'Low' }
+    ]
+};
+
+let selectedCrypto = '';
+let selectedNetwork = '';
+
 onAuthStateChanged(auth, async (user) => {
     if (!user) return window.location.href = "login.html";
     currentUser = user;
@@ -394,7 +593,67 @@ onAuthStateChanged(auth, async (user) => {
     loadWithdrawals();
     loadTips();
     loadRevenue();
+    fetchCryptoRates();
+    listenToRateChanges();
 });
+
+// Fetch crypto rates from Firestore (same as deposit page)
+async function fetchCryptoRates() {
+    try {
+        const cryptoDoc = await getDoc(doc(db, "settings", "cryptoRates"));
+        if (cryptoDoc.exists()) {
+            const data = cryptoDoc.data();
+            currentRates = {
+                USDT: data.USDT || 1.00,
+                TRX: data.TRX || 0.12,
+                ETH: data.ETH || 3000,
+                BTC: data.BTC || 65000,
+                TON: data.TON || 5.50
+            };
+        }
+        updateCryptoRateDisplays();
+    } catch (error) {
+        console.error("Error fetching rates:", error);
+        showToast("Using default rates");
+    }
+}
+
+// Listen for real-time rate changes
+function listenToRateChanges() {
+    onSnapshot(doc(db, "settings", "cryptoRates"), (doc) => {
+        if (doc.exists()) {
+            const data = doc.data();
+            currentRates = {
+                USDT: data.USDT || 1.00,
+                TRX: data.TRX || 0.12,
+                ETH: data.ETH || 3000,
+                BTC: data.BTC || 65000,
+                TON: data.TON || 5.50
+            };
+            updateCryptoRateDisplays();
+            // Recalculate if amount entered
+            const cryptoInput = document.getElementById('cryptoWdAmount');
+            if (cryptoInput && cryptoInput.value) {
+                calculateCryptoWithdrawal();
+            }
+        }
+    });
+}
+
+// Update all crypto rate displays
+function updateCryptoRateDisplays() {
+    // Summary in selection overlay
+    document.getElementById('cryptoRatesSummary').innerHTML = 
+        `USDT: $${currentRates.USDT} | TRX: $${currentRates.TRX}<br>` +
+        `ETH: $${currentRates.ETH} | BTC: $${currentRates.BTC} | TON: $${currentRates.TON}`;
+    
+    // Individual crypto rates
+    document.getElementById('usdtRateText').innerText = `1 USDT = $${currentRates.USDT.toFixed(2)}`;
+    document.getElementById('trxRateText').innerText = `1 TRX = $${currentRates.TRX.toFixed(4)}`;
+    document.getElementById('ethRateText').innerText = `1 ETH = $${currentRates.ETH.toFixed(2)}`;
+    document.getElementById('btcRateText').innerText = `1 BTC = $${currentRates.BTC.toFixed(2)}`;
+    document.getElementById('tonRateText').innerText = `1 TON = $${currentRates.TON.toFixed(2)}`;
+}
 
 // Toast Helper
 window.showToast = (msg) => {
@@ -411,17 +670,195 @@ window.openWithdrawOverlay = () => {
 };
 window.closeOverlay = (id) => document.getElementById(id).classList.remove('active');
 
-window.selectCrypto = () => showToast("This withdrawal channel is temporarily unavailable.");
+// Bank Withdrawal
 window.selectBank = () => {
     document.getElementById('overlayMethod').classList.remove('active');
     document.getElementById('formAvailBalance').innerText = `$${balance.toFixed(2)}`;
     document.getElementById('wdAmount').max = balance;
-    document.getElementById('wdAmount').value = ''; // reset on open
+    document.getElementById('wdAmount').value = '';
     document.getElementById('wdNairaOutput').innerText = '₦0';
     document.getElementById('overlayForm').classList.add('active');
 };
 
-// Real-time Naira Converter for Withdrawal Amount (with 5% tax deduction)
+// Crypto Withdrawal - Step 1: Select Crypto Type
+window.selectCrypto = () => {
+    document.getElementById('overlayMethod').classList.remove('active');
+    document.getElementById('cryptoAvailBalance').innerText = `$${balance.toFixed(2)}`;
+    document.getElementById('overlayCryptoSelect').classList.add('active');
+};
+
+// Crypto Withdrawal - Step 2: Select Network & Enter Details
+window.selectCryptoType = (crypto) => {
+    selectedCrypto = crypto;
+    const rate = currentRates[crypto];
+    const symbol = crypto === 'USDT' ? '₮' : crypto === 'ETH' ? 'Ξ' : crypto === 'BTC' ? '₿' : crypto === 'TON' ? 'T' : '₮';
+    
+    document.getElementById('cryptoFormTitle').innerText = `Withdraw ${crypto}`;
+    document.getElementById('selectedCryptoRate').innerText = `1 ${crypto} = $${rate.toFixed(rate < 1 ? 4 : 2)}`;
+    document.getElementById('cryptoFormBalance').innerText = `$${balance.toFixed(2)}`;
+    document.getElementById('cryptoSymbol').innerText = crypto;
+    document.getElementById('cryptoWdAmount').value = '';
+    document.getElementById('cryptoAmountOutput').innerText = `0.00000000 ${crypto}`;
+    document.getElementById('cryptoWalletAddress').value = '';
+    document.getElementById('cryptoWalletAddressConfirm').value = '';
+    
+    // Populate network selector
+    const networks = CRYPTO_NETWORKS[crypto];
+    const selector = document.getElementById('networkSelector');
+    selector.innerHTML = '';
+    
+    networks.forEach((net, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'network-btn';
+        btn.innerHTML = `${net.name}<br><small style="opacity:0.7">Fee: ${net.fee}</small>`;
+        btn.onclick = () => selectNetwork(net.network, btn);
+        if (index === 0) {
+            btn.classList.add('active');
+            selectedNetwork = net.network;
+        }
+        selector.appendChild(btn);
+    });
+    
+    closeOverlay('overlayCryptoSelect');
+    setTimeout(() => {
+        document.getElementById('overlayCryptoForm').classList.add('active');
+    }, 300);
+};
+
+function selectNetwork(network, btnElement) {
+    selectedNetwork = network;
+    document.querySelectorAll('.network-btn').forEach(b => b.classList.remove('active'));
+    btnElement.classList.add('active');
+}
+
+// Calculate crypto amount based on USD input
+function calculateCryptoWithdrawal() {
+    const usd = parseFloat(document.getElementById('cryptoWdAmount').value) || 0;
+    if (usd < 1) {
+        document.getElementById('cryptoAmountOutput').innerText = `0.00000000 ${selectedCrypto}`;
+        return;
+    }
+    
+    // Apply 5% tax
+    const tax = usd * TAX_RATE;
+    const netUsd = usd - tax;
+    
+    // Convert to crypto amount
+    const rate = currentRates[selectedCrypto];
+    const cryptoAmount = netUsd / rate;
+    
+    // Format based on crypto value
+    let decimals = 8;
+    if (selectedCrypto === 'USDT') decimals = 2;
+    else if (selectedCrypto === 'ETH' || selectedCrypto === 'BTC') decimals = 8;
+    else if (selectedCrypto === 'TRX') decimals = 6;
+    else if (selectedCrypto === 'TON') decimals = 4;
+    
+    document.getElementById('cryptoAmountOutput').innerHTML = 
+        `${cryptoAmount.toFixed(decimals)} <span id="cryptoSymbol">${selectedCrypto}</span><br>` +
+        `<small style="color:#64748b;font-size:12px;">Net: $${netUsd.toFixed(2)} after $${tax.toFixed(2)} tax</small>`;
+}
+
+document.getElementById('cryptoWdAmount').addEventListener('input', calculateCryptoWithdrawal);
+
+// Submit Crypto Withdrawal
+window.submitCryptoWithdrawal = async () => {
+    const usdAmount = parseFloat(document.getElementById('cryptoWdAmount').value);
+    const walletAddress = document.getElementById('cryptoWalletAddress').value.trim();
+    const walletAddressConfirm = document.getElementById('cryptoWalletAddressConfirm').value.trim();
+    const btn = document.getElementById('submitCryptoWdBtn');
+    
+    // Validation
+    if (!usdAmount || usdAmount < 1) {
+        return showToast("Minimum withdrawal is $1.00.");
+    }
+    if (usdAmount > balance) {
+        return showToast("Insufficient available balance.");
+    }
+    if (!walletAddress) {
+        return showToast("Please enter wallet address.");
+    }
+    if (walletAddress !== walletAddressConfirm) {
+        return showToast("Wallet addresses do not match.");
+    }
+    if (!validateCryptoAddress(selectedCrypto, walletAddress)) {
+        return showToast(`Invalid ${selectedCrypto} address format.`);
+    }
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    
+    try {
+        // Calculate amounts
+        const tax = usdAmount * TAX_RATE;
+        const netUsd = usdAmount - tax;
+        const rate = currentRates[selectedCrypto];
+        const cryptoAmount = netUsd / rate;
+        
+        // Create withdrawal request
+        await addDoc(collection(db, "withdrawals"), {
+            userId: currentUser.uid,
+            username: currentUser.email.split('@')[0],
+            email: currentUser.email,
+            amount: usdAmount,
+            netAmount: netUsd,
+            taxAmount: tax,
+            method: "crypto",
+            cryptoType: selectedCrypto,
+            cryptoAmount: cryptoAmount,
+            cryptoRate: rate,
+            network: selectedNetwork,
+            walletAddress: walletAddress,
+            status: 'pending',
+            paid: false,
+            timestamp: serverTimestamp()
+        });
+        
+        // Deduct from balance
+        await updateDoc(doc(db, "users", currentUser.uid), {
+            balance: increment(-usdAmount)
+        });
+        
+        showToast(`Crypto withdrawal submitted! You will receive ${cryptoAmount.toFixed(6)} ${selectedCrypto} on ${selectedNetwork} network.`);
+        
+        // Reset and close
+        document.getElementById('cryptoWdAmount').value = '';
+        document.getElementById('cryptoWalletAddress').value = '';
+        document.getElementById('cryptoWalletAddressConfirm').value = '';
+        document.getElementById('cryptoAmountOutput').innerText = `0.00000000 ${selectedCrypto}`;
+        
+        btn.disabled = false;
+        btn.innerHTML = 'Submit Crypto Withdrawal';
+        closeOverlay('overlayCryptoForm');
+        
+    } catch (e) {
+        console.error("Submit Error: ", e);
+        showToast("Failed to submit request. Please try again.");
+        btn.disabled = false;
+        btn.innerHTML = 'Submit Crypto Withdrawal';
+    }
+};
+
+// Basic crypto address validation
+function validateCryptoAddress(crypto, address) {
+    if (!address || address.length < 10) return false;
+    
+    switch(crypto) {
+        case 'BTC':
+            return /^(1|3|bc1)[a-zA-Z0-9]{25,62}$/.test(address);
+        case 'ETH':
+        case 'USDT':
+            return /^0x[a-fA-F0-9]{40}$/.test(address);
+        case 'TRX':
+            return /^T[a-zA-F0-9]{33}$/.test(address);
+        case 'TON':
+            return /^(EQ|UQ)[a-zA-F0-9]{46}$/.test(address);
+        default:
+            return true;
+    }
+}
+
+// Real-time Naira Converter for Bank Withdrawal (with 5% tax deduction)
 document.getElementById('wdAmount').addEventListener('input', function(e) {
     const usd = parseFloat(this.value) || 0;
     if (usd < 1) {
@@ -429,16 +866,13 @@ document.getElementById('wdAmount').addEventListener('input', function(e) {
         return;
     }
     
-    // Calculate net amount after 5% tax
     const tax = usd * TAX_RATE;
     const netUsd = usd - tax;
     const netNaira = netUsd * RATE;
     
-    // Display both net USD and converted naira with clear tax info
     document.getElementById('wdNairaOutput').innerText = 
         `₦${netNaira.toLocaleString()} (Net: $${netUsd.toFixed(2)} after $${tax.toFixed(2)} tax)`;
 });
-
 
 // Load User Balance
 function loadUserBalance() {
@@ -488,7 +922,6 @@ function loadDeposits() {
             const data = doc.data();
             const statClass = data.status === 'completed' ? 'completed' : 'pending';
             
-            // Determine deposit method - check for crypto method
             const isCrypto = data.method === "crypto";
             const methodLabel = isCrypto ? (data.cryptoType || 'Crypto') : 'Bank Transfer';
             const iconClass = isCrypto ? 'crypto' : 'deposit';
@@ -512,7 +945,7 @@ function loadDeposits() {
     });
 }
 
-// 2. WITHDRAWALS (FIXED: Properly handles "rejected" status)
+// 2. WITHDRAWALS (FIXED: Properly handles "rejected" status and includes crypto)
 function loadWithdrawals() {
     const q = query(collection(db, "withdrawals"), where("userId", "==", currentUser.uid));
     onSnapshot(q, (snapshot) => {
@@ -534,24 +967,30 @@ function loadWithdrawals() {
             const data = doc.data();
             const amt = data.amount || 0;
             
-            // Default to pending if not explicitly stated
             let stat = (data.status || 'pending').toLowerCase();
-            
-            // Legacy catch for "paid" boolean
             if (data.paid === true) stat = 'completed';
             if (stat === 'approved') stat = 'completed';
 
-            // Only add to totals if NOT rejected
             if (stat === 'completed') tWithdrawn += amt;
             else if (stat === 'pending') pAmount += amt;
+
+            // Determine icon and method display
+            const isCrypto = data.method === "crypto";
+            const methodIcon = isCrypto ? '<i class="fab fa-bitcoin"></i>' : '<i class="fas fa-building-columns"></i>';
+            const methodTitle = isCrypto 
+                ? `${data.cryptoType || 'Crypto'} (${data.network || ''})` 
+                : (data.method ? data.method.split('|')[0] : 'Bank');
+            const methodSubtitle = isCrypto 
+                ? `${(data.cryptoAmount || 0).toFixed(4)} ${data.cryptoType || ''}` 
+                : `#${doc.id.substring(0,8).toUpperCase()}`;
 
             html += `
                 <div class="table-row grid-layout">
                     <div class="transaction-type">
-                        <div class="type-icon withdrawal"><i class="fas fa-building-columns"></i></div>
+                        <div class="type-icon withdrawal">${methodIcon}</div>
                         <div class="type-info">
-                            <div class="type-title">${data.method ? data.method.split('|')[0] : 'Bank'}</div>
-                            <div class="type-subtitle">#${doc.id.substring(0,8).toUpperCase()}</div>
+                            <div class="type-title">${methodTitle}</div>
+                            <div class="type-subtitle">${methodSubtitle}</div>
                         </div>
                     </div>
                     <div class="amount debit"><span class="mobile-label">Amount:</span>-$${amt.toFixed(2)}</div>
@@ -640,7 +1079,7 @@ function loadRevenue() {
     });
 }
 
-// Form Submission Logic
+// Bank Form Submission Logic
 window.submitWithdrawal = async () => {
     const amt = parseFloat(document.getElementById('wdAmount').value);
     const bName = document.getElementById('wdBankName').value.trim();
@@ -656,11 +1095,9 @@ window.submitWithdrawal = async () => {
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
 
     try {
-        // Calculate tax and net amount for record
         const tax = amt * TAX_RATE;
         const netAmt = amt - tax;
 
-        // 1. Create the withdrawal request with tax details
         await addDoc(collection(db, "withdrawals"), {
             userId: currentUser.uid,
             username: currentUser.email.split('@')[0],
@@ -673,14 +1110,12 @@ window.submitWithdrawal = async () => {
             timestamp: serverTimestamp()
         });
         
-        // 2. Deduct the full withdrawal amount from user's balance
         await updateDoc(doc(db, "users", currentUser.uid), {
             balance: increment(-amt)
         });
 
         showToast("Withdrawal Request Submitted Successfully! 5% tax has been deducted from your payout.");
         
-        // Reset and close
         document.getElementById('wdAmount').value = '';
         document.getElementById('wdBankName').value = '';
         document.getElementById('wdAccNo').value = '';
