@@ -442,7 +442,356 @@ body{background:#f5f6f8;display:flex;min-height:100vh;}
         <div class="notification-panel" id="notification-panel"></div>
     </div>
 </div>
-// ==================== FEED LOADING ====================
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc, collection, query, where, getDocs, onSnapshot, arrayUnion, arrayRemove, orderBy, addDoc, increment, serverTimestamp, writeBatch, runTransaction, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getStorage } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
+
+// ==================== FIREBASE CONFIG ====================
+const firebaseConfig = {
+    apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
+    authDomain: "cashclique-31718.firebaseapp.com",
+    projectId: "cashclique-31718",
+    storageBucket: "cashclique-31718.firebasestorage.app",
+    messagingSenderId: "1064282591269",
+    appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc",
+    measurementId: "G-V5WHJB6LS0"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const messaging = getMessaging(app);
+
+// ==================== CATEGORIES ====================
+const CATEGORIES = [
+    { name: 'Comedy', icon: '😂' }, { name: 'Sports', icon: '⚽' },
+    { name: 'Anime', icon: '🎌' }, { name: 'Comics', icon: '💬' },
+    { name: 'Relationship', icon: '💕' }, { name: 'Showcasing', icon: '✨' },
+    { name: 'Daily Life', icon: '📅' }, { name: 'Beauty', icon: '💄' },
+    { name: 'Games', icon: '🎮' }, { name: 'Society', icon: '🏛️' },
+    { name: 'Outfit', icon: '👗' }, { name: 'Cars', icon: '🚗' },
+    { name: 'Food', icon: '🍕' }, { name: 'Animals', icon: '🐾' },
+    { name: 'Family', icon: '👨‍👩‍👧‍👦' }, { name: 'Drama', icon: '🎭' },
+    { name: 'Fitness & Health', icon: '💪' }, { name: 'Education', icon: '📚' },
+    { name: 'Technology', icon: '💻' }
+];
+
+// ==================== GLOBAL VARIABLES ====================
+const userAvatarCache = {};
+let currentUser = null;
+let currentUsername = "User";
+let currentBalance = 0;
+let viewTimers = {};
+let followingList = [];
+let userVerificationCache = {};
+let allPostsCache = [];
+let approvedApplications = [];
+let opportunitiesCache = {};
+let viewedAds = [];
+let currentFeedTab = localStorage.getItem('cashclique_feed_tab') || 'all';
+let currentCategory = localStorage.getItem('cashclique_category') || 'all';
+let searchQuery = "";
+let csChatId = null;
+let csUnsubscribe = null;
+let selectedCSImageBase64 = null;
+let replyToComment = null;
+let postsUnsubscribe = null;
+let isInitialLoad = true;
+
+// ==================== UTILITY FUNCTIONS ====================
+function showToast(message, type = "success") {
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'info' ? 'info-circle' : 'exclamation-circle'}"></i> ${message}`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
+async function getUserAvatar(userId) {
+    if (userAvatarCache[userId]) return userAvatarCache[userId];
+    try {
+        const userDoc = await getDoc(doc(db, "users", userId));
+        if (userDoc.exists()) {
+            const userData = userDoc.data();
+            const avatar = userData.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.username || 'U')}&background=ff6a00&color=fff&size=150`;
+            userAvatarCache[userId] = avatar;
+            return avatar;
+        }
+    } catch (error) { console.error("Error fetching avatar:", error); }
+    return `https://ui-avatars.com/api/?name=U&background=ff6a00&color=fff&size=150`;
+}
+
+async function setupPushNotifications(currentUser) {
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') return;
+    const token = await getToken(messaging, { 
+      vapidKey: "BC3tPo2214pVm2EsUTT4esaS_UfDHY_Gkh948zqU7xsPztiZXE03CdPXiKncElOKXoRJC1i1KwP7RtA0Us7-qgg" 
+    });
+    if (token) {
+      await updateDoc(doc(db, "users", currentUser.uid), { pushTokens: arrayUnion(token) });
+    }
+    onMessage(messaging, (payload) => { showToast(payload.notification.body, "info"); });
+  } catch (error) { console.error("FCM setup failed:", error); }
+}
+
+// ==================== CATEGORY FILTER ====================
+function initCategoryFilter() {
+    const filterContainer = document.getElementById('category-filter');
+    
+    CATEGORIES.forEach(cat => {
+        const chip = document.createElement('div');
+        chip.className = 'category-chip';
+        chip.dataset.category = cat.name;
+        chip.innerHTML = `<span>${cat.icon}</span> ${cat.name}`;
+        chip.onclick = () => selectCategory(cat.name, chip);
+        filterContainer.appendChild(chip);
+    });
+    
+    if (currentCategory !== 'all') {
+        const activeChip = document.querySelector(`[data-category="${currentCategory}"]`);
+        if (activeChip) selectCategory(currentCategory, activeChip);
+    }
+}
+
+function selectCategory(category, chipElement) {
+    document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
+    
+    if (currentCategory === category && category !== 'all') {
+        currentCategory = 'all';
+        document.querySelector('[data-category="all"]').classList.add('active');
+    } else {
+        currentCategory = category;
+        chipElement.classList.add('active');
+        if (category !== 'all') {
+            document.querySelector('[data-category="all"]').classList.remove('active');
+        }
+    }
+    
+    localStorage.setItem('cashclique_category', currentCategory);
+    renderFeed();
+}
+
+// Make selectCategory globally available
+window.selectCategory = selectCategory;
+
+// ==================== AUTH STATE ====================
+onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = "login.html"; return; }
+    currentUser = user;
+
+    const userRef = doc(db, "users", user.uid);
+    onSnapshot(userRef, (snap) => {
+        if (snap.exists()) {
+            const data = snap.data();
+            currentUsername = data.username || user.email?.split('@')[0] || "User";
+            currentBalance = data.balance || 0;
+            followingList = data.following || [];
+            viewedAds = data.viewedAds || [];
+            document.getElementById("username").innerText = currentUsername;
+            document.getElementById("user-avatar").src = data.avatar || `https://i.pravatar.cc/150?u=${user.uid}`;
+            if (data.isVerified || data.verified) document.getElementById("user-verified-badge").style.display = "inline-flex";
+        }
+    });
+
+    initCategoryFilter();
+    setupPushNotifications(user);
+    initCSChat();
+    loadFeed();
+    loadNotifications();
+    attachUIEvents();
+    listenForNewPostsFromFollowing();
+});
+
+function listenForNewPostsFromFollowing() {
+    if (followingList.length === 0) return;
+    const postsQuery = query(collection(db, "posts"), where("userId", "in", followingList), orderBy("timestamp", "desc"), limit(10));
+    onSnapshot(postsQuery, (snapshot) => {
+        snapshot.docChanges().forEach(change => {
+            if (change.type === "added") {
+                const post = change.doc.data();
+                const postId = change.doc.id;
+                const postTime = post.timestamp?.toDate?.() || new Date();
+                const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+                if (postTime > fiveMinutesAgo && post.userId !== currentUser.uid) {
+                    sendNotification(currentUser.uid, {
+                        type: "new_post",
+                        title: `${post.username || "Someone you follow"} posted new content`,
+                        fromUserId: post.userId,
+                        postId: postId
+                    });
+                }
+            }
+        });
+    });
+}
+
+// ==================== CUSTOMER SUPPORT CHAT ====================
+async function initCSChat() {
+    const chatsQuery = query(collection(db, "supportChats"), where("userId", "==", currentUser.uid));
+    const snapshot = await getDocs(chatsQuery);
+    if (!snapshot.empty) {
+        csChatId = snapshot.docs[0].id;
+        loadCSMessages();
+    }
+}
+
+window.openCSChat = async () => {
+    document.getElementById('cs-overlay').classList.add('active');
+    if (!csChatId) {
+        const chatDoc = await addDoc(collection(db, "supportChats"), {
+            userId: currentUser.uid,
+            userEmail: currentUser.email,
+            userName: currentUsername,
+            status: 'open',
+            createdAt: serverTimestamp(),
+            lastMessageAt: serverTimestamp(),
+            unreadByUser: false,
+            unreadByAdmin: false
+        });
+        csChatId = chatDoc.id;
+        loadCSMessages();
+    }
+    await updateDoc(doc(db, "supportChats", csChatId), { unreadByUser: false });
+    document.getElementById('cs-btn').classList.remove('has-unread');
+};
+
+window.closeCSChat = () => {
+    document.getElementById('cs-overlay').classList.remove('active');
+};
+
+function loadCSMessages() {
+    if (csUnsubscribe) csUnsubscribe();
+    const messagesQuery = query(collection(db, "supportChats", csChatId, "messages"), orderBy("timestamp", "asc"));
+    csUnsubscribe = onSnapshot(messagesQuery, (snapshot) => {
+        const messagesContainer = document.getElementById('cs-messages');
+        messagesContainer.innerHTML = '';
+        snapshot.forEach(doc => {
+            const msg = doc.data();
+            const isUser = msg.sender === 'user';
+            const time = msg.timestamp ? formatTime(msg.timestamp.toDate()) : 'Just now';
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `cs-message ${isUser ? 'user' : 'admin'}`;
+            let content = `<div>${escapeHtml(msg.text)}</div>`;
+            if (msg.imageBase64) {
+                content += `<img src="${msg.imageBase64}" class="cs-message-image" onclick="viewImage('${msg.imageBase64}')">`;
+            }
+            content += `<div class="cs-message-time">${time}</div>`;
+            msgDiv.innerHTML = content;
+            messagesContainer.appendChild(msgDiv);
+        });
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        snapshot.docChanges().forEach(change => {
+            if (change.type === 'added' && change.doc.data().sender === 'admin') {
+                if (document.getElementById('cs-overlay').classList.contains('active')) {
+                    updateDoc(doc(db, "supportChats", csChatId), { unreadByUser: false });
+                } else {
+                    document.getElementById('cs-btn').classList.add('has-unread');
+                }
+            }
+        });
+    });
+}
+
+window.handleCSImageSelect = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { showToast('Please select an image file', 'error'); return; }
+    if (file.size > 5 * 1024 * 1024) { showToast('Image must be less than 5MB', 'error'); return; }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        selectedCSImageBase64 = e.target.result;
+        document.getElementById('cs-preview-img').src = selectedCSImageBase64;
+        document.getElementById('cs-image-preview').classList.add('active');
+    };
+    reader.readAsDataURL(file);
+};
+
+window.removeCSImage = () => {
+    selectedCSImageBase64 = null;
+    document.getElementById('cs-image-preview').classList.remove('active');
+    document.getElementById('cs-file-input').value = '';
+};
+
+window.handleCSKeyPress = (event) => {
+    if (event.key === 'Enter') sendCSMessage();
+};
+
+window.sendCSMessage = async () => {
+    const input = document.getElementById('cs-input');
+    const text = input.value.trim();
+    if (!text && !selectedCSImageBase64) return;
+    input.value = '';
+    try {
+        await addDoc(collection(db, "supportChats", csChatId, "messages"), {
+            sender: 'user',
+            text: text || '',
+            imageBase64: selectedCSImageBase64 || null,
+            timestamp: serverTimestamp()
+        });
+        await updateDoc(doc(db, "supportChats", csChatId), {
+            lastMessageAt: serverTimestamp(),
+            lastMessage: text || (selectedCSImageBase64 ? 'Image' : ''),
+            unreadByAdmin: true
+        });
+        removeCSImage();
+    } catch (error) {
+        console.error("Failed to send message:", error);
+        showToast('Failed to send message', 'error');
+    }
+};
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// ==================== FOLLOW SYSTEM ====================
+window.toggleFollow = async (userId, button) => {
+    if (userId === currentUser.uid) { showToast("You can't follow yourself!", "error"); return; }
+    const isFollowing = followingList.includes(userId);
+    const userRef = doc(db, "users", currentUser.uid);
+    const targetUserRef = doc(db, "users", userId);
+    try {
+        if (isFollowing) {
+            await updateDoc(userRef, { following: arrayRemove(userId) });
+            await updateDoc(targetUserRef, { followers: arrayRemove(currentUser.uid) });
+            followingList = followingList.filter(id => id !== userId);
+            button.innerHTML = '<i class="fas fa-plus"></i> Follow';
+            button.classList.remove('following');
+            showToast("Unfollowed successfully");
+        } else {
+            await updateDoc(userRef, { following: arrayUnion(userId) });
+            await updateDoc(targetUserRef, { followers: arrayUnion(currentUser.uid) });
+            followingList.push(userId);
+            button.innerHTML = '<i class="fas fa-check"></i> Following';
+            button.classList.add('following');
+            showToast("Following now!");
+            await sendNotification(userId, { type: "follow", title: `${currentUsername} started following you`, fromUserId: currentUser.uid });
+        }
+    } catch (error) {
+        console.error("Follow error:", error);
+        showToast("Failed to update follow status", "error");
+    }
+};
+
+async function getUserVerificationStatus(userId) {
+    if (userVerificationCache[userId] !== undefined) return userVerificationCache[userId];
+    try {
+        const userDoc = await getDoc(doc(db, "users", userId));
+        if (userDoc.exists()) {
+            const isVerified = userDoc.data().isVerified || userDoc.data().verified || false;
+            userVerificationCache[userId] = isVerified;
+            return isVerified;
+        }
+    } catch (e) { console.error(e); }
+    return false;
+}
+    // ==================== FEED LOADING ====================
 async function loadFeed() {
     if (postsUnsubscribe) postsUnsubscribe();
     
