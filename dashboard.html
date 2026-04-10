@@ -40,11 +40,27 @@ body{background:#f5f6f8;display:flex;min-height:100vh;}
 .badge{position:absolute;top:0;right:0;background:#ff0000;color:white;font-size:10px;min-width:16px;height:16px;padding:2px 4px;border-radius:50%;font-weight:600;display:none;text-align:center;line-height:12px;}
 
 .controls-section{background:white;padding:15px 20px;border-radius:16px;box-shadow:0 4px 15px rgba(0,0,0,0.03);margin-bottom:25px;border:1px solid #e2e8f0;display:flex;flex-direction:column;gap:15px;}
-.search-bar{display:flex;align-items:center;background:#f8fafc;border-radius:12px;padding:12px 16px;border:2px solid #e2e8f0;transition:0.3s;}
+
+/* Search and Filter Row */
+.search-filter-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+.search-bar{flex:1;min-width:200px;display:flex;align-items:center;background:#f8fafc;border-radius:12px;padding:12px 16px;border:2px solid #e2e8f0;transition:0.3s;}
 .search-bar:focus-within{border-color:#ff6a00;background:white;box-shadow:0 0 0 4px rgba(255,106,0,0.1);}
 .search-bar i{color:#94a3b8;margin-right:12px;font-size:16px;}
-.search-bar input{border:none;background:transparent;outline:none;width:100%;font-size:14px;font-family:'Poppins',sans-serif;color:#1e2937;}
+.search-bar input{border:none;background:transparent;outline:none;width:100%;font-size:14px;font-family:'Poppins',sans-serif;color:#1e293b;}
 .search-bar input::placeholder{color:#94a3b8;}
+
+/* Category Filter Dropdown */
+.category-filter{position:relative;min-width:160px;}
+.category-filter-btn{width:100%;padding:12px 16px;background:#f8fafc;border:2px solid #e2e8f0;border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;transition:0.3s;font-size:14px;color:#64748b;font-family:'Poppins',sans-serif;}
+.category-filter-btn:hover,.category-filter-btn.active{border-color:#ff6a00;background:white;}
+.category-filter-btn i{color:#94a3b8;transition:0.3s;}
+.category-filter-btn.active i{transform:rotate(180deg);}
+.category-filter-menu{position:absolute;top:100%;left:0;right:0;margin-top:8px;background:white;border:2px solid #e2e8f0;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,0.15);max-height:300px;overflow-y:auto;z-index:100;display:none;}
+.category-filter-menu.show{display:block;}
+.category-filter-item{padding:12px 16px;cursor:pointer;transition:0.2s;font-size:14px;color:#334155;display:flex;align-items:center;gap:10px;}
+.category-filter-item:hover{background:#fff7ed;color:#ff6a00;}
+.category-filter-item.selected{background:linear-gradient(135deg,#fff7ed,#ffedd5);color:#ff6a00;font-weight:600;}
+.category-filter-item i{width:20px;text-align:center;}
 
 .feed-tabs{display:flex;gap:15px;border-bottom:2px solid #f1f5f9;width:100%;}
 .feed-tab{flex:1;text-align:center;background:none;border:none;padding:10px 5px;font-size:14.5px;font-weight:600;color:#64748b;cursor:pointer;position:relative;transition:0.3s;font-family:'Poppins',sans-serif;}
@@ -123,6 +139,11 @@ body{background:#f5f6f8;display:flex;min-height:100vh;}
 .ad-description{color:#64748b;font-size:13px;line-height:1.5;}
 .ad-image{width:100%;max-height:300px;border-radius:8px;object-fit:cover;margin-top:10px;border:1px solid #e2e8f0;}
 
+/* Video Button - Floating with Animation */
+.video-btn{position:fixed;bottom:170px;right:30px;background:linear-gradient(135deg,#ff4757,#ff6b81);color:white;border:none;width:60px;height:60px;border-radius:50%;font-size:24px;cursor:pointer;box-shadow:0 10px 25px rgba(255,71,87,0.3);transition:0.3s;z-index:99;display:flex;align-items:center;justify-content:center;animation:pulse-video 2s infinite;}
+.video-btn:hover{transform:scale(1.1);background:linear-gradient(135deg,#ff6b81,#ff4757);box-shadow:0 15px 35px rgba(255,71,87,0.4);}
+@keyframes pulse-video{0%,100%{box-shadow:0 10px 25px rgba(255,71,87,0.3);}50%{box-shadow:0 10px 35px rgba(255,71,87,0.5);transform:scale(1.05);}}
+
 .create-btn{position:fixed;bottom:30px;right:30px;background:#ff6a00;color:white;border:none;width:60px;height:60px;border-radius:50%;font-size:24px;cursor:pointer;box-shadow:0 10px 25px rgba(255,106,0,0.3);transition:0.3s;z-index:99;display:flex;align-items:center;justify-content:center;}
 .create-btn:hover{transform:scale(1.1);background:#e55d00;}
 
@@ -130,9 +151,10 @@ body{background:#f5f6f8;display:flex;min-height:100vh;}
 .cs-btn:hover{transform:scale(1.1);background:#059669;}
 .cs-btn.has-unread::after{content:'';position:absolute;top:5px;right:5px;width:12px;height:12px;background:#ef4444;border-radius:50%;border:2px solid white;}
 
-.cs-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:3000;backdrop-filter:blur(4px);}
+/* Mobile Fixed CS Overlay */
+.cs-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:3000;backdrop-filter:blur(4px);padding:20px;}
 .cs-overlay.active{display:flex;}
-.cs-chat-container{width:90%;max-width:450px;height:80vh;max-height:600px;background:white;border-radius:20px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
+.cs-chat-container{width:100%;max-width:450px;height:80vh;max-height:600px;background:white;border-radius:20px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
 .cs-header{background:linear-gradient(135deg,#10b981,#059669);color:white;padding:20px;display:flex;align-items:center;justify-content:space-between;}
 .cs-header-left{display:flex;align-items:center;gap:12px;}
 .cs-avatar{width:45px;height:45px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;font-size:20px;color:#10b981;}
@@ -147,6 +169,13 @@ body{background:#f5f6f8;display:flex;min-height:100vh;}
 .cs-message-image{max-width:200px;border-radius:12px;margin-top:8px;cursor:pointer;}
 .cs-message-time{font-size:10px;opacity:0.7;margin-top:4px;text-align:right;}
 .cs-input-area{padding:15px 20px;background:white;border-top:1px solid #e2e8f0;display:flex;flex-direction:column;gap:10px;}
+.cs-typing{display:none;align-items:center;gap:8px;padding:10px 20px;font-size:12px;color:#64748b;}
+.cs-typing.active{display:flex;}
+.cs-typing-dots{display:flex;gap:4px;}
+.cs-typing-dots span{width:6px;height:6px;background:#cbd5e1;border-radius:50%;animation:typing 1.4s infinite;}
+.cs-typing-dots span:nth-child(2){animation-delay:0.2s;}
+.cs-typing-dots span:nth-child(3){animation-delay:0.4s;}
+@keyframes typing{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-4px);}}
 .cs-input-wrapper{display:flex;align-items:center;gap:10px;}
 .cs-input{flex:1;padding:12px 16px;border:2px solid #e2e8f0;border-radius:25px;outline:none;font-size:14px;transition:0.2s;}
 .cs-input:focus{border-color:#10b981;}
@@ -159,13 +188,6 @@ body{background:#f5f6f8;display:flex;min-height:100vh;}
 .cs-image-preview.active{display:flex;}
 .cs-image-preview img{height:60px;border-radius:8px;}
 .cs-image-preview button{background:#ef4444;color:white;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;}
-.cs-typing{display:none;align-items:center;gap:8px;padding:10px 20px;font-size:12px;color:#64748b;}
-.cs-typing.active{display:flex;}
-.cs-typing-dots{display:flex;gap:4px;}
-.cs-typing-dots span{width:6px;height:6px;background:#cbd5e1;border-radius:50%;animation:typing 1.4s infinite;}
-.cs-typing-dots span:nth-child(2){animation-delay:0.2s;}
-.cs-typing-dots span:nth-child(3){animation-delay:0.4s;}
-@keyframes typing{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-4px);}}
 
 .tip-modal{position:fixed;inset:0;background:rgba(15,23,42,0.7);display:none;align-items:center;justify-content:center;z-index:2000;backdrop-filter:blur(4px);}
 .tip-content{background:white;padding:30px;border-radius:20px;width:90%;max-width:400px;text-align:center;}
@@ -212,6 +234,9 @@ body{background:#f5f6f8;display:flex;min-height:100vh;}
 .feed-loading{text-align:center; padding:40px; color:#888;}
 .feed-loading i{font-size:30px; color:#ff6a00; margin-bottom:10px;}
 
+/* Video Player Styles */
+.post-video{margin-top:12px;width:100%;max-height:450px;border-radius:12px;cursor:pointer;border:1px solid #f1f5f9;background:#000;}
+
 @media(max-width:900px){
 .sidebar{transform:translateX(-100%);}
 .sidebar.active{transform:translateX(0);}
@@ -223,6 +248,23 @@ body{background:#f5f6f8;display:flex;min-height:100vh;}
 .tip-options{grid-template-columns:repeat(2,1fr);}
 .cs-btn{bottom:90px;right:20px;width:50px;height:50px;font-size:20px;}
 .create-btn{bottom:20px;right:20px;width:50px;height:50px;font-size:20px;}
+.video-btn{bottom:160px;right:20px;width:50px;height:50px;font-size:20px;}
+
+/* Mobile CS Overlay Fixes */
+.cs-overlay{padding:10px;align-items:flex-end;}
+.cs-chat-container{height:85vh;max-height:none;border-radius:20px 20px 0 0;width:100%;max-width:100%;}
+.cs-header{padding:15px;}
+.cs-avatar{width:40px;height:40px;}
+.cs-messages{padding:15px;}
+.cs-input-area{padding:12px 15px;}
+.cs-input-wrapper{gap:8px;}
+.cs-send-btn,.cs-attach-btn{width:40px;height:40px;font-size:16px;}
+.cs-input{padding:10px 14px;}
+
+/* Mobile Search Filter */
+.search-filter-row{flex-direction:column;}
+.search-bar{width:100%;}
+.category-filter{width:100%;min-width:auto;}
 }
 </style>
 </head>
@@ -264,9 +306,23 @@ body{background:#f5f6f8;display:flex;min-height:100vh;}
     </div>
 
     <div class="controls-section">
-        <div class="search-bar">
-            <i class="fas fa-search"></i>
-            <input type="text" id="search-input" placeholder="Search for posts or users...">
+        <div class="search-filter-row">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-input" placeholder="Search for posts or users...">
+            </div>
+            <div class="category-filter">
+                <button class="category-filter-btn" id="category-filter-btn" onclick="toggleCategoryFilter()">
+                    <span id="selected-category-text"><i class="fas fa-filter"></i> All Categories</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="category-filter-menu" id="category-filter-menu">
+                    <div class="category-filter-item selected" data-category="" onclick="selectCategory('')">
+                        <i class="fas fa-border-all"></i> All Categories
+                    </div>
+                    <!-- Categories populated by JS -->
+                </div>
+            </div>
         </div>
         <div class="feed-tabs">
             <button class="feed-tab active" data-tab="all">For You</button>
@@ -282,13 +338,19 @@ body{background:#f5f6f8;display:flex;min-height:100vh;}
     </div>
 </div>
 
-<button class="create-btn" onclick="window.location.href='post.html'">
-    <i class="fas fa-plus"></i>
+<!-- Floating Buttons -->
+<button class="video-btn" onclick="window.location.href='videos.html'" title="Watch Videos">
+    <i class="fas fa-play-circle"></i>
 </button>
 
 <button class="cs-btn" id="cs-btn" onclick="openCSChat()">
     <i class="fas fa-headset"></i>
 </button>
+
+<button class="create-btn" onclick="window.location.href='post.html'">
+    <i class="fas fa-plus"></i>
+</button>
+
 <div class="cs-overlay" id="cs-overlay">
     <div class="cs-chat-container">
         <div class="cs-header">
@@ -469,11 +531,26 @@ let opportunitiesCache = {};
 let viewedAds = [];
 let currentFeedTab = localStorage.getItem('cashclique_feed_tab') || 'all';
 let searchQuery = "";
+let selectedCategory = "";
 let csChatId = null;
 let csUnsubscribe = null;
 let selectedCSImageBase64 = null;
 let replyToComment = null;
 let feedLoaded = false; // Track if feed has loaded
+
+// Categories for filter
+const CATEGORIES = [
+    { name: 'Comedy', icon: '😂' }, { name: 'Sports', icon: '⚽' },
+    { name: 'Anime', icon: '🎌' }, { name: 'Comics', icon: '💬' },
+    { name: 'Relationship', icon: '💕' }, { name: 'Showcasing', icon: '✨' },
+    { name: 'Daily Life', icon: '📅' }, { name: 'Beauty', icon: '💄' },
+    { name: 'Games', icon: '🎮' }, { name: 'Society', icon: '🏛️' },
+    { name: 'Outfit', icon: '👗' }, { name: 'Cars', icon: '🚗' },
+    { name: 'Food', icon: '🍕' }, { name: 'Animals', icon: '🐾' },
+    { name: 'Family', icon: '👨‍👩‍👧‍👦' }, { name: 'Drama', icon: '🎭' },
+    { name: 'Fitness & Health', icon: '💪' }, { name: 'Education', icon: '📚' },
+    { name: 'Technology', icon: '💻' }
+];
 
 onAuthStateChanged(auth, async (user) => {
     if (!user) { window.location.href = "login.html"; return; }
@@ -495,10 +572,68 @@ onAuthStateChanged(auth, async (user) => {
 
     setupPushNotifications(user);
     initCSChat();
+    populateCategoryFilter();
     loadFeed();
     loadNotifications();
     attachUIEvents();
     listenForNewPostsFromFollowing();
+});
+
+function populateCategoryFilter() {
+    const menu = document.getElementById('category-filter-menu');
+    CATEGORIES.forEach(cat => {
+        const item = document.createElement('div');
+        item.className = 'category-filter-item';
+        item.dataset.category = cat.name;
+        item.innerHTML = `<span>${cat.icon}</span> ${cat.name}`;
+        item.onclick = () => selectCategory(cat.name);
+        menu.appendChild(item);
+    });
+}
+
+window.toggleCategoryFilter = function() {
+    const btn = document.getElementById('category-filter-btn');
+    const menu = document.getElementById('category-filter-menu');
+    btn.classList.toggle('active');
+    menu.classList.toggle('show');
+};
+
+window.selectCategory = function(category) {
+    selectedCategory = category;
+    
+    // Update button text
+    const btnText = document.getElementById('selected-category-text');
+    if (category) {
+        const cat = CATEGORIES.find(c => c.name === category);
+        btnText.innerHTML = `<span>${cat?.icon || ''}</span> ${category}`;
+    } else {
+        btnText.innerHTML = '<i class="fas fa-filter"></i> All Categories';
+    }
+    
+    // Update selected state in menu
+    document.querySelectorAll('.category-filter-item').forEach(item => {
+        if (item.dataset.category === category) {
+            item.classList.add('selected');
+        } else {
+            item.classList.remove('selected');
+        }
+    });
+    
+    // Close dropdown
+    document.getElementById('category-filter-btn').classList.remove('active');
+    document.getElementById('category-filter-menu').classList.remove('show');
+    
+    // Re-render feed
+    renderFeed();
+};
+
+// Close category filter when clicking outside
+document.addEventListener('click', (e) => {
+    const filter = document.querySelector('.category-filter');
+    if (!filter.contains(e.target)) {
+        document.getElementById('category-filter-btn').classList.remove('active');
+        document.getElementById('category-filter-menu').classList.remove('show');
+    }
 });
 
 function listenForNewPostsFromFollowing() {
@@ -741,7 +876,8 @@ async function loadFeed() {
                 userId: post.userId,
                 timestamp: post.timestamp,
                 userAvatar: userAvatar,
-                category: post.category || 'General', // Pull category from post
+                category: post.category || 'General',
+                videoUrl: post.videoUrl || null,
                 ...post, 
                 isFromFollowed, 
                 isVerified, 
@@ -813,9 +949,18 @@ function distributeAdsForCreator(posts, ads) {
 async function renderFeed() {
     feed.innerHTML = "";
     let filteredPosts = [...allPostsCache];
+    
+    // Filter by tab (all/following)
     if (currentFeedTab === 'following') {
         filteredPosts = filteredPosts.filter(item => item.isFromFollowed);
     }
+    
+    // Filter by category
+    if (selectedCategory) {
+        filteredPosts = filteredPosts.filter(item => item.category === selectedCategory);
+    }
+    
+    // Filter by search query
     if (searchQuery.trim() !== "") {
         const sq = searchQuery.toLowerCase();
         filteredPosts = filteredPosts.filter(item =>
@@ -823,6 +968,7 @@ async function renderFeed() {
             (item.username && item.username.toLowerCase().includes(sq))
         );
     }
+    
     filteredPosts.sort((a, b) => {
         const aTime = a.timestamp?.toDate?.() || new Date(0);
         const bTime = b.timestamp?.toDate?.() || new Date(0);
@@ -832,6 +978,7 @@ async function renderFeed() {
     // Only show "no posts" message if feed has loaded and there are no posts
     if (feedLoaded && filteredPosts.length === 0) {
         let msg = searchQuery !== "" ? "No posts match your search." : 
+                  selectedCategory ? `No posts in ${selectedCategory} category.` :
                   (currentFeedTab === 'following' ? "You aren't following anyone who has posted yet." : "No posts found.");
         feed.innerHTML = `<div class="post" style="text-align:center; padding:40px 20px;"><i class="fas fa-folder-open" style="font-size:40px;color:#cbd5e1;margin-bottom:15px;"></i><p style="color:#64748b;font-weight:500;">${msg}</p></div>`;
         return;
@@ -886,10 +1033,18 @@ async function renderPostHTML(post, attachedAd = null) {
     postEl.className = "post";
     postEl.dataset.postId = postId;
     postEl.dataset.viewed = post.hasViewed;
-    const imgHTML = post.imageBase64 ? `<img src="${post.imageBase64}" class="post-image" onclick="viewImage(this.src)" loading="lazy">` : '';
+    
+    // Handle media - image or video
+    let mediaHTML = '';
+    if (post.videoUrl) {
+        mediaHTML = `<video src="${post.videoUrl}" class="post-video" controls poster="" preload="metadata"></video>`;
+    } else if (post.imageBase64) {
+        mediaHTML = `<img src="${post.imageBase64}" class="post-image" onclick="viewImage(this.src)" loading="lazy">`;
+    }
+    
     const priorityBadge = post.isFromFollowed && !post.hasViewed ? `<div class="priority-badge"><i class="fas fa-star"></i> Following Update</div>` : '';
     
-    // Category badge - pulled from post.category
+    // Category badge
     const categoryBadge = post.category ? `<span class="post-category">${escapeHtml(post.category)}</span>` : '';
     
     let adHTML = '';
@@ -922,7 +1077,7 @@ async function renderPostHTML(post, attachedAd = null) {
         </div>
         ${categoryBadge}
         <p>${post.content}</p>
-        ${imgHTML}
+        ${mediaHTML}
         <div class="post-actions">
             <span class="action-item like-btn ${isLiked ? 'liked' : ''}" data-id="${postId}" data-owner="${post.userId}" data-liked="${isLiked}">
                 <i class="${isLiked ? 'fas' : 'far'} fa-heart"></i> ${post.likes || 0}
@@ -1078,8 +1233,7 @@ function attachEventHandlers() {
                 btn.dataset.liked = "true";
                 btn.classList.add("liked");
                 btn.innerHTML = `<i class="fas fa-heart"></i> ${(parseInt(btn.innerText) || 0) + 1}`;
-                if (ownerId !== currentUser.uid) {
-                    await sendNotification(ownerId, { type: "like", title: `${currentUsername} liked your post`, fromUserId: currentUser.uid, postId: postId });
+                if (ownerId !== currentUser.uid) {                    await sendNotification(ownerId, { type: "like", title: `${currentUsername} liked your post`, fromUserId: currentUser.uid, postId: postId });
                 }
             } catch (e) { console.error("Like failed:", e); }
         };
@@ -1251,7 +1405,8 @@ document.getElementById("mark-all-read").addEventListener("click", async () => {
     await batch.commit();
 });
 
-document.addEventListener("click", (e) => {     if (!bell.contains(e.target) && !overlay.contains(e.target)) overlay.style.display = "none"; 
+document.addEventListener("click", (e) => {     
+    if (!bell.contains(e.target) && !overlay.contains(e.target)) overlay.style.display = "none"; 
     if (e.target.id === "tip-modal") closeTipModal();
 });
 
