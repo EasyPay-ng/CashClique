@@ -62,6 +62,9 @@ body{background:#f5f6f8;display:flex;min-height:100vh;}
 .post-time{font-size:12px;color:#64748b;margin-top:2px;}
 .post p{color:#334155;line-height:1.6;font-size:14.5px;}
 
+/* Category Badge Style */
+.post-category{display:inline-block;background:linear-gradient(135deg,#ff6a00,#e55d00);color:white;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;margin-bottom:10px;}
+
 .post-actions{display:flex;gap:25px;margin-top:15px;padding-top:15px;border-top:1px solid #f1f5f9;align-items:center;flex-wrap:wrap;}
 .action-item{display:flex;align-items:center;gap:6px;cursor:pointer;transition:0.2s;color:#64748b;font-size:14px;font-weight:600;}
 .action-item:hover{color:#ff6a00;}
@@ -205,6 +208,10 @@ body{background:#f5f6f8;display:flex;min-height:100vh;}
 .toast.error{background:#ef4444;}
 @keyframes slideIn{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
 
+/* Loading State */
+.feed-loading{text-align:center; padding:40px; color:#888;}
+.feed-loading i{font-size:30px; color:#ff6a00; margin-bottom:10px;}
+
 @media(max-width:900px){
 .sidebar{transform:translateX(-100%);}
 .sidebar.active{transform:translateX(0);}
@@ -268,8 +275,8 @@ body{background:#f5f6f8;display:flex;min-height:100vh;}
     </div>
 
     <div class="feed" id="feed">
-        <div style="text-align:center; padding:40px; color:#888;">
-            <i class="fas fa-spinner fa-spin" style="font-size:30px; color:#ff6a00; margin-bottom:10px;"></i>
+        <div class="feed-loading">
+            <i class="fas fa-spinner fa-spin"></i>
             <p>Loading your feed...</p>
         </div>
     </div>
@@ -282,7 +289,6 @@ body{background:#f5f6f8;display:flex;min-height:100vh;}
 <button class="cs-btn" id="cs-btn" onclick="openCSChat()">
     <i class="fas fa-headset"></i>
 </button>
-
 <div class="cs-overlay" id="cs-overlay">
     <div class="cs-chat-container">
         <div class="cs-header">
@@ -377,7 +383,6 @@ body{background:#f5f6f8;display:flex;min-height:100vh;}
         <div class="notification-panel" id="notification-panel"></div>
     </div>
 </div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -404,7 +409,6 @@ const messaging = getMessaging(app);
 const userAvatarCache = {};
 
 async function getUserAvatar(userId) {
-    // Return from cache if available
     if (userAvatarCache[userId]) {
         return userAvatarCache[userId];
     }
@@ -413,7 +417,6 @@ async function getUserAvatar(userId) {
         const userDoc = await getDoc(doc(db, "users", userId));
         if (userDoc.exists()) {
             const userData = userDoc.data();
-            // Use uploaded avatar from Firestore, fallback to generated
             const avatar = userData.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.username || 'U')}&background=ff6a00&color=fff&size=150`;
             userAvatarCache[userId] = avatar;
             return avatar;
@@ -422,7 +425,6 @@ async function getUserAvatar(userId) {
         console.error("Error fetching user avatar:", error);
     }
     
-    // Fallback to generic placeholder
     return `https://ui-avatars.com/api/?name=U&background=ff6a00&color=fff&size=150`;
 }
 
@@ -453,7 +455,8 @@ async function setupPushNotifications(currentUser) {
     console.error("FCM setup failed:", error);
   }
 }
-    const feed = document.getElementById("feed");
+
+const feed = document.getElementById("feed");
 let currentUser = null;
 let currentUsername = "User";
 let currentBalance = 0;
@@ -470,6 +473,7 @@ let csChatId = null;
 let csUnsubscribe = null;
 let selectedCSImageBase64 = null;
 let replyToComment = null;
+let feedLoaded = false; // Track if feed has loaded
 
 onAuthStateChanged(auth, async (user) => {
     if (!user) { window.location.href = "login.html"; return; }
@@ -693,10 +697,26 @@ async function getUserVerificationStatus(userId) {
     } catch (e) { console.error(e); }
     return false;
 }
-    async function loadFeed() {
+
+async function loadFeed() {
+    // Keep loading spinner until we have data
+    feed.innerHTML = `
+        <div class="feed-loading">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Loading your feed...</p>
+        </div>
+    `;
+    
     const postsQuery = query(collection(db, "posts"), orderBy("timestamp", "desc"));
     onSnapshot(postsQuery, async (snapshot) => {
         allPostsCache = [];
+        
+        // If no posts in database, show empty state
+        if (snapshot.empty) {
+            feedLoaded = true;
+            renderFeed();
+            return;
+        }
         
         // Collect all unique user IDs from posts
         const userIds = new Set();
@@ -713,7 +733,6 @@ async function getUserVerificationStatus(userId) {
             const isFromFollowed = followingList.includes(post.userId);
             const hasViewed = post.viewedBy && post.viewedBy.includes(currentUser.uid);
             
-            // Get avatar from cache (already fetched above)
             const userAvatar = await getUserAvatar(post.userId);
             
             allPostsCache.push({ 
@@ -721,13 +740,16 @@ async function getUserVerificationStatus(userId) {
                 type: 'post', 
                 userId: post.userId,
                 timestamp: post.timestamp,
-                userAvatar: userAvatar, // Use Firestore avatar
+                userAvatar: userAvatar,
+                category: post.category || 'General', // Pull category from post
                 ...post, 
                 isFromFollowed, 
                 isVerified, 
                 hasViewed 
             });
         }
+        
+        feedLoaded = true;
         renderFeed();
     });
 
@@ -761,7 +783,7 @@ async function getUserVerificationStatus(userId) {
                 advertiserName: oppData.advertiserName || appData.advertiserName || 'Advertiser'
             });
         });
-        renderFeed();
+        if (feedLoaded) renderFeed();
     });
 }
 
@@ -806,12 +828,20 @@ async function renderFeed() {
         const bTime = b.timestamp?.toDate?.() || new Date(0);
         return bTime - aTime;
     });
-    if (filteredPosts.length === 0) {
+    
+    // Only show "no posts" message if feed has loaded and there are no posts
+    if (feedLoaded && filteredPosts.length === 0) {
         let msg = searchQuery !== "" ? "No posts match your search." : 
                   (currentFeedTab === 'following' ? "You aren't following anyone who has posted yet." : "No posts found.");
         feed.innerHTML = `<div class="post" style="text-align:center; padding:40px 20px;"><i class="fas fa-folder-open" style="font-size:40px;color:#cbd5e1;margin-bottom:15px;"></i><p style="color:#64748b;font-weight:500;">${msg}</p></div>`;
         return;
     }
+    
+    // If still loading, keep spinner (don't overwrite)
+    if (!feedLoaded && filteredPosts.length === 0) {
+        return;
+    }
+    
     const adsByCreator = {};
     approvedApplications.forEach(app => {
         const creatorId = app.creatorId;
@@ -858,6 +888,10 @@ async function renderPostHTML(post, attachedAd = null) {
     postEl.dataset.viewed = post.hasViewed;
     const imgHTML = post.imageBase64 ? `<img src="${post.imageBase64}" class="post-image" onclick="viewImage(this.src)" loading="lazy">` : '';
     const priorityBadge = post.isFromFollowed && !post.hasViewed ? `<div class="priority-badge"><i class="fas fa-star"></i> Following Update</div>` : '';
+    
+    // Category badge - pulled from post.category
+    const categoryBadge = post.category ? `<span class="post-category">${escapeHtml(post.category)}</span>` : '';
+    
     let adHTML = '';
     if (attachedAd) {
         const hasViewed = viewedAds.includes(attachedAd.id);
@@ -873,7 +907,6 @@ async function renderPostHTML(post, attachedAd = null) {
         if (!hasViewed) trackAdView(attachedAd.id);
     }
     
-    // KEY FIX: Use post.userAvatar which now comes from Firestore via getUserAvatar()
     postEl.innerHTML = `
         ${priorityBadge}
         <div class="post-header">
@@ -887,6 +920,7 @@ async function renderPostHTML(post, attachedAd = null) {
             ${followBtnHTML}
             <i class="fas fa-ellipsis-v three-dot" onclick="window.location.href='post-view.html?postId=${postId}'"></i>
         </div>
+        ${categoryBadge}
         <p>${post.content}</p>
         ${imgHTML}
         <div class="post-actions">
@@ -933,7 +967,8 @@ async function renderPostHTML(post, attachedAd = null) {
     if (!post.hasViewed) trackView(postId);
     loadComments(postId);
 }
-    function loadComments(postId) {
+
+function loadComments(postId) {
     const commentsRef = query(collection(db, "posts", postId, "comments"), orderBy("timestamp", "asc"));
     onSnapshot(commentsRef, async (cSnap) => {
         const list = document.getElementById(`comment-list-${postId}`);
@@ -950,7 +985,6 @@ async function renderPostHTML(post, attachedAd = null) {
             const isReply = d.replyTo && d.replyTo.commentId;
             const replyToHTML = isReply ? `<div class="comment-reply-to"><i class="fas fa-reply" style="font-size:10px;"></i> Replying to ${d.replyTo.username || 'comment'}</div>` : '';
             
-            // Get commenter avatar from cache
             const commenterAvatar = await getUserAvatar(d.userId);
             
             const div = document.createElement("div");
@@ -1217,8 +1251,7 @@ document.getElementById("mark-all-read").addEventListener("click", async () => {
     await batch.commit();
 });
 
-document.addEventListener("click", (e) => { 
-    if (!bell.contains(e.target) && !overlay.contains(e.target)) overlay.style.display = "none"; 
+document.addEventListener("click", (e) => {     if (!bell.contains(e.target) && !overlay.contains(e.target)) overlay.style.display = "none"; 
     if (e.target.id === "tip-modal") closeTipModal();
 });
 
