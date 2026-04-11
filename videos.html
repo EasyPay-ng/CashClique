@@ -631,7 +631,7 @@ html, body { height: 100%; overflow: hidden; background: #000; }
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, query, where, orderBy, getDocs, onSnapshot, doc, getDoc, updateDoc, increment, arrayUnion, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, query, where, orderBy, getDocs, onSnapshot, doc, getDoc, updateDoc, increment, arrayUnion, arrayRemove, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -652,6 +652,7 @@ let currentVideoIndex = 0;
 let currentVideoId = null;
 let isPlaying = true;
 let userCache = {};
+let followingList = [];
 
 // Auth check
 onAuthStateChanged(auth, async (user) => {
@@ -660,40 +661,49 @@ onAuthStateChanged(auth, async (user) => {
         return;
     }
     currentUser = user;
+    
+    // Load user's following list
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    if (userDoc.exists()) {
+        followingList = userDoc.data().following || [];
+    }
+    
     loadVideos();
 });
 
-// Load videos from Firestore
+// Load videos from Firestore - Fixed query for Firebase Storage
 async function loadVideos() {
     const container = document.getElementById('video-container');
     
     try {
-        // Query posts that have videoUrl
+        // Simple query - get all posts ordered by timestamp, filter client-side
         const q = query(
             collection(db, "posts"),
-            where("videoUrl", "!=", null),
-            orderBy("videoUrl"),
             orderBy("timestamp", "desc")
         );
         
         onSnapshot(q, async (snapshot) => {
             videos = [];
             
-            if (snapshot.empty) {
+            // Filter for posts with videoUrl
+            snapshot.docs.forEach(doc => {
+                const data = doc.data();
+                if (data.videoUrl && data.videoUrl.trim() !== '') {
+                    videos.push({
+                        id: doc.id,
+                        ...data
+                    });
+                }
+            });
+            
+            if (videos.length === 0) {
                 showEmptyState();
                 return;
             }
             
             // Get all unique user IDs
             const userIds = new Set();
-            snapshot.docs.forEach(doc => {
-                const data = doc.data();
-                userIds.add(data.userId);
-                videos.push({
-                    id: doc.id,
-                    ...data
-                });
-            });
+            videos.forEach(video => userIds.add(video.userId));
             
             // Cache user data
             for (const uid of userIds) {
@@ -735,7 +745,7 @@ function renderVideos() {
     videos.forEach((video, index) => {
         const user = userCache[video.userId] || {};
         const isLiked = video.likedBy && video.likedBy.includes(currentUser.uid);
-        const isFollowing = user.followers && user.followers.includes(currentUser.uid);
+        const isFollowing = followingList.includes(video.userId);
         
         const videoEl = document.createElement('div');
         videoEl.className = 'video-item';
@@ -763,7 +773,7 @@ function renderVideos() {
                 
                 <div class="video-overlay">
                     <div class="video-author" onclick="goToProfile('${video.userId}')">
-                        <img src="${user.avatar || `https://ui-avatars.com/api/?name=${video.username}&background=ff6a00&color=fff`}" alt="">
+                        <img src="${user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(video.username || 'U')}&background=ff6a00&color=fff`}" alt="">
                         <div class="video-author-info">
                             <div class="video-author-name">
                                 @${video.username || 'user'}
@@ -771,17 +781,17 @@ function renderVideos() {
                             </div>
                         </div>
                     </div>
-                    <div class="video-caption">${video.content || ''}</div>
+                    <div class="video-caption">${escapeHtml(video.content || '')}</div>
                     <div class="video-music">
                         <i class="fas fa-music music-icon"></i>
-                        <span>Original Sound - ${video.username || 'Unknown'}</span>
+                        <span>Original Sound - ${escapeHtml(video.username || 'Unknown')}</span>
                     </div>
                 </div>
                 
                 <div class="video-actions">
                     <div class="action-profile" onclick="goToProfile('${video.userId}')">
-                        <img src="${user.avatar || `https://ui-avatars.com/api/?name=${video.username}&background=ff6a00&color=fff`}" alt="">
-                        ${!isFollowing && video.userId !== currentUser.uid ? '<div class="follow-mini"><i class="fas fa-plus"></i></div>' : ''}
+                        <img src="${user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(video.username || 'U')}&background=ff6a00&color=fff`}" alt="">
+                        ${!isFollowing && video.userId !== currentUser.uid ? '<div class="follow-mini" onclick="event.stopPropagation(); toggleFollow(\'' + video.userId + '\', this)"><i class="fas fa-plus"></i></div>' : ''}
                     </div>
                     
                     <div class="action-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${video.id}', this)">
@@ -813,7 +823,7 @@ function renderVideos() {
         const playOverlay = videoEl.querySelector('.play-overlay');
         
         videoEl.addEventListener('click', (e) => {
-            if (e.target.closest('.video-actions') || e.target.closest('.video-author')) return;
+            if (e.target.closest('.video-actions') || e.target.closest('.video-author') || e.target.closest('.follow-mini')) return;
             
             if (videoPlayer.paused) {
                 videoPlayer.play();
@@ -828,8 +838,21 @@ function renderVideos() {
         
         // Update progress bar
         videoPlayer.addEventListener('timeupdate', () => {
-            const progress = (videoPlayer.currentTime / videoPlayer.duration) * 100;
-            document.getElementById(`progress-${index}`).style.width = progress + '%';
+            if (videoPlayer.duration) {
+                const progress = (videoPlayer.currentTime / videoPlayer.duration) * 100;
+                const progressBar = document.getElementById(`progress-${index}`);
+                if (progressBar) progressBar.style.width = progress + '%';
+            }
+        });
+        
+        // Handle video errors (Firebase Storage URLs sometimes need refresh)
+        videoPlayer.addEventListener('error', async () => {
+            console.error('Video error, retrying...');
+            // Retry loading after short delay
+            setTimeout(() => {
+                videoPlayer.load();
+                videoPlayer.play().catch(() => {});
+            }, 1000);
         });
     });
     
@@ -851,7 +874,7 @@ function setupIntersectionObserver() {
             if (entry.isIntersecting) {
                 currentVideoIndex = parseInt(index);
                 currentVideoId = entry.target.dataset.id;
-                video.play();
+                video.play().catch(() => {});
                 video.muted = false;
                 entry.target.classList.remove('paused');
             } else {
@@ -867,7 +890,38 @@ function setupIntersectionObserver() {
     });
 }
 
-// Actions
+// Follow/Unfollow
+window.toggleFollow = async (userId, btn) => {
+    if (userId === currentUser.uid) {
+        showToast("You can't follow yourself!", "error");
+        return;
+    }
+    
+    const isFollowing = followingList.includes(userId);
+    const userRef = doc(db, "users", currentUser.uid);
+    const targetUserRef = doc(db, "users", userId);
+    
+    try {
+        if (isFollowing) {
+            await updateDoc(userRef, { following: arrayRemove(userId) });
+            await updateDoc(targetUserRef, { followers: arrayRemove(currentUser.uid) });
+            followingList = followingList.filter(id => id !== userId);
+            btn.innerHTML = '<i class="fas fa-plus"></i>';
+            showToast("Unfollowed");
+        } else {
+            await updateDoc(userRef, { following: arrayUnion(userId) });
+            await updateDoc(targetUserRef, { followers: arrayUnion(currentUser.uid) });
+            followingList.push(userId);
+            btn.innerHTML = '<i class="fas fa-check"></i>';
+            showToast("Following now!");
+        }
+    } catch (error) {
+        console.error("Follow error:", error);
+        showToast("Failed to update follow status", "error");
+    }
+};
+
+// Like/Unlike
 window.toggleLike = async (videoId, btn) => {
     const isLiked = btn.classList.contains('liked');
     const countEl = document.getElementById(`likes-${videoId}`);
@@ -875,7 +929,6 @@ window.toggleLike = async (videoId, btn) => {
     
     try {
         if (isLiked) {
-            // Unlike
             await updateDoc(doc(db, "posts", videoId), {
                 likes: increment(-1),
                 likedBy: arrayRemove(currentUser.uid)
@@ -884,7 +937,6 @@ window.toggleLike = async (videoId, btn) => {
             btn.querySelector('i').classList.replace('fas', 'far');
             countEl.textContent = Math.max(0, currentLikes - 1);
         } else {
-            // Like
             await updateDoc(doc(db, "posts", videoId), {
                 likes: increment(1),
                 likedBy: arrayUnion(currentUser.uid)
@@ -893,7 +945,6 @@ window.toggleLike = async (videoId, btn) => {
             btn.querySelector('i').classList.replace('far', 'fas');
             countEl.textContent = currentLikes + 1;
             
-            // Animation effect
             btn.style.transform = 'scale(1.3)';
             setTimeout(() => btn.style.transform = 'scale(1)', 200);
         }
@@ -904,17 +955,16 @@ window.toggleLike = async (videoId, btn) => {
 
 // Comments
 let currentCommentVideoId = null;
+let commentsUnsubscribe = null;
 
 window.openComments = async (videoId) => {
     currentCommentVideoId = videoId;
     document.getElementById('drawer-backdrop').classList.add('active');
     document.getElementById('comments-drawer').classList.add('active');
     
-    // Pause current video
     const currentVideo = document.querySelectorAll('.video-player')[currentVideoIndex];
     if (currentVideo) currentVideo.pause();
     
-    // Load comments
     loadComments(videoId);
 };
 
@@ -922,27 +972,31 @@ window.closeComments = () => {
     document.getElementById('drawer-backdrop').classList.remove('active');
     document.getElementById('comments-drawer').classList.remove('active');
     
-    // Resume video
+    if (commentsUnsubscribe) {
+        commentsUnsubscribe();
+        commentsUnsubscribe = null;
+    }
+    
     const currentVideo = document.querySelectorAll('.video-player')[currentVideoIndex];
-    if (currentVideo) currentVideo.play();
+    if (currentVideo) currentVideo.play().catch(() => {});
 };
 
 async function loadComments(videoId) {
     const list = document.getElementById('comments-list');
-    list.innerHTML = '<div style="text-align:center;padding:20px;"><i class="fas fa-spinner fa-spin"></i></div>';
+    list.innerHTML = '<div style="text-align:center;padding:20px;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
     
     const q = query(
         collection(db, "posts", videoId, "comments"),
-        orderBy("timestamp", "desc")
+        orderBy("timestamp", "asc")
     );
     
-    onSnapshot(q, (snapshot) => {
+    commentsUnsubscribe = onSnapshot(q, (snapshot) => {
         list.innerHTML = '';
         document.getElementById('comments-count').textContent = `${snapshot.size} comments`;
         document.getElementById(`comments-count-${videoId}`).textContent = snapshot.size;
         
         if (snapshot.empty) {
-            list.innerHTML = '<div style="text-align:center;padding:40px;color:#94a3b8;">No comments yet. Be the first!</div>';
+            list.innerHTML = '<div style="text-align:center;padding:40px;color:#94a3b8;"><i class="fas fa-comment-slash" style="font-size:40px;margin-bottom:10px;"></i><br>No comments yet. Be the first!</div>';
             return;
         }
         
@@ -951,15 +1005,18 @@ async function loadComments(videoId) {
             const item = document.createElement('div');
             item.className = 'comment-item';
             item.innerHTML = `
-                <img src="${comment.userAvatar || `https://ui-avatars.com/api/?name=${comment.username}&background=ff6a00&color=fff`}" class="comment-avatar">
+                <img src="${comment.userAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(comment.username || 'U')}&background=ff6a00&color=fff`}" class="comment-avatar" onclick="goToProfile('${comment.userId}')">
                 <div class="comment-body">
-                    <div class="comment-username">@${comment.username || 'user'}</div>
+                    <div class="comment-username" onclick="goToProfile('${comment.userId}')">@${escapeHtml(comment.username || 'user')}</div>
                     <div class="comment-text">${escapeHtml(comment.text)}</div>
                     <div class="comment-time">${formatTime(comment.timestamp?.toDate())}</div>
                 </div>
             `;
             list.appendChild(item);
         });
+        
+        // Scroll to bottom
+        list.scrollTop = list.scrollHeight;
     });
 }
 
@@ -968,13 +1025,20 @@ window.submitComment = async () => {
     const text = input.value.trim();
     if (!text || !currentCommentVideoId) return;
     
+    const video = videos.find(v => v.id === currentCommentVideoId);
+    
     try {
         await addDoc(collection(db, "posts", currentCommentVideoId, "comments"), {
             userId: currentUser.uid,
-            username: currentUser.displayName || 'User',
+            username: video?.username || currentUser.displayName || 'User',
             userAvatar: userCache[currentUser.uid]?.avatar || '',
             text: text,
             timestamp: serverTimestamp()
+        });
+        
+        // Update comment count
+        await updateDoc(doc(db, "posts", currentCommentVideoId), {
+            commentCount: increment(1)
         });
         
         input.value = '';
@@ -984,7 +1048,6 @@ window.submitComment = async () => {
     }
 };
 
-// Handle Enter key in comment input
 document.getElementById('comment-input').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') submitComment();
 });
@@ -994,19 +1057,20 @@ window.shareVideo = async (videoId) => {
     const video = videos.find(v => v.id === videoId);
     if (!video) return;
     
+    const shareUrl = window.location.origin + '/videos.html?video=' + videoId;
+    
     if (navigator.share) {
         try {
             await navigator.share({
                 title: 'Check out this video on CashClique',
                 text: video.content || 'Watch this video!',
-                url: window.location.href + '?video=' + videoId
+                url: shareUrl
             });
         } catch (err) {
             // User cancelled
         }
     } else {
-        // Copy to clipboard
-        navigator.clipboard.writeText(window.location.href + '?video=' + videoId);
+        navigator.clipboard.writeText(shareUrl);
         showToast('Link copied to clipboard!', 'success');
     }
 };
@@ -1029,6 +1093,7 @@ document.getElementById('logout').addEventListener('click', (e) => {
 
 // Utilities
 function escapeHtml(text) {
+    if (!text) return '';
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
@@ -1040,12 +1105,13 @@ function formatTime(date) {
     if (diff < 60) return 'Just now';
     if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
     if (diff < 86400) return `${Math.floor(diff/3600)}h ago`;
-    return `${Math.floor(diff/86400)}d ago`;
+    if (diff < 604800) return `${Math.floor(diff/86400)}d ago`;
+    return date.toLocaleDateString();
 }
 
 function showToast(message, type = 'success') {
     const toast = document.getElementById('toast');
-    toast.textContent = message;
+    toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i> ${message}`;
     toast.className = `toast show ${type}`;
     setTimeout(() => toast.classList.remove('show'), 3000);
 }
@@ -1062,7 +1128,7 @@ document.addEventListener('keydown', (e) => {
         e.preventDefault();
         const video = document.querySelectorAll('.video-player')[currentVideoIndex];
         if (video) {
-            if (video.paused) video.play();
+            if (video.paused) video.play().catch(() => {});
             else video.pause();
         }
     }
@@ -1070,12 +1136,28 @@ document.addEventListener('keydown', (e) => {
 
 function scrollToVideo(index) {
     if (index < 0 || index >= videos.length) return;
-    const container = document.getElementById('video-container');
     const videoEl = document.querySelectorAll('.video-item')[index];
     if (videoEl) {
         videoEl.scrollIntoView({ behavior: 'smooth' });
     }
 }
+
+// Handle deep linking to specific video
+window.addEventListener('load', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const videoId = urlParams.get('video');
+    if (videoId) {
+        // Will scroll to video once loaded
+        const checkAndScroll = setInterval(() => {
+            const index = videos.findIndex(v => v.id === videoId);
+            if (index !== -1) {
+                clearInterval(checkAndScroll);
+                setTimeout(() => scrollToVideo(index), 500);
+            }
+        }, 100);
+        setTimeout(() => clearInterval(checkAndScroll), 5000);
+    }
+});
 </script>
 </body>
 </html>
