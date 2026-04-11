@@ -7,7 +7,7 @@
 
 <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
@@ -90,10 +90,15 @@ textarea::placeholder { color: #aaa; font-style: italic; }
 .upload-text { color: #666; font-size: 14px; margin-bottom: 5px; }
 .upload-hint { color: #999; font-size: 12px; }
 
-/* Video Upload Button */
-.video-upload-btn { width: 100%; padding: 30px; background: #fafafa; border: 2px dashed #ddd; border-radius: 12px; cursor: pointer; transition: all 0.3s; display: flex; flex-direction: column; align-items: center; gap: 10px; font-size: 14px; color: #666; }
-.video-upload-btn:hover { border-color: #ff6a00; background: rgba(255, 106, 0, 0.05); color: #ff6a00; }
-.video-upload-btn span:first-child { font-size: 48px; }
+/* Video Upload */
+.video-upload { position: relative; border: 2px dashed #ddd; border-radius: 12px; padding: 30px; text-align: center; cursor: pointer; transition: all 0.3s; background: #fafafa; }
+.video-upload:hover { border-color: #ff6a00; background: rgba(255, 106, 0, 0.05); }
+.video-upload input[type="file"] { position: absolute; width: 100%; height: 100%; top: 0; left: 0; opacity: 0; cursor: pointer; }
+.video-upload.uploading { border-color: #3b82f6; background: rgba(59, 130, 246, 0.05); pointer-events: none; }
+.video-progress-bar { width: 100%; height: 6px; background: #e0e0e0; border-radius: 3px; margin-top: 15px; overflow: hidden; display: none; }
+.video-progress-bar.active { display: block; }
+.video-progress-fill { height: 100%; background: linear-gradient(90deg, #ff6a00, #ff8a00); width: 0%; transition: width 0.3s; }
+.video-progress-text { font-size: 12px; color: #666; margin-top: 8px; }
 
 /* Previews */
 .image-preview, .video-info { position: relative; max-width: 100%; margin-top: 20px; border-radius: 12px; overflow: hidden; display: none; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); }
@@ -134,7 +139,7 @@ textarea::placeholder { color: #aaa; font-style: italic; }
   .category-dropdown-menu { max-height: 280px; }
   .category-list { max-height: 180px; }
   textarea { min-height: 120px; padding: 15px; font-size: 16px; }
-  .image-upload, .video-upload-btn { padding: 25px 15px; }
+  .image-upload, .video-upload { padding: 25px 15px; }
   .upload-icon { font-size: 36px; }
   .button-group { flex-direction: column; gap: 10px; }
   .post-btn, .cancel-btn { width: 100%; }
@@ -145,7 +150,7 @@ textarea::placeholder { color: #aaa; font-style: italic; }
 <body>
 
 <div class="mobile-header">
-  <button class="menu-btn" onclick="toggleMenu()">☰</button>
+  <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
   <h1>Create Post</h1>
 </div>
 
@@ -154,22 +159,22 @@ textarea::placeholder { color: #aaa; font-style: italic; }
     <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
     CashClique
   </div>
-  <a href="dashboard.html">🏠 Dashboard</a>
-  <a href="my-content.html">📝 My Content</a>
-  <a href="earnings.html">💰 Earnings</a>
-  <a href="opportunities.html">🔥 Opportunities</a>
-  <a href="settings.html">⚙ Settings</a>
-  <a href="#" id="sidebar-logout">🚪 Logout</a>
+  <a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+  <a href="my-content.html"><i class="fas fa-file-alt"></i> My Content</a>
+  <a href="earnings.html"><i class="fas fa-dollar-sign"></i> Earnings</a>
+  <a href="opportunities.html"><i class="fas fa-fire"></i> Opportunities</a>
+  <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+  <a href="#" id="sidebar-logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
 </div>
 
 <div class="main">
   <div class="container">
     <div class="header">
       <div>
-        <h1>✨ Create Post</h1>
+        <h1><i class="fas fa-plus-circle"></i> Create Post</h1>
         <div class="subtitle">Share your thoughts with the community</div>
       </div>
-      <button class="logout-btn" id="header-logout">Logout</button>
+      <button class="logout-btn" id="header-logout"><i class="fas fa-sign-out-alt"></i> Logout</button>
     </div>
 
     <div class="form-container">
@@ -177,7 +182,7 @@ textarea::placeholder { color: #aaa; font-style: italic; }
       <div class="form-group">
         <label>Select Category <span style="color:#ef4444">*</span></label>
         <div class="selected-category hidden" id="selected-category-display">
-          <span id="selected-cat-icon">📁</span>
+          <i class="fas fa-folder-open" id="selected-cat-icon"></i>
           <span id="selected-cat-text">No category selected</span>
         </div>
         
@@ -185,8 +190,8 @@ textarea::placeholder { color: #aaa; font-style: italic; }
         <div class="category-dropdown" id="category-dropdown">
           <div class="category-input-wrapper">
             <div class="category-input" id="category-input" onclick="toggleCategoryDropdown()">
-              <span class="category-input-text" id="category-placeholder">Search or select category...</span>
-              <span class="category-input-icon">▼</span>
+              <span class="category-input-text" id="category-placeholder"><i class="fas fa-search"></i> Search or select category...</span>
+              <span class="category-input-icon"><i class="fas fa-chevron-down"></i></span>
             </div>
           </div>
           <div class="category-dropdown-menu" id="category-dropdown-menu">
@@ -202,22 +207,22 @@ textarea::placeholder { color: #aaa; font-style: italic; }
 
       <!-- Content -->
       <div class="form-group">
-        <label for="post-content">What's on your mind?</label>
+        <label for="post-content"><i class="fas fa-pen"></i> What's on your mind?</label>
         <textarea id="post-content" placeholder="Write something amazing... (minimum 10 characters)" maxlength="500"></textarea>
         <div class="char-count" id="char-count">0 / 500</div>
       </div>
 
       <!-- Media Upload -->
       <div class="form-group">
-        <label>Add Media (optional)</label>
+        <label><i class="fas fa-image"></i> Add Media (optional)</label>
         
         <!-- Tabs -->
         <div class="media-tabs">
           <button type="button" class="media-tab active" onclick="switchMediaTab('image')">
-            📷 Image
+            <i class="fas fa-image"></i> Image
           </button>
           <button type="button" class="media-tab" onclick="switchMediaTab('video')">
-            🎬 Video
+            <i class="fas fa-video"></i> Video
           </button>
         </div>
 
@@ -225,35 +230,40 @@ textarea::placeholder { color: #aaa; font-style: italic; }
         <div id="image-upload-section">
           <div class="image-upload" id="image-upload-area">
             <input type="file" id="post-image" accept="image/*">
-            <span class="upload-icon">📷</span>
+            <i class="fas fa-cloud-upload-alt upload-icon"></i>
             <div class="upload-text">Click to upload image</div>
             <div class="upload-hint">JPG, PNG, GIF (max 5MB)</div>
           </div>
           <div class="image-preview" id="image-preview">
             <img id="preview-img" src="" alt="Preview">
-            <button class="remove-image" id="remove-image">✕ Remove</button>
+            <button class="remove-image" id="remove-image"><i class="fas fa-times"></i> Remove</button>
           </div>
         </div>
 
         <!-- Video Upload -->
         <div id="video-upload-section" style="display:none;">
-          <button type="button" class="video-upload-btn" id="upload-video-btn">
-            <span>🎬</span>
-            <span>Click to Upload Video</span>
-            <small style="color:#999;">MP4, MOV, WEBM (max 100MB)</small>
-          </button>
+          <div class="video-upload" id="video-upload-area">
+            <input type="file" id="post-video" accept="video/mp4,video/mov,video/webm">
+            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+            <div class="upload-text">Click to upload video</div>
+            <div class="upload-hint">MP4, MOV, WEBM (max 100MB)</div>
+            <div class="video-progress-bar" id="video-progress-bar">
+              <div class="video-progress-fill" id="video-progress-fill"></div>
+            </div>
+            <div class="video-progress-text" id="video-progress-text"></div>
+          </div>
           <div class="video-info" id="video-info">
             <video id="video-preview" controls></video>
-            <button class="remove-video" id="remove-video">✕ Remove Video</button>
+            <button class="remove-video" id="remove-video"><i class="fas fa-times"></i> Remove Video</button>
           </div>
           <input type="hidden" id="video-url">
         </div>
       </div>
 
       <div class="button-group">
-        <button class="cancel-btn" onclick="window.history.back()">Cancel</button>
+        <button class="cancel-btn" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> Cancel</button>
         <button class="post-btn" id="post-btn">
-          <span>Publish Post</span>
+          <i class="fas fa-paper-plane"></i> <span>Publish Post</span>
         </button>
       </div>
     </div>
@@ -261,10 +271,12 @@ textarea::placeholder { color: #aaa; font-style: italic; }
 </div>
 
 <div class="toast" id="toast"></div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -278,81 +290,42 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
 // Categories
 const CATEGORIES = [
-  { name: 'Comedy', icon: '😂' }, { name: 'Sports', icon: '⚽' },
-  { name: 'Anime', icon: '🎌' }, { name: 'Comics', icon: '💬' },
-  { name: 'Relationship', icon: '💕' }, { name: 'Showcasing', icon: '✨' },
-  { name: 'Daily Life', icon: '📅' }, { name: 'Beauty', icon: '💄' },
-  { name: 'Games', icon: '🎮' }, { name: 'Society', icon: '🏛️' },
-  { name: 'Outfit', icon: '👗' }, { name: 'Cars', icon: '🚗' },
-  { name: 'Food', icon: '🍕' }, { name: 'Animals', icon: '🐾' },
-  { name: 'Family', icon: '👨‍👩‍👧‍👦' }, { name: 'Drama', icon: '🎭' },
-  { name: 'Fitness & Health', icon: '💪' }, { name: 'Education', icon: '📚' },
-  { name: 'Technology', icon: '💻' }
+  { name: 'Comedy', icon: 'fa-laugh-beam' },
+  { name: 'Sports', icon: 'fa-futbol' },
+  { name: 'Anime', icon: 'fa-dragon' },
+  { name: 'Comics', icon: 'fa-book-open' },
+  { name: 'Relationship', icon: 'fa-heart' },
+  { name: 'Showcasing', icon: 'fa-star' },
+  { name: 'Daily Life', icon: 'fa-calendar-day' },
+  { name: 'Beauty', icon: 'fa-magic' },
+  { name: 'Games', icon: 'fa-gamepad' },
+  { name: 'Society', icon: 'fa-landmark' },
+  { name: 'Outfit', icon: 'fa-tshirt' },
+  { name: 'Cars', icon: 'fa-car' },
+  { name: 'Food', icon: 'fa-utensils' },
+  { name: 'Animals', icon: 'fa-paw' },
+  { name: 'Family', icon: 'fa-users' },
+  { name: 'Drama', icon: 'fa-theater-masks' },
+  { name: 'Fitness & Health', icon: 'fa-dumbbell' },
+  { name: 'Education', icon: 'fa-graduation-cap' },
+  { name: 'Technology', icon: 'fa-laptop-code' }
 ];
-
-// Cloudinary Config - UPDATED WITH YOUR CREDENTIALS
-const CLOUDINARY_CLOUD_NAME = 'dq7fpxfbc';
-const CLOUDINARY_UPLOAD_PRESET = 'CashClique';
 
 let currentUser = null;
 let selectedCategory = null;
 let selectedImageBase64 = null;
-let cloudinaryVideoUrl = null;
+let videoDownloadUrl = null;
+let uploadTask = null;
 let isDropdownOpen = false;
-
-// Initialize Cloudinary Upload Widget
-let videoWidget;
-if (CLOUDINARY_CLOUD_NAME !== 'YOUR_CLOUD_NAME') {
-  videoWidget = cloudinary.createUploadWidget({
-    cloudName: CLOUDINARY_CLOUD_NAME,
-    uploadPreset: CLOUDINARY_UPLOAD_PRESET,
-    sources: ['local', 'url'],
-    resourceType: 'video',
-    maxFileSize: 100000000,
-    clientAllowedFormats: ['mp4', 'mov', 'avi', 'webm', 'mkv'],
-    showPoweredBy: false,
-    styles: {
-      palette: {
-        window: '#FFFFFF',
-        windowBorder: '#ff6a00',
-        tabIcon: '#ff6a00',
-        menuIcons: '#5A616A',
-        textDark: '#000000',
-        textLight: '#FFFFFF',
-        link: '#ff6a00',
-        action: '#ff6a00',
-        inactiveTabIcon: '#0E2F5A',
-        error: '#F44235',
-        inProgress: '#ff6a00',
-        complete: '#20B832',
-        sourceBg: '#E4EBF1'
-      }
-    }
-  }, (error, result) => {
-    if (!error && result && result.event === "success") {
-      cloudinaryVideoUrl = result.info.secure_url;
-      document.getElementById('video-url').value = cloudinaryVideoUrl;
-      
-      const preview = document.getElementById('video-preview');
-      preview.src = cloudinaryVideoUrl;
-      document.getElementById('video-info').style.display = 'block';
-      document.getElementById('upload-video-btn').style.display = 'none';
-      
-      showToast("Video uploaded successfully!", "success");
-    } else if (error) {
-      showToast("Upload failed: " + error.message, "error");
-    }
-  });
-}
 
 // Initialize
 function init() {
   renderCategories(CATEGORIES);
   
-  // Close dropdown when clicking outside
   document.addEventListener('click', (e) => {
     const dropdown = document.getElementById('category-dropdown');
     if (!dropdown.contains(e.target) && isDropdownOpen) {
@@ -360,20 +333,18 @@ function init() {
     }
   });
 
-  // Auth
   onAuthStateChanged(auth, user => {
     if (!user) return window.location.href = "login.html";
     currentUser = user;
   });
 }
 
-// Render Categories
 function renderCategories(categories) {
   const list = document.getElementById('category-list');
   list.innerHTML = '';
   
   if (categories.length === 0) {
-    list.innerHTML = '<div class="category-no-results">No categories found</div>';
+    list.innerHTML = '<div class="category-no-results"><i class="fas fa-search"></i> No categories found</div>';
     return;
   }
   
@@ -384,16 +355,15 @@ function renderCategories(categories) {
       item.classList.add('selected');
     }
     item.innerHTML = `
-      <span class="category-item-icon">${cat.icon}</span>
+      <span class="category-item-icon"><i class="fas ${cat.icon}"></i></span>
       <span class="category-item-text">${cat.name}</span>
-      <span class="category-item-check">✓</span>
+      <span class="category-item-check"><i class="fas fa-check"></i></span>
     `;
     item.onclick = () => selectCategory(cat);
     list.appendChild(item);
   });
 }
 
-// Dropdown Functions
 window.toggleCategoryDropdown = function() {
   if (isDropdownOpen) {
     closeCategoryDropdown();
@@ -427,27 +397,23 @@ window.filterCategories = function(searchTerm) {
 function selectCategory(cat) {
   selectedCategory = cat;
   
-  // Update input display
   const placeholder = document.getElementById('category-placeholder');
-  placeholder.textContent = `${cat.icon} ${cat.name}`;
+  placeholder.innerHTML = `<i class="fas ${cat.icon}"></i> ${cat.name}`;
   placeholder.classList.add('selected');
   
-  // Update selected display
   document.getElementById('selected-category-display').classList.remove('hidden');
-  document.getElementById('selected-cat-icon').textContent = cat.icon;
+  document.getElementById('selected-cat-icon').className = `fas ${cat.icon}`;
   document.getElementById('selected-cat-text').textContent = cat.name;
   
-  // Re-render to show checkmark
   const searchTerm = document.getElementById('category-search-input').value;
   filterCategories(searchTerm);
   
   closeCategoryDropdown();
 }
 
-// Media Tab Switching
 window.switchMediaTab = function(type) {
   document.querySelectorAll('.media-tab').forEach(t => t.classList.remove('active'));
-  event.target.classList.add('active');
+  event.target.closest('.media-tab').classList.add('active');
   
   if (type === 'image') {
     document.getElementById('image-upload-section').style.display = 'block';
@@ -476,20 +442,93 @@ document.getElementById('remove-image').addEventListener('click', (e) => {
   document.getElementById('image-preview').style.display = 'none';
 });
 
-// Video Handling
-document.getElementById('upload-video-btn').addEventListener('click', () => {
-  if (CLOUDINARY_CLOUD_NAME === 'YOUR_CLOUD_NAME') {
-    showToast("Video upload not configured. Please contact admin.", "error");
+// ============================================
+// FIREBASE STORAGE VIDEO UPLOAD
+// ============================================
+
+document.getElementById('post-video').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  
+  if (file.size > 100 * 1024 * 1024) {
+    showToast("Video too large! Max 100MB", "error");
     return;
   }
-  videoWidget.open();
+  
+  const allowedTypes = ['video/mp4', 'video/quicktime', 'video/webm'];
+  if (!allowedTypes.includes(file.type)) {
+    showToast("Invalid format. Use MP4, MOV, or WEBM", "error");
+    return;
+  }
+  
+  const uploadArea = document.getElementById('video-upload-area');
+  const progressBar = document.getElementById('video-progress-bar');
+  const progressFill = document.getElementById('video-progress-fill');
+  const progressText = document.getElementById('video-progress-text');
+  
+  uploadArea.classList.add('uploading');
+  progressBar.classList.add('active');
+  
+  try {
+    showToast("Uploading video...", "success");
+    
+    // Create storage reference
+    const fileName = `videos/${currentUser.uid}/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+    const storageRef = ref(storage, fileName);
+    
+    // Start upload with progress tracking
+    uploadTask = uploadBytesResumable(storageRef, file);
+    
+    uploadTask.on('state_changed',
+      (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        progressFill.style.width = progress + '%';
+        progressText.textContent = `Uploading: ${Math.round(progress)}%`;
+      },
+      (error) => {
+        console.error('Upload error:', error);
+        showToast("Upload failed: " + error.message, "error");
+        uploadArea.classList.remove('uploading');
+        progressBar.classList.remove('active');
+      },
+      async () => {
+        // Upload complete, get download URL
+        videoDownloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+        document.getElementById('video-url').value = videoDownloadUrl;
+        
+        // Show preview
+        const preview = document.getElementById('video-preview');
+        preview.src = URL.createObjectURL(file);
+        document.getElementById('video-info').style.display = 'block';
+        
+        showToast("Video uploaded successfully!", "success");
+        uploadArea.classList.remove('uploading');
+        progressBar.classList.remove('active');
+        progressText.textContent = '';
+      }
+    );
+    
+  } catch (error) {
+    console.error('Upload error:', error);
+    showToast("Upload failed: " + error.message, "error");
+    uploadArea.classList.remove('uploading');
+    progressBar.classList.remove('active');
+  }
 });
 
 document.getElementById('remove-video').addEventListener('click', () => {
-  cloudinaryVideoUrl = null;
+  // Cancel ongoing upload if exists
+  if (uploadTask) {
+    uploadTask.cancel();
+    uploadTask = null;
+  }
+  
+  videoDownloadUrl = null;
+  document.getElementById('post-video').value = '';
   document.getElementById('video-url').value = '';
   document.getElementById('video-info').style.display = 'none';
-  document.getElementById('upload-video-btn').style.display = 'flex';
+  document.getElementById('video-progress-fill').style.width = '0%';
+  document.getElementById('video-progress-text').textContent = '';
 });
 
 // Character count
@@ -505,12 +544,12 @@ document.getElementById('post-btn').addEventListener('click', async () => {
   const text = document.getElementById('post-content').value.trim();
   
   if (!selectedCategory) return showToast("Please select a category", "error");
-  if (!text && !selectedImageBase64 && !cloudinaryVideoUrl) return showToast("Please add content", "error");
+  if (!text && !selectedImageBase64 && !videoDownloadUrl) return showToast("Please add content", "error");
   if (text.length < 10) return showToast("Post must be at least 10 characters", "error");
   
   const btn = document.getElementById('post-btn');
   btn.disabled = true;
-  btn.innerHTML = '⏳ Publishing...';
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publishing...';
   
   try {
     const userRef = doc(db, "users", currentUser.uid);
@@ -524,25 +563,24 @@ document.getElementById('post-btn').addEventListener('click', async () => {
       category: selectedCategory.name,
       categoryIcon: selectedCategory.icon,
       imageBase64: selectedImageBase64 || null,
-      videoUrl: cloudinaryVideoUrl || null,
+      videoUrl: videoDownloadUrl || null,
       likes: 0,
       likedBy: [],
       commentCount: 0,
       timestamp: serverTimestamp()
     });
     
-    showToast("✅ Post published!", "success");
+    showToast("Post published successfully!", "success");
     setTimeout(() => window.location.href = "dashboard.html", 1000);
     
   } catch (err) {
     console.error(err);
     showToast("Failed to post", "error");
     btn.disabled = false;
-    btn.innerHTML = 'Publish Post';
+    btn.innerHTML = '<i class="fas fa-paper-plane"></i> <span>Publish Post</span>';
   }
 });
 
-// Helpers
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -554,12 +592,11 @@ function fileToBase64(file) {
 
 function showToast(msg, type = 'success') {
   const toast = document.getElementById('toast');
-  toast.textContent = msg;
+  toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i> ${msg}`;
   toast.className = `toast ${type} show`;
   setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-// Logout
 document.getElementById('header-logout').onclick = 
 document.getElementById('sidebar-logout').onclick = async (e) => {
   e.preventDefault();
@@ -567,11 +604,9 @@ document.getElementById('sidebar-logout').onclick = async (e) => {
   window.location.href = "login.html";
 };
 
-// Mobile menu
 window.toggleMenu = () => document.getElementById('sidebar').classList.toggle('active');
 
 init();
 </script>
-
 </body>
 </html>
