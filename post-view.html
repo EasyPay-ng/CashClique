@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Post View | CashClique</title>
 
 <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
@@ -19,15 +19,19 @@ body{background:#f5f5f5;min-height:100vh;padding:20px;}
 .container{max-width:600px;margin:0 auto;background:white;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.08);overflow:hidden;}
 
 .post-header{display:flex;align-items:center;gap:12px;padding:20px;border-bottom:1px solid #f0f0f0;}
-.post-header img{width:45px;height:45px;border-radius:50%;cursor:pointer;transition:0.2s;}
+.post-header img{width:45px;height:45px;border-radius:50%;cursor:pointer;transition:0.2s;object-fit:cover;}
 .post-header img:hover{transform:scale(1.05);}
 .post-header strong{font-size:16px;cursor:pointer;}
 .post-header strong:hover{color:#ff6a00;}
 
-.post-content{padding:20px;font-size:16px;line-height:1.6;}
-.post-image{width:100%;max-height:500px;object-fit:cover;}
+.post-content{padding:20px;font-size:16px;line-height:1.6;word-wrap:break-word;}
 
-.post-actions{padding:0 20px 20px;display:flex;gap:35px;border-bottom:1px solid #f0f0f0;padding-bottom:20px;}
+/* Media Styles - Both Image and Video */
+.post-media{width:100%;max-height:500px;object-fit:cover;display:block;background:#000;}
+.post-image{cursor:pointer;}
+.post-video{cursor:pointer;outline:none;}
+
+.post-actions{padding:0 20px 20px;display:flex;gap:35px;border-bottom:1px solid #f0f0f0;padding-bottom:20px;margin-top:15px;}
 .action-item{cursor:pointer;font-size:16px;transition:0.2s;display:flex;align-items:center;gap:6px;color:#555;}
 .action-item:hover{color:#ff6a00;}
 .like-btn.liked{color:#ff4444;}
@@ -42,7 +46,7 @@ body{background:#f5f5f5;min-height:100vh;padding:20px;}
 .comment-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
 .comment-header strong{font-size:14px;color:#ff6a00;}
 .comment-header small{font-size:11px;color:#888;}
-.comment-text{font-size:14px;color:#333;line-height:1.5;margin-bottom:10px;}
+.comment-text{font-size:14px;color:#333;line-height:1.5;margin-bottom:10px;word-wrap:break-word;}
 .comment-actions{display:flex;gap:15px;font-size:13px;color:#666;}
 .comment-actions span{cursor:pointer;display:flex;align-items:center;gap:4px;}
 .comment-actions span:hover{color:#ff6a00;}
@@ -53,14 +57,14 @@ body{background:#f5f5f5;min-height:100vh;padding:20px;}
 .reply .comment-text{font-size:13px;}
 
 .reply-input-wrapper{margin-top:12px;display:flex;gap:8px;align-items:flex-end;}
-.reply-input{flex:1;padding:10px 12px;border:1px solid #ddd;border-radius:8px;resize:none;font-size:13px;outline:none;min-height:40px;}
+.reply-input{flex:1;padding:10px 12px;border:1px solid #ddd;border-radius:8px;resize:none;font-size:13px;outline:none;min-height:40px;font-family:'Poppins',sans-serif;}
 .reply-input:focus{border-color:#ff6a00;}
-.reply-btn{background:#ff6a00;color:white;border:none;padding:10px 16px;border-radius:8px;font-weight:500;cursor:pointer;transition:0.2s;font-size:13px;white-space:nowrap;}
-.reply-btn:hover{background:#e55d00;transform:translateY(-1px);}
-.reply-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+.reply-btn-submit{background:#ff6a00;color:white;border:none;padding:10px 16px;border-radius:8px;font-weight:500;cursor:pointer;transition:0.2s;font-size:13px;white-space:nowrap;}
+.reply-btn-submit:hover{background:#e55d00;transform:translateY(-1px);}
+.reply-btn-submit:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
 
 .comment-input-wrapper{display:flex;gap:10px;align-items:flex-end;}
-.comment-input{flex:1;padding:12px 15px;border:1px solid #ddd;border-radius:10px;resize:none;font-size:14px;outline:none;transition:0.2s;min-height:48px;}
+.comment-input{flex:1;padding:12px 15px;border:1px solid #ddd;border-radius:10px;resize:none;font-size:14px;outline:none;transition:0.2s;min-height:48px;font-family:'Poppins',sans-serif;}
 .comment-input:focus{border-color:#ff6a00;}
 .comment-btn{background:#ff6a00;color:white;border:none;padding:12px 20px;border-radius:10px;font-weight:500;cursor:pointer;transition:0.2s;white-space:nowrap;}
 .comment-btn:hover{background:#e55d00;transform:translateY(-1px);}
@@ -71,11 +75,22 @@ body{background:#f5f5f5;min-height:100vh;padding:20px;}
 
 .loading{text-align:center;padding:50px;color:#888;}
 
+/* Media Modal for Image Viewing */
+.media-modal{position:fixed;inset:0;background:rgba(0,0,0,0.95);display:none;align-items:center;justify-content:center;z-index:3000;cursor:zoom-out;padding:20px;}
+.media-modal.active{display:flex;}
+.media-modal img{max-width:95%;max-height:95vh;border-radius:12px;object-fit:contain;}
+.close-modal{position:absolute;top:20px;right:25px;color:white;font-size:35px;cursor:pointer;background:none;border:none;}
+
+/* Verified Badge */
+.verified-badge{background:#1DA1F2;color:white;width:16px;height:16px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;margin-left:5px;}
+.verified-badge-post{background:#1DA1F2;color:white;width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;margin-left:5px;vertical-align:middle;}
+
 @media(max-width:600px){
     body{padding:10px;}
     .post-header, .post-content, .post-actions, .comments-section{padding:15px;}
     .post-actions{gap:25px;}
     .reply-list{margin-left:20px;}
+    .post-media{max-height:350px;}
 }
 </style>
 </head>
@@ -88,12 +103,17 @@ body{background:#f5f5f5;min-height:100vh;padding:20px;}
 
 <div class="container">
   <div class="post-header">
-    <img id="poster-pic" src="https://i.pravatar.cc/150?img=3">
-    <strong id="poster-name">Username</strong>
+    <img id="poster-pic" src="https://i.pravatar.cc/150?img=3" alt="Profile">
+    <div style="display:flex;align-items:center;gap:5px;">
+        <strong id="poster-name">Username</strong>
+        <span id="verified-badge" class="verified-badge" style="display:none;"><i class="fas fa-check"></i></span>
+    </div>
   </div>
 
   <div class="post-content" id="post-text"></div>
-  <img id="post-img" class="post-image" style="display:none;">
+  
+  <!-- Media Container - Will hold either image or video -->
+  <div id="media-container"></div>
 
   <div class="post-actions">
     <span id="view-count" class="action-item">
@@ -117,10 +137,16 @@ body{background:#f5f5f5;min-height:100vh;padding:20px;}
   </div>
 </div>
 
+<!-- Media Modal for Images -->
+<div class="media-modal" id="media-modal" onclick="closeMediaModal()">
+    <button class="close-modal">&times;</button>
+    <img id="modal-image" src="" alt="Full size">
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, collection, getDoc, onSnapshot, addDoc, updateDoc, increment, serverTimestamp, arrayUnion, arrayRemove, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, collection, getDoc, onSnapshot, addDoc, updateDoc, increment, serverTimestamp, arrayUnion, arrayRemove, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
 apiKey:"AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -142,7 +168,7 @@ const postId = urlParams.get('postId');
 const posterPic = document.getElementById("poster-pic");
 const posterName = document.getElementById("poster-name");
 const postText = document.getElementById("post-text");
-const postImg = document.getElementById("post-img");
+const mediaContainer = document.getElementById("media-container");
 const likeBtn = document.getElementById("like-btn");
 const likeCountSpan = likeBtn.querySelector('span');
 const viewCountSpan = document.getElementById('view-count').querySelector('span');
@@ -150,6 +176,7 @@ const commentList = document.getElementById("comment-list");
 const commentInput = document.getElementById("comment-input");
 const commentBtn = document.getElementById("comment-btn");
 const commentCount = document.getElementById("comment-count");
+const verifiedBadge = document.getElementById("verified-badge");
 
 let currentUser=null;
 let currentUsername = "User";
@@ -187,17 +214,47 @@ function loadPost(){
   });
 
   // Real-time post updates
-  onSnapshot(postRef, postSnap => {
+  onSnapshot(postRef, async postSnap => {
     if(!postSnap.exists()){ alert("Post not found"); return; }
     const post = postSnap.data();
 
-    posterName.innerText = post.username;
-    posterPic.src = `https://i.pravatar.cc/150?u=${post.userId}`;
+    posterName.innerText = post.username || "Anonymous";
+    posterPic.src = post.userAvatar || `https://i.pravatar.cc/150?u=${post.userId}`;
     postText.innerText = post.content || '';
-    if(post.imageBase64){ 
-      postImg.src = post.imageBase64; 
-      postImg.style.display='block'; 
+    
+    // Handle media - check for video first, then image
+    mediaContainer.innerHTML = ''; // Clear previous media
+    
+    if(post.videoUrl){
+      // Video content
+      const video = document.createElement('video');
+      video.src = post.videoUrl;
+      video.className = 'post-media post-video';
+      video.controls = true;
+      video.preload = 'metadata';
+      video.playsInline = true;
+      video.setAttribute('playsinline', '');
+      video.setAttribute('webkit-playsinline', '');
+      video.style.width = '100%';
+      video.style.maxHeight = '500px';
+      mediaContainer.appendChild(video);
+    } else if(post.imageBase64){
+      // Image content
+      const img = document.createElement('img');
+      img.src = post.imageBase64;
+      img.className = 'post-media post-image';
+      img.alt = 'Post image';
+      img.onclick = () => viewImage(post.imageBase64);
+      mediaContainer.appendChild(img);
     }
+
+    // Check verification status
+    try {
+      const userDoc = await getDoc(doc(db, "users", post.userId));
+      if(userDoc.exists() && (userDoc.data().isVerified || userDoc.data().verified)){
+        verifiedBadge.style.display = 'inline-flex';
+      }
+    } catch(e) {}
 
     posterPic.onclick = ()=>{ window.location.href=`profile.html?uid=${post.userId}`; }
     posterName.onclick = ()=>{ window.location.href=`profile.html?uid=${post.userId}`; }
@@ -277,13 +334,13 @@ function renderComment(comment, replies=[]){
 
   div.innerHTML = `
     <div class="comment-header">
-      <strong>${comment.username}</strong>
+      <strong>${escapeHtml(comment.username || 'User')}</strong>
       <small>${time}</small>
     </div>
-    <div class="comment-text">${comment.text}</div>
+    <div class="comment-text">${escapeHtml(comment.text)}</div>
     <div class="comment-actions">
       <span class="reply-btn" data-comment-id="${comment.id}">
-        <i class="fa-regular fa-reply"></i> Reply
+        <i class="fa-solid fa-reply"></i> Reply
       </span>
     </div>
   `;
@@ -309,27 +366,12 @@ function renderComment(comment, replies=[]){
     replyDiv.className = "reply";
     replyDiv.innerHTML = `
       <div class="comment-header">
-        <strong>${reply.username}</strong>
+        <strong>${escapeHtml(reply.username || 'User')}</strong>
         <small>${timeAgo(reply.timestamp.toDate())}</small>
       </div>
-      <div class="comment-text">${reply.text}</div>
-      <div class="comment-actions">
-        <span class="reply-btn" data-comment-id="${reply.id}">
-          <i class="fa-regular fa-reply"></i> Reply
-        </span>
-      </div>
+      <div class="comment-text">${escapeHtml(reply.text)}</div>
     `;
     replyList.appendChild(replyDiv);
-
-    // Add reply input for replies
-    const replyReplyContainer = document.createElement("div");
-    replyReplyContainer.className = "reply-input-wrapper";
-    replyReplyContainer.style.display = "none";
-    replyReplyContainer.innerHTML = `
-      <textarea class="reply-input" placeholder="Write a reply..." rows="1"></textarea>
-      <button class="reply-btn-submit" data-comment-id="${reply.id}">Post</button>
-    `;
-    replyDiv.appendChild(replyReplyContainer);
   });
 
   commentList.appendChild(div);
@@ -393,8 +435,34 @@ commentBtn.onclick=async()=>{
   commentBtn.disabled = true;
 };
 
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// View image in modal
+window.viewImage = (src) => {
+  document.getElementById("modal-image").src = src;
+  document.getElementById("media-modal").classList.add("active");
+  document.body.style.overflow = 'hidden';
+};
+
+window.closeMediaModal = () => {
+  document.getElementById("media-modal").classList.remove("active");
+  document.body.style.overflow = '';
+};
+
+// Close modal on escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeMediaModal();
+});
+
 // Time ago helper
 function timeAgo(date) {
+  if (!date) return "Just now";
   const seconds = Math.floor((new Date() - date) / 1000);
   if (seconds < 60) return "Just now";
   const minutes = Math.floor(seconds / 60);
