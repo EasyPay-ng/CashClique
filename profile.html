@@ -147,18 +147,36 @@ body{background:var(--bg-body);min-height:100vh;-webkit-font-smoothing:antialias
 /* Posts Grid */
 .posts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;animation:fadeIn 0.6s var(--transition-base);}
 @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+
+/* Post Thumb - Supports both images and videos */
 .post-thumb{aspect-ratio:1;background:var(--bg-card);border-radius:var(--radius-md);overflow:hidden;cursor:pointer;transition:var(--transition-base);box-shadow:var(--shadow-sm);position:relative;border:1px solid rgba(0,0,0,0.02);}
 .post-thumb::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,0.6));opacity:0;transition:var(--transition-base);z-index:1;}
 .post-thumb:hover{transform:translateY(-4px) scale(1.02);box-shadow:var(--shadow-lg);z-index:10;}
 .post-thumb:hover::before{opacity:1;}
 .post-thumb:active{transform:scale(0.98);}
-.post-thumb img{width:100%;height:100%;object-fit:cover;transition:var(--transition-slow);}
+
+/* Image styling */
+.post-thumb img{width:100%;height:100%;object-fit:cover;transition:var(--transition-slow);display:block;}
 .post-thumb:hover img{transform:scale(1.08);}
+
+/* Video styling */
+.post-thumb video{width:100%;height:100%;object-fit:cover;display:block;background:#000;}
+.post-thumb:hover video{transform:scale(1.08);}
+
+/* Video indicator icon */
+.video-indicator{position:absolute;top:8px;right:8px;width:32px;height:32px;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:14px;z-index:2;transition:var(--transition-fast);}
+.post-thumb:hover .video-indicator{background:var(--primary);transform:scale(1.1);}
+
+/* Overlay stats */
 .post-thumb-overlay{position:absolute;inset:0;display:flex;align-items:flex-end;padding:14px;color:white;opacity:0;transition:var(--transition-base);z-index:2;transform:translateY(10px);}
 .post-thumb:hover .post-thumb-overlay{opacity:1;transform:translateY(0);}
 .post-stats-overlay{display:flex;gap:16px;font-size:13px;font-weight:600;text-shadow:0 2px 4px rgba(0,0,0,0.5);}
 .post-stats-overlay span{display:flex;align-items:center;gap:6px;transition:var(--transition-fast);}
 .post-stats-overlay span:hover{transform:scale(1.1);}
+
+/* Text-only post styling */
+.post-thumb-text{background:linear-gradient(135deg,var(--primary) 0%,var(--primary-light) 100%);color:white;display:flex;align-items:center;justify-content:center;padding:16px;font-size:13px;text-align:center;font-weight:500;}
+.post-thumb-text div{line-height:1.5;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;}
 
 /* Empty State */
 .empty-state{grid-column:1/-1;text-align:center;padding:60px 30px;background:var(--bg-card);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);animation:float 3s ease-in-out infinite;}
@@ -277,6 +295,12 @@ body{background:var(--bg-body);min-height:100vh;-webkit-font-smoothing:antialias
 .loading i{font-size:36px;color:var(--primary);animation:spin 1s linear infinite;margin-bottom:16px;display:block;}
 .loading p{font-size:15px;font-weight:500;}
 
+/* Media Modal for Image Viewing */
+.media-modal{position:fixed;inset:0;background:rgba(0,0,0,0.95);display:none;align-items:center;justify-content:center;z-index:3000;cursor:zoom-out;padding:20px;}
+.media-modal.active{display:flex;}
+.media-modal img{max-width:95%;max-height:95vh;border-radius:12px;object-fit:contain;}
+.close-modal{position:absolute;top:20px;right:25px;color:white;font-size:35px;cursor:pointer;background:none;border:none;}
+
 /* Mobile Optimizations */
 @media(max-width:480px){
     .header-content{padding:12px 16px;}
@@ -302,6 +326,7 @@ body{background:var(--bg-body);min-height:100vh;-webkit-font-smoothing:antialias
     .post-thumb{border-radius:var(--radius-sm);}
     .post-thumb-overlay{padding:12px;}
     .post-stats-overlay{gap:12px;font-size:12px;}
+    .video-indicator{width:28px;height:28px;font-size:12px;}
     .empty-state{padding:48px 24px;}
     .empty-icon{font-size:48px;}
     .empty-title{font-size:18px;}
@@ -347,6 +372,12 @@ body{background:var(--bg-body);min-height:100vh;-webkit-font-smoothing:antialias
 
 <!-- Toast Container -->
 <div class="toast-container" id="toast-container"></div>
+
+<!-- Media Modal -->
+<div class="media-modal" id="media-modal" onclick="closeMediaModal()">
+    <button class="close-modal">&times;</button>
+    <img id="modal-image" src="" alt="Full size">
+</div>
 
 <!-- Header -->
 <div class="header" id="header">
@@ -529,6 +560,7 @@ body{background:var(--bg-body);min-height:100vh;-webkit-font-smoothing:antialias
         </div>
     </div>
 </div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -681,7 +713,7 @@ function animateNumber(element, start, end) {
 }
 
 function loadUserPosts() {
-    const q = query(collection(db, "posts"), where("userId", "==", profileUid));
+    const q = query(collection(db, "posts"), where("userId", "==", profileUid), orderBy("timestamp", "desc"));
 
     onSnapshot(q, (snapshot) => {
         const total = snapshot.size;
@@ -700,21 +732,31 @@ function loadUserPosts() {
             return;
         }
 
-        const sorted = snapshot.docs.sort((a, b) => {
-            const ta = a.data().timestamp?.seconds || 0;
-            const tb = b.data().timestamp?.seconds || 0;
-            return tb - ta;
-        });
-
-        sorted.forEach((doc, index) => {
+        snapshot.forEach((doc, index) => {
             const post = doc.data();
+            const postId = doc.id;
             const div = document.createElement("div");
             div.className = "post-thumb";
             div.style.animation = `fadeIn 0.5s ease ${index * 0.05}s both`;
 
-            if (post.imageBase64) {
+            // Check for video first, then image, then text
+            if (post.videoUrl) {
+                // Video content
                 div.innerHTML = `
-                    <img src="${post.imageBase64}" loading="lazy">
+                    <video src="${post.videoUrl}" preload="metadata" muted playsinline></video>
+                    <div class="video-indicator">
+                        <i class="fas fa-play"></i>
+                    </div>
+                    <div class="post-thumb-overlay">
+                        <div class="post-stats-overlay">
+                            <span><i class="fas fa-heart"></i> ${formatNumber(post.likes || 0)}</span>
+                            <span><i class="fas fa-comment"></i> ${formatNumber(post.commentCount || 0)}</span>
+                        </div>
+                    </div>`;
+            } else if (post.imageBase64) {
+                // Image content
+                div.innerHTML = `
+                    <img src="${post.imageBase64}" loading="lazy" alt="Post image">
                     <div class="post-thumb-overlay">
                         <div class="post-stats-overlay">
                             <span><i class="fas fa-heart"></i> ${formatNumber(post.likes || 0)}</span>
@@ -723,18 +765,12 @@ function loadUserPosts() {
                         </div>
                     </div>`;
             } else {
-                div.style.background = "linear-gradient(135deg, #ff6a00, #ff8a00)";
-                div.style.color = "white";
-                div.style.display = "flex";
-                div.style.alignItems = "center";
-                div.style.justifyContent = "center";
-                div.style.padding = "16px";
-                div.style.fontSize = "13px";
-                div.style.textAlign = "center";
-                div.innerHTML = `<div>${post.content?.substring(0, 100) || "Text post"}</div>`;
+                // Text-only post
+                div.className += " post-thumb-text";
+                div.innerHTML = `<div>${escapeHtml(post.content?.substring(0, 100) || "Text post")}</div>`;
             }
 
-            div.onclick = () => location.href = `post-view.html?postId=${doc.id}`;
+            div.onclick = () => location.href = `post-view.html?postId=${postId}`;
             grid.appendChild(div);
         });
     });
@@ -1154,13 +1190,14 @@ window.switchTab = function(tab, element) {
 };
 
 function loadMediaOnly() {
-    const q = query(collection(db, "posts"), where("userId", "==", profileUid));
+    const q = query(collection(db, "posts"), where("userId", "==", profileUid), orderBy("timestamp", "desc"));
     
     onSnapshot(q, (snapshot) => {
         const grid = document.getElementById("posts-grid");
         grid.innerHTML = "";
         
-        const mediaPosts = snapshot.docs.filter(d => d.data().imageBase64);
+        // Filter posts that have either video or image
+        const mediaPosts = snapshot.docs.filter(d => d.data().videoUrl || d.data().imageBase64);
         
         if (mediaPosts.length === 0) {
             grid.innerHTML = `
@@ -1174,20 +1211,37 @@ function loadMediaOnly() {
         
         mediaPosts.forEach((doc, index) => {
             const post = doc.data();
-            if (!post.imageBase64) return;
-            
+            const postId = doc.id;
             const div = document.createElement("div");
             div.className = "post-thumb";
             div.style.animation = `fadeIn 0.5s ease ${index * 0.05}s both`;
-            div.innerHTML = `
-                <img src="${post.imageBase64}" loading="lazy">
-                <div class="post-thumb-overlay">
-                    <div class="post-stats-overlay">
-                        <span><i class="fas fa-heart"></i> ${formatNumber(post.likes || 0)}</span>
-                        <span><i class="fas fa-comment"></i> ${formatNumber(post.commentCount || 0)}</span>
+            
+            if (post.videoUrl) {
+                // Video content
+                div.innerHTML = `
+                    <video src="${post.videoUrl}" preload="metadata" muted playsinline></video>
+                    <div class="video-indicator">
+                        <i class="fas fa-play"></i>
                     </div>
-                </div>`;
-            div.onclick = () => location.href = `post-view.html?postId=${doc.id}`;
+                    <div class="post-thumb-overlay">
+                        <div class="post-stats-overlay">
+                            <span><i class="fas fa-heart"></i> ${formatNumber(post.likes || 0)}</span>
+                            <span><i class="fas fa-comment"></i> ${formatNumber(post.commentCount || 0)}</span>
+                        </div>
+                    </div>`;
+            } else if (post.imageBase64) {
+                // Image content
+                div.innerHTML = `
+                    <img src="${post.imageBase64}" loading="lazy" alt="Post image">
+                    <div class="post-thumb-overlay">
+                        <div class="post-stats-overlay">
+                            <span><i class="fas fa-heart"></i> ${formatNumber(post.likes || 0)}</span>
+                            <span><i class="fas fa-comment"></i> ${formatNumber(post.commentCount || 0)}</span>
+                        </div>
+                    </div>`;
+            }
+
+            div.onclick = () => location.href = `post-view.html?postId=${postId}`;
             grid.appendChild(div);
         });
     });
@@ -1199,13 +1253,19 @@ function formatNumber(num) {
     return num.toString();
 }
 
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 // Toast System
 function showToast(message, type = "success", duration = 4000) {
     const container = document.getElementById('toast-container');
     const toast = document.createElement("div");
-    toast.className = `toast ${type}`;
-    
-    const icons = {
+    toast.className = `toast ${type}`;    const icons = {
         success: 'check-circle',
         error: 'exclamation-circle',
         info: 'info-circle'
@@ -1250,6 +1310,18 @@ window.showPosts = function() {
     document.querySelector('.tab').click();
 };
 
+// Media Modal Functions
+window.viewImage = function(src) {
+    document.getElementById("modal-image").src = src;
+    document.getElementById("media-modal").classList.add("active");
+    document.body.style.overflow = 'hidden';
+};
+
+window.closeMediaModal = function() {
+    document.getElementById("media-modal").classList.remove("active");
+    document.body.style.overflow = '';
+};
+
 // Event Listeners
 document.getElementById("upload-modal").addEventListener("click", (e) => {
     if (e.target.id === "upload-modal") closeUploadModal();
@@ -1263,6 +1335,7 @@ document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         closeUploadModal();
         closeVerificationOverlay();
+        closeMediaModal();
     }
 });
 </script>
