@@ -68,7 +68,7 @@ html, body { height: 100%; overflow: hidden; background: #000; }
     background: #000;
 }
 
-/* Video Element */
+/* Video Wrapper */
 .video-wrapper {
     position: relative;
     width: 100%;
@@ -90,7 +90,7 @@ html, body { height: 100%; overflow: hidden; background: #000; }
     bottom: 0;
     left: 0;
     right: 0;
-    padding: 20px 100px 30px 20px;
+    padding: 20px 100px 80px 20px; /* Padding adjusted to clear bottom navigation */
     background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
     color: white;
     z-index: 10;
@@ -161,7 +161,7 @@ html, body { height: 100%; overflow: hidden; background: #000; }
 .video-actions {
     position: absolute;
     right: 10px;
-    bottom: 80px;
+    bottom: 110px; /* Lifted upwards slightly to clear bottom navigation */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -282,6 +282,95 @@ html, body { height: 100%; overflow: hidden; background: #000; }
     opacity: 1;
 }
 
+/* Dynamic Double Tap Heart Pop */
+.heart-pop {
+    position: absolute;
+    color: #ff4757;
+    font-size: 80px;
+    animation: heartFly 0.8s ease-out forwards;
+    pointer-events: none;
+    z-index: 100;
+    text-shadow: 0 4px 15px rgba(0,0,0,0.4);
+}
+@keyframes heartFly {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.3); }
+    15% { opacity: 0.9; transform: translate(-50%, -50%) scale(1.2); }
+    30% { transform: translate(-50%, -50%) scale(1); }
+    80% { opacity: 0.9; transform: translate(-50%, -60%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -80%) scale(0.5); }
+}
+
+/* Bottom Navigation Bar */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: #000000;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 400;
+    padding-bottom: env(safe-area-inset-bottom);
+}
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #8a8a8f;
+    text-decoration: none;
+    font-size: 11px;
+    gap: 4px;
+    width: 20%;
+    height: 100%;
+}
+.nav-item i {
+    font-size: 20px;
+}
+.nav-item.active {
+    color: #ffffff;
+}
+
+/* TikTok-style Center Plus Button */
+.upload-center {
+    position: relative;
+}
+.plus-icon-btn {
+    width: 45px;
+    height: 30px;
+    background: #ffffff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+.plus-icon-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: #00f2fe;
+    border-radius: 8px;
+    transform: translateX(-3px);
+    z-index: -1;
+}
+.plus-icon-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: #ff007f;
+    border-radius: 8px;
+    transform: translateX(3px);
+    z-index: -2;
+}
+.plus-icon-btn i {
+    color: #000000;
+    font-size: 16px;
+}
+
 /* Comments Drawer */
 .comments-drawer {
     position: fixed;
@@ -293,7 +382,7 @@ html, body { height: 100%; overflow: hidden; background: #000; }
     max-height: 70vh;
     transform: translateY(100%);
     transition: transform 0.3s ease;
-    z-index: 200;
+    z-index: 500; /* Placed higher than bottom navigation */
     display: flex;
     flex-direction: column;
 }
@@ -392,7 +481,7 @@ html, body { height: 100%; overflow: hidden; background: #000; }
     inset: 0;
     background: rgba(0,0,0,0.5);
     display: none;
-    z-index: 150;
+    z-index: 450;
 }
 .drawer-backdrop.active {
     display: block;
@@ -457,7 +546,7 @@ html, body { height: 100%; overflow: hidden; background: #000; }
     gap: 10px;
 }
 
-/* Sidebar (for desktop) */
+/* Sidebar (for desktop fallback configuration) */
 .sidebar {
     position: fixed;
     left: 0;
@@ -470,7 +559,7 @@ html, body { height: 100%; overflow: hidden; background: #000; }
     display: flex;
     flex-direction: column;
     gap: 20px;
-    z-index: 300;
+    z-index: 600;
     transform: translateX(-100%);
     transition: 0.3s;
 }
@@ -482,7 +571,7 @@ html, body { height: 100%; overflow: hidden; background: #000; }
     inset: 0;
     background: rgba(0,0,0,0.5);
     display: none;
-    z-index: 250;
+    z-index: 550;
 }
 .sidebar-overlay.active {
     display: block;
@@ -554,10 +643,10 @@ html, body { height: 100%; overflow: hidden; background: #000; }
     }
 }
 
-/* Hide on very small screens adjustment */
+/* Height constraints fine-tuning */
 @media (max-height: 600px) {
     .video-actions {
-        bottom: 60px;
+        bottom: 90px;
         gap: 15px;
     }
     .action-btn i {
@@ -570,7 +659,6 @@ html, body { height: 100%; overflow: hidden; background: #000; }
 </head>
 <body>
 
-<!-- Mobile Header -->
 <div class="mobile-header">
     <button class="menu-btn" onclick="toggleSidebar()">
         <i class="fas fa-bars"></i>
@@ -581,7 +669,6 @@ html, body { height: 100%; overflow: hidden; background: #000; }
     </button>
 </div>
 
-<!-- Sidebar -->
 <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
 <div class="sidebar" id="sidebar">
     <button class="sidebar-close" onclick="toggleSidebar()">
@@ -599,7 +686,6 @@ html, body { height: 100%; overflow: hidden; background: #000; }
     <a href="#" id="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
 </div>
 
-<!-- Video Container -->
 <div class="video-container" id="video-container">
     <div class="loading-videos" id="loading">
         <i class="fas fa-spinner fa-spin"></i>
@@ -607,7 +693,30 @@ html, body { height: 100%; overflow: hidden; background: #000; }
     </div>
 </div>
 
-<!-- Comments Drawer -->
+<div class="bottom-nav">
+    <a href="dashboard.html" class="nav-item">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+    </a>
+    <a href="discover.html" class="nav-item">
+        <i class="fas fa-search"></i>
+        <span>Discover</span>
+    </a>
+    <a href="post.html" class="nav-item upload-center">
+        <div class="plus-icon-btn">
+            <i class="fas fa-plus"></i>
+        </div>
+    </a>
+    <a href="#" class="nav-item active">
+        <i class="fas fa-play-circle"></i>
+        <span>Videos</span>
+    </a>
+    <a href="#" id="bottom-nav-profile" class="nav-item">
+        <i class="fas fa-user"></i>
+        <span>Profile</span>
+    </a>
+</div>
+
 <div class="drawer-backdrop" id="drawer-backdrop" onclick="closeComments()"></div>
 <div class="comments-drawer" id="comments-drawer">
     <div class="comments-header">
@@ -625,7 +734,6 @@ html, body { height: 100%; overflow: hidden; background: #000; }
     </div>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script type="module">
@@ -662,6 +770,12 @@ onAuthStateChanged(auth, async (user) => {
     }
     currentUser = user;
     
+    // Dynamically update the profile link inside the bottom navigation bar
+    const profileLink = document.getElementById('bottom-nav-profile');
+    if (profileLink) {
+        profileLink.href = `profile.html?uid=${user.uid}`;
+    }
+    
     // Load user's following list
     const userDoc = await getDoc(doc(db, "users", user.uid));
     if (userDoc.exists()) {
@@ -671,12 +785,9 @@ onAuthStateChanged(auth, async (user) => {
     loadVideos();
 });
 
-// Load videos from Firestore - Fixed query for Firebase Storage
+// Load videos from Firestore
 async function loadVideos() {
-    const container = document.getElementById('video-container');
-    
     try {
-        // Simple query - get all posts ordered by timestamp, filter client-side
         const q = query(
             collection(db, "posts"),
             orderBy("timestamp", "desc")
@@ -685,7 +796,6 @@ async function loadVideos() {
         onSnapshot(q, async (snapshot) => {
             videos = [];
             
-            // Filter for posts with videoUrl
             snapshot.docs.forEach(doc => {
                 const data = doc.data();
                 if (data.videoUrl && data.videoUrl.trim() !== '') {
@@ -701,11 +811,13 @@ async function loadVideos() {
                 return;
             }
             
-            // Get all unique user IDs
             const userIds = new Set();
             videos.forEach(video => userIds.add(video.userId));
             
-            // Cache user data
+            // Also append the current user's UID to make sure they're in cache for comments
+            if (currentUser) userIds.add(currentUser.uid);
+            
+            // Cache user data profiles
             for (const uid of userIds) {
                 if (!userCache[uid]) {
                     const userDoc = await getDoc(doc(db, "users", uid));
@@ -818,25 +930,41 @@ function renderVideos() {
         
         container.appendChild(videoEl);
         
-        // Add click to play/pause
         const videoPlayer = videoEl.querySelector('.video-player');
         const playOverlay = videoEl.querySelector('.play-overlay');
+        const videoWrapper = videoEl.querySelector('.video-wrapper');
         
-        videoEl.addEventListener('click', (e) => {
+        // TikTok Style Double Tap and Single Tap Logic Controls
+        let lastTap = 0;
+        videoWrapper.addEventListener('click', (e) => {
             if (e.target.closest('.video-actions') || e.target.closest('.video-author') || e.target.closest('.follow-mini')) return;
             
-            if (videoPlayer.paused) {
-                videoPlayer.play();
-                playOverlay.classList.remove('show');
-                isPlaying = true;
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTap;
+            
+            if (tapLength < 300 && tapLength > 0) {
+                // Double tap triggered
+                handleDoubleTap(e, videoWrapper, video.id);
             } else {
-                videoPlayer.pause();
-                playOverlay.classList.add('show');
-                isPlaying = false;
+                // Single tap deferred structural play/pause tracker
+                setTimeout(() => {
+                    if (new Date().getTime() - lastTap >= 300) {
+                        if (videoPlayer.paused) {
+                            videoPlayer.play().catch(() => {});
+                            playOverlay.classList.remove('show');
+                            isPlaying = true;
+                        } else {
+                            videoPlayer.pause();
+                            playOverlay.classList.add('show');
+                            isPlaying = false;
+                        }
+                    }
+                }, 200);
             }
+            lastTap = currentTime;
         });
         
-        // Update progress bar
+        // Update progress bar tracking loops
         videoPlayer.addEventListener('timeupdate', () => {
             if (videoPlayer.duration) {
                 const progress = (videoPlayer.currentTime / videoPlayer.duration) * 100;
@@ -845,10 +973,8 @@ function renderVideos() {
             }
         });
         
-        // Handle video errors (Firebase Storage URLs sometimes need refresh)
-        videoPlayer.addEventListener('error', async () => {
-            console.error('Video error, retrying...');
-            // Retry loading after short delay
+        // Error handling fallback 
+        videoPlayer.addEventListener('error', () => {
             setTimeout(() => {
                 videoPlayer.load();
                 videoPlayer.play().catch(() => {});
@@ -856,8 +982,28 @@ function renderVideos() {
         });
     });
     
-    // Setup intersection observer for auto-play
     setupIntersectionObserver();
+}
+
+// Double tap heart mechanics handler
+function handleDoubleTap(e, wrapper, videoId) {
+    const heart = document.createElement('i');
+    heart.className = 'fas fa-heart heart-pop';
+    
+    const rect = wrapper.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    heart.style.left = `${x}px`;
+    heart.style.top = `${y}px`;
+    
+    wrapper.appendChild(heart);
+    setTimeout(() => heart.remove(), 800);
+    
+    const likeBtn = wrapper.querySelector('.video-actions .action-btn:nth-child(2)');
+    if (likeBtn && !likeBtn.classList.contains('liked')) {
+        window.toggleLike(videoId, likeBtn);
+    }
 }
 
 function setupIntersectionObserver() {
@@ -890,7 +1036,7 @@ function setupIntersectionObserver() {
     });
 }
 
-// Follow/Unfollow
+// Follow/Unfollow Engine Actions
 window.toggleFollow = async (userId, btn) => {
     if (userId === currentUser.uid) {
         showToast("You can't follow yourself!", "error");
@@ -917,11 +1063,10 @@ window.toggleFollow = async (userId, btn) => {
         }
     } catch (error) {
         console.error("Follow error:", error);
-        showToast("Failed to update follow status", "error");
     }
 };
 
-// Like/Unlike
+// Like/Unlike Engine Logic
 window.toggleLike = async (videoId, btn) => {
     const isLiked = btn.classList.contains('liked');
     const countEl = document.getElementById(`likes-${videoId}`);
@@ -953,7 +1098,7 @@ window.toggleLike = async (videoId, btn) => {
     }
 };
 
-// Comments
+// Drawer System Execution
 let currentCommentVideoId = null;
 let commentsUnsubscribe = null;
 
@@ -993,7 +1138,8 @@ async function loadComments(videoId) {
     commentsUnsubscribe = onSnapshot(q, (snapshot) => {
         list.innerHTML = '';
         document.getElementById('comments-count').textContent = `${snapshot.size} comments`;
-        document.getElementById(`comments-count-${videoId}`).textContent = snapshot.size;
+        const actionCounter = document.getElementById(`comments-count-${videoId}`);
+        if (actionCounter) actionCounter.textContent = snapshot.size;
         
         if (snapshot.empty) {
             list.innerHTML = '<div style="text-align:center;padding:40px;color:#94a3b8;"><i class="fas fa-comment-slash" style="font-size:40px;margin-bottom:10px;"></i><br>No comments yet. Be the first!</div>';
@@ -1015,7 +1161,6 @@ async function loadComments(videoId) {
             list.appendChild(item);
         });
         
-        // Scroll to bottom
         list.scrollTop = list.scrollHeight;
     });
 }
@@ -1025,25 +1170,25 @@ window.submitComment = async () => {
     const text = input.value.trim();
     if (!text || !currentCommentVideoId) return;
     
-    const video = videos.find(v => v.id === currentCommentVideoId);
-    
     try {
+        // FIX: Grab authentication data directly from active account inside local cached session map instead of duplicating video author data
+        const loggedInUserData = userCache[currentUser.uid] || {};
+        
         await addDoc(collection(db, "posts", currentCommentVideoId, "comments"), {
             userId: currentUser.uid,
-            username: video?.username || currentUser.displayName || 'User',
-            userAvatar: userCache[currentUser.uid]?.avatar || '',
+            username: loggedInUserData.username || currentUser.displayName || 'User',
+            userAvatar: loggedInUserData.avatar || '',
             text: text,
             timestamp: serverTimestamp()
         });
         
-        // Update comment count
         await updateDoc(doc(db, "posts", currentCommentVideoId), {
             commentCount: increment(1)
         });
         
         input.value = '';
     } catch (error) {
-        console.error("Comment error:", error);
+        console.error("Comment submission error:", error);
         showToast("Failed to post comment", "error");
     }
 };
@@ -1052,13 +1197,12 @@ document.getElementById('comment-input').addEventListener('keypress', (e) => {
     if (e.key === 'Enter') submitComment();
 });
 
-// Share
+// Native Web Share Wrapper
 window.shareVideo = async (videoId) => {
     const video = videos.find(v => v.id === videoId);
     if (!video) return;
     
     const shareUrl = window.location.origin + '/videos.html?video=' + videoId;
-    
     if (navigator.share) {
         try {
             await navigator.share({
@@ -1066,16 +1210,13 @@ window.shareVideo = async (videoId) => {
                 text: video.content || 'Watch this video!',
                 url: shareUrl
             });
-        } catch (err) {
-            // User cancelled
-        }
+        } catch (err) {}
     } else {
         navigator.clipboard.writeText(shareUrl);
         showToast('Link copied to clipboard!', 'success');
     }
 };
 
-// Navigation
 window.goToProfile = (userId) => {
     window.location.href = `profile.html?uid=${userId}`;
 };
@@ -1085,13 +1226,11 @@ window.toggleSidebar = () => {
     document.getElementById('sidebar-overlay').classList.toggle('active');
 };
 
-// Logout
 document.getElementById('logout').addEventListener('click', (e) => {
     e.preventDefault();
     signOut(auth).then(() => window.location.href = "login.html");
 });
 
-// Utilities
 function escapeHtml(text) {
     if (!text) return '';
     const div = document.createElement('div');
@@ -1116,7 +1255,7 @@ function showToast(message, type = 'success') {
     setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-// Keyboard navigation
+// Arrow control triggers
 document.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowDown') {
         e.preventDefault();
@@ -1142,12 +1281,10 @@ function scrollToVideo(index) {
     }
 }
 
-// Handle deep linking to specific video
 window.addEventListener('load', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const videoId = urlParams.get('video');
     if (videoId) {
-        // Will scroll to video once loaded
         const checkAndScroll = setInterval(() => {
             const index = videos.findIndex(v => v.id === videoId);
             if (index !== -1) {
@@ -1161,3 +1298,4 @@ window.addEventListener('load', () => {
 </script>
 </body>
 </html>
+
