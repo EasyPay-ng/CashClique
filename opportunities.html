@@ -18,7 +18,7 @@ body {
     overflow-x: hidden;
 }
 
-/* ====== SIDEBAR (ORIGINAL STYLE) ====== */
+/* ====== SIDEBAR (ORIGINAL STYLE - FIXED FOR DESKTOP) ====== */
 .sidebar-overlay {
     position: fixed;
     inset: 0;
@@ -42,10 +42,12 @@ body {
     flex-direction: column;
     gap: 20px;
     z-index: 999;
-    transform: translateX(-100%);
     transition: 0.3s;
+    /* Desktop: sidebar is visible by default */
+    transform: translateX(0);
 }
-.sidebar.active { transform: translateX(0); }
+/* Mobile: sidebar is hidden by default */
+.sidebar.hidden { transform: translateX(-100%); }
 
 .sidebar img { width: 45px; border-radius: 10px; }
 .logo {
@@ -679,9 +681,17 @@ body {
 /* ====== RESPONSIVE ====== */
 @media (max-width: 900px) {
     .mobile-header { display: flex; }
-    .sidebar { transform: translateX(-100%); }
-    .sidebar.active { transform: translateX(0); }
-    .main { margin-left: 0; padding: 10px; padding-top: 15px; }
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    .sidebar.active {
+        transform: translateX(0);
+    }
+    .main {
+        margin-left: 0;
+        padding: 10px;
+        padding-top: 15px;
+    }
     .hero-section { padding: 35px 25px; }
     .hero-title { font-size: 28px; }
     .opportunities-grid { grid-template-columns: 1fr; }
