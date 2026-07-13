@@ -1,962 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Videos | CashClique</title>
-
-<link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-<style>
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-html, body { height: 100%; overflow: hidden; background: #000; }
-
-/* ====== SIDEBAR (Full Desktop + Mobile) ====== */
-.sidebar-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    display: none;
-    z-index: 250;
-    backdrop-filter: blur(4px);
-}
-.sidebar-overlay.active { display: block; }
-
-.sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 260px;
-    background: #ff6a00;
-    color: white;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    z-index: 300;
-    transform: translateX(-100%);
-    transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 4px 0 20px rgba(0,0,0,0.3);
-}
-.sidebar.active { transform: translateX(0); }
-
-.sidebar-close {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: none;
-    border: none;
-    color: white;
-    font-size: 24px;
-    cursor: pointer;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: 0.2s;
-}
-.sidebar-close:hover { background: rgba(255,255,255,0.2); }
-
-.sidebar-logo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-weight: 700;
-    font-size: 20px;
-    margin-bottom: 25px;
-    margin-top: 5px;
-}
-.sidebar-logo img {
-    width: 45px;
-    height: 45px;
-    border-radius: 12px;
-    object-fit: cover;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
-
-.sidebar-divider {
-    height: 1px;
-    background: rgba(255,255,255,0.2);
-    margin: 8px 0;
-}
-
-.sidebar a {
-    color: white;
-    text-decoration: none;
-    padding: 14px 16px;
-    border-radius: 12px;
-    transition: 0.25s;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 15px;
-    font-weight: 500;
-    position: relative;
-}
-.sidebar a i {
-    width: 24px;
-    text-align: center;
-    font-size: 18px;
-}
-.sidebar a:hover {
-    background: rgba(255,255,255,0.15);
-    transform: translateX(4px);
-}
-.sidebar a.active {
-    background: rgba(255,255,255,0.25);
-    font-weight: 600;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-.sidebar a.active::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 4px;
-    height: 24px;
-    background: white;
-    border-radius: 0 4px 4px 0;
-}
-
-.sidebar-user {
-    margin-top: auto;
-    padding: 15px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
-    transition: 0.2s;
-}
-.sidebar-user:hover { background: rgba(255,255,255,0.2); }
-.sidebar-user img {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid rgba(255,255,255,0.3);
-}
-.sidebar-user-info { display: flex; flex-direction: column; }
-.sidebar-user-name {
-    font-weight: 600;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-.sidebar-user-email {
-    font-size: 12px;
-    opacity: 0.8;
-}
-
-/* ====== MOBILE HEADER ====== */
-.mobile-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 56px;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.85), rgba(0,0,0,0.4), transparent);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 16px;
-    z-index: 100;
-    color: white;
-}
-.mobile-header h1 {
-    font-size: 20px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.3);
-}
-.menu-btn, .search-btn {
-    background: rgba(255,255,255,0.1);
-    border: none;
-    color: white;
-    font-size: 20px;
-    cursor: pointer;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    backdrop-filter: blur(10px);
-    transition: 0.2s;
-}
-.menu-btn:hover, .search-btn:hover {
-    background: rgba(255,106,0,0.5);
-    transform: scale(1.05);
-}
-
-/* ====== VIDEO CONTAINER ====== */
-.video-container {
-    height: 100vh;
-    width: 100vw;
-    overflow-y: scroll;
-    scroll-snap-type: y mandatory;
-    scroll-behavior: smooth;
-    position: relative;
-    -webkit-overflow-scrolling: touch;
-}
-.video-container::-webkit-scrollbar { display: none; }
-
-/* Loading Skeleton */
-.video-skeleton {
-    height: 100vh;
-    width: 100vw;
-    scroll-snap-align: start;
-    background: #111;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
-    position: relative;
-    overflow: hidden;
-}
-.video-skeleton::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: linear-gradient(90deg, #111 25%, #1a1a1a 50%, #111 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-}
-@keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-}
-.skeleton-content {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-}
-.skeleton-circle {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.08);
-}
-.skeleton-line {
-    width: 200px;
-    height: 14px;
-    border-radius: 8px;
-    background: rgba(255,255,255,0.08);
-}
-.skeleton-line.short { width: 120px; }
-
-/* Individual Video Item */
-.video-item {
-    height: 100vh;
-    width: 100vw;
-    scroll-snap-align: start;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #000;
-    overflow: hidden;
-}
-
-/* Video Element */
-.video-wrapper {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.video-player {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    max-height: 100vh;
-    background: #111;
-}
-
-/* ====== VIDEO OVERLAY INFO ====== */
-.video-overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 30px 100px 40px 20px;
-    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);
-    color: white;
-    z-index: 10;
-}
-.video-author {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
-    cursor: pointer;
-    width: fit-content;
-}
-.video-author img {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    border: 2.5px solid #ff6a00;
-    object-fit: cover;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-}
-.video-author-info {
-    display: flex;
-    flex-direction: column;
-}
-.video-author-name {
-    font-weight: 700;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
-}
-.verified-badge {
-    background: #1DA1F2;
-    color: white;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 9px;
-    box-shadow: 0 2px 6px rgba(29,161,242,0.4);
-}
-.video-caption {
-    font-size: 14.5px;
-    line-height: 1.6;
-    margin-bottom: 12px;
-    max-height: 66px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
-    opacity: 0.95;
-}
-.video-music {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    opacity: 0.85;
-}
-.music-icon {
-    animation: spin 3s linear infinite;
-    color: #ff6a00;
-}
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-/* ====== RIGHT SIDE ACTIONS ====== */
-.video-actions {
-    position: absolute;
-    right: 12px;
-    bottom: 90px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 22px;
-    z-index: 20;
-}
-.action-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    color: white;
-    cursor: pointer;
-    transition: 0.2s;
-    user-select: none;
-}
-.action-btn i {
-    font-size: 28px;
-    width: 52px;
-    height: 52px;
-    background: rgba(255,255,255,0.12);
-    backdrop-filter: blur(12px);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 1px solid rgba(255,255,255,0.08);
-}
-.action-btn:hover i {
-    background: rgba(255,106,0,0.4);
-    transform: scale(1.15);
-    border-color: rgba(255,106,0,0.3);
-}
-.action-btn:active i {
-    transform: scale(0.95);
-}
-.action-btn.liked i {
-    background: #ff4757;
-    color: white;
-    border-color: #ff4757;
-    animation: heartBeat 0.4s ease;
-}
-@keyframes heartBeat {
-    0%, 100% { transform: scale(1); }
-    25% { transform: scale(1.3); }
-    50% { transform: scale(1.1); }
-    75% { transform: scale(1.25); }
-}
-.action-btn.liked {
-    color: #ff4757;
-}
-.action-count {
-    font-size: 12px;
-    font-weight: 600;
-    text-shadow: 0 1px 4px rgba(0,0,0,0.6);
-}
-
-/* Double-tap Heart Animation */
-.double-tap-heart {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0);
-    font-size: 100px;
-    color: #ff4757;
-    pointer-events: none;
-    z-index: 25;
-    text-shadow: 0 4px 20px rgba(255,71,87,0.5);
-    transition: none;
-}
-.double-tap-heart.animate {
-    animation: doubleTapLike 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-@keyframes doubleTapLike {
-    0% { transform: translate(-50%, -50%) scale(0) rotate(-15deg); opacity: 0; }
-    20% { transform: translate(-50%, -50%) scale(1.3) rotate(0deg); opacity: 1; }
-    40% { transform: translate(-50%, -50%) scale(1.1) rotate(5deg); opacity: 1; }
-    100% { transform: translate(-50%, -60%) scale(0.8) rotate(0deg); opacity: 0; }
-}
-
-/* Profile Button on Actions */
-.action-profile {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    border: 2.5px solid white;
-    overflow: hidden;
-    cursor: pointer;
-    position: relative;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    transition: 0.2s;
-}
-.action-profile:hover {
-    transform: scale(1.1);
-    border-color: #ff6a00;
-}
-.action-profile img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-.follow-mini {
-    position: absolute;
-    bottom: -4px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #ff6a00;
-    color: white;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    border: 2.5px solid #000;
-    cursor: pointer;
-    transition: 0.2s;
-    z-index: 5;
-}
-.follow-mini:hover {
-    background: #ff8a00;
-    transform: translateX(-50%) scale(1.15);
-}
-.follow-mini.following {
-    background: #10b981;
-}
-
-/* ====== PROGRESS BAR ====== */
-.video-progress {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: rgba(255,255,255,0.2);
-    z-index: 30;
-}
-.progress-bar {
-    height: 100%;
-    background: linear-gradient(90deg, #ff6a00, #ff8a00);
-    width: 0%;
-    transition: width 0.1s linear;
-    box-shadow: 0 0 10px rgba(255,106,0,0.5);
-}
-
-/* ====== PLAY/PAUSE OVERLAY ====== */
-.play-overlay {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 80px;
-    height: 80px;
-    background: rgba(0,0,0,0.5);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 36px;
-    opacity: 0;
-    transition: 0.3s;
-    pointer-events: none;
-    z-index: 15;
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255,255,255,0.1);
-}
-.play-overlay.show {
-    opacity: 1;
-}
-.video-item.paused .play-overlay {
-    opacity: 1;
-}
-
-/* ====== COMMENTS DRAWER ====== */
-.comments-drawer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: white;
-    border-radius: 24px 24px 0 0;
-    max-height: 75vh;
-    transform: translateY(100%);
-    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 200;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
-}
-.comments-drawer.active {
-    transform: translateY(0);
-}
-.comments-header {
-    padding: 18px 22px;
-    border-bottom: 1px solid #f1f5f9;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.comments-count {
-    font-weight: 700;
-    font-size: 17px;
-    color: #1e2937;
-}
-.close-comments {
-    background: #f1f5f9;
-    border: none;
-    font-size: 18px;
-    color: #64748b;
-    cursor: pointer;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: 0.2s;
-}
-.close-comments:hover {
-    background: #fee2e2;
-    color: #ef4444;
-}
-.comments-list {
-    flex: 1;
-    overflow-y: auto;
-    padding: 15px 20px;
-    max-height: 50vh;
-}
-.comments-list::-webkit-scrollbar { width: 4px; }
-.comments-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-.comment-item {
-    display: flex;
-    gap: 12px;
-    padding: 14px 0;
-    border-bottom: 1px solid #f8fafc;
-    animation: slideUp 0.3s ease;
-}
-@keyframes slideUp {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-.comment-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    flex-shrink: 0;
-    cursor: pointer;
-    border: 2px solid #f1f5f9;
-}
-.comment-body {
-    flex: 1;
-}
-.comment-username {
-    font-weight: 700;
-    font-size: 14px;
-    color: #1e2937;
-    margin-bottom: 4px;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-}
-.comment-username:hover { color: #ff6a00; }
-.comment-text {
-    font-size: 14px;
-    color: #475569;
-    line-height: 1.5;
-}
-.comment-time {
-    font-size: 12px;
-    color: #94a3b8;
-    margin-top: 4px;
-}
-.comment-input-area {
-    padding: 15px 20px;
-    border-top: 1px solid #f1f5f9;
-    display: flex;
-    gap: 12px;
-    background: white;
-    border-radius: 0 0 24px 24px;
-}
-.comment-input {
-    flex: 1;
-    padding: 14px 18px;
-    border: 2px solid #e2e8f0;
-    border-radius: 28px;
-    outline: none;
-    font-size: 14px;
-    transition: 0.3s;
-    font-family: 'Poppins', sans-serif;
-}
-.comment-input:focus {
-    border-color: #ff6a00;
-    box-shadow: 0 0 0 4px rgba(255,106,0,0.1);
-}
-.comment-submit {
-    background: linear-gradient(135deg, #ff6a00, #e55d00);
-    color: white;
-    border: none;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: 0.2s;
-    flex-shrink: 0;
-    box-shadow: 0 4px 12px rgba(255,106,0,0.3);
-}
-.comment-submit:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 20px rgba(255,106,0,0.4);
-}
-
-/* Drawer Backdrop */
-.drawer-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    display: none;
-    z-index: 150;
-    backdrop-filter: blur(2px);
-}
-.drawer-backdrop.active { display: block; }
-
-/* ====== LOADING STATE ====== */
-.loading-videos {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    gap: 20px;
-}
-.loading-videos i {
-    font-size: 50px;
-    color: #ff6a00;
-    animation: pulse 1.5s infinite;
-}
-@keyframes pulse {
-    0%, 100% { opacity: 0.5; transform: scale(1); }
-    50% { opacity: 1; transform: scale(1.1); }
-}
-
-/* ====== EMPTY STATE ====== */
-.empty-videos {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    text-align: center;
-    padding: 40px;
-}
-.empty-videos i {
-    font-size: 80px;
-    color: #ff6a00;
-    margin-bottom: 20px;
-    opacity: 0.5;
-}
-.empty-videos h2 {
-    font-size: 26px;
-    margin-bottom: 10px;
-    font-weight: 700;
-}
-.empty-videos p {
-    color: #94a3b8;
-    margin-bottom: 30px;
-    font-size: 15px;
-}
-.upload-video-btn {
-    background: linear-gradient(135deg, #ff6a00, #ff8a00);
-    color: white;
-    border: none;
-    padding: 16px 32px;
-    border-radius: 28px;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    box-shadow: 0 8px 25px rgba(255,106,0,0.3);
-    transition: 0.3s;
-}
-.upload-video-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 35px rgba(255,106,0,0.4);
-}
-
-/* ====== LOAD MORE SPINNER ====== */
-.load-more-trigger {
-    height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    gap: 10px;
-    font-size: 14px;
-    opacity: 0.7;
-}
-.load-more-trigger i {
-    color: #ff6a00;
-}
-
-/* ====== TOAST ====== */
-.toast {
-    position: fixed;
-    bottom: 100px;
-    left: 50%;
-    transform: translateX(-50%) translateY(100px);
-    background: #1e2937;
-    color: white;
-    padding: 14px 28px;
-    border-radius: 30px;
-    font-size: 14px;
-    font-weight: 500;
-    z-index: 1000;
-    opacity: 0;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-    max-width: 90%;
-}
-.toast.show {
-    transform: translateX(-50%) translateY(0);
-    opacity: 1;
-}
-.toast i { font-size: 18px; }
-.toast.success i { color: #22c55e; }
-.toast.error i { color: #ef4444; }
-.toast.info i { color: #3b82f6; }
-
-/* ====== DESKTOP ADJUSTMENTS ====== */
-@media (min-width: 768px) {
-    .video-container {
-        max-width: 500px;
-        margin: 0 auto;
-    }
-    .video-item {
-        border-radius: 0;
-    }
-    .sidebar {
-        transform: translateX(0);
-        box-shadow: none;
-    }
-    .sidebar-overlay { display: none !important; }
-    .sidebar-close { display: none; }
-    .mobile-header {
-        left: 260px;
-        width: calc(100% - 260px);
-    }
-}
-
-/* ====== SMALL SCREEN ADJUSTMENTS ====== */
-@media (max-height: 600px) {
-    .video-actions {
-        bottom: 70px;
-        gap: 16px;
-    }
-    .action-btn i {
-        width: 46px;
-        height: 46px;
-        font-size: 22px;
-    }
-    .video-overlay {
-        padding-bottom: 25px;
-    }
-}
-
-/* ====== PULL TO REFRESH INDICATOR ====== */
-.pull-refresh {
-    position: absolute;
-    top: -60px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: white;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    opacity: 0;
-    transition: opacity 0.3s;
-    z-index: 50;
-}
-.pull-refresh.visible {
-    opacity: 1;
-}
-</style>
-</head>
-<body>
-
-<!-- Sidebar Overlay -->
-<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
-
-<!-- Sidebar -->
-<div class="sidebar" id="sidebar">
-    <button class="sidebar-close" onclick="toggleSidebar()">
-        <i class="fas fa-times"></i>
-    </button>
-    <div class="sidebar-logo">
-        <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg" alt="Logo">
-        CashClique
-    </div>
-    
-    <a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
-    <a href="#" class="active"><i class="fas fa-play-circle"></i> Videos</a>
-    <a href="my-content.html"><i class="fas fa-file-alt"></i> My Content</a>
-    <a href="earnings.html"><i class="fas fa-dollar-sign"></i> Earnings</a>
-    <a href="opportunities.html"><i class="fas fa-fire"></i> Opportunities</a>
-    <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
-    
-    <div class="sidebar-divider"></div>
-    
-    <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
-    <a href="post.html"><i class="fas fa-plus-circle"></i> Create Post</a>
-    
-    <div class="sidebar-divider"></div>
-    
-    <a href="#" id="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
-    
-    <div class="sidebar-user" onclick="window.location.href='profile.html'">
-        <img id="sidebar-avatar" src="https://ui-avatars.com/api/?name=U&background=ff6a00&color=fff" alt="User">
-        <div class="sidebar-user-info">
-            <div class="sidebar-user-name" id="sidebar-username">Loading...</div>
-            <div class="sidebar-user-email" id="sidebar-email">...</div>
-        </div>
-    </div>
-</div>
-
-<!-- Mobile Header -->
-<div class="mobile-header">
-    <button class="menu-btn" onclick="toggleSidebar()">
-        <i class="fas fa-bars"></i>
-    </button>
-    <h1><i class="fas fa-play-circle" style="color: #ff6a00;"></i> Videos</h1>
-    <button class="search-btn" onclick="showToast('Search coming soon!', 'info')">
-        <i class="fas fa-search"></i>
-    </button>
-</div>
-
-<!-- Pull to Refresh -->
-<div class="pull-refresh" id="pull-refresh">
-    <i class="fas fa-spinner fa-spin"></i> Pull to refresh
-</div>
-
-<!-- Video Container -->
-<div class="video-container" id="video-container">
-    <div class="loading-videos" id="loading">
-        <i class="fas fa-spinner fa-spin"></i>
-        <p>Loading videos...</p>
-    </div>
-</div>
-
-<!-- Comments Drawer -->
-<div class="drawer-backdrop" id="drawer-backdrop" onclick="closeComments()"></div>
-<div class="comments-drawer" id="comments-drawer">
-    <div class="comments-header">
-        <span class="comments-count" id="comments-count">0 comments</span>
-        <button class="close-comments" onclick="closeComments()">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-    <div class="comments-list" id="comments-list"></div>
-    <div class="comment-input-area">
-        <input type="text" class="comment-input" id="comment-input" placeholder="Add a comment...">
-        <button class="comment-submit" onclick="submitComment()">
-            <i class="fas fa-paper-plane"></i>
-        </button>
-    </div>
-</div>
-
-<!-- Toast -->
-<div class="toast" id="toast"></div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -983,8 +24,8 @@ let currentVideoId = null;
 let isPlaying = true;
 let userCache = {};
 let followingList = [];
-let videoMetadataCache = {}; // Cache duration & dimensions
-let lastDoc = null;          // Pagination cursor
+let videoMetadataCache = {};
+let lastDoc = null;
 let isLoadingMore = false;
 let hasMoreVideos = true;
 const VIDEOS_PER_PAGE = 10;
@@ -1025,19 +66,19 @@ async function loadVideos() {
     try {
         let q;
         if (lastDoc) {
+            // Pagination: load next batch
             q = query(
                 collection(db, "posts"),
-                where("videoUrl", "!=", ""),
-                orderBy("videoUrl"),
+                where("hasVideo", "==", true),
                 orderBy("timestamp", "desc"),
                 startAfter(lastDoc),
                 limit(VIDEOS_PER_PAGE)
             );
         } else {
+            // First load
             q = query(
                 collection(db, "posts"),
-                where("videoUrl", "!=", ""),
-                orderBy("videoUrl"),
+                where("hasVideo", "==", true),
                 orderBy("timestamp", "desc"),
                 limit(VIDEOS_PER_PAGE)
             );
@@ -1055,7 +96,7 @@ async function loadVideos() {
         
         lastDoc = snapshot.docs[snapshot.docs.length - 1];
         
-        // Filter valid videos
+        // Build video list
         const newVideos = [];
         snapshot.docs.forEach(docSnap => {
             const data = docSnap.data();
@@ -1087,7 +128,7 @@ async function loadVideos() {
         });
         await Promise.all(userPromises);
         
-        // Cache video metadata (duration, dimensions) to prevent layout shifts
+        // Cache video metadata
         await cacheVideoMetadata(newVideos);
         
         // Append to videos array
@@ -1105,7 +146,13 @@ async function loadVideos() {
         
     } catch (error) {
         console.error("Error loading videos:", error);
-        showToast("Failed to load videos", "error");
+        showToast("Failed to load videos. Check console for details.", "error");
+        
+        // Show more detailed error in console
+        if (error.code === 'failed-precondition') {
+            console.error("FIRESTORE INDEX REQUIRED: Create a composite index for collection 'posts' with fields: hasVideo (Ascending) + timestamp (Descending)");
+            console.error("Go to: https://console.firebase.google.com/project/cashclique-31718/firestore/indexes");
+        }
     }
 }
 
@@ -1138,7 +185,6 @@ async function cacheVideoMetadata(videoList) {
                 resolve();
             };
             
-            // Timeout fallback
             setTimeout(() => {
                 if (!videoMetadataCache[video.id]) {
                     videoMetadataCache[video.id] = { duration: 0, width: 0, height: 0, aspectRatio: 9/16 };
@@ -1155,12 +201,10 @@ async function cacheVideoMetadata(videoList) {
 function renderVideoBatch(videoList, startIndex) {
     const container = document.getElementById('video-container');
     
-    // Remove loading on first batch
     if (startIndex === 0) {
         container.innerHTML = '';
     }
     
-    // Remove load-more trigger if exists
     const existingTrigger = document.getElementById('load-more-trigger');
     if (existingTrigger) existingTrigger.remove();
     
@@ -1248,12 +292,9 @@ function renderVideoBatch(videoList, startIndex) {
         `;
         
         container.appendChild(videoEl);
-        
-        // Attach event listeners
         attachVideoEvents(videoEl, video, index);
     });
     
-    // Add load-more trigger
     if (hasMoreVideos) {
         const trigger = document.createElement('div');
         trigger.className = 'load-more-trigger';
@@ -1269,21 +310,16 @@ function attachVideoEvents(videoEl, video, index) {
     const playOverlay = videoEl.querySelector('.play-overlay');
     const heartEl = videoEl.querySelector('.double-tap-heart');
     
-    // Single tap = play/pause
-    // Double tap = like
     videoEl.addEventListener('click', (e) => {
-        // Ignore clicks on action buttons
         if (e.target.closest('.video-actions') || e.target.closest('.video-author') || e.target.closest('.follow-mini')) return;
         
         const currentTime = Date.now();
         const tapDiff = currentTime - lastTapTime;
         
         if (tapDiff < 300 && tapDiff > 0) {
-            // Double tap detected
             clearTimeout(tapTimeout);
             handleDoubleTap(video.id, heartEl, videoEl);
         } else {
-            // Single tap - wait to confirm it's not a double tap
             tapTimeout = setTimeout(() => {
                 if (videoPlayer.paused) {
                     videoPlayer.play();
@@ -1300,7 +336,6 @@ function attachVideoEvents(videoEl, video, index) {
         lastTapTime = currentTime;
     });
     
-    // Update progress bar
     videoPlayer.addEventListener('timeupdate', () => {
         if (videoPlayer.duration) {
             const progress = (videoPlayer.currentTime / videoPlayer.duration) * 100;
@@ -1309,7 +344,6 @@ function attachVideoEvents(videoEl, video, index) {
         }
     });
     
-    // Handle video errors
     videoPlayer.addEventListener('error', () => {
         console.error('Video error, retrying...');
         setTimeout(() => {
@@ -1318,7 +352,6 @@ function attachVideoEvents(videoEl, video, index) {
         }, 1500);
     });
     
-    // Like button click
     const likeBtn = videoEl.querySelector('.action-btn[data-video-id]');
     likeBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -1328,24 +361,21 @@ function attachVideoEvents(videoEl, video, index) {
 
 // ==================== DOUBLE TAP TO LIKE ====================
 function handleDoubleTap(videoId, heartEl, videoEl) {
-    // Show heart animation
     heartEl.classList.remove('animate');
-    void heartEl.offsetWidth; // Force reflow
+    void heartEl.offsetWidth;
     heartEl.classList.add('animate');
     
-    // Trigger like if not already liked
     const likeBtn = videoEl.querySelector('.action-btn[data-video-id]');
     if (likeBtn && !likeBtn.classList.contains('liked')) {
         toggleLike(videoId, likeBtn);
     }
     
-    // Remove animation class after animation completes
     setTimeout(() => {
         heartEl.classList.remove('animate');
     }, 800);
 }
 
-// ==================== INTERSECTION OBSERVER (Auto Play/Pause) ====================
+// ==================== INTERSECTION OBSERVER ====================
 let videoObserver;
 function setupIntersectionObserver() {
     if (videoObserver) videoObserver.disconnect();
@@ -1383,7 +413,6 @@ function setupScrollObserver() {
     const container = document.getElementById('video-container');
     
     container.addEventListener('scroll', () => {
-        // Check if near bottom
         const scrollTop = container.scrollTop;
         const scrollHeight = container.scrollHeight;
         const clientHeight = container.clientHeight;
@@ -1393,7 +422,6 @@ function setupScrollObserver() {
                 isLoadingMore = true;
                 loadVideos().then(() => {
                     isLoadingMore = false;
-                    // Re-observe new videos
                     document.querySelectorAll('.video-item:not([data-observed])').forEach(item => {
                         item.dataset.observed = 'true';
                         videoObserver.observe(item);
@@ -1430,7 +458,6 @@ function setupScrollObserver() {
             if (refreshEl.classList.contains('visible')) {
                 refreshEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
                 setTimeout(() => {
-                    // Reset and reload
                     videos = [];
                     lastDoc = null;
                     hasMoreVideos = true;
@@ -1474,7 +501,6 @@ window.toggleFollow = async (userId) => {
             showToast("Following now!");
         }
         
-        // Update ALL follow buttons for this user across all videos
         updateFollowButtons(userId);
         
     } catch (error) {
@@ -1483,7 +509,6 @@ window.toggleFollow = async (userId) => {
     }
 };
 
-// Update all follow buttons for a user (data-driven, not DOM-dependent)
 function updateFollowButtons(userId) {
     const isFollowing = followingList.includes(userId);
     
@@ -1512,7 +537,6 @@ window.toggleLike = async (videoId, btn) => {
     const countEl = document.getElementById(`likes-${videoId}`);
     let currentLikes = parseInt(countEl.textContent) || 0;
     
-    // Optimistic UI update
     if (isLiked) {
         btn.classList.remove('liked');
         btn.querySelector('i').classList.replace('fas', 'far');
@@ -1521,8 +545,6 @@ window.toggleLike = async (videoId, btn) => {
         btn.classList.add('liked');
         btn.querySelector('i').classList.replace('far', 'fas');
         countEl.textContent = currentLikes + 1;
-        
-        // Heart beat animation
         btn.style.transform = 'scale(1.3)';
         setTimeout(() => btn.style.transform = 'scale(1)', 200);
     }
@@ -1541,7 +563,6 @@ window.toggleLike = async (videoId, btn) => {
         }
     } catch (error) {
         console.error("Like error:", error);
-        // Revert on error
         if (isLiked) {
             btn.classList.add('liked');
             btn.querySelector('i').classList.replace('far', 'fas');
@@ -1667,9 +688,7 @@ window.shareVideo = async (videoId) => {
                 text: video.content || 'Watch this video!',
                 url: shareUrl
             });
-        } catch (err) {
-            // User cancelled
-        }
+        } catch (err) {}
     } else {
         navigator.clipboard.writeText(shareUrl);
         showToast('Link copied to clipboard!', 'success');
@@ -1686,7 +705,6 @@ window.toggleSidebar = () => {
     document.getElementById('sidebar-overlay').classList.toggle('active');
 };
 
-// Logout
 document.getElementById('logout').addEventListener('click', (e) => {
     e.preventDefault();
     signOut(auth).then(() => window.location.href = "login.html");
