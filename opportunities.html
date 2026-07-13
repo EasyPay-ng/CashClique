@@ -2,281 +2,1168 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Opportunities | CashClique</title>
 
 <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{background:#f5f5f5;min-height:100vh;padding:0;}
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
 
-/* Mobile Header */
-.mobile-header{display:none;background:#ff6a00;color:white;padding:15px 20px;align-items:center;gap:15px;position:sticky;top:0;z-index:100;}
-.mobile-header h1{font-size:18px;font-weight:600;flex:1;}
-.menu-btn{background:none;border:none;color:white;font-size:24px;cursor:pointer;padding:5px;}
-
-/* Sidebar */
-.sidebar{width:240px;background:#ff6a00;color:white;padding:20px;display:flex;flex-direction:column;gap:20px;position:fixed;height:100%;z-index:999;transition:0.3s;transform:translateX(0);}
-.sidebar img{width:45px;border-radius:10px;}
-.logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:18px;margin-bottom:10px;}
-.sidebar a{color:white;text-decoration:none;padding:12px 15px;border-radius:8px;transition:0.3s;display:flex;align-items:center;gap:10px;}
-.sidebar a:hover, .sidebar a.active{background:rgba(255,255,255,0.2);}
-
-/* Main Content */
-.main{margin-left:240px;padding:20px;transition:0.3s;}
-.container{max-width:1200px;margin:0 auto;}
-.page-header{text-align:center;margin-bottom:40px;padding:20px 0;}
-.page-header h1{font-size:32px;font-weight:700;color:#333;margin-bottom:10px;}
-.page-header p{font-size:16px;color:#666;max-width:600px;margin:0 auto;line-height:1.6;}
-
-/* Opportunities Grid */
-.opportunities-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:30px;margin-top:20px;}
-
-/* Opportunity Card */
-.opportunity-card{background:white;border-radius:20px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,0.08);transition:all 0.3s ease;display:flex;flex-direction:column;}
-.opportunity-card:hover{transform:translateY(-8px);box-shadow:0 20px 50px rgba(0,0,0,0.15);}
-
-.card-header{height:200px;background:linear-gradient(135deg,#ff6a00,#ff8a00);position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;}
-.card-header::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");}
-.card-icon{font-size:64px;position:relative;z-index:1;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.2));}
-.card-body{padding:35px;flex:1;display:flex;flex-direction:column;}
-.card-title{font-size:24px;font-weight:700;color:#333;margin-bottom:15px;}
-.card-description{font-size:15px;color:#666;line-height:1.7;margin-bottom:25px;flex:1;}
-.card-features{background:#f8f9fa;border-radius:12px;padding:20px;margin-bottom:25px;}
-.card-features h4{font-size:14px;color:#ff6a00;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;font-weight:600;}
-.card-features ul{list-style:none;padding:0;margin:0;}
-.card-features li{position:relative;padding-left:25px;margin-bottom:10px;font-size:14px;color:#555;}
-.card-features li::before{content:"✓";position:absolute;left:0;color:#4caf50;font-weight:700;}
-
-.card-footer{margin-top:auto;}
-.cta-button{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  width:100%;
-  background:linear-gradient(135deg,#ff6a00,#ff8a00);
-  color:white;
-  border:none;
-  padding:16px 30px;
-  border-radius:12px;
-  font-size:16px;
-  font-weight:600;
-  cursor:pointer;
-  transition:all 0.3s ease;
-  text-decoration:none;
-  box-shadow:0 6px 20px rgba(255,106,0,0.3);
-}
-.cta-button:hover{
-  transform:translateY(-3px);
-  box-shadow:0 10px 30px rgba(255,106,0,0.4);
-  background:linear-gradient(135deg,#ff8a00,#ff6a00);
-}
-.cta-button:active{
-  transform:translateY(-1px);
+body {
+    background: linear-gradient(135deg, #f8f9fc 0%, #eef1f8 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
 }
 
-/* Nigeria Flag Badge */
-.nigeria-badge{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  background:rgba(255,255,255,0.2);
-  padding:6px 12px;
-  border-radius:20px;
-  font-size:12px;
-  font-weight:600;
-  margin-bottom:15px;
-  backdrop-filter:blur(10px);
+/* ====== SIDEBAR ====== */
+.sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    z-index: 250;
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    transition: opacity 0.3s;
 }
-.flag{width:20px;height:14px;border-radius:2px;background:linear-gradient(to right, #008751 33%, #ffffff 33%, #ffffff 66%, #008751 66%);position:relative;}
-.flag::after{content:'';position:absolute;top:0;left:33%;width:1px;height:100%;background:#fff;transform:translateX(-50%);}
-
-/* Stats Banner */
-.stats-banner{
-  background:linear-gradient(135deg,#1a2a3a,#2c3e50);
-  color:white;
-  border-radius:16px;
-  padding:30px;
-  margin-bottom:40px;
-  display:flex;
-  justify-content:space-around;
-  flex-wrap:wrap;
-  gap:20px;
-  text-align:center;
-}
-.stat-item{flex:1;min-width:150px;}
-.stat-value{font-size:36px;font-weight:700;margin-bottom:5px;background:linear-gradient(135deg,#ff6a00,#ff8a00);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.stat-label{font-size:14px;opacity:0.8;text-transform:uppercase;letter-spacing:1px;}
-
-/* Responsive */
-@media(max-width:900px){
-  .mobile-header{display:flex;}
-  .sidebar{transform:translateX(-100%);}
-  .sidebar.active{transform:translateX(0);}
-  .main{margin-left:0;padding:10px;padding-top:70px;}
-  .page-header h1{font-size:26px;}
-  .opportunities-grid{grid-template-columns:1fr;}
-  .card-header{height:160px;}
-  .card-body{padding:25px;}
-  .stats-banner{padding:20px;}
-  .stat-value{font-size:28px;}
+.sidebar-overlay.active {
+    display: block;
+    opacity: 1;
 }
 
-@media(max-width:480px){
-  .page-header h1{font-size:22px;}
-  .card-title{font-size:20px;}
-  .card-description{font-size:14px;}
-  .cta-button{font-size:15px;padding:14px 25px;}
-  .stats-banner{flex-direction:column;gap:15px;}
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 260px;
+    background: #ff6a00;
+    color: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    z-index: 300;
+    transform: translateX(-100%);
+    transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+}
+.sidebar.active { transform: translateX(0); }
+
+.sidebar-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 22px;
+    cursor: pointer;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+}
+.sidebar-close:hover { background: rgba(255,255,255,0.2); }
+
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 700;
+    font-size: 20px;
+    margin-bottom: 25px;
+    margin-top: 5px;
+}
+.sidebar-logo img {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    object-fit: cover;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.sidebar-divider {
+    height: 1px;
+    background: rgba(255,255,255,0.2);
+    margin: 8px 0;
+}
+
+.sidebar a {
+    color: white;
+    text-decoration: none;
+    padding: 13px 16px;
+    border-radius: 12px;
+    transition: 0.25s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14.5px;
+    font-weight: 500;
+    position: relative;
+}
+.sidebar a i {
+    width: 24px;
+    text-align: center;
+    font-size: 17px;
+}
+.sidebar a:hover {
+    background: rgba(255,255,255,0.15);
+    transform: translateX(4px);
+}
+.sidebar a.active {
+    background: rgba(255,255,255,0.25);
+    font-weight: 600;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.sidebar a.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 22px;
+    background: white;
+    border-radius: 0 4px 4px 0;
+}
+
+.sidebar-user {
+    margin-top: auto;
+    padding: 14px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.sidebar-user:hover { background: rgba(255,255,255,0.2); }
+.sidebar-user img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255,255,255,0.3);
+}
+.sidebar-user-info { display: flex; flex-direction: column; }
+.sidebar-user-name {
+    font-weight: 600;
+    font-size: 13.5px;
+}
+.sidebar-user-email {
+    font-size: 11px;
+    opacity: 0.8;
+}
+
+/* ====== MOBILE HEADER ====== */
+.mobile-header {
+    display: none;
+    background: linear-gradient(135deg, #ff6a00, #e55d00);
+    color: white;
+    padding: 12px 18px;
+    align-items: center;
+    gap: 15px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 15px rgba(255,106,0,0.3);
+}
+.mobile-header h1 {
+    font-size: 18px;
+    font-weight: 700;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.menu-btn {
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 10px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+}
+.menu-btn:hover { background: rgba(255,255,255,0.25); }
+
+/* ====== MAIN CONTENT ====== */
+.main {
+    margin-left: 260px;
+    padding: 0;
+    min-height: 100vh;
+    transition: 0.3s;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px;
+}
+
+/* ====== HERO SECTION ====== */
+.hero-section {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    border-radius: 24px;
+    padding: 50px 40px;
+    margin-bottom: 40px;
+    position: relative;
+    overflow: hidden;
+    color: white;
+}
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(255,106,0,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+}
+.hero-section::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(255,138,0,0.1) 0%, transparent 70%);
+    border-radius: 50%;
+}
+.hero-content {
+    position: relative;
+    z-index: 1;
+}
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,106,0,0.2);
+    border: 1px solid rgba(255,106,0,0.3);
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #ff8a00;
+    margin-bottom: 20px;
+    backdrop-filter: blur(10px);
+}
+.hero-title {
+    font-size: 38px;
+    font-weight: 800;
+    margin-bottom: 15px;
+    line-height: 1.2;
+    background: linear-gradient(135deg, #fff 0%, #e2e8f0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.hero-subtitle {
+    font-size: 16px;
+    color: #94a3b8;
+    max-width: 550px;
+    line-height: 1.7;
+    margin-bottom: 30px;
+}
+.hero-stats {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+.hero-stat {
+    display: flex;
+    flex-direction: column;
+}
+.hero-stat-value {
+    font-size: 32px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #ff6a00, #ff8a00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.hero-stat-label {
+    font-size: 13px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+}
+
+/* ====== STATS BANNER ====== */
+.stats-banner {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 40px;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 20px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    border: 1px solid #f1f5f9;
+}
+.stat-item {
+    flex: 1;
+    min-width: 140px;
+    padding: 15px;
+    border-radius: 16px;
+    transition: 0.3s;
+}
+.stat-item:hover {
+    background: #f8fafc;
+    transform: translateY(-3px);
+}
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    font-size: 22px;
+}
+.stat-icon.orange { background: linear-gradient(135deg, #fff7ed, #ffedd5); color: #ff6a00; }
+.stat-icon.green { background: linear-gradient(135deg, #f0fdf4, #dcfce7); color: #22c55e; }
+.stat-icon.blue { background: linear-gradient(135deg, #eff6ff, #dbeafe); color: #3b82f6; }
+.stat-icon.purple { background: linear-gradient(135deg, #faf5ff, #f3e8ff); color: #a855f7; }
+.stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: #1e2937;
+    margin-bottom: 5px;
+}
+.stat-label {
+    font-size: 13px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+}
+
+/* ====== SECTION HEADER ====== */
+.section-header {
+    text-align: center;
+    margin-bottom: 35px;
+}
+.section-header h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1e2937;
+    margin-bottom: 10px;
+}
+.section-header p {
+    font-size: 15px;
+    color: #64748b;
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* ====== OPPORTUNITIES GRID ====== */
+.opportunities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    gap: 30px;
+    margin-bottom: 50px;
+}
+
+/* ====== OPPORTUNITY CARD ====== */
+.opportunity-card {
+    background: white;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    border: 1px solid #f1f5f9;
+}
+.opportunity-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.12);
+}
+
+.card-header {
+    height: 220px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.card-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.card-header.orange { background: linear-gradient(135deg, #ff6a00, #ff8a00); }
+.card-header.green { background: linear-gradient(135deg, #22c55e, #16a34a); }
+.card-header.blue { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+
+.card-badge {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+    border: 1px solid rgba(255,255,255,0.15);
+    z-index: 2;
+}
+.card-icon {
+    font-size: 72px;
+    position: relative;
+    z-index: 1;
+    filter: drop-shadow(0 8px 16px rgba(0,0,0,0.2));
+    animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.card-body {
+    padding: 30px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+.card-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1e2937;
+    margin-bottom: 12px;
+}
+.card-description {
+    font-size: 14.5px;
+    color: #64748b;
+    line-height: 1.7;
+    margin-bottom: 25px;
+    flex: 1;
+}
+
+.card-features {
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 22px;
+    margin-bottom: 25px;
+    border: 1px solid #f1f5f9;
+}
+.card-features h4 {
+    font-size: 12px;
+    color: #ff6a00;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 15px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.card-features h4 i { font-size: 14px; }
+.card-features ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.card-features li {
+    position: relative;
+    padding-left: 28px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    color: #475569;
+    line-height: 1.5;
+}
+.card-features li::before {
+    content: "\f00c";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    position: absolute;
+    left: 0;
+    color: #22c55e;
+    font-size: 12px;
+    width: 20px;
+    height: 20px;
+    background: #f0fdf4;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-footer { margin-top: auto; }
+
+.cta-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    background: linear-gradient(135deg, #ff6a00, #e55d00);
+    color: white;
+    border: none;
+    padding: 16px 30px;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    box-shadow: 0 6px 20px rgba(255,106,0,0.25);
+    position: relative;
+    overflow: hidden;
+}
+.cta-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: 0.5s;
+}
+.cta-button:hover::before {
+    left: 100%;
+}
+.cta-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(255,106,0,0.35);
+}
+.cta-button:active {
+    transform: translateY(-1px);
+}
+.cta-button.green {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    box-shadow: 0 6px 20px rgba(34,197,94,0.25);
+}
+.cta-button.green:hover {
+    box-shadow: 0 10px 30px rgba(34,197,94,0.35);
+}
+.cta-button.blue {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    box-shadow: 0 6px 20px rgba(59,130,246,0.25);
+}
+.cta-button.blue:hover {
+    box-shadow: 0 10px 30px rgba(59,130,246,0.35);
+}
+
+/* ====== HOW IT WORKS SECTION ====== */
+.how-it-works {
+    background: white;
+    border-radius: 24px;
+    padding: 40px;
+    margin-top: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    border: 1px solid #f1f5f9;
+}
+.how-it-works h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1e2937;
+    margin-bottom: 30px;
+    text-align: center;
+}
+.works-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+}
+.works-card {
+    padding: 30px;
+    border-radius: 20px;
+    background: #f8fafc;
+    border: 1px solid #f1f5f9;
+    transition: 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+.works-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    border-color: #e2e8f0;
+}
+.works-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    border-radius: 20px 20px 0 0;
+}
+.works-card.orange::before { background: linear-gradient(90deg, #ff6a00, #ff8a00); }
+.works-card.green::before { background: linear-gradient(90deg, #22c55e, #16a34a); }
+.works-card.blue::before { background: linear-gradient(90deg, #3b82f6, #2563eb); }
+
+.works-step {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 18px;
+}
+.works-step.orange { background: linear-gradient(135deg, #ff6a00, #ff8a00); }
+.works-step.green { background: linear-gradient(135deg, #22c55e, #16a34a); }
+.works-step.blue { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+
+.works-card h4 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e2937;
+    margin-bottom: 12px;
+}
+.works-card p {
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.7;
+}
+.works-list {
+    list-style: none;
+    margin-top: 15px;
+}
+.works-list li {
+    padding: 8px 0;
+    color: #475569;
+    font-size: 13.5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid #f1f5f9;
+}
+.works-list li:last-child { border-bottom: none; }
+.works-list li i {
+    color: #22c55e;
+    font-size: 12px;
+    width: 20px;
+    height: 20px;
+    background: #f0fdf4;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* ====== TESTIMONIAL SECTION ====== */
+.testimonial-section {
+    margin-top: 50px;
+    text-align: center;
+}
+.testimonial-section h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1e2937;
+    margin-bottom: 30px;
+}
+.testimonial-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+}
+.testimonial-card {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    text-align: left;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    border: 1px solid #f1f5f9;
+    transition: 0.3s;
+}
+.testimonial-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+}
+.testimonial-text {
+    font-size: 14.5px;
+    color: #475569;
+    line-height: 1.7;
+    margin-bottom: 20px;
+    font-style: italic;
+}
+.testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.testimonial-author img {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #f1f5f9;
+}
+.testimonial-author-info h5 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e2937;
+}
+.testimonial-author-info span {
+    font-size: 12px;
+    color: #94a3b8;
+}
+.stars {
+    color: #fbbf24;
+    font-size: 13px;
+    margin-bottom: 12px;
+}
+
+/* ====== CTA SECTION ====== */
+.cta-section {
+    margin-top: 50px;
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border-radius: 24px;
+    padding: 50px 40px;
+    text-align: center;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+.cta-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -20%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(255,106,0,0.1) 0%, transparent 70%);
+    border-radius: 50%;
+}
+.cta-section h3 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    position: relative;
+    z-index: 1;
+}
+.cta-section p {
+    font-size: 15px;
+    color: #94a3b8;
+    max-width: 500px;
+    margin: 0 auto 30px;
+    position: relative;
+    z-index: 1;
+}
+.cta-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+}
+.cta-btn {
+    padding: 14px 32px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.cta-btn.primary {
+    background: linear-gradient(135deg, #ff6a00, #e55d00);
+    color: white;
+    border: none;
+    box-shadow: 0 6px 20px rgba(255,106,0,0.3);
+}
+.cta-btn.primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(255,106,0,0.4);
+}
+.cta-btn.secondary {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
+}
+.cta-btn.secondary:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateY(-3px);
+}
+
+/* ====== TOAST ====== */
+.toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    padding: 14px 24px;
+    border-radius: 14px;
+    background: #1e2937;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 1000;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    max-width: 400px;
+}
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+.toast i { font-size: 18px; }
+.toast.success i { color: #22c55e; }
+.toast.error i { color: #ef4444; }
+.toast.info i { color: #3b82f6; }
+
+/* ====== ANIMATIONS ====== */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.animate-in {
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+/* ====== RESPONSIVE ====== */
+@media (max-width: 900px) {
+    .mobile-header { display: flex; }
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.active { transform: translateX(0); }
+    .sidebar-close { display: flex; }
+    .main { margin-left: 0; }
+    .container { padding: 20px; padding-top: 15px; }
+    .hero-section { padding: 35px 25px; }
+    .hero-title { font-size: 28px; }
+    .opportunities-grid { grid-template-columns: 1fr; }
+    .stats-banner { padding: 20px; }
+    .how-it-works { padding: 30px 20px; }
+    .cta-section { padding: 35px 25px; }
+    .cta-buttons { flex-direction: column; align-items: center; }
+    .cta-btn { width: 100%; max-width: 300px; justify-content: center; }
+}
+
+@media (max-width: 480px) {
+    .hero-title { font-size: 24px; }
+    .hero-stats { gap: 25px; }
+    .hero-stat-value { font-size: 24px; }
+    .card-header { height: 180px; }
+    .card-body { padding: 22px; }
+    .section-header h2 { font-size: 22px; }
+    .works-grid { grid-template-columns: 1fr; }
+    .testimonial-grid { grid-template-columns: 1fr; }
 }
 </style>
 </head>
-
 <body>
 
-<!-- Mobile Header -->
-<div class="mobile-header">
-  <button class="menu-btn" onclick="toggleMenu()">☰</button>
-  <h1>Opportunities</h1>
-</div>
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleMenu()"></div>
 
 <!-- Sidebar -->
 <div class="sidebar" id="sidebar">
-<div class="logo">
-<img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
-CashClique
+    <button class="sidebar-close" onclick="toggleMenu()">
+        <i class="fas fa-times"></i>
+    </button>
+    <div class="sidebar-logo">
+        <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg" alt="Logo">
+        CashClique
+    </div>
+    
+    <a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+    <a href="videos.html"><i class="fas fa-play-circle"></i> Videos</a>
+    <a href="my-content.html"><i class="fas fa-file-alt"></i> My Content</a>
+    <a href="earnings.html"><i class="fas fa-dollar-sign"></i> Earnings</a>
+    <a href="#" class="active"><i class="fas fa-fire"></i> Opportunities</a>
+    <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+    
+    <div class="sidebar-divider"></div>
+    
+    <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+    <a href="post.html"><i class="fas fa-plus-circle"></i> Create Post</a>
+    
+    <div class="sidebar-divider"></div>
+    
+    <a href="#" id="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    
+    <div class="sidebar-user" onclick="window.location.href='profile.html'">
+        <img id="sidebar-avatar" src="https://ui-avatars.com/api/?name=U&background=ff6a00&color=fff" alt="User">
+        <div class="sidebar-user-info">
+            <div class="sidebar-user-name" id="sidebar-username">Loading...</div>
+            <div class="sidebar-user-email" id="sidebar-email">...</div>
+        </div>
+    </div>
 </div>
-<a href="dashboard.html">🏠 Dashboard</a>
-<a href="my-content.html">📝 My Content</a>
-<a href="earnings.html">💰 Earnings</a>
-<a href="opportunities.html" class="active">🔥 Opportunities</a>
-<a href="settings.html">⚙ Settings</a>
-<a href="#" id="logout">🚪 Logout</a>
+
+<!-- Mobile Header -->
+<div class="mobile-header">
+    <button class="menu-btn" onclick="toggleMenu()">
+        <i class="fas fa-bars"></i>
+    </button>
+    <h1><i class="fas fa-fire" style="color: #ffcc00;"></i> Opportunities</h1>
 </div>
 
 <!-- Main Content -->
 <div class="main">
-<div class="container">
-  <div class="page-header">
-    <h1>Opportunities</h1>
-    <p>Grow your business or monetize your audience with CashClique's powerful platform</p>
-  </div>
-  
-  <!-- Stats Banner -->
-  <div class="stats-banner">
-    <div class="stat-item">
-      <div class="stat-value">50K+</div>
-      <div class="stat-label">Active Users</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-value">WorldWide</div>
-      <div class="stat-label">Coverage</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-value">24/7</div>
-      <div class="stat-label">Support</div>
-    </div>
-  </div>
-  
-  <div class="opportunities-grid">
-    <!-- Create Opportunities Card -->
-    <div class="opportunity-card">
-      <div class="card-header">
-        <div class="globe-badge">
-          <div class="flag"></div>
-          World Wide
+    <div class="container">
+        
+        <!-- Hero Section -->
+        <div class="hero-section animate-in">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <i class="fas fa-sparkles"></i> Grow with CashClique
+                </div>
+                <h1 class="hero-title">Turn Your Influence<br>Into Income</h1>
+                <p class="hero-subtitle">Whether you're a brand looking to reach millions or a creator ready to monetize, CashClique connects you with the right opportunities.</p>
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <div class="hero-stat-value">50K+</div>
+                        <div class="hero-stat-label">Active Users</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-value">Global</div>
+                        <div class="hero-stat-label">Reach</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-value">24/7</div>
+                        <div class="hero-stat-label">Support</div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="card-icon">📢</div>
-      </div>
-      <div class="card-body">
-        <h3 class="card-title">Advertise Your Business</h3>
-        <p class="card-description">
-          Reach thousands of active users on CashClique. Promote your products, services, or brand to an engaged audience that's ready to convert.
-        </p>
-        <div class="card-features">
-          <h4>What You Get:</h4>
-          <ul>
-            <li>Targeted Global audience</li>
-            <li>Flexible ad formats (image/video)</li>
-            <li>Real-time performance analytics</li>
-            <li>Pay-per-engagement pricing</li>
-            <li>Dedicated campaign support</li>
-          </ul>
+        
+        <!-- Stats Banner -->
+        <div class="stats-banner animate-in">
+            <div class="stat-item">
+                <div class="stat-icon orange"><i class="fas fa-users"></i></div>
+                <div class="stat-value">50K+</div>
+                <div class="stat-label">Active Users</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon green"><i class="fas fa-hand-holding-dollar"></i></div>
+                <div class="stat-value">$2M+</div>
+                <div class="stat-label">Paid to Creators</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon blue"><i class="fas fa-bullseye"></i></div>
+                <div class="stat-value">98%</div>
+                <div class="stat-label">Success Rate</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon purple"><i class="fas fa-globe"></i></div>
+                <div class="stat-value">Global</div>
+                <div class="stat-label">Coverage</div>
+            </div>
         </div>
-        <div class="card-footer">
-          <a href="create-opportunities.html" class="cta-button">
-            Create Advertisement →
-          </a>
+        
+        <!-- Section Header -->
+        <div class="section-header animate-in">
+            <h2>Choose Your Path</h2>
+            <p>Two powerful ways to grow — whether you're a business or a creator</p>
         </div>
-      </div>
+        
+        <!-- Opportunities Grid -->
+        <div class="opportunities-grid">
+            <!-- Advertise Card -->
+            <div class="opportunity-card animate-in">
+                <div class="card-header orange">
+                    <div class="card-badge">
+                        <i class="fas fa-globe"></i> Global Reach
+                    </div>
+                    <div class="card-icon">📢</div>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title">Advertise Your Business</h3>
+                    <p class="card-description">
+                        Reach thousands of active users on CashClique. Promote your products, services, or brand to an engaged audience that's ready to convert.
+                    </p>
+                    <div class="card-features">
+                        <h4><i class="fas fa-star"></i> What You Get</h4>
+                        <ul>
+                            <li>Targeted Global audience</li>
+                            <li>Flexible ad formats (image/video)</li>
+                            <li>Real-time performance analytics</li>
+                            <li>Pay-per-engagement pricing</li>
+                            <li>Dedicated campaign support</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <a href="create-opportunities.html" class="cta-button">
+                            Create Advertisement <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Monetize Card -->
+            <div class="opportunity-card animate-in">
+                <div class="card-header green">
+                    <div class="card-badge" style="background: rgba(34,197,94,0.2); border-color: rgba(34,197,94,0.3);">
+                        <i class="fas fa-coins"></i> Get Paid
+                    </div>
+                    <div class="card-icon">💰</div>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title">Monetize Your Audience</h3>
+                    <p class="card-description">
+                        Have a following on CashClique? Get paid for promoting brands and products. Turn your influence into income with our creator partnership program.
+                    </p>
+                    <div class="card-features">
+                        <h4 style="color: #22c55e;"><i class="fas fa-bolt"></i> How It Works</h4>
+                        <ul>
+                            <li>Get paid per engagement (likes/comments)</li>
+                            <li>Choose brands that match your niche</li>
+                            <li>Set your own rates</li>
+                            <li>Weekly payouts to your account</li>
+                            <li>No follower minimum required</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <a href="find-opportunities.html" class="cta-button green">
+                            Find Opportunities <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- How It Works -->
+        <div class="how-it-works animate-in">
+            <h3><i class="fas fa-route" style="color: #ff6a00; margin-right: 10px;"></i>How It Works</h3>
+            <div class="works-grid">
+                <div class="works-card orange">
+                    <div class="works-step orange">1</div>
+                    <h4>For Businesses</h4>
+                    <p>Create your ad campaign and target the right audience. We handle the rest.</p>
+                    <ul class="works-list">
+                        <li><i class="fas fa-check"></i> Create your campaign</li>
+                        <li><i class="fas fa-check"></i> Target your audience</li>
+                        <li><i class="fas fa-check"></i> Match with creators</li>
+                        <li><i class="fas fa-check"></i> Track in real-time</li>
+                        <li><i class="fas fa-check"></i> Pay only for results</li>
+                    </ul>
+                </div>
+                <div class="works-card green">
+                    <div class="works-step green">2</div>
+                    <h4>For Creators</h4>
+                    <p>Join free, browse campaigns, create content, and get paid weekly.</p>
+                    <ul class="works-list">
+                        <li><i class="fas fa-check"></i> Join creator program (free)</li>
+                        <li><i class="fas fa-check"></i> Browse campaigns</li>
+                        <li><i class="fas fa-check"></i> Create branded content</li>
+                        <li><i class="fas fa-check"></i> Earn per engagement</li>
+                        <li><i class="fas fa-check"></i> Weekly withdrawals</li>
+                    </ul>
+                </div>
+                <div class="works-card blue">
+                    <div class="works-step blue">3</div>
+                    <h4>Platform Features</h4>
+                    <p>Powerful tools to maximize your success on both sides.</p>
+                    <ul class="works-list">
+                        <li><i class="fas fa-check"></i> Advanced analytics</li>
+                        <li><i class="fas fa-check"></i> Fraud protection</li>
+                        <li><i class="fas fa-check"></i> Secure payments</li>
+                        <li><i class="fas fa-check"></i> 24/7 support</li>
+                        <li><i class="fas fa-check"></i> Instant notifications</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Testimonials -->
+        <div class="testimonial-section animate-in">
+            <h3><i class="fas fa-quote-left" style="color: #ff6a00; margin-right: 10px;"></i>Success Stories</h3>
+            <div class="testimonial-grid">
+                <div class="testimonial-card">
+                    <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <p class="testimonial-text">"CashClique helped me grow my small business from 500 to 15,000 customers in just 3 months. The targeting is incredibly precise."</p>
+                    <div class="testimonial-author">
+                        <img src="https://ui-avatars.com/api/?name=Sarah+J&background=ff6a00&color=fff" alt="">
+                        <div class="testimonial-author-info">
+                            <h5>Sarah Johnson</h5>
+                            <span>Business Owner, Lagos</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    <p class="testimonial-text">"I made my first $500 in the first week! The creator program is legit and payments are always on time."</p>
+                    <div class="testimonial-author">
+                        <img src="https://ui-avatars.com/api/?name=Mike+T&background=22c55e&color=fff" alt="">
+                        <div class="testimonial-author-info">
+                            <h5>Mike Thompson</h5>
+                            <span>Content Creator, Abuja</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></div>
+                    <p class="testimonial-text">"The analytics dashboard is a game-changer. I can see exactly what's working and optimize my campaigns in real-time."</p>
+                    <div class="testimonial-author">
+                        <img src="https://ui-avatars.com/api/?name=David+O&background=3b82f6&color=fff" alt="">
+                        <div class="testimonial-author-info">
+                            <h5>David Okafor</h5>
+                            <span>Marketing Director, PH</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- CTA Section -->
+        <div class="cta-section animate-in">
+            <h3>Ready to Get Started?</h3>
+            <p>Join thousands of businesses and creators already growing with CashClique.</p>
+            <div class="cta-buttons">
+                <a href="create-opportunities.html" class="cta-btn primary">
+                    <i class="fas fa-rocket"></i> Start Advertising
+                </a>
+                <a href="find-opportunities.html" class="cta-btn secondary">
+                    <i class="fas fa-user-plus"></i> Become a Creator
+                </a>
+            </div>
+        </div>
+        
     </div>
-    
-    <!-- Find Opportunities Card -->
-    <div class="opportunity-card">
-      <div class="card-header" style="background:linear-gradient(135deg,#4caf50,#66bb6a);">
-        <div class="card-icon">💰</div>
-      </div>
-      <div class="card-body">
-        <h3 class="card-title">Monetize Your Audience</h3>
-        <p class="card-description">
-          Have a following on CashClique? Get paid for promoting brands and products. Turn your influence into income with our creator partnership program.
-        </p>
-        <div class="card-features">
-          <h4>How It Works:</h4>
-          <ul>
-            <li>Get paid per engagement (likes/comments)</li>
-            <li>Choose brands that match your niche</li>
-            <li>Set your own rates</li>
-            <li>Weekly payouts to your account</li>
-            <li>No follower minimum required</li>
-          </ul>
-        </div>
-        <div class="card-footer">
-          <a href="find-opportunities.html" class="cta-button" style="background:linear-gradient(135deg,#4caf50,#66bb6a);box-shadow:0 6px 20px rgba(76,175,80,0.3);">
-            Find Opportunities →
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Info Section -->
-  <div style="background:white;border-radius:16px;padding:30px;margin-top:30px;box-shadow:0 5px 20px rgba(0,0,0,0.05);">
-    <h3 style="font-size:20px;margin-bottom:15px;color:#333;">How It Works</h3>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;margin-top:20px;">
-      <div>
-        <h4 style="color:#ff6a00;margin-bottom:8px;">For Businesses</h4>
-        <p style="color:#666;font-size:14px;line-height:1.6;">
-          1. Create your ad campaign<br>
-          2. Target Global audience<br>
-          3. We match you with relevant creators<br>
-          4. Track performance in real-time<br>
-          5. Pay only for results
-        </p>
-      </div>
-      <div>
-        <h4 style="color:#4caf50;margin-bottom:8px;">For Creators</h4>
-        <p style="color:#666;font-size:14px;line-height:1.6;">
-          1. Join creator program (free)<br>
-          2. Browse available campaigns<br>
-          3. Create content for brands<br>
-          4. Get paid per engagement<br>
-          5. Weekly withdrawals
-        </p>
-      </div>
-    </div>
-  </div>
-</div>
 </div>
 
+<!-- Toast -->
 <div class="toast" id="toast"></div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -289,24 +1176,48 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
-onAuthStateChanged(auth, (user) => {
+// Auth check + load user data
+onAuthStateChanged(auth, async (user) => {
     if (!user) {
         window.location.href = "login.html";
         return;
+    }
+    
+    // Load sidebar user info
+    try {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+            const data = userDoc.data();
+            document.getElementById('sidebar-username').textContent = data.username || user.email?.split('@')[0] || 'User';
+            document.getElementById('sidebar-email').textContent = user.email || '';
+            if (data.avatar) {
+                document.getElementById('sidebar-avatar').src = data.avatar;
+            }
+        }
+    } catch (error) {
+        console.error("Error loading user:", error);
     }
 });
 
 // Logout
 document.getElementById('logout').addEventListener('click', async (e) => {
     e.preventDefault();
-    await signOut(auth);
-    window.location.href = "login.html";
+    try {
+        await signOut(auth);
+        window.location.href = "login.html";
+    } catch (error) {
+        showToast("Logout failed", "error");
+    }
 });
 
 // Mobile menu toggle
 window.toggleMenu = function() {
-    document.getElementById('sidebar').classList.toggle('active');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    sidebar.classList.toggle('active');
+    overlay.classList.toggle('active');
 };
 
 // Close sidebar when clicking outside on mobile
@@ -316,9 +1227,44 @@ document.addEventListener('click', (e) => {
         const menuBtn = document.querySelector('.menu-btn');
         if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
             sidebar.classList.remove('active');
+            document.getElementById('sidebar-overlay').classList.remove('active');
         }
     }
 });
+
+// Scroll animations
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+            observer.unobserve(entry.target);
+        }
+    });
+}, observerOptions);
+
+document.querySelectorAll('.animate-in').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(30px)';
+    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    observer.observe(el);
+});
+
+// Toast function
+function showToast(message, type = 'success') {
+    const toast = document.getElementById('toast');
+    toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i> ${message}`;
+    toast.className = `toast show ${type}`;
+    setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// Expose toast to window
+window.showToast = showToast;
 </script>
 
 </body>
