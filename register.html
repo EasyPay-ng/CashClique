@@ -955,7 +955,9 @@ import {
     GoogleAuthProvider,
     signInWithPopup,
     OAuthProvider,
-    updateProfile
+    updateProfile,
+    signInWithRedirect,
+    getRedirectResult
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { 
     getFirestore, 
@@ -1101,15 +1103,27 @@ function setLoading(isLoading) {
     registerBtn.disabled = isLoading;
 }
 
-function getErrorMessage(errorCode) {
+function getErrorMessage(error) {
+    // Better error handling - log the actual error for debugging
+    console.error("Auth Error:", error.code, error.message);
+    
     const errors = {
         'auth/email-already-in-use': 'This email is already registered. Try signing in.',
         'auth/invalid-email': 'Please enter a valid email address.',
         'auth/weak-password': 'Password is too weak. Please choose a stronger password.',
         'auth/network-request-failed': 'Network error. Please check your connection.',
-        'auth/operation-not-allowed': 'Email/password sign-in is not enabled.'
+        'auth/operation-not-allowed': 'Email/password sign-in is not enabled in Firebase Console.',
+        'auth/popup-blocked': 'Popup was blocked by your browser. Please allow popups for this site.',
+        'auth/popup-closed-by-user': 'Sign-in popup was closed. Please try again.',
+        'auth/unauthorized-domain': 'This domain is not authorized in Firebase Console. Add your domain to Authorized Domains.',
+        'auth/cancelled-popup-request': 'Multiple popup requests detected. Please try again.',
+        'auth/internal-error': 'An internal error occurred. Please try again.',
+        'auth/invalid-credential': 'Invalid credentials. Please try again.',
+        'auth/account-exists-with-different-credential': 'An account already exists with this email using a different sign-in method.',
+        'auth/timeout': 'The request timed out. Please check your connection and try again.'
     };
-    return errors[errorCode] || 'Registration failed. Please try again.';
+    
+    return errors[error.code] || `Error: ${error.message || 'Registration failed. Please try again.'}`;
 }
 
 function showSuccessState() {
@@ -1122,55 +1136,113 @@ function showSuccessState() {
     setTimeout(() => window.location.href = "login.html", 3000);
 }
 
-// Google Sign Up
+// Check for redirect result on page load (for mobile fallback)
+async function checkRedirectResult() {
+    try {
+        const result = await getRedirectResult(auth);
+        if (result && result.user) {
+            // User just returned from redirect sign-in
+            const userQuery = query(collection(db, "users"), where("email", "==", result.user.email));
+            const userSnap = await getDocs(userQuery);
+            
+            if (userSnap.empty) {
+                await setDoc(doc(db, "users", result.user.uid), {
+                    username: result.user.displayName || result.user.email.split('@')[0],
+                    email: result.user.email,
+                    inviteCode: result.user.uid.substring(0, 6),
+                    createdAt: Date.now(),
+                    provider: 'google'
+                });
+            }
+            
+            showMessage("Account created successfully!", "success");
+            setTimeout(() => window.location.href = "dashboard.html", 1500);
+        }
+    } catch (error) {
+        if (error.code !== 'auth/popup-closed-by-user') {
+            showMessage(getErrorMessage(error), "error");
+        }
+    }
+}
+
+// Run redirect check on load
+checkRedirectResult();
+
+// Google Sign Up - IMPROVED
 window.signUpWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
-    setLoading(true);
+    provider.addScope('email');
+    provider.addScope('profile');
+    
+    // Custom parameters to force account selection
+    provider.setCustomParameters({
+        prompt: 'select_account'
+    });
+    
     hideMessage();
     
     try {
+        // Try popup first
         const result = await signInWithPopup(auth, provider);
-        const userQuery = query(collection(db, "users"), where("email", "==", result.user.email));
+        const user = result.user;
+        
+        // Check if user already exists in Firestore
+        const userQuery = query(collection(db, "users"), where("email", "==", user.email));
         const userSnap = await getDocs(userQuery);
         
         if (userSnap.empty) {
-            await setDoc(doc(db, "users", result.user.uid), {
-                username: result.user.displayName || result.user.email.split('@')[0],
-                email: result.user.email,
-                inviteCode: result.user.uid.substring(0, 6),
+            // New user - create profile
+            await setDoc(doc(db, "users", user.uid), {
+                username: user.displayName || user.email.split('@')[0],
+                email: user.email,
+                inviteCode: user.uid.substring(0, 6),
                 createdAt: Date.now(),
-                provider: 'google'
+                provider: 'google',
+                photoURL: user.photoURL || null
             });
         }
         
         showMessage("Account created successfully!", "success");
         setTimeout(() => window.location.href = "dashboard.html", 1500);
+        
     } catch (error) {
-        setLoading(false);
-        if (error.code !== 'auth/popup-closed-by-user') {
-            showMessage(getErrorMessage(error.code), "error");
+        console.error("Google Sign Up Error:", error);
+        
+        // If popup fails (blocked on mobile), fallback to redirect
+        if (error.code === 'auth/popup-blocked' || error.code === 'auth/cancelled-popup-request') {
+            try {
+                showMessage("Redirecting to Google sign-in...", "success");
+                await signInWithRedirect(auth, provider);
+                return; // Page will reload
+            } catch (redirectError) {
+                showMessage(getErrorMessage(redirectError), "error");
+            }
+        } else if (error.code !== 'auth/popup-closed-by-user') {
+            showMessage(getErrorMessage(error), "error");
         }
     }
 };
 
-// Apple Sign Up
+// Apple Sign Up - IMPROVED with better error handling
 window.signUpWithApple = async () => {
     const provider = new OAuthProvider('apple.com');
     provider.addScope('email');
     provider.addScope('name');
-    setLoading(true);
+    
     hideMessage();
     
     try {
         const result = await signInWithPopup(auth, provider);
-        const userQuery = query(collection(db, "users"), where("email", "==", result.user.email));
+        const user = result.user;
+        
+        const userQuery = query(collection(db, "users"), where("email", "==", user.email));
         const userSnap = await getDocs(userQuery);
         
         if (userSnap.empty) {
-            await setDoc(doc(db, "users", result.user.uid), {
-                username: result.user.email?.split('@')[0] || 'user',
-                email: result.user.email,
-                inviteCode: result.user.uid.substring(0, 6),
+            await setDoc(doc(db, "users", user.uid), {
+                username: user.displayName || user.email?.split('@')[0] || 'user',
+                email: user.email,
+                inviteCode: user.uid.substring(0, 6),
                 createdAt: Date.now(),
                 provider: 'apple'
             });
@@ -1178,10 +1250,17 @@ window.signUpWithApple = async () => {
         
         showMessage("Account created successfully!", "success");
         setTimeout(() => window.location.href = "dashboard.html", 1500);
+        
     } catch (error) {
-        setLoading(false);
-        if (error.code !== 'auth/popup-closed-by-user') {
-            showMessage(getErrorMessage(error.code), "error");
+        console.error("Apple Sign Up Error:", error);
+        
+        // Apple Sign In requires specific setup in Firebase Console
+        if (error.code === 'auth/operation-not-allowed' || error.code === 'auth/missing-client-id') {
+            showMessage("Apple Sign-In is not configured in Firebase Console. Please use Google or Email sign-up.", "error");
+        } else if (error.code === 'auth/popup-blocked') {
+            showMessage("Popup was blocked. Please allow popups for this site.", "error");
+        } else if (error.code !== 'auth/popup-closed-by-user') {
+            showMessage(getErrorMessage(error), "error");
         }
     }
 };
@@ -1289,7 +1368,7 @@ form.addEventListener("submit", async (e) => {
         
     } catch (error) {
         setLoading(false);
-        showMessage(getErrorMessage(error.code), "error");
+        showMessage(getErrorMessage(error), "error");
         shakeContainer();
     }
 });
