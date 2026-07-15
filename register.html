@@ -470,7 +470,7 @@ h2 {
 }
 
 .social-btn {
-    flex: 1;
+    width: 100%;
     padding: 12px;
     border: 2px solid var(--border);
     border-radius: 12px;
@@ -482,28 +482,23 @@ h2 {
     display: flex;
     justify-content: center;
     align-items: center;
+    gap: 10px;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
 }
 
 .social-btn:hover,
 .social-btn:active {
-    border-color: var(--primary);
-    color: var(--primary);
+    border-color: #ea4335;
+    color: #ea4335;
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-.social-btn.google:hover,
-.social-btn.google:active {
-    border-color: #ea4335;
-    color: #ea4335;
-}
-
-.social-btn.apple:hover,
-.social-btn.apple:active {
-    border-color: #000;
-    color: #000;
+.social-btn span {
+    font-size: 14px;
+    font-weight: 500;
+    font-family: 'Poppins', sans-serif;
 }
 
 /* Login Link */
@@ -929,13 +924,11 @@ h2 {
             <span>or continue with</span>
         </div>
 
-        <!-- Social Register -->
+        <!-- Google Sign Up Only -->
         <div class="social-register">
-            <button type="button" class="social-btn google" onclick="signUpWithGoogle()" aria-label="Sign up with Google">
+            <button type="button" class="social-btn" onclick="signUpWithGoogle()" aria-label="Sign up with Google">
                 <i class="fab fa-google"></i>
-            </button>
-            <button type="button" class="social-btn apple" onclick="signUpWithApple()" aria-label="Sign up with Apple">
-                <i class="fab fa-apple"></i>
+                <span>Sign up with Google</span>
             </button>
         </div>
     </form>
@@ -954,7 +947,6 @@ import {
     sendEmailVerification,
     GoogleAuthProvider,
     signInWithPopup,
-    OAuthProvider,
     updateProfile,
     signInWithRedirect,
     getRedirectResult
@@ -1023,7 +1015,6 @@ function updatePasswordUI(password) {
     const checks = validatePassword(password);
     const validCount = Object.values(checks).filter(Boolean).length;
     
-    // Update requirement indicators
     const updateReq = (el, valid) => {
         el.className = `requirement ${valid ? 'valid' : ''}`;
         el.querySelector('i').className = valid ? 'fas fa-check-circle' : 'fas fa-circle';
@@ -1035,7 +1026,6 @@ function updatePasswordUI(password) {
     updateReq(reqNumber, checks.number);
     updateReq(reqSpecial, checks.special);
     
-    // Update strength bar
     strengthSegments.forEach((seg, i) => {
         seg.className = 'strength-segment';
         if (i < validCount) {
@@ -1044,7 +1034,6 @@ function updatePasswordUI(password) {
         }
     });
     
-    // Update strength text
     if (password.length === 0) {
         strengthText.innerHTML = '<span>Password strength</span>';
         strengthText.className = 'strength-text';
@@ -1104,7 +1093,6 @@ function setLoading(isLoading) {
 }
 
 function getErrorMessage(error) {
-    // Better error handling - log the actual error for debugging
     console.error("Auth Error:", error.code, error.message);
     
     const errors = {
@@ -1136,12 +1124,11 @@ function showSuccessState() {
     setTimeout(() => window.location.href = "login.html", 3000);
 }
 
-// Check for redirect result on page load (for mobile fallback)
+// Check for redirect result on page load
 async function checkRedirectResult() {
     try {
         const result = await getRedirectResult(auth);
         if (result && result.user) {
-            // User just returned from redirect sign-in
             const userQuery = query(collection(db, "users"), where("email", "==", result.user.email));
             const userSnap = await getDocs(userQuery);
             
@@ -1165,33 +1152,25 @@ async function checkRedirectResult() {
     }
 }
 
-// Run redirect check on load
 checkRedirectResult();
 
-// Google Sign Up - IMPROVED
+// Google Sign Up
 window.signUpWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     provider.addScope('email');
     provider.addScope('profile');
-    
-    // Custom parameters to force account selection
-    provider.setCustomParameters({
-        prompt: 'select_account'
-    });
+    provider.setCustomParameters({ prompt: 'select_account' });
     
     hideMessage();
     
     try {
-        // Try popup first
         const result = await signInWithPopup(auth, provider);
         const user = result.user;
         
-        // Check if user already exists in Firestore
         const userQuery = query(collection(db, "users"), where("email", "==", user.email));
         const userSnap = await getDocs(userQuery);
         
         if (userSnap.empty) {
-            // New user - create profile
             await setDoc(doc(db, "users", user.uid), {
                 username: user.displayName || user.email.split('@')[0],
                 email: user.email,
@@ -1208,57 +1187,14 @@ window.signUpWithGoogle = async () => {
     } catch (error) {
         console.error("Google Sign Up Error:", error);
         
-        // If popup fails (blocked on mobile), fallback to redirect
         if (error.code === 'auth/popup-blocked' || error.code === 'auth/cancelled-popup-request') {
             try {
                 showMessage("Redirecting to Google sign-in...", "success");
                 await signInWithRedirect(auth, provider);
-                return; // Page will reload
+                return;
             } catch (redirectError) {
                 showMessage(getErrorMessage(redirectError), "error");
             }
-        } else if (error.code !== 'auth/popup-closed-by-user') {
-            showMessage(getErrorMessage(error), "error");
-        }
-    }
-};
-
-// Apple Sign Up - IMPROVED with better error handling
-window.signUpWithApple = async () => {
-    const provider = new OAuthProvider('apple.com');
-    provider.addScope('email');
-    provider.addScope('name');
-    
-    hideMessage();
-    
-    try {
-        const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-        
-        const userQuery = query(collection(db, "users"), where("email", "==", user.email));
-        const userSnap = await getDocs(userQuery);
-        
-        if (userSnap.empty) {
-            await setDoc(doc(db, "users", user.uid), {
-                username: user.displayName || user.email?.split('@')[0] || 'user',
-                email: user.email,
-                inviteCode: user.uid.substring(0, 6),
-                createdAt: Date.now(),
-                provider: 'apple'
-            });
-        }
-        
-        showMessage("Account created successfully!", "success");
-        setTimeout(() => window.location.href = "dashboard.html", 1500);
-        
-    } catch (error) {
-        console.error("Apple Sign Up Error:", error);
-        
-        // Apple Sign In requires specific setup in Firebase Console
-        if (error.code === 'auth/operation-not-allowed' || error.code === 'auth/missing-client-id') {
-            showMessage("Apple Sign-In is not configured in Firebase Console. Please use Google or Email sign-up.", "error");
-        } else if (error.code === 'auth/popup-blocked') {
-            showMessage("Popup was blocked. Please allow popups for this site.", "error");
         } else if (error.code !== 'auth/popup-closed-by-user') {
             showMessage(getErrorMessage(error), "error");
         }
