@@ -382,15 +382,13 @@ h2 {
     padding: 0 12px;
 }
 
-/* Social Login */
+/* Social Login - Full Width Google */
 .social-login {
-    display: flex;
-    gap: 12px;
     margin-bottom: 20px;
 }
 
 .social-btn {
-    flex: 1;
+    width: 100%;
     padding: 12px;
     border: 2px solid var(--border);
     border-radius: 12px;
@@ -402,28 +400,23 @@ h2 {
     display: flex;
     justify-content: center;
     align-items: center;
+    gap: 10px;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
 }
 
 .social-btn:hover,
 .social-btn:active {
-    border-color: var(--primary);
-    color: var(--primary);
+    border-color: #ea4335;
+    color: #ea4335;
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-.social-btn.google:hover,
-.social-btn.google:active {
-    border-color: #ea4335;
-    color: #ea4335;
-}
-
-.social-btn.apple:hover,
-.social-btn.apple:active {
-    border-color: #000;
-    color: #000;
+.social-btn span {
+    font-size: 14px;
+    font-weight: 500;
+    font-family: 'Poppins', sans-serif;
 }
 
 /* Register Link */
@@ -517,6 +510,11 @@ h2 {
     
     .social-login {
         margin-bottom: 16px;
+    }
+    
+    .social-btn {
+        padding: 10px;
+        font-size: 16px;
     }
     
     .register-link {
@@ -625,12 +623,11 @@ h2 {
         <span>or continue with</span>
     </div>
 
+    <!-- Google Sign In Only -->
     <div class="social-login">
-        <button type="button" class="social-btn google" onclick="signInWithGoogle()" aria-label="Sign in with Google">
+        <button type="button" class="social-btn" onclick="signInWithGoogle()" aria-label="Sign in with Google">
             <i class="fab fa-google"></i>
-        </button>
-        <button type="button" class="social-btn apple" onclick="signInWithApple()" aria-label="Sign in with Apple">
-            <i class="fab fa-apple"></i>
+            <span>Sign in with Google</span>
         </button>
     </div>
 
@@ -641,14 +638,15 @@ h2 {
 
 <!-- Firebase SDK -->
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { 
     getAuth, 
     signInWithEmailAndPassword,
     GoogleAuthProvider,
     signInWithPopup,
-    OAuthProvider
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    signInWithRedirect,
+    getRedirectResult
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 // Firebase Configuration
 const firebaseConfig = {
@@ -683,7 +681,7 @@ if (rememberedEmail) {
 
 // Show Message Function
 function showMessage(text, type) {
-    message.textContent = text;
+    message.innerHTML = `<i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i> ${text}`;
     message.className = `message ${type} show`;
     
     if (type === 'success') {
@@ -721,44 +719,10 @@ function setLoading(isLoading) {
     }
 }
 
-// Google Sign In
-window.signInWithGoogle = async () => {
-    const provider = new GoogleAuthProvider();
-    setLoading(true);
-    hideMessage();
-    
-    try {
-        const result = await signInWithPopup(auth, provider);
-        showMessage(`Welcome back, ${result.user.displayName}!`, "success");
-    } catch (error) {
-        setLoading(false);
-        if (error.code !== 'auth/popup-closed-by-user') {
-            showMessage(getErrorMessage(error.code), "error");
-        }
-    }
-};
-
-// Apple Sign In
-window.signInWithApple = async () => {
-    const provider = new OAuthProvider('apple.com');
-    provider.addScope('email');
-    provider.addScope('name');
-    setLoading(true);
-    hideMessage();
-    
-    try {
-        const result = await signInWithPopup(auth, provider);
-        showMessage(`Welcome back, ${result.user.displayName || 'User'}!`, "success");
-    } catch (error) {
-        setLoading(false);
-        if (error.code !== 'auth/popup-closed-by-user') {
-            showMessage(getErrorMessage(error.code), "error");
-        }
-    }
-};
-
 // Get User-Friendly Error Message
-function getErrorMessage(errorCode) {
+function getErrorMessage(error) {
+    console.error("Auth Error:", error.code, error.message);
+    
     const errorMessages = {
         'auth/user-not-found': 'No account found with this email address.',
         'auth/wrong-password': 'Incorrect password. Please try again.',
@@ -767,10 +731,64 @@ function getErrorMessage(errorCode) {
         'auth/invalid-credential': 'Invalid email or password. Please check your credentials.',
         'auth/network-request-failed': 'Network error. Please check your connection.',
         'auth/user-disabled': 'This account has been disabled.',
-        'auth/operation-not-allowed': 'Email/password sign-in is not enabled.'
+        'auth/operation-not-allowed': 'Email/password sign-in is not enabled in Firebase Console.',
+        'auth/popup-blocked': 'Popup was blocked by your browser. Please allow popups for this site.',
+        'auth/popup-closed-by-user': 'Sign-in popup was closed. Please try again.',
+        'auth/unauthorized-domain': 'This domain is not authorized in Firebase Console. Add your domain to Authorized Domains.',
+        'auth/cancelled-popup-request': 'Multiple popup requests detected. Please try again.',
+        'auth/internal-error': 'An internal error occurred. Please try again.',
+        'auth/account-exists-with-different-credential': 'An account already exists with this email using a different sign-in method.',
+        'auth/timeout': 'The request timed out. Please check your connection and try again.'
     };
-    return errorMessages[errorCode] || 'Login failed. Please try again.';
+    
+    return errorMessages[error.code] || `Error: ${error.message || 'Login failed. Please try again.'}`;
 }
+
+// Check for redirect result on page load
+async function checkRedirectResult() {
+    try {
+        const result = await getRedirectResult(auth);
+        if (result && result.user) {
+            showMessage(`Welcome back, ${result.user.displayName || 'User'}!`, "success");
+        }
+    } catch (error) {
+        if (error.code !== 'auth/popup-closed-by-user') {
+            showMessage(getErrorMessage(error), "error");
+        }
+    }
+}
+
+checkRedirectResult();
+
+// Google Sign In - IMPROVED
+window.signInWithGoogle = async () => {
+    const provider = new GoogleAuthProvider();
+    provider.addScope('email');
+    provider.addScope('profile');
+    provider.setCustomParameters({ prompt: 'select_account' });
+    
+    hideMessage();
+    
+    try {
+        const result = await signInWithPopup(auth, provider);
+        showMessage(`Welcome back, ${result.user.displayName || 'User'}!`, "success");
+    } catch (error) {
+        console.error("Google Sign In Error:", error);
+        
+        // If popup fails, fallback to redirect
+        if (error.code === 'auth/popup-blocked' || error.code === 'auth/cancelled-popup-request') {
+            try {
+                showMessage("Redirecting to Google sign-in...", "success");
+                await signInWithRedirect(auth, provider);
+                return;
+            } catch (redirectError) {
+                showMessage(getErrorMessage(redirectError), "error");
+            }
+        } else if (error.code !== 'auth/popup-closed-by-user') {
+            showMessage(getErrorMessage(error), "error");
+        }
+    }
+};
 
 // Login Handler
 loginBtn.addEventListener("click", async (e) => {
@@ -811,7 +829,7 @@ loginBtn.addEventListener("click", async (e) => {
         showMessage(`Welcome back! Signing you in...`, "success");
     } catch (error) {
         setLoading(false);
-        showMessage(getErrorMessage(error.code), "error");
+        showMessage(getErrorMessage(error), "error");
         document.querySelector(".container").classList.add("shake");
         setTimeout(() => document.querySelector(".container").classList.remove("shake"), 500);
     }
