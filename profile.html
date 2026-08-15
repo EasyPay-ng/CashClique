@@ -186,6 +186,13 @@ body{background:var(--bg-body);min-height:100vh;-webkit-font-smoothing:antialias
 .empty-title{font-size:20px;font-weight:700;color:var(--text-primary);margin-bottom:10px;}
 .empty-text{font-size:15px;color:var(--text-muted);max-width:280px;margin:0 auto;line-height:1.6;}
 
+/* Error State */
+.error-state{grid-column:1/-1;text-align:center;padding:60px 30px;background:var(--bg-card);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);}
+.error-state i{font-size:48px;color:var(--error);margin-bottom:16px;}
+.error-state h3{font-size:18px;font-weight:700;color:var(--text-primary);margin-bottom:8px;}
+.error-state p{font-size:14px;color:var(--text-secondary);line-height:1.6;max-width:320px;margin:0 auto 16px;}
+.error-state code{background:#fee2e2;color:var(--error);padding:2px 8px;border-radius:4px;font-size:12px;}
+
 /* Image Upload Modal */
 .upload-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:3000;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;}
 .upload-modal-overlay.active{display:flex;opacity:1;}
@@ -589,6 +596,10 @@ let profileData = null;
 let totalLikes = 0;
 let selectedBadge = "blue";
 
+// Unsubscribe functions to prevent memory leaks
+let postsUnsubscribe = null;
+let mediaUnsubscribe = null;
+
 // Image upload variables
 let selectedFile = null;
 let croppedImageBase64 = null;
@@ -629,12 +640,15 @@ onAuthStateChanged(auth, async (user) => {
 
 async function loadTotalLikes() {
     totalLikes = 0;
-    const postsQuery = query(collection(db, "posts"), where("userId", "==", profileUid));
-    const postsSnapshot = await getDocs(postsQuery);
-    
-    postsSnapshot.forEach(doc => {
-        totalLikes += doc.data().likes || 0;
-    });
+    try {
+        const postsQuery = query(collection(db, "posts"), where("userId", "==", profileUid));
+        const postsSnapshot = await getDocs(postsQuery);
+        postsSnapshot.forEach(doc => {
+            totalLikes += doc.data().likes || 0;
+        });
+    } catch (error) {
+        console.error("Error loading total likes:", error);
+    }
 }
 
 function loadProfile() {
@@ -713,9 +727,12 @@ function animateNumber(element, start, end) {
 }
 
 function loadUserPosts() {
+    // Clean up old listener before creating new one
+    if (postsUnsubscribe) postsUnsubscribe();
+    
     const q = query(collection(db, "posts"), where("userId", "==", profileUid), orderBy("timestamp", "desc"));
 
-    onSnapshot(q, (snapshot) => {
+    postsUnsubscribe = onSnapshot(q, (snapshot) => {
         const total = snapshot.size;
         animateNumber(document.getElementById("posts-count"), parseInt(document.getElementById("posts-count").innerText), total);
 
@@ -739,9 +756,7 @@ function loadUserPosts() {
             div.className = "post-thumb";
             div.style.animation = `fadeIn 0.5s ease ${index * 0.05}s both`;
 
-            // Check for video first, then image, then text
             if (post.videoUrl) {
-                // Video content
                 div.innerHTML = `
                     <video src="${post.videoUrl}" preload="metadata" muted playsinline></video>
                     <div class="video-indicator">
@@ -754,7 +769,6 @@ function loadUserPosts() {
                         </div>
                     </div>`;
             } else if (post.imageBase64) {
-                // Image content
                 div.innerHTML = `
                     <img src="${post.imageBase64}" loading="lazy" alt="Post image">
                     <div class="post-thumb-overlay">
@@ -765,7 +779,6 @@ function loadUserPosts() {
                         </div>
                     </div>`;
             } else {
-                // Text-only post
                 div.className += " post-thumb-text";
                 div.innerHTML = `<div>${escapeHtml(post.content?.substring(0, 100) || "Text post")}</div>`;
             }
@@ -773,572 +786,28 @@ function loadUserPosts() {
             div.onclick = () => location.href = `post-view.html?postId=${postId}`;
             grid.appendChild(div);
         });
-    });
-}
-
-// Profile Photo Upload
-window.openUploadModal = function() {
-    if (!isOwnProfile) return;
-    document.getElementById('upload-modal').classList.add('active');
-    document.body.style.overflow = 'hidden';
-    resetUploadModal();
-};
-
-window.closeUploadModal = function() {
-    document.getElementById('upload-modal').classList.remove('active');
-    document.body.style.overflow = '';
-    setTimeout(resetUploadModal, 300);
-};
-
-function resetUploadModal() {
-    selectedFile = null;
-    croppedImageBase64 = null;
-    document.getElementById('file-input').value = '';
-    document.getElementById('upload-placeholder').style.display = 'flex';
-    document.getElementById('upload-preview').style.display = 'none';
-    document.getElementById('upload-preview').classList.remove('active');
-    document.getElementById('upload-preview').src = '';
-    document.getElementById('cropper-container').classList.remove('active');
-    document.getElementById('upload-loading').classList.remove('active');
-    document.getElementById('upload-actions').style.display = 'flex';
-    document.getElementById('select-file-btn').style.display = 'block';
-    document.getElementById('save-photo-btn').style.display = 'none';
-    
-    if (cropper) {
-        cropper.destroy();
-        cropper = null;
-    }
-}
-
-window.handleFileSelect = function(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    if (file.size > 2 * 1024 * 1024) {
-        showToast('Image too large. Max 2MB allowed.', 'error');
-        return;
-    }
-
-    if (!file.type.startsWith('image/')) {
-        showToast('Please select an image file.', 'error');
-        return;
-    }
-
-    selectedFile = file;
-    const reader = new FileReader();
-    
-    reader.onload = function(e) {
-        const img = new Image();
-        img.onload = function() {
-            document.getElementById('upload-placeholder').style.display = 'none';
-            document.getElementById('upload-preview').src = e.target.result;
-            document.getElementById('upload-preview').style.display = 'block';
-            document.getElementById('upload-preview').classList.add('active');
-            
-            if (img.width > 400 || img.height > 400) {
-                showCropper(e.target.result);
-            } else {
-                croppedImageBase64 = e.target.result;
-                showSaveButton();
-            }
-        };
-        img.src = e.target.result;
-    };
-    
-    reader.readAsDataURL(file);
-};
-
-function showCropper(imageSrc) {
-    document.getElementById('upload-preview').style.display = 'none';
-    document.getElementById('cropper-container').classList.add('active');
-    document.getElementById('cropper-image').src = imageSrc;
-    showSaveButton();
-}
-
-window.rotateImage = function(degrees) {
-    const img = document.getElementById('cropper-image');
-    const currentRotation = parseInt(img.dataset.rotation || 0);
-    const newRotation = currentRotation + degrees;
-    img.style.transform = `rotate(${newRotation}deg)`;
-    img.dataset.rotation = newRotation;
-};
-
-window.cropImage = function() {
-    const img = document.getElementById('cropper-image');
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    
-    const size = Math.min(img.naturalWidth, img.naturalHeight);
-    canvas.width = 400;
-    canvas.height = 400;
-    
-    ctx.save();
-    ctx.translate(200, 200);
-    ctx.rotate((parseInt(img.dataset.rotation || 0) * Math.PI) / 180);
-    ctx.translate(-200, -200);
-    ctx.drawImage(
-        img, 
-        (img.naturalWidth - size) / 2, 
-        (img.naturalHeight - size) / 2, 
-        size, size,
-        0, 0, 400, 400
-    );
-    ctx.restore();
-    
-    croppedImageBase64 = canvas.toDataURL('image/jpeg', 0.9);
-    document.getElementById('upload-preview').src = croppedImageBase64;
-    document.getElementById('upload-preview').style.display = 'block';
-    document.getElementById('cropper-container').classList.remove('active');
-};
-
-function showSaveButton() {
-    document.getElementById('select-file-btn').style.display = 'none';
-    document.getElementById('save-photo-btn').style.display = 'block';
-}
-
-window.saveProfilePhoto = async function() {
-    const imageToSave = croppedImageBase64 || document.getElementById('upload-preview').src;
-    
-    if (!imageToSave || imageToSave.includes('pravatar.cc')) {
-        showToast('Please select a photo first.', 'error');
-        return;
-    }
-
-    document.getElementById('upload-loading').classList.add('active');
-    document.getElementById('upload-actions').style.display = 'none';
-    document.getElementById('upload-preview').style.display = 'none';
-    document.getElementById('cropper-container').classList.remove('active');
-
-    try {
-        let compressedBase64 = await compressImage(imageToSave, 500);
-        
-        const userRef = doc(db, "users", currentUser.uid);
-        await updateDoc(userRef, {
-            avatar: compressedBase64,
-            updatedAt: serverTimestamp()
-        });
-
-        showToast('Profile photo updated!', 'success');
-        
-        document.getElementById('avatar').style.opacity = '0';
-        setTimeout(() => {
-            document.getElementById('avatar').src = compressedBase64;
-            document.getElementById('avatar').style.opacity = '1';
-        }, 200);
-        
-        setTimeout(closeUploadModal, 800);
-        
-    } catch (error) {
-        console.error('Upload error:', error);
-        showToast('Failed to upload photo. Try again.', 'error');
-        document.getElementById('upload-loading').classList.remove('active');
-        document.getElementById('upload-actions').style.display = 'flex';
-        document.getElementById('upload-preview').style.display = 'block';
-    }
-};
-
-async function compressImage(base64String, maxSizeKB) {
-    return new Promise((resolve) => {
-        const img = new Image();
-        img.onload = function() {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            
-            let width = img.width;
-            let height = img.height;
-            const maxDim = 400;
-            
-            if (width > maxDim || height > maxDim) {
-                if (width > height) {
-                    height = (height / width) * maxDim;
-                    width = maxDim;
-                } else {
-                    width = (width / height) * maxDim;
-                    height = maxDim;
-                }
-            }
-            
-            canvas.width = width;
-            canvas.height = height;
-            ctx.drawImage(img, 0, 0, width, height);
-            
-            let quality = 0.9;
-            let result = canvas.toDataURL('image/jpeg', quality);
-            
-            while (result.length > maxSizeKB * 1024 && quality > 0.1) {
-                quality -= 0.1;
-                result = canvas.toDataURL('image/jpeg', quality);
-            }
-            
-            resolve(result);
-        };
-        img.src = base64String;
-    });
-}
-
-// Follow & Verification
-window.toggleFollow = async function(currentlyFollowing, targetUsername) {
-    const btn = document.getElementById("follow-btn");
-    btn.disabled = true;
-    btn.style.transform = 'scale(0.95)';
-
-    currentlyFollowing = currentlyFollowing === 'true';
-
-    try {
-        const profileRef = doc(db, "users", profileUid);
-        const myRef = doc(db, "users", currentUser.uid);
-
-        if (currentlyFollowing) {
-            await updateDoc(profileRef, { followers: arrayRemove(currentUser.uid) });
-            await updateDoc(myRef, { following: arrayRemove(profileUid) });
-            btn.innerHTML = '<i class="fas fa-user-plus"></i> Follow';
-            btn.classList.remove('following');
-            showToast(`Unfollowed @${targetUsername}`, 'info');
-        } else {
-            await updateDoc(profileRef, { followers: arrayUnion(currentUser.uid) });
-            await updateDoc(myRef, { following: arrayUnion(profileUid) });
-            btn.innerHTML = '<i class="fas fa-user-check"></i> Following';
-            btn.classList.add('following');
-            showToast(`Following @${targetUsername}!`, 'success');
-        }
-    } catch (e) {
-        console.error(e);
-        showToast("Failed to update follow status", "error");
-    }
-    
-    btn.disabled = false;
-    btn.style.transform = '';
-};
-
-window.openVerificationOverlay = function() {
-    if (!isOwnProfile) return;
-    document.getElementById("verification-overlay").classList.add("active");
-    document.body.style.overflow = 'hidden';
-    updateBadgeEligibility();
-    
-    document.querySelectorAll(".badge-card").forEach(card => {
-        card.addEventListener("click", function() {
-            document.querySelectorAll(".badge-card").forEach(c => c.classList.remove("selected"));
-            this.classList.add("selected");
-            selectedBadge = this.dataset.badge;
-        });
-    });
-    
-    document.getElementById("blue-badge-card").classList.add("selected");
-    selectedBadge = "blue";
-};
-
-window.closeVerificationOverlay = function() {
-    document.getElementById("verification-overlay").classList.remove("active");
-    document.body.style.overflow = '';
-};
-
-function updateBadgeEligibility() {
-    const realFollowers = profileData.followers?.length || 0;
-    const boostedFollowers = profileData.followersCount || 0;
-    const totalFollowers = realFollowers + boostedFollowers;
-    
-    const blueFollowersEligible = totalFollowers >= 500;
-    const blueLikesEligible = totalLikes >= 1000;
-    const blueBalanceEligible = currentBalance >= 2;
-    const blueEligible = blueFollowersEligible && blueLikesEligible && blueBalanceEligible;
-    
-    updateRequirementElement("blue-followers", blueFollowersEligible);
-    updateRequirementElement("blue-likes", blueLikesEligible);
-    updateRequirementElement("blue-balance", blueBalanceEligible);
-    updateBadgeCard("blue-badge-card", blueEligible);
-    
-    const goldFollowersEligible = totalFollowers >= 2000;
-    const goldLikesEligible = totalLikes >= 5000;
-    const goldBalanceEligible = currentBalance >= 5;
-    const goldEligible = goldFollowersEligible && goldLikesEligible && goldBalanceEligible;
-    
-    updateRequirementElement("gold-followers", goldFollowersEligible);
-    updateRequirementElement("gold-likes", goldLikesEligible);
-    updateRequirementElement("gold-balance", goldBalanceEligible);
-    updateBadgeCard("gold-badge-card", goldEligible);
-}
-
-function updateRequirementElement(id, isMet) {
-    const element = document.getElementById(id);
-    if (isMet) {
-        element.classList.add("met");
-        element.classList.remove("not-met");
-        element.querySelector("i").className = "fas fa-check";
-    } else {
-        element.classList.add("not-met");
-        element.classList.remove("met");
-        element.querySelector("i").className = "fas fa-times";
-    }
-}
-
-function updateBadgeCard(id, isEligible) {
-    const card = document.getElementById(id);
-    const existingBadge = card.querySelector(".eligible-badge, .not-eligible-badge");
-    if (existingBadge) existingBadge.remove();
-    
-    if (isEligible) {
-        const eligibleBadge = document.createElement("div");
-        eligibleBadge.className = "eligible-badge";
-        eligibleBadge.textContent = "Eligible";
-        card.appendChild(eligibleBadge);
-    } else {
-        const notEligibleBadge = document.createElement("div");
-        notEligibleBadge.className = "not-eligible-badge";
-        notEligibleBadge.textContent = "Not Eligible";
-        card.appendChild(notEligibleBadge);
-    }
-}
-
-window.purchaseVerification = async function() {
-    const realFollowers = profileData.followers?.length || 0;
-    const boostedFollowers = profileData.followersCount || 0;
-    const totalFollowers = realFollowers + boostedFollowers;
-    
-    let requirementsMet = false;
-    let amount = 0;
-    let badgeType = selectedBadge;
-    
-    if (badgeType === "blue") {
-        requirementsMet = totalFollowers >= 500 && totalLikes >= 1000 && currentBalance >= 2;
-        amount = 2;
-    } else if (badgeType === "gold") {
-        requirementsMet = totalFollowers >= 2000 && totalLikes >= 5000 && currentBalance >= 5;
-        amount = 5;
-    }
-    
-    if (!requirementsMet) {
-        showToast("You don't meet the requirements for this badge", "error");
-        return;
-    }
-    
-    const btn = document.getElementById("confirm-verification-btn");
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-    
-    try {
-        await runTransaction(db, async (transaction) => {
-            const userRef = doc(db, "users", currentUser.uid);
-            const userDoc = await transaction.get(userRef);
-            
-            if (!userDoc.exists()) throw "User not found";
-            
-            const userData = userDoc.data();
-            const currentBal = userData.balance || 0;
-            
-            if (currentBal < amount) throw "Insufficient balance";
-            
-            const updateData = {
-                balance: increment(-amount),
-                verifiedDate: serverTimestamp()
-            };
-            
-            if (badgeType === "blue") {
-                updateData.isVerified = true;
-                updateData.verified = true;
-            } else if (badgeType === "gold") {
-                updateData.isGoldVerified = true;
-                updateData.isVerified = true;
-                updateData.verified = true;
-            }
-            
-            transaction.update(userRef, updateData);
-            
-            const transRef = doc(collection(db, "transactions"));
-            transaction.set(transRef, {
-                type: "verification",
-                userId: currentUser.uid,
-                amount: amount,
-                badgeType: badgeType,
-                timestamp: serverTimestamp(),
-                description: `${badgeType.charAt(0).toUpperCase() + badgeType.slice(1)} Verification Badge`
-            });
-        });
-        
-        showToast(`🎉 ${badgeType === "blue" ? "Blue" : "Gold"} Badge earned!`, "success");
-        closeVerificationOverlay();
-        
-        setTimeout(() => location.reload(), 1500);
-        
-    } catch (e) {
-        console.error(e);
-        showToast("Verification failed. Please try again.", "error");
-        btn.disabled = false;
-        btn.innerHTML = 'Get Verified';
-    }
-};
-
-// Tabs & Utility
-window.switchTab = function(tab, element) {
-    const tabs = document.querySelectorAll('.tab');
-    tabs.forEach(t => t.classList.remove('active'));
-    element.classList.add('active');
-    
-    const grid = document.getElementById("posts-grid");
-    grid.style.opacity = '0';
-    grid.style.transform = 'translateY(10px)';
-    
-    setTimeout(() => {
-        if (tab === 'posts') {
-            loadUserPosts();
-        } else if (tab === 'media') {
-            loadMediaOnly();
-        }
-        grid.style.opacity = '1';
-        grid.style.transform = 'translateY(0)';
-    }, 200);
-};
-
-function loadMediaOnly() {
-    const q = query(collection(db, "posts"), where("userId", "==", profileUid), orderBy("timestamp", "desc"));
-    
-    onSnapshot(q, (snapshot) => {
+    }, (error) => {
+        // THIS IS THE FIX - error handler instead of infinite loading
+        console.error("Firestore error:", error);
         const grid = document.getElementById("posts-grid");
-        grid.innerHTML = "";
         
-        // Filter posts that have either video or image
-        const mediaPosts = snapshot.docs.filter(d => d.data().videoUrl || d.data().imageBase64);
-        
-        if (mediaPosts.length === 0) {
+        if (error.code === 'failed-precondition') {
             grid.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-icon"><i class="fas fa-photo-video"></i></div>
-                    <h3 class="empty-title">No media yet</h3>
-                    <p class="empty-text">Photos and videos will appear here</p>
+                <div class="error-state">
+                    <i class="fas fa-database"></i>
+                    <h3>Database Index Required</h3>
+                    <p>You need to create a Firestore composite index for this query to work.</p>
+                    <p>Go to Firebase Console → Firestore → Indexes → Composite</p>
+                    <p>Collection: <code>posts</code></p>
+                    <p>Fields: <code>userId (Ascending)</code> → <code>timestamp (Descending)</code></p>
                 </div>`;
-            return;
+        } else {
+            grid.innerHTML = `
+                <div class="error-state">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>Failed to Load Posts</h3>
+                    <p>${error.message || 'Something went wrong. Please try again.'}</p>
+                </div>`;
         }
-        
-        mediaPosts.forEach((doc, index) => {
-            const post = doc.data();
-            const postId = doc.id;
-            const div = document.createElement("div");
-            div.className = "post-thumb";
-            div.style.animation = `fadeIn 0.5s ease ${index * 0.05}s both`;
-            
-            if (post.videoUrl) {
-                // Video content
-                div.innerHTML = `
-                    <video src="${post.videoUrl}" preload="metadata" muted playsinline></video>
-                    <div class="video-indicator">
-                        <i class="fas fa-play"></i>
-                    </div>
-                    <div class="post-thumb-overlay">
-                        <div class="post-stats-overlay">
-                            <span><i class="fas fa-heart"></i> ${formatNumber(post.likes || 0)}</span>
-                            <span><i class="fas fa-comment"></i> ${formatNumber(post.commentCount || 0)}</span>
-                        </div>
-                    </div>`;
-            } else if (post.imageBase64) {
-                // Image content
-                div.innerHTML = `
-                    <img src="${post.imageBase64}" loading="lazy" alt="Post image">
-                    <div class="post-thumb-overlay">
-                        <div class="post-stats-overlay">
-                            <span><i class="fas fa-heart"></i> ${formatNumber(post.likes || 0)}</span>
-                            <span><i class="fas fa-comment"></i> ${formatNumber(post.commentCount || 0)}</span>
-                        </div>
-                    </div>`;
-            }
-
-            div.onclick = () => location.href = `post-view.html?postId=${postId}`;
-            grid.appendChild(div);
-        });
     });
 }
-
-function formatNumber(num) {
-    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
-    return num.toString();
-}
-
-// Escape HTML to prevent XSS
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-// Toast System
-function showToast(message, type = "success", duration = 4000) {
-    const container = document.getElementById('toast-container');
-    const toast = document.createElement("div");
-    toast.className = `toast ${type}`;    const icons = {
-        success: 'check-circle',
-        error: 'exclamation-circle',
-        info: 'info-circle'
-    };
-    
-    toast.innerHTML = `<i class="fas fa-${icons[type]}"></i> ${message}`;
-    container.appendChild(toast);
-    
-    setTimeout(() => {
-        toast.classList.add('removing');
-        setTimeout(() => toast.remove(), 300);
-    }, duration);
-}
-
-window.shareProfile = function() {
-    const shareUrl = `${window.location.origin}${window.location.pathname}?uid=${profileUid}`;
-
-    if (navigator.share) {
-        navigator.share({
-            title: `${profileData?.username || 'User'} on CashClique`,
-            text: 'Check out this profile on CashClique',
-            url: shareUrl
-        }).catch(() => {
-            navigator.clipboard.writeText(shareUrl);
-            showToast("Profile link copied to clipboard!", "success");
-        });
-    } else {
-        navigator.clipboard.writeText(shareUrl);
-        showToast("Profile link copied to clipboard!", "success");
-    }
-};
-
-window.showFollowers = function() {
-    showToast("Followers list coming soon!", "info");
-};
-
-window.showFollowing = function() {
-    showToast("Following list coming soon!", "info");
-};
-
-window.showPosts = function() {
-    document.querySelector('.tab').click();
-};
-
-// Media Modal Functions
-window.viewImage = function(src) {
-    document.getElementById("modal-image").src = src;
-    document.getElementById("media-modal").classList.add("active");
-    document.body.style.overflow = 'hidden';
-};
-
-window.closeMediaModal = function() {
-    document.getElementById("media-modal").classList.remove("active");
-    document.body.style.overflow = '';
-};
-
-// Event Listeners
-document.getElementById("upload-modal").addEventListener("click", (e) => {
-    if (e.target.id === "upload-modal") closeUploadModal();
-});
-
-document.getElementById("verification-overlay").addEventListener("click", (e) => {
-    if (e.target.id === "verification-overlay") closeVerificationOverlay();
-});
-
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        closeUploadModal();
-        closeVerificationOverlay();
-        closeMediaModal();
-    }
-});
-</script>
-
-</body>
-</html>
