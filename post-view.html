@@ -92,6 +92,26 @@ body{background:#f5f5f5;min-height:100vh;padding:20px;}
     .reply-list{margin-left:20px;}
     .post-media{max-height:350px;}
 }
+
+/* Save action & toast */
+#save-action{margin-left:auto;font-weight:500;user-select:none;}
+#save-action:active{transform:scale(0.94);}
+#save-action i{transition:0.2s;}
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(80px);background:#1e2937;color:white;padding:12px 26px;border-radius:30px;font-size:14px;font-weight:500;z-index:4000;opacity:0;transition:all 0.35s ease;box-shadow:0 8px 30px rgba(0,0,0,0.3);max-width:90%;text-align:center;pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+
+/* Save progress overlay (used while a video is being rendered) */
+.sv-overlay{position:fixed;inset:0;z-index:3500;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.78);backdrop-filter:blur(8px);color:white;padding:24px;}
+.sv-overlay.active{display:flex;}
+.sv-card{width:min(340px,92vw);background:#161618;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:28px 24px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5);}
+.sv-spinner{width:64px;height:64px;border-radius:50%;background:rgba(255,106,0,0.15);color:#ff6a00;display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 16px;animation:svPulse 1.2s ease-in-out infinite;}
+@keyframes svPulse{0%,100%{opacity:0.6;transform:scale(0.95);}50%{opacity:1;transform:scale(1.05);}}
+.sv-title{font-weight:700;font-size:16px;margin-bottom:8px;}
+.sv-sub{font-size:13px;color:#9aa3af;line-height:1.5;margin-bottom:14px;min-height:18px;}
+.sv-bar{height:6px;background:rgba(255,255,255,0.1);border-radius:4px;overflow:hidden;margin-bottom:16px;}
+.sv-bar-fill{height:100%;width:0;background:linear-gradient(90deg,#ff6a00,#ff8a00);transition:width 0.3s;}
+.sv-cancel{background:rgba(255,255,255,0.08);color:#fff;border:1px solid rgba(255,255,255,0.15);padding:9px 22px;border-radius:24px;cursor:pointer;font-size:13px;font-family:'Poppins',sans-serif;transition:0.2s;}
+.sv-cancel:hover{background:rgba(239,68,68,0.6);}
 </style>
 </head>
 
@@ -125,6 +145,9 @@ body{background:#f5f5f5;min-height:100vh;padding:20px;}
     <span id="comment-action" class="action-item">
         <i class="fa-regular fa-comment"></i> <span id="comment-count">0</span>
     </span>
+    <span id="save-action" class="action-item" title="Save" style="display:none;">
+        <i class="fa-solid fa-download"></i> <span>Save</span>
+    </span>
   </div>
 
   <div class="comments-section">
@@ -138,6 +161,17 @@ body{background:#f5f5f5;min-height:100vh;padding:20px;}
 </div>
 
 <!-- Media Modal for Images -->
+<!-- Save progress overlay (shown while a video is being rendered) -->
+<div class="sv-overlay" id="sv-overlay">
+    <div class="sv-card">
+        <div class="sv-spinner"><i class="fas fa-download"></i></div>
+        <div class="sv-title">Saving video&#8230;</div>
+        <div class="sv-sub" id="sv-sub">Preparing&#8230;</div>
+        <div class="sv-bar"><div class="sv-bar-fill" id="sv-bar-fill"></div></div>
+        <button class="sv-cancel" onclick="cancelSave()"><i class="fas fa-times"></i> Cancel</button>
+    </div>
+</div>
+<div class="toast" id="toast"></div>
 <div class="media-modal" id="media-modal" onclick="closeMediaModal()">
     <button class="close-modal">&times;</button>
     <img id="modal-image" src="" alt="Full size">
@@ -177,6 +211,10 @@ const commentInput = document.getElementById("comment-input");
 const commentBtn = document.getElementById("comment-btn");
 const commentCount = document.getElementById("comment-count");
 const verifiedBadge = document.getElementById("verified-badge");
+const saveActionEl = document.getElementById("save-action");
+let currentMedia = null;
+let isSaving = false;
+saveActionEl.onclick = () => saveCurrentMedia();
 
 let currentUser=null;
 let currentUsername = "User";
@@ -246,6 +284,20 @@ function loadPost(){
       img.alt = 'Post image';
       img.onclick = () => viewImage(post.imageBase64);
       mediaContainer.appendChild(img);
+    }
+
+    // Media available? Reveal the Save action (hidden for text-only posts).
+    if(post.videoUrl || post.imageBase64){
+      currentMedia = {
+        type: post.videoUrl ? 'video' : 'image',
+        id: postId,
+        videoUrl: post.videoUrl || null,
+        imageRaw: post.imageBase64 || null
+      };
+      saveActionEl.style.display = 'inline-flex';
+    } else {
+      currentMedia = null;
+      saveActionEl.style.display = 'none';
     }
 
     // Check verification status
@@ -459,6 +511,333 @@ window.closeMediaModal = () => {
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeMediaModal();
 });
+
+// ==================== SAVE-TO-DEVICE ====================
+// Saves produce a normal-looking download and the UI never announces the
+// mark. Photos get the site mark baked in quietly; videos are re-encoded with
+// the mark overlaid on every frame and are never saved as plain files. If the
+// mark cannot be applied, nothing is saved.
+const SITE_LOGO_URL = "https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg";
+const APP_NAME = "CashClique";
+let logoImage = null;
+let logoPromise = null;
+
+function imageDataSrc(raw){
+  if(!raw) return '';
+  if(raw.startsWith('data:') || raw.startsWith('http')) return raw;
+  return `data:image/jpeg;base64,${raw}`;
+}
+
+let toastTimer = null;
+function showToast(message){
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.classList.add('show');
+  if(toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+}
+
+function downloadBlob(blob, filename){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 2500);
+}
+
+function downloadViaAnchor(href, filename){
+  const a = document.createElement('a');
+  a.href = href;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => a.remove(), 2500);
+}
+
+function loadLogo(){
+  if(logoImage) return Promise.resolve(logoImage);
+  if(logoPromise) return logoPromise;
+  logoPromise = new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => { logoImage = removeLogoWhiteBackground(img); resolve(logoImage); };
+    img.onerror = () => { logoImage = null; resolve(null); };
+    img.src = SITE_LOGO_URL + (SITE_LOGO_URL.includes('?') ? '&' : '?') + 't=' + Date.now();
+    setTimeout(() => resolve(logoImage), 6000);
+  });
+  return logoPromise;
+}
+
+// The site logo is a JPG on a white square - strip the white background with a
+// soft ramp so the mark blends over photos instead of showing as a white box.
+function removeLogoWhiteBackground(img){
+  try {
+    const w = img.naturalWidth || img.width;
+    const h = img.naturalHeight || img.height;
+    if(!w || !h) return img;
+    const c = document.createElement('canvas');
+    c.width = w;
+    c.height = h;
+    const ctx = c.getContext('2d');
+    if(!ctx) return img;
+    ctx.drawImage(img, 0, 0, w, h);
+    const data = ctx.getImageData(0, 0, w, h);
+    const px = data.data;
+    let kept = 0;
+    for(let i = 0; i < px.length; i += 4){
+      const whiteness = Math.min(px[i], px[i+1], px[i+2]);
+      let alpha;
+      if(whiteness <= 200) alpha = 255;
+      else if(whiteness >= 252) alpha = 0;
+      else alpha = Math.round(((252 - whiteness) / 52) * 255);
+      if(alpha < px[i+3]) px[i+3] = alpha;
+      if(px[i+3] > 0) kept++;
+    }
+    ctx.putImageData(data, 0, 0);
+    if(!kept) return img;
+    return c;
+  } catch(err){
+    return img;
+  }
+}
+
+async function drawSiteLogo(ctx, w, h){
+  const logo = await loadLogo();
+  const pad = Math.max(12, Math.round(w * 0.03));
+  if(logo && logo.width > 0){
+    const maxW = Math.min(w * 0.18, 220);
+    const ratio = logo.height / logo.width;
+    const dw = maxW;
+    const dh = maxW * ratio;
+    ctx.save();
+    ctx.globalAlpha = 0.92;
+    ctx.shadowColor = 'rgba(0,0,0,0.45)';
+    ctx.shadowBlur = 10;
+    ctx.drawImage(logo, w - dw - pad, h - dh - pad, dw, dh);
+    ctx.restore();
+  } else {
+    ctx.save();
+    ctx.font = `700 ${Math.max(16, Math.round(w * 0.035))}px Poppins, Arial, sans-serif`;
+    ctx.fillStyle = 'rgba(255,255,255,0.92)';
+    ctx.shadowColor = 'rgba(0,0,0,0.6)';
+    ctx.shadowBlur = 8;
+    const txt = APP_NAME;
+    const tw = ctx.measureText(txt).width;
+    ctx.fillText(txt, w - tw - pad, h - pad);
+    ctx.restore();
+  }
+}
+
+async function saveCurrentMedia(){
+  if(!currentMedia || isSaving) return;
+  isSaving = true;
+  try {
+    if(currentMedia.type === 'video') await saveVideo(currentMedia);
+    else await savePhoto(currentMedia);
+  } catch(err) {
+    console.error("Save failed:", err);
+    showToast("Could not save media. Try again.");
+  } finally {
+    isSaving = false;
+  }
+}
+
+// ----- Save progress overlay helpers -----
+let dlState = { cancel: false };
+function dlShow(sub){
+  const ov = document.getElementById('sv-overlay');
+  if(!ov) return;
+  const subEl = document.getElementById('sv-sub');
+  if(subEl) subEl.textContent = sub || '';
+  const fill = document.getElementById('sv-bar-fill');
+  if(fill) fill.style.width = '0%';
+  ov.classList.add('active');
+}
+function dlProg(pct, sec, totalSec){
+  const fill = document.getElementById('sv-bar-fill');
+  if(fill) fill.style.width = Math.max(0, Math.min(100, pct)) + '%';
+  const subEl = document.getElementById('sv-sub');
+  if(subEl) subEl.textContent = sec + 's of ' + Math.floor(totalSec) + 's \u2014 keep this tab open';
+}
+function dlHide(){
+  const ov = document.getElementById('sv-overlay');
+  if(ov) ov.classList.remove('active');
+}
+window.cancelSave = function(){ if(dlState) dlState.cancel = true; };
+
+// Video save: re-encoded with the site mark overlaid on every frame.
+// A video is never saved as a plain file; if the browser can't re-encode or
+// the clip can't load, the save stops with an error.
+async function saveVideo(m){
+  const videoUrl = m.videoUrl;
+  if(!videoUrl){ showToast("Nothing to save"); return; }
+  if(typeof MediaRecorder === 'undefined' || typeof document.createElement('canvas').captureStream !== 'function'){
+    showToast("Saving isn't supported on this browser");
+    return;
+  }
+  dlState = { cancel: false };
+  const vid = document.createElement('video');
+  vid.crossOrigin = 'anonymous';
+  vid.playsInline = true;
+  vid.preload = 'auto';
+  vid.muted = true; // lets the clip buffer freely; sound is enabled right before playback below
+  vid.src = videoUrl;
+  try {
+    await new Promise((res, rej) => {
+      vid.onloadedmetadata = res;
+      vid.onerror = () => rej(new Error('meta'));
+      setTimeout(() => rej(new Error('timeout')), 20000);
+    });
+  } catch(err){
+    console.error("Couldn't load video for saving:", err);
+    showToast("Couldn't save this video");
+    return;
+  }
+  const vw = vid.videoWidth || 720;
+  const vh = vid.videoHeight || 1280;
+  const canvas = document.createElement('canvas');
+  canvas.width = vw;
+  canvas.height = vh;
+  const ctx = canvas.getContext('2d');
+  let raf = null;
+  const paint = async () => {
+    if(dlState.cancel) return;
+    if(!vid.paused && !vid.ended){
+      try { ctx.drawImage(vid, 0, 0, vw, vh); } catch(e){}
+      try { await drawSiteLogo(ctx, vw, vh); } catch(e){}
+    }
+    raf = requestAnimationFrame(paint);
+  };
+  const mimes = ['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm;codecs=vp9','video/webm','video/mp4'];
+  const mime = mimes.find(t => MediaRecorder.isTypeSupported(t)) || '';
+  const ext = mime.includes('mp4') ? 'mp4' : 'webm';
+  const canvasStream = canvas.captureStream(30);
+  const combined = new MediaStream(canvasStream.getVideoTracks());
+  let audioCtx = null;
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if(AC){
+      audioCtx = new AC();
+      const srcNode = audioCtx.createMediaElementSource(vid);
+      const dest = audioCtx.createMediaStreamDestination();
+      srcNode.connect(dest);
+      await audioCtx.resume().catch(() => {});
+      dest.stream.getAudioTracks().forEach(t => combined.addTrack(t));
+    }
+  } catch(err){ console.warn("audio capture unavailable", err); }
+  const rec = new MediaRecorder(combined, { mimeType: mime, videoBitsPerSecond: 6000000 });
+  const chunks = [];
+  rec.ondataavailable = (e) => { if(e.data && e.data.size) chunks.push(e.data); };
+  let finished = false;
+  const finish = () => {
+    if(finished) return;
+    finished = true;
+    if(raf){ cancelAnimationFrame(raf); raf = null; }
+    try { if(rec.state !== 'inactive') rec.stop(); } catch(e){}
+  };
+  const cleanup = () => {
+    if(audioCtx){ audioCtx.close().catch(() => {}); audioCtx = null; }
+  };
+  const totalSec = vid.duration || 0;
+  vid.ontimeupdate = () => {
+    const sec = Math.min(Math.floor(vid.currentTime || 0), Math.floor(totalSec));
+    const pct = totalSec ? Math.round((vid.currentTime / totalSec) * 100) : 0;
+    dlProg(pct, sec, totalSec);
+    if(dlState.cancel) finish();
+  };
+  rec.onstop = () => {
+    if(raf){ cancelAnimationFrame(raf); raf = null; }
+    dlHide();
+    cleanup();
+    const cancelled = dlState.cancel;
+    dlState = { cancel: false };
+    if(cancelled){ showToast("Save cancelled"); return; }
+    const blob = new Blob(chunks, { type: mime || 'video/webm' });
+    if(blob.size > 0){
+      downloadBlob(blob, `cashclique_${m.id}.${ext}`);
+      showToast("Video saved");
+    } else {
+      showToast("Couldn't save this video. Try again.");
+    }
+  };
+  vid.onended = finish;
+  vid.onerror = finish;
+  dlShow('Preparing\u2026');
+  try {
+    rec.start(300);
+  } catch(err){
+    console.error("Video recorder could not start:", err);
+    dlHide();
+    cleanup();
+    dlState = { cancel: false };
+    showToast("Couldn't save this video. Try again.");
+    return;
+  }
+  paint();
+  try {
+    vid.muted = false; // the save tap is the user gesture that allows sound
+    await vid.play();
+  } catch(err){
+    console.error("Video save playback needed a muted retry:", err);
+    try {
+      vid.muted = true;
+      await vid.play();
+    } catch(e2){
+      finish(); // recorder is running; stopping yields an empty clip -> error toast
+    }
+  }
+}
+
+// Photo save: subtle site mark baked in, quietly.
+async function savePhoto(m){
+  const src = imageDataSrc(m.imageRaw);
+  if(!src){ showToast("Nothing to save"); return; }
+  const name = `cashclique_${m.id}.jpg`;
+  try {
+    const img = new Image();
+    if(!src.startsWith('data:')) img.crossOrigin = 'anonymous';
+    await new Promise((res, rej) => { img.onload = res; img.onerror = () => rej(new Error('img')); img.src = src; });
+    const canvas = document.createElement('canvas');
+    canvas.width = img.naturalWidth || img.width;
+    canvas.height = img.naturalHeight || img.height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    const logo = await loadLogo();
+    if(logo && logo.width > 0){
+      const gw = canvas.width * 0.32;
+      const gh = gw * (logo.height / logo.width);
+      ctx.save();
+      ctx.globalAlpha = 0.09;
+      ctx.drawImage(logo, (canvas.width - gw) / 2, (canvas.height - gh) / 2, gw, gh);
+      ctx.restore();
+    }
+    await drawSiteLogo(ctx, canvas.width, canvas.height);
+    const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.94));
+    if(blob){
+      downloadBlob(blob, name);
+      showToast("Photo saved");
+      return;
+    }
+    throw new Error('no-blob');
+  } catch(err){
+    console.error("Photo save failed, saving original instead:", err);
+  }
+  // Quiet fallback: save the original as-is.
+  if(src.startsWith('data:')){
+    downloadViaAnchor(src, name);
+  } else {
+    try {
+      const resp = await fetch(src);
+      if(resp.ok){ const blob = await resp.blob(); downloadBlob(blob, name); }
+      else downloadViaAnchor(src, name);
+    } catch(e2){
+      downloadViaAnchor(src, name);
+    }
+  }
+  showToast("Photo saved");
+}
 
 // Time ago helper
 function timeAgo(date) {
