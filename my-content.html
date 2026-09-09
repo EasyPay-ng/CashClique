@@ -293,9 +293,14 @@ function loadUserPosts() {
             card.className = "post-card";
             card.innerHTML = `
                 <div class="post-image-container" onclick="viewPost('${postId}')">
-                    ${post.imageBase64 
+                    ${post.videoUrl 
+                        ? `<video src="${post.videoUrl}" class="post-image" preload="metadata" muted playsinline></video>
+                           <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.25);pointer-events:none;">
+                               <span style="width:52px;height:52px;border-radius:50%;background:rgba(255,106,0,0.92);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(0,0,0,0.35);"><i class="fas fa-play" style="font-size:18px;margin-left:3px;"></i></span>
+                           </div>` 
+                        : post.imageBase64 
                         ? `<img src="${post.imageBase64}" class="post-image" alt="Post image">` 
-                        : `<div class="no-image-placeholder"><i class="fas fa-file-alt"></i></div>`
+                        : (post.image ? `<img src="${post.image.startsWith('data:')||post.image.startsWith('http')?post.image:'data:image/jpeg;base64,'+post.image}" class="post-image" alt="Post image">` : `<div class="no-image-placeholder"><i class="fas fa-file-alt"></i></div>`)
                     }
                 </div>
                 <div class="post-content">

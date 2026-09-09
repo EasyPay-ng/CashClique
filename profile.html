@@ -571,7 +571,8 @@ body{background:var(--bg-body);min-height:100vh;-webkit-font-smoothing:antialias
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, query, where, onSnapshot, doc, getDoc, getDocs, updateDoc, arrayUnion, arrayRemove, addDoc, serverTimestamp, runTransaction, increment, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, query, where, onSnapshot, doc, getDoc, getDocs, updateDoc, arrayUnion, arrayRemove, addDoc, serverTimestamp, runTransaction, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -585,6 +586,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
 const urlParams = new URLSearchParams(window.location.search);
 let profileUid = urlParams.get("uid");
@@ -726,51 +728,87 @@ function animateNumber(element, start, end) {
     requestAnimationFrame(update);
 }
 
+let profilePostsCache = [];       // { id, data, ts }
+let profileMediaOnly = false;     // 'Posts' vs 'Media' tab
+
 function loadUserPosts() {
     // Clean up old listener before creating new one
     if (postsUnsubscribe) postsUnsubscribe();
-    
-    const q = query(collection(db, "posts"), where("userId", "==", profileUid), orderBy("timestamp", "desc"));
+
+    // FIX: no orderBy() combined with where() here — that required a Firestore
+    // composite index and made profiles silently show "No posts yet".
+    // We fetch by user id and sort by timestamp on the client instead.
+    const q = query(collection(db, "posts"), where("userId", "==", profileUid));
 
     postsUnsubscribe = onSnapshot(q, (snapshot) => {
-        const total = snapshot.size;
-        animateNumber(document.getElementById("posts-count"), parseInt(document.getElementById("posts-count").innerText), total);
+        profilePostsCache = snapshot.docs
+            .map(d => ({ id: d.id, data: d.data(), ts: d.data().timestamp?.seconds || 0 }))
+            .sort((a, b) => b.ts - a.ts);
 
+        animateNumber(document.getElementById("posts-count"), parseInt(document.getElementById("posts-count").innerText), profilePostsCache.length);
+        renderProfileGrid(profilePostsCache);
+    }, (error) => {
+        // FIX - friendly error instead of infinite loading / blank grid
+        console.error("Firestore error:", error);
         const grid = document.getElementById("posts-grid");
-        grid.innerHTML = "";
+        const friendly = error.code === 'permission-denied'
+            ? 'You do not have permission to view these posts.'
+            : (error.message || 'Something went wrong. Please try again.');
+        grid.innerHTML = `
+            <div class="error-state">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Failed to Load Posts</h3>
+                <p>${escapeHtml(friendly)}</p>
+            </div>`;
+    });
+}
 
-        if (total === 0) {
-            grid.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-icon"><i class="fas fa-camera"></i></div>
-                    <h3 class="empty-title">No posts yet</h3>
-                    <p class="empty-text">${isOwnProfile ? 'Share your first post!' : 'This user hasn\'t posted yet'}</p>
-                </div>`;
-            return;
-        }
+// Renders the profile grid (respects Posts / Media tab filter)
+function renderProfileGrid(posts) {
+    const grid = document.getElementById("posts-grid");
+    grid.innerHTML = "";
 
-        snapshot.forEach((doc, index) => {
-            const post = doc.data();
-            const postId = doc.id;
-            const div = document.createElement("div");
-            div.className = "post-thumb";
-            div.style.animation = `fadeIn 0.5s ease ${index * 0.05}s both`;
+    const visible = profileMediaOnly
+        ? posts.filter(p => p.data.videoUrl || p.data.imageBase64 || p.data.image)
+        : posts;
 
-            if (post.videoUrl) {
-                div.innerHTML = `
-                    <video src="${post.videoUrl}" preload="metadata" muted playsinline></video>
-                    <div class="video-indicator">
-                        <i class="fas fa-play"></i>
+    if (visible.length === 0) {
+        grid.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon"><i class="fas fa-camera"></i></div>
+                <h3 class="empty-title">${profileMediaOnly ? 'No photos or videos yet' : 'No posts yet'}</h3>
+                <p class="empty-text">${isOwnProfile ? 'Share your first post!' : 'This user hasn\'t posted yet'}</p>
+            </div>`;
+        return;
+    }
+
+    visible.forEach(({ id, data: post }, index) => {
+        const postId = id;
+        const div = document.createElement("div");
+        div.className = "post-thumb";
+        div.style.animation = `fadeIn 0.5s ease ${Math.min(index * 0.05, 1)}s both`;
+
+        if (post.videoUrl) {
+            div.innerHTML = `
+                <video src="${escapeHtml(post.videoUrl)}" preload="metadata" muted playsinline></video>
+                <div class="video-indicator">
+                    <i class="fas fa-play"></i>
+                </div>
+                <div class="post-thumb-overlay">
+                    <div class="post-stats-overlay">
+                        <span><i class="fas fa-heart"></i> ${formatNumber(post.likes || 0)}</span>
+                        <span><i class="fas fa-comment"></i> ${formatNumber(post.commentCount || 0)}</span>
+                        <span><i class="fas fa-eye"></i> ${formatNumber(post.views || 0)}</span>
                     </div>
-                    <div class="post-thumb-overlay">
-                        <div class="post-stats-overlay">
-                            <span><i class="fas fa-heart"></i> ${formatNumber(post.likes || 0)}</span>
-                            <span><i class="fas fa-comment"></i> ${formatNumber(post.commentCount || 0)}</span>
-                        </div>
-                    </div>`;
-            } else if (post.imageBase64) {
+                </div>`;
+        } else {
+            const rawImage = post.imageBase64 || post.image || '';
+            const imgSrc = rawImage.startsWith('data:') || rawImage.startsWith('http')
+                ? rawImage
+                : (rawImage ? `data:image/jpeg;base64,${rawImage}` : '');
+            if (imgSrc) {
                 div.innerHTML = `
-                    <img src="${post.imageBase64}" loading="lazy" alt="Post image">
+                    <img src="${escapeHtml(imgSrc)}" loading="lazy" alt="Post image">
                     <div class="post-thumb-overlay">
                         <div class="post-stats-overlay">
                             <span><i class="fas fa-heart"></i> ${formatNumber(post.likes || 0)}</span>
@@ -780,34 +818,331 @@ function loadUserPosts() {
                     </div>`;
             } else {
                 div.className += " post-thumb-text";
-                div.innerHTML = `<div>${escapeHtml(post.content?.substring(0, 100) || "Text post")}</div>`;
+                div.innerHTML = `<div>${escapeHtml(String(post.content || "Text post").substring(0, 100))}</div>`;
             }
-
-            div.onclick = () => location.href = `post-view.html?postId=${postId}`;
-            grid.appendChild(div);
-        });
-    }, (error) => {
-        // THIS IS THE FIX - error handler instead of infinite loading
-        console.error("Firestore error:", error);
-        const grid = document.getElementById("posts-grid");
-        
-        if (error.code === 'failed-precondition') {
-            grid.innerHTML = `
-                <div class="error-state">
-                    <i class="fas fa-database"></i>
-                    <h3>Database Index Required</h3>
-                    <p>You need to create a Firestore composite index for this query to work.</p>
-                    <p>Go to Firebase Console → Firestore → Indexes → Composite</p>
-                    <p>Collection: <code>posts</code></p>
-                    <p>Fields: <code>userId (Ascending)</code> → <code>timestamp (Descending)</code></p>
-                </div>`;
-        } else {
-            grid.innerHTML = `
-                <div class="error-state">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <h3>Failed to Load Posts</h3>
-                    <p>${error.message || 'Something went wrong. Please try again.'}</p>
-                </div>`;
         }
+
+        div.onclick = () => location.href = `post-view.html?postId=${postId}`;
+        grid.appendChild(div);
     });
 }
+// ============================================================
+//  UTILITIES (restored — profile script was incomplete)
+// ============================================================
+function escapeHtml(text) {
+    if (text === null || text === undefined) return '';
+    const div = document.createElement("div");
+    div.textContent = String(text);
+    return div.innerHTML;
+}
+
+function formatNumber(n) {
+    n = Number(n) || 0;
+    if (n >= 1000000) return (n / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+    if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+    return String(n);
+}
+
+function showToast(message, type = "success") {
+    const container = document.getElementById("toast-container");
+    if (!container) return;
+    const icons = { success: "fa-check-circle", error: "fa-exclamation-circle", info: "fa-info-circle" };
+    const toast = document.createElement("div");
+    toast.style.cssText = "display:flex;align-items:center;gap:8px;background:#1a1a1a;color:#fff;padding:12px 20px;border-radius:30px;font-size:14px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.3);animation:slideUp .3s ease;max-width:90vw;";
+    toast.innerHTML = `<i class="fas ${icons[type] || icons.success}" style="color:${type === 'error' ? '#ef4444' : type === 'info' ? '#3b82f6' : '#22c55e'}"></i> ${message}`;
+    container.appendChild(toast);
+    setTimeout(() => { toast.style.opacity = "0"; toast.style.transition = "opacity .4s"; setTimeout(() => toast.remove(), 450); }, 3000);
+}
+
+// ============================================================
+//  TABS / COUNTS
+// ============================================================
+window.switchTab = function (tab, btn) {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    if (btn) btn.classList.add("active");
+    profileMediaOnly = tab === "media";
+    renderProfileGrid(profilePostsCache);
+};
+
+window.showPosts = function () {
+    const postsTab = document.querySelector('.tab');
+    if (postsTab) switchTab('posts', postsTab);
+    document.getElementById("posts-grid")?.scrollIntoView({ behavior: "smooth" });
+};
+
+window.showFollowers = function () {
+    const ids = profileData?.followers || [];
+    openPeopleList(ids, "Followers");
+};
+
+window.showFollowing = function () {
+    const ids = profileData?.following || [];
+    openPeopleList(ids, "Following");
+};
+
+window.shareProfile = async function () {
+    const url = window.location.origin + "/profile.html?uid=" + profileUid;
+    if (navigator.share) {
+        try { await navigator.share({ title: `${profileData?.username || "CashClique"} on CashClique`, url }); } catch (e) {}
+    } else {
+        navigator.clipboard.writeText(url);
+        showToast("Profile link copied!", "success");
+    }
+};
+
+window.closeMediaModal = function () {
+    const m = document.getElementById("media-modal");
+    if (m) m.classList.remove("active");
+};
+
+// ---- Generic people list overlay (followers / following) ----
+async function openPeopleList(userIds, title) {
+    if (!userIds || !userIds.length) { showToast(`No ${title.toLowerCase()} yet`, "info"); return; }
+    const overlay = document.createElement("div");
+    overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:4000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);";
+    overlay.onclick = () => overlay.remove();
+    const card = document.createElement("div");
+    card.style.cssText = "background:#fff;border-radius:18px;width:min(420px,94vw);max-height:75vh;overflow:auto;padding:18px;";
+    card.onclick = (e) => e.stopPropagation();
+    card.innerHTML = `<h3 style="margin:0 0 12px;font-size:18px;color:#1a1a1a;">${escapeHtml(title)}</h3><div id="ppl-list">${'<div style="text-align:center;padding:24px;color:#888;"><i class="fas fa-spinner fa-spin"></i></div>'}</div>`;
+    overlay.appendChild(card);
+    document.body.appendChild(overlay);
+
+    const listEl = card.querySelector("#ppl-list");
+    const items = await Promise.all(userIds.map(async uid => {
+        try { const snap = await getDoc(doc(db, "users", uid)); if (snap.exists()) return { uid, ...snap.data() }; } catch (e) {}
+        return { uid };
+    }));
+    listEl.innerHTML = "";
+    if (!items.length) { listEl.innerHTML = '<div style="text-align:center;padding:24px;color:#888;">No users found</div>'; return; }
+    items.forEach(u => {
+        const row = document.createElement("div");
+        row.style.cssText = "display:flex;align-items:center;gap:12px;padding:10px 8px;border-radius:12px;cursor:pointer;transition:.2s;";
+        row.onmouseenter = () => row.style.background = "#f5f5f5";
+        row.onmouseleave = () => row.style.background = "transparent";
+        row.onclick = () => { window.location.href = `profile.html?uid=${u.uid}`; };
+        row.innerHTML = `
+            <img src="${escapeHtml(u.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.username || 'U')}&background=ff6a00&color=fff`)}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;">
+            <div>
+                <div style="font-weight:600;color:#1a1a1a;">@${escapeHtml(u.username || "user")}${u.isVerified ? ' <i class="fas fa-check-circle" style="color:#1DA1F2;font-size:13px;"></i>' : ''}</div>
+                <div style="font-size:12px;color:#888;">${formatNumber(u.followers?.length || 0)} followers</div>
+            </div>`;
+        listEl.appendChild(row);
+    });
+}
+
+// ============================================================
+//  FOLLOW / UNFOLLOW
+// ============================================================
+window.toggleFollow = async function (currentlyFollowing, name) {
+    if (!currentUser || profileUid === currentUser.uid) return;
+    if (rateLimiterFollow()) { showToast("Please slow down", "info"); return; }
+    const isFollowing = currentlyFollowing === "true" || currentlyFollowing === true;
+    const btn = document.getElementById("follow-btn");
+    btn.disabled = true;
+    try {
+        if (isFollowing) {
+            await updateDoc(doc(db, "users", currentUser.uid), { following: arrayRemove(profileUid) });
+            await updateDoc(doc(db, "users", profileUid), { followers: arrayRemove(currentUser.uid) });
+            showToast("Unfollowed");
+            btn.className = "action-btn follow-btn";
+            btn.innerHTML = `<i class="fas fa-user-plus"></i> Follow`;
+            btn.onclick = () => toggleFollow(false, name);
+        } else {
+            await updateDoc(doc(db, "users", currentUser.uid), { following: arrayUnion(profileUid) });
+            await updateDoc(doc(db, "users", profileUid), { followers: arrayUnion(currentUser.uid) });
+            showToast("Following now!");
+            btn.className = "action-btn follow-btn following";
+            btn.innerHTML = `<i class="fas fa-user-check"></i> Following`;
+            btn.onclick = () => toggleFollow(true, name);
+        }
+        // bump the follower counter without reloading everything
+        const counter = document.getElementById("followers-count");
+        const cur = parseInt(counter.innerText.replace(/[^0-9]/g, "")) || 0;
+        if (counter) animateNumber(counter, cur, Math.max(0, cur + (isFollowing ? -1 : 1)));
+    } catch (e) {
+        console.error("Follow error:", e);
+        showToast("Failed to update follow status", "error");
+    }
+    btn.disabled = false;
+};
+
+let _lastFollowTap = 0;
+function rateLimiterFollow() {
+    const now = Date.now();
+    if (now - _lastFollowTap < 1200) return true;
+    _lastFollowTap = now;
+    return false;
+}
+
+// ============================================================
+//  PROFILE PHOTO UPLOAD (avatar -> Firebase Storage)
+// ============================================================
+let avatarDataUrl = null;
+let avatarPrepared = null;
+let avatarRotation = 0;
+
+window.openUploadModal = function () {
+    if (!isOwnProfile) return;
+    document.getElementById("upload-modal").classList.add("active");
+};
+
+window.closeUploadModal = function () {
+    document.getElementById("upload-modal").classList.remove("active");
+};
+
+window.handleFileSelect = function (e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) { showToast("Please choose an image file", "error"); return; }
+    if (file.size > 2 * 1024 * 1024) { showToast("Image too large! Max 2MB", "error"); return; }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+        avatarDataUrl = ev.target.result;
+        avatarRotation = 0;
+        avatarPrepared = null;
+        const preview = document.getElementById("upload-preview");
+        const placeholder = document.getElementById("upload-placeholder");
+        const cropperBox = document.getElementById("cropper-container");
+        const img = document.getElementById("cropper-image");
+        preview.src = avatarDataUrl;
+        preview.classList.add("active");
+        placeholder.style.display = "none";
+        cropperBox.classList.add("active");
+        img.style.transform = "rotate(0deg)";
+        img.onload = () => applyAvatarRotation();
+        document.getElementById("save-photo-btn").style.display = "block";
+        document.getElementById("select-file-btn").style.display = "none";
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+};
+
+function applyAvatarRotation() {
+    const img = document.getElementById("cropper-image");
+    img.style.transform = `rotate(${avatarRotation}deg)`;
+}
+
+window.rotateImage = function (deg) {
+    avatarRotation = (avatarRotation + deg + 360) % 360;
+    avatarPrepared = null;
+    applyAvatarRotation();
+};
+
+window.cropImage = async function () {
+    if (!avatarDataUrl) return;
+    const img = new Image();
+    await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = avatarDataUrl; });
+    const side = Math.min(img.naturalWidth, img.naturalHeight);
+    const sx = (img.naturalWidth - side) / 2;
+    const sy = (img.naturalHeight - side) / 2;
+    const sq = document.createElement("canvas");
+    sq.width = side; sq.height = side;
+    const sqCtx = sq.getContext("2d");
+    sqCtx.drawImage(img, sx, sy, side, side, 0, 0, side, side);
+
+    const out = 512;
+    const canvas = document.createElement("canvas");
+    canvas.width = out; canvas.height = out;
+    const ctx = canvas.getContext("2d");
+    ctx.translate(out / 2, out / 2);
+    ctx.rotate((avatarRotation * Math.PI) / 180);
+    ctx.drawImage(sq, -out / 2, -out / 2, out, out);
+    avatarPrepared = canvas.toDataURL("image/jpeg", 0.9);
+    document.getElementById("upload-preview").src = avatarPrepared;
+    showToast("Cropped! Tap Save Photo", "success");
+};
+
+window.saveProfilePhoto = async function () {
+    if (!avatarPrepared) { cropImage(); return; }
+    const loading = document.getElementById("upload-loading");
+    const actions = document.getElementById("upload-actions");
+    loading.classList.add("active");
+    actions.style.display = "none";
+    try {
+        const blob = await (await fetch(avatarPrepared)).blob();
+        const path = `avatars/${currentUser.uid}/${Date.now()}.jpg`;
+        const task = uploadBytesResumable(ref(storage, path), blob);
+        await new Promise((resolve, reject) => {
+            task.on("state_changed", null, reject, resolve);
+        });
+        const url = await getDownloadURL(task.snapshot.ref);
+        await updateDoc(doc(db, "users", currentUser.uid), { avatar: url });
+        document.getElementById("avatar").src = url;
+        showToast("Profile photo updated!", "success");
+        closeUploadModal();
+    } catch (err) {
+        console.error(err);
+        showToast("Upload failed: " + err.message, "error");
+    }
+    loading.classList.remove("active");
+    actions.style.display = "flex";
+    document.getElementById("save-photo-btn").style.display = "block";
+    document.getElementById("select-file-btn").style.display = "none";
+};
+
+// ============================================================
+//  GET VERIFIED (blue / gold badges)
+// ============================================================
+window.openVerificationOverlay = function () {
+    if (!isOwnProfile) return;
+    const ov = document.getElementById("verification-overlay");
+    ov.classList.add("active");
+    document.querySelectorAll(".badge-card").forEach(card => {
+        card.style.border = "2px solid #e0e0e0";
+        card.onclick = () => {
+            document.querySelectorAll(".badge-card").forEach(c => (c.style.border = "2px solid #e0e0e0"));
+            card.style.border = "2px solid #ff6a00";
+            selectedBadge = card.dataset.badge;
+        };
+    });
+    const first = document.querySelector(".badge-card");
+    if (first) first.style.border = "2px solid #ff6a00";
+    selectedBadge = "blue";
+};
+
+window.closeVerificationOverlay = function () {
+    document.getElementById("verification-overlay").classList.remove("active");
+};
+
+window.purchaseVerification = async function () {
+    if (!isOwnProfile) return;
+    const isGold = selectedBadge === "gold";
+    const price = isGold ? 5 : 2;
+    const needFollowers = isGold ? 2000 : 500;
+    const needLikes = isGold ? 5000 : 1000;
+
+    const realFollowers = (profileData?.followers?.length || 0) + (profileData?.followersCount || 0);
+    if (totalLikes < needLikes) { showToast(`You need ${formatNumber(needLikes)} total likes for this badge`, "error"); return; }
+    if (realFollowers < needFollowers) { showToast(`You need ${formatNumber(needFollowers)} followers for this badge`, "error"); return; }
+    if (currentBalance < price) { showToast("Insufficient balance — please deposit funds", "error"); return; }
+
+    if (!confirm(`Buy the ${isGold ? "Gold" : "Blue"} verified badge for $${price.toFixed(2)}?`)) return;
+    const btn = document.getElementById("confirm-verification-btn");
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    try {
+        await updateDoc(doc(db, "users", currentUser.uid), {
+            balance: increment(-price),
+            [isGold ? "isGoldVerified" : "isVerified"]: true
+        });
+        await addDoc(collection(db, "transactions"), {
+            type: "verification",
+            userId: currentUser.uid,
+            amount: -price,
+            description: `${isGold ? "Gold" : "Blue"} verified badge`,
+            timestamp: serverTimestamp()
+        });
+        alert("🎉 You are now verified!");
+        closeVerificationOverlay();
+    } catch (e) {
+        console.error(e);
+        showToast("Purchase failed. Please try again.", "error");
+    }
+    btn.disabled = false;
+    btn.innerHTML = "Get Verified";
+};
+
+</script>
+</body>
+</html>
