@@ -430,10 +430,37 @@ document.getElementById('post-image').addEventListener('change', async (e) => {
   if (!file) return;
   if (file.size > 5 * 1024 * 1024) return showToast("Image too large! Max 5MB", "error");
   
-  selectedImageBase64 = await fileToBase64(file);
+  // Compress so the base64 stays well under Firestore's 1MB document limit
+  showToast("Optimizing image...", "info");
+  selectedImageBase64 = await compressImage(file, 1280, 0.82);
   document.getElementById('preview-img').src = selectedImageBase64;
   document.getElementById('image-preview').style.display = 'block';
 });
+
+function compressImage(file, maxDim = 1280, quality = 0.82) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxDim / Math.max(img.naturalWidth, img.naturalHeight));
+        const w = Math.max(1, Math.round(img.naturalWidth * scale));
+        const h = Math.max(1, Math.round(img.naturalHeight * scale));
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = reject;
+      img.src = ev.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 
 document.getElementById('remove-image').addEventListener('click', (e) => {
   e.stopPropagation();

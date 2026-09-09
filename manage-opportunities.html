@@ -44,6 +44,7 @@ body{background:#f5f5f5;min-height:100vh;padding:20px;}
 .opp-category{display:inline-block;padding:4px 10px;background:#f0f0f0;border-radius:5px;font-size:12px;color:#666;text-transform:capitalize;margin-left:10px;}
 .opp-status{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;}
 .status-active{background:#e8f5e9;color:#4caf50;}
+.status-approved{background:#d4edda;color:#0f5132;}
 .status-pending{background:#fff3e0;color:#ff9800;}
 .status-completed{background:#e3f2fd;color:#2196f3;}
 .status-paused{background:#f3e5f5;color:#9c27b0;}
@@ -304,13 +305,21 @@ function loadOpportunities() {
 }
 
 function updateStatsDisplay() {
-    // Calculate totals from applications data (real view/click tracking)
+    // Calculate totals from applications data + feed ad impressions on the opportunity doc
     let totalViews = 0;
     let totalClicks = 0;
     
     Object.values(applicationsData).forEach(oppStats => {
         totalViews += oppStats.totalViews;
         totalClicks += oppStats.totalClicks;
+    });
+    
+    // Self-serve feed ads count impressions/clicks on the opportunity document itself
+    allOpportunities.forEach(opp => {
+        if (opp.status !== 'rejected') {
+            totalViews += opp.currentViews || 0;
+            totalClicks += opp.clicks || 0;
+        }
     });
     
     // Update stats cards
@@ -347,8 +356,8 @@ function displayOpportunities() {
     filtered.forEach(opp => {
         // Get real stats from applications data, fallback to opportunity data
         const appStats = applicationsData[opp.id] || { totalViews: 0, totalClicks: 0 };
-        const currentViews = appStats.totalViews || opp.currentViews || 0;
-        const clicks = appStats.totalClicks || opp.clicks || 0;
+        const currentViews = (appStats.totalViews || 0) + (opp.currentViews || 0);
+        const clicks = (appStats.totalClicks || 0) + (opp.clicks || 0);
         
         const progress = opp.targetViews > 0 ? (currentViews / opp.targetViews) * 100 : 0;
         const ctr = currentViews > 0 ? ((clicks / currentViews) * 100).toFixed(2) : 0;
@@ -369,7 +378,7 @@ function displayOpportunities() {
                 <a href="${opp.targetUrl}" target="_blank" class="opp-url">${opp.targetUrl}</a>
             </div>
             
-            ${(opp.status === 'active' || opp.status === 'completed') ? `
+            ${(opp.status === 'active' || opp.status === 'approved' || opp.status === 'completed') ? `
                 <div class="opp-progress">
                     <div class="progress-header">
                         <span>Progress</span>
@@ -405,7 +414,7 @@ function displayOpportunities() {
                     <i class="fas fa-chart-line"></i> View Analytics
                 </button>
                 
-                ${opp.status === 'active' ? `
+                ${(opp.status === 'active' || opp.status === 'approved') ? `
                     <button class="action-btn secondary" onclick="pauseCampaign('${opp.id}')">
                         <i class="fas fa-pause"></i> Pause
                     </button>
@@ -441,8 +450,8 @@ window.viewPerformance = function(oppId) {
     
     // Get real stats from applications
     const appStats = applicationsData[oppId] || { totalViews: 0, totalClicks: 0, applications: [] };
-    const currentViews = appStats.totalViews || opp.currentViews || 0;
-    const clicks = appStats.totalClicks || opp.clicks || 0;
+    const currentViews = (appStats.totalViews || 0) + (opp.currentViews || 0);
+    const clicks = (appStats.totalClicks || 0) + (opp.clicks || 0);
     
     const modal = document.getElementById('performance-modal');
     const modalBody = document.getElementById('modal-body');

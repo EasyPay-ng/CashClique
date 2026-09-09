@@ -140,6 +140,22 @@ input:checked + .toggle-slider:before{transform:translateX(24px);}
     .package-grid{grid-template-columns:repeat(2,1fr);}
     .submit-section{flex-direction:column;}
 }
+
+/* Ad Media Tabs (Photo / Video creative) */
+.ad-media-tabs{display:flex;gap:10px;margin-bottom:14px;background:#f5f5f5;padding:5px;border-radius:12px;}
+.ad-media-tab{flex:1;border:2px solid transparent;background:transparent;padding:11px;border-radius:9px;cursor:pointer;font-size:14px;font-weight:600;color:#666;display:flex;align-items:center;justify-content:center;gap:8px;transition:0.25s;font-family:'Segoe UI',Arial,sans-serif;}
+.ad-media-tab:hover{color:#ff6a00;}
+.ad-media-tab.active{background:#ff6a00;color:white;box-shadow:0 4px 12px rgba(255,106,0,0.3);}
+.tab-hint{font-size:10px;font-weight:700;background:rgba(255,106,0,0.15);color:#ff6a00;padding:2px 7px;border-radius:20px;text-transform:uppercase;letter-spacing:.3px;}
+.ad-media-tab.active .tab-hint{background:rgba(255,255,255,0.25);color:#fff;}
+#ad-video-section .upload-area{padding:20px;}
+.video-upload-area.uploading{border-color:#ff6a00;background:#fff5eb;}
+.video-progress-bar{display:none;height:8px;background:#eee;border-radius:6px;overflow:hidden;margin-top:14px;}
+.video-progress-bar.active{display:block;}
+.video-progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#ff6a00,#ff8a00);transition:width .2s;}
+.video-progress-text{margin-top:8px;font-size:13px;color:#ff6a00;font-weight:600;min-height:18px;}
+.flyer-preview.video-preview video{width:100%;max-height:340px;border-radius:8px;border:2px solid #e0e0e0;background:#000;}
+.video-meta-warning{margin-top:8px;font-size:13px;color:#e67e22;font-weight:600;min-height:18px;}
 </style>
 </head>
 
@@ -248,19 +264,50 @@ input:checked + .toggle-slider:before{transform:translateX(24px);}
                 </div>
                 
                 <div class="form-group">
-                    <label class="form-label">Ad Flyer / Image</label>
-                    <input type="file" id="flyer-input" accept="image/*" hidden>
-                    
-                    <div class="upload-area" id="upload-area">
-                        <div class="upload-icon"><i class="fas fa-image"></i></div>
-                        <div class="upload-text">Click or drag an image here to upload</div>
-                        <div class="upload-note">Recommended: 1080x1080px, Max 700KB</div>
+                    <label class="form-label">Ad Creative (Photo or Video) <span class="required">*</span></label>
+
+                    <div class="ad-media-tabs">
+                        <button type="button" class="ad-media-tab active" data-mediatype="photo" onclick="switchAdMedia('photo')">
+                            <i class="fas fa-image"></i> Photo
+                        </button>
+                        <button type="button" class="ad-media-tab" data-mediatype="video" onclick="switchAdMedia('video')">
+                            <i class="fas fa-video"></i> Video <span class="tab-hint">max 30 sec</span>
+                        </button>
                     </div>
 
-                    <div class="flyer-preview" id="flyer-preview">
-                        <button type="button" class="remove-flyer" id="remove-flyer"><i class="fas fa-times"></i></button>
-                        <img id="preview-image">
+                    <!-- PHOTO CREATIVE -->
+                    <div id="ad-photo-section">
+                        <input type="file" id="flyer-input" accept="image/*" hidden>
+                        <div class="upload-area" id="upload-area">
+                            <div class="upload-icon"><i class="fas fa-image"></i></div>
+                            <div class="upload-text">Click or drag an image here to upload</div>
+                            <div class="upload-note">Recommended: 1080x1080px, Max 700KB</div>
+                        </div>
+                        <div class="flyer-preview" id="flyer-preview">
+                            <button type="button" class="remove-flyer" id="remove-flyer"><i class="fas fa-times"></i></button>
+                            <img id="preview-image">
+                        </div>
                     </div>
+
+                    <!-- VIDEO CREATIVE (max 30 seconds) -->
+                    <div id="ad-video-section" style="display:none;">
+                        <input type="file" id="ad-video-input" accept="video/mp4,video/quicktime,video/webm" hidden>
+                        <div class="upload-area" id="video-upload-area">
+                            <div class="upload-icon"><i class="fas fa-video"></i></div>
+                            <div class="upload-text">Click or drag a video here to upload</div>
+                            <div class="upload-note">MP4, MOV or WEBM · maximum 30 seconds · max 100MB</div>
+                            <div class="video-progress-bar" id="ad-video-progress-bar">
+                                <div class="video-progress-fill" id="ad-video-progress-fill"></div>
+                            </div>
+                            <div class="video-progress-text" id="ad-video-progress-text"></div>
+                        </div>
+                        <div class="flyer-preview video-preview" id="ad-video-preview">
+                            <button type="button" class="remove-flyer" id="remove-ad-video"><i class="fas fa-times"></i></button>
+                            <video id="ad-video-preview-el" controls muted playsinline></video>
+                        </div>
+                        <div class="video-meta-warning" id="ad-video-meta"></div>
+                    </div>
+                    <input type="hidden" id="ad-media-type" value="photo">
                 </div>
                 
                 <div class="form-group">
@@ -452,6 +499,7 @@ input:checked + .toggle-slider:before{transform:translateX(24px);}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, addDoc, collection, updateDoc, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -465,13 +513,18 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
 let currentUser = null;
+let currentUserProfile = null; // { username, avatar }
 let userBalance = 0;
 let selectedCategory = null;
 let selectedPackage = null;
 let selectedRequirement = 'starter';
-let flyerBase64 = null;
+let adMediaType = 'photo';     // 'photo' | 'video'
+let flyerBase64 = null;        // photo creative
+let adVideoUrl = null;         // video creative (firebase storage)
+let adVideoTask = null;
 let totalCost = 0;
 
 onAuthStateChanged(auth, async (user) => {
@@ -487,7 +540,9 @@ async function loadUserBalance() {
     try {
         const userDoc = await getDoc(doc(db, "users", currentUser.uid));
         if (userDoc.exists()) {
-            userBalance = userDoc.data().balance || 0;
+            const userData = userDoc.data();
+            currentUserProfile = userData;
+            userBalance = userData.balance || 0;
             document.getElementById('user-balance').textContent = `$${userBalance.toFixed(2)}`;
             
             // Show alert if balance is low
@@ -596,6 +651,155 @@ function handleFileSelect(e) {
     reader.readAsDataURL(file);
 }
 
+// ============================================================
+// AD CREATIVE: PHOTO <-> VIDEO (max 30 seconds)
+// ============================================================
+window.switchAdMedia = function(type) {
+    adMediaType = type;
+    document.getElementById('ad-media-type').value = type;
+    document.querySelectorAll('.ad-media-tab').forEach(t => t.classList.toggle('active', t.dataset.mediatype === type));
+    document.getElementById('ad-photo-section').style.display = type === 'photo' ? 'block' : 'none';
+    document.getElementById('ad-video-section').style.display = type === 'video' ? 'block' : 'none';
+};
+
+const adVideoInput = document.getElementById('ad-video-input');
+const adVideoArea = document.getElementById('video-upload-area');
+const adVideoPreviewBox = document.getElementById('ad-video-preview');
+const adVideoPreviewEl = document.getElementById('ad-video-preview-el');
+const adVideoMeta = document.getElementById('ad-video-meta');
+const adVideoProgressBar = document.getElementById('ad-video-progress-bar');
+const adVideoProgressFill = document.getElementById('ad-video-progress-fill');
+const adVideoProgressText = document.getElementById('ad-video-progress-text');
+const AD_VIDEO_MAX_SECONDS = 30;
+
+adVideoArea.addEventListener('click', () => adVideoInput.click());
+adVideoInput.addEventListener('change', handleAdVideoSelect);
+
+['dragover', 'dragleave', 'drop'].forEach(evt => {
+    adVideoArea.addEventListener(evt, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (evt === 'dragover') adVideoArea.classList.add('dragover');
+        else adVideoArea.classList.remove('dragover');
+        if (evt === 'drop' && e.dataTransfer.files.length) {
+            handleAdVideoSelect({ target: { files: e.dataTransfer.files } });
+        }
+    });
+});
+
+// Validate + upload a video creative
+function handleAdVideoSelect(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    adVideoMeta.textContent = '';
+
+    // Cancel any previous upload
+    if (adVideoTask) { adVideoTask.cancel(); adVideoTask = null; }
+
+    if (file.size > 100 * 1024 * 1024) {
+        alert('Video is too large! Maximum size is 100MB.');
+        adVideoInput.value = '';
+        return;
+    }
+    const allowedTypes = ['video/mp4', 'video/quicktime', 'video/webm'];
+    if (!allowedTypes.includes(file.type)) {
+        alert('Invalid format. Please use MP4, MOV or WEBM.');
+        adVideoInput.value = '';
+        return;
+    }
+
+    adVideoMeta.textContent = 'Checking video duration...';
+
+    // Client-side duration check: ads must be at most 30 seconds
+    const previewUrl = URL.createObjectURL(file);
+    const probe = document.createElement('video');
+    probe.preload = 'metadata';
+    probe.muted = true;
+    probe.src = previewUrl;
+
+    probe.onloadedmetadata = () => {
+        const duration = probe.duration || 0;
+        URL.revokeObjectURL(previewUrl);
+        if (!isFinite(duration) || duration <= 0) {
+            adVideoMeta.textContent = '';
+            adVideoInput.value = '';
+            alert('Could not read this video. Try a different file.');
+            return;
+        }
+        if (duration > AD_VIDEO_MAX_SECONDS + 0.25) {
+            adVideoMeta.textContent = '';
+            adVideoInput.value = '';
+            alert(`Video is ${Math.round(duration)} seconds long. Ads must be ${AD_VIDEO_MAX_SECONDS} seconds or shorter.`);
+            return;
+        }
+        uploadAdVideo(file, duration);
+    };
+    probe.onerror = () => {
+        URL.revokeObjectURL(previewUrl);
+        adVideoMeta.textContent = '';
+        adVideoInput.value = '';
+        alert('Could not read this video. Try a different file.');
+    };
+}
+
+async function uploadAdVideo(file, duration) {
+    adVideoArea.classList.add('uploading');
+    adVideoProgressBar.classList.add('active');
+    adVideoProgressFill.style.width = '0%';
+    adVideoProgressText.textContent = 'Uploading: 0%';
+
+    try {
+        const fileName = `ad-videos/${currentUser.uid}/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+        const storageRef = ref(storage, fileName);
+        adVideoTask = uploadBytesResumable(storageRef, file);
+
+        adVideoTask.on('state_changed',
+            (snapshot) => {
+                const pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+                adVideoProgressFill.style.width = pct + '%';
+                adVideoProgressText.textContent = `Uploading: ${pct}%`;
+            },
+            (error) => {
+                console.error('Video upload error:', error);
+                alert('Upload failed: ' + error.message);
+                resetAdVideoUI();
+            },
+            async () => {
+                adVideoUrl = await getDownloadURL(adVideoTask.snapshot.ref);
+                adVideoTask = null;
+                resetAdVideoUI(true);
+                adVideoPreviewEl.src = URL.createObjectURL(file);
+                adVideoPreviewBox.style.display = 'block';
+                adVideoMeta.textContent = `Video ready — ${Math.round(duration)} sec, under the ${AD_VIDEO_MAX_SECONDS}s limit ✓`;
+                adVideoMeta.style.color = '#16a34a';
+                alert('Video uploaded successfully! Your ad will play on the For You feed.');
+            }
+        );
+    } catch (error) {
+        console.error('Video upload error:', error);
+        alert('Upload failed: ' + error.message);
+        resetAdVideoUI();
+    }
+}
+
+function resetAdVideoUI(keepUrl) {
+    if (!keepUrl) adVideoUrl = null;
+    adVideoArea.classList.remove('uploading');
+    adVideoProgressBar.classList.remove('active');
+    adVideoProgressFill.style.width = '0%';
+    adVideoProgressText.textContent = '';
+}
+
+document.getElementById('remove-ad-video').addEventListener('click', () => {
+    if (adVideoTask) { adVideoTask.cancel(); adVideoTask = null; }
+    adVideoUrl = null;
+    adVideoInput.value = '';
+    adVideoPreviewBox.style.display = 'none';
+    adVideoPreviewEl.src = '';
+    adVideoMeta.textContent = '';
+    resetAdVideoUI();
+});
+
 // Category selection
 document.querySelectorAll('.category-card').forEach(card => {
     card.addEventListener('click', () => {
@@ -693,6 +897,19 @@ document.getElementById('opportunity-form').addEventListener('submit', async (e)
         alert('Please fill in all required fields');
         return;
     }
+
+    // Ad creative is required (photo OR video)
+    const finalMediaType = document.getElementById('ad-media-type').value || adMediaType;
+    if (finalMediaType === 'video' && !adVideoUrl) {
+        alert('Please upload your video ad creative (max 30 seconds).');
+        switchAdMedia('video');
+        return;
+    }
+    if (finalMediaType === 'photo' && !flyerBase64) {
+        alert('Please upload your ad photo / flyer.');
+        switchAdMedia('photo');
+        return;
+    }
     
     // Check balance
     if (userBalance < totalCost) {
@@ -706,7 +923,7 @@ document.getElementById('opportunity-form').addEventListener('submit', async (e)
     const minLikes = parseInt(selectedReq.dataset.likes);
     const minFollowers = parseInt(selectedReq.dataset.followers);
     
-    if (!confirm(`Create opportunity for $${totalCost.toFixed(2)}?\n\nPackage: ${selectedPackage.views.toLocaleString()} views\nCategory: ${selectedCategory}\nRequirements: ${minLikes}+ likes, ${minFollowers}+ followers`)) {
+    if (!confirm(`Create opportunity for $${totalCost.toFixed(2)}?\n\nPackage: ${selectedPackage.views.toLocaleString()} views\nCreative: ${finalMediaType === 'video' ? 'Video (max 30s)' : 'Photo'}\nCategory: ${selectedCategory}\nRequirements: ${minLikes}+ likes, ${minFollowers}+ followers`)) {
         return;
     }
     
@@ -718,11 +935,16 @@ document.getElementById('opportunity-form').addEventListener('submit', async (e)
         // Create opportunity
         const opportunityData = {
             advertiserId: currentUser.uid,
-            advertiserName: currentUser.displayName || currentUser.email?.split('@')[0] || 'Advertiser',
+            advertiserName: (currentUserProfile && (currentUserProfile.username || currentUserProfile.displayName))
+                || currentUser.displayName || currentUser.email?.split('@')[0] || 'Advertiser',
+            advertiserUsername: (currentUserProfile && currentUserProfile.username) || '',
+            advertiserAvatar: (currentUserProfile && currentUserProfile.avatar) || '',
             category: selectedCategory,
             title: title,
             description: description,
-            flyer: flyerBase64,
+            mediaType: finalMediaType === 'video' ? 'video' : 'image',
+            flyer: finalMediaType === 'photo' ? flyerBase64 : null,
+            videoUrl: finalMediaType === 'video' ? adVideoUrl : null,
             targetUrl: url,
             targetViews: selectedPackage.views,
             currentViews: 0,

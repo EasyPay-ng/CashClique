@@ -269,14 +269,19 @@ function render(){
 
   listEl.innerHTML = "";
   items.forEach(c => {
-    const stats = applicationsData[c.id] || { totalViews: 0, totalClicks: 0 };
+    const appStats = applicationsData[c.id] || { totalViews: 0, totalClicks: 0 };
+    const stats = { totalViews: (appStats.totalViews || 0) + (c.currentViews || 0), totalClicks: (appStats.totalClicks || 0) + (c.clicks || 0) };
     const el = document.createElement("div");
     el.className = "item";
+    const mediaType = (c.mediaType === 'video' || c.videoUrl) ? 'video' : (c.flyer ? 'image' : '');
+    const thumbHTML = mediaType === 'video'
+      ? `<video src="${c.videoUrl}" class="thumb" style="background:#000;" muted playsinline preload="metadata"></video>`
+      : (c.flyer ? `<img src="${c.flyer}" class="thumb" onclick="window.open('${c.flyer}', '_blank')">` : '');
     el.innerHTML = `
       <div class="row">
-        ${c.flyer ? `<img src="${c.flyer}" class="thumb" onclick="window.open('${c.flyer}', '_blank')">` : ''}
+        ${thumbHTML}
         <div style="flex:1">
-          <div class="title">${escapeHTML(c.title || "Untitled")}</div>
+          <div class="title">${escapeHTML(c.title || "Untitled")}${mediaType === 'video' ? ' <span style="font-size:10px;background:#ff6a00;color:#fff;padding:2px 8px;border-radius:20px;vertical-align:middle;"><i class="fas fa-video"></i> VIDEO</span>' : ''}</div>
           <div class="meta">${escapeHTML(c.advertiserName || 'Unknown')} • $${c.cost?.toFixed(2)}</div>
           <div class="progress-bar" style="margin-top:8px">
             <div class="progress-fill" style="width: ${Math.min(100, (stats.totalViews / c.targetViews) * 100)}%"></div>
@@ -311,15 +316,20 @@ window.handleAction = (action, id) => {
   
   selectedId = id;
   const c = all.find(x => x.id === id);
-  const stats = applicationsData[id] || { totalViews: 0, totalClicks: 0 };
+  const appStats = applicationsData[id] || { totalViews: 0, totalClicks: 0 };
+  const stats = { totalViews: (appStats.totalViews || 0) + (c.currentViews || 0), totalClicks: (appStats.totalClicks || 0) + (c.clicks || 0) };
   const ctr = stats.totalViews > 0 ? ((stats.totalClicks / stats.totalViews) * 100).toFixed(2) : 0;
   const progress = c.targetViews > 0 ? ((stats.totalViews / c.targetViews) * 100).toFixed(1) : 0;
 
   modalTitle.textContent = c.title || "Review Campaign";
   modalSubtitle.innerHTML = `By <strong>${escapeHTML(c.advertiserName)}</strong> • ${badge(c.status)}`;
+  const isVideoAd = c.mediaType === 'video' || !!c.videoUrl;
+  const previewHTML = isVideoAd
+    ? `<video src="${c.videoUrl}" class="campaign-preview" style="background:#000;" controls playsinline></video>`
+    : (c.flyer ? `<img src="${c.flyer}" class="campaign-preview" onclick="window.open('${c.flyer}', '_blank')">` : '');
   
   modalBody.innerHTML = `
-    ${c.flyer ? `<img src="${c.flyer}" class="campaign-preview" onclick="window.open('${c.flyer}', '_blank')">` : ''}
+    ${previewHTML}
     
     <div class="performance-box">
       <div class="perf-grid">
