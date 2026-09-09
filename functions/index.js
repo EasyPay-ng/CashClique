@@ -1,6 +1,51 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+const https = require("https");
+const http = require("http");
+const { URL } = require("url");
 admin.initializeApp();
+
+// Proxy Storage media and re-serve it with permissive CORS so the web app can
+// fetch a video and draw its frames onto a <canvas> to burn a watermark.
+// Without this, Firebase Storage's default (no CORS) taints the canvas and the
+// "save video with watermark" flow silently fails. Server-side fetch needs no
+// CORS, and we return Access-Control-Allow-Origin:* to the browser.
+const PROXY_ALLOWED_HOSTS = [
+  "cashclique-31718.firebasestorage.app",
+  "cashclique-31718.appspot.com",
+  "firebasestorage.googleapis.com"
+];
+
+exports.getMedia = functions.https.onRequest({ timeoutSeconds: 300, memory: "512MB" }, (req, res) => {
+  res.set("Access-Control-Allow-Origin", "*");
+  res.set("Access-Control-Allow-Methods", "GET, OPTIONS");
+  res.set("Access-Control-Allow-Headers", "Content-Type");
+  if (req.method === "OPTIONS") { res.status(204).send(""); return; }
+
+  const url = req.query.url;
+  if (!url || typeof url !== "string") { res.status(400).send("Missing url"); return; }
+
+  let parsed;
+  try { parsed = new URL(url); } catch (e) { res.status(400).send("Bad url"); return; }
+  if (!PROXY_ALLOWED_HOSTS.includes(parsed.hostname)) { res.status(403).send("Forbidden"); return; }
+
+  const lib = parsed.protocol === "http:" ? http : https;
+  const upstream = lib.get(url, { headers: { "User-Agent": "cashclique-media-proxy" } }, (upRes) => {
+    if (upRes.statusCode && upRes.statusCode >= 400) {
+      res.status(upRes.statusCode).send("Upstream error");
+      upRes.resume();
+      return;
+    }
+    res.set("Content-Type", upRes.headers["content-type"] || "application/octet-stream");
+    res.set("Cache-Control", "public, max-age=3600");
+    upRes.pipe(res);
+  });
+  upstream.on("error", (e) => {
+    console.error("getMedia proxy error:", e);
+    if (!res.headersSent) res.status(500).send("Proxy error");
+    else res.destroy();
+  });
+});
 
 // Send push notification when a new notification is created
 exports.sendPushNotification = functions.firestore

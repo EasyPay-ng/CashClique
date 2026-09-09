@@ -202,10 +202,12 @@ html, body { height: 100%; overflow: hidden; background: #000; }
 /* ====== VIDEO CONTAINER ====== */
 .video-container {
     height: 100vh;
+    height: 100dvh;
     width: 100vw;
     overflow-y: scroll;
     scroll-snap-type: y mandatory;
     scroll-behavior: smooth;
+    scroll-snap-stop: always;
     position: relative;
     -webkit-overflow-scrolling: touch;
 }
@@ -214,8 +216,10 @@ html, body { height: 100%; overflow: hidden; background: #000; }
 /* Loading Skeleton */
 .video-skeleton {
     height: 100vh;
+    height: 100dvh;
     width: 100vw;
     scroll-snap-align: start;
+    scroll-snap-stop: always;
     background: #111;
     display: flex;
     flex-direction: column;
@@ -262,8 +266,10 @@ html, body { height: 100%; overflow: hidden; background: #000; }
 /* Individual Video Item */
 .video-item {
     height: 100vh;
+    height: 100dvh;
     width: 100vw;
     scroll-snap-align: start;
+    scroll-snap-stop: always;
     position: relative;
     display: flex;
     align-items: center;
@@ -1295,6 +1301,10 @@ window.__ccModuleLoaded = true; // SDK imports resolved (see boot watchdog above
 
 const SITE_LOGO_URL = "https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg";
 const APP_NAME = "CashClique";
+// Cloud Function that re-serves Storage media with permissive CORS so it can be
+// drawn onto a <canvas> and watermarked. Update the region if your functions run
+// elsewhere (see functions/index.js -> exports.getMedia).
+const MEDIA_PROXY_BASE = "https://us-central1-cashclique-31718.cloudfunctions.net/getMedia?url=";
 const INITIAL_POOL = 16;      // posts fetched for algorithmic ranking on first load
 const POSTS_PER_PAGE = 10;    // posts appended on infinite scroll
 const FEED_LOAD_TIMEOUT = 15000;   // ms we wait for the posts query before showing Retry
@@ -2233,9 +2243,7 @@ async function loadComments(postId) {
             const item = document.createElement('div');
             item.className = 'comment-item';
             item.innerHTML = `
-                <img src="${escapeAttr(c.userAvatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(c.username || 'U')}&background=ff6a00&color=fff`)}" class="comment-avatar" onclick="goToProfile('${c.userId}')" loading="lazy">
                 <div class="comment-body">
-                    <div class="comment-username" onclick="goToProfile('${c.userId}')">@${escapeHtml(c.username || 'user')}</div>
                     <div class="comment-text">${escapeHtml(c.text)}</div>
                     <div class="comment-time">${formatTime(c.timestamp?.toDate())}</div>
                 </div>`;
@@ -2349,31 +2357,118 @@ function removeLogoWhiteBackground(img) {
     }
 }
 
-async function drawSiteLogo(ctx, w, h) {
-    const logo = await loadLogo();
-    const pad = Math.max(12, Math.round(w * 0.03));
-    if (logo && logo.width > 0) {
-        const maxW = Math.min(w * 0.18, 220);
-        const ratio = logo.height / logo.width;
-        const dw = maxW;
-        const dh = maxW * ratio;
-        ctx.save();
-        ctx.globalAlpha = 0.92;
-        ctx.shadowColor = 'rgba(0,0,0,0.45)';
-        ctx.shadowBlur = 10;
-        ctx.drawImage(logo, w - dw - pad, h - dh - pad, dw, dh);
-        ctx.restore();
-    } else {
-        ctx.save();
-        ctx.font = `700 ${Math.max(16, Math.round(w * 0.035))}px Poppins, Arial, sans-serif`;
-        ctx.fillStyle = 'rgba(255,255,255,0.92)';
-        ctx.shadowColor = 'rgba(0,0,0,0.6)';
-        ctx.shadowBlur = 8;
-        const txt = APP_NAME;
-        const tw = ctx.measureText(txt).width;
-        ctx.fillText(txt, w - tw - pad, h - pad);
-        ctx.restore();
+// Rounded-rectangle path helper (avoids depending on ctx.roundRect support).
+function roundRectPath(ctx, x, y, w, h, r){
+  const rr = Math.min(r, w/2, h/2);
+  ctx.beginPath();
+  ctx.moveTo(x + rr, y);
+  ctx.arcTo(x + w, y, x + w, y + h, rr);
+  ctx.arcTo(x + w, y + h, x, y + h, rr);
+  ctx.arcTo(x, y + h, x, y, rr);
+  ctx.arcTo(x, y, x + w, y, rr);
+  ctx.closePath();
+}
+
+// Cached diagonal tiled watermark. Built once per canvas size, then blitted onto
+// every photo / video frame so it stays cheap to apply.
+let _wmLayers = {};
+async function getWatermarkLayer(w, h){
+  const key = w + 'x' + h;
+  if(_wmLayers[key]) return _wmLayers[key];
+  const c = document.createElement('canvas');
+  c.width = w; c.height = h;
+  const ctx = c.getContext('2d');
+  ctx.save();
+  ctx.translate(w/2, h/2);
+  ctx.rotate(-Math.PI / 7);
+  const fs = Math.max(16, Math.round(w * 0.03));
+  ctx.font = `700 ${fs}px Poppins, Arial, sans-serif`;
+  ctx.fillStyle = 'rgba(255,255,255,0.085)';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.shadowColor = 'rgba(0,0,0,0.35)';
+  ctx.shadowBlur = 2;
+  const text = APP_NAME + '  •  ' + APP_NAME;
+  const tw = ctx.measureText(text).width;
+  const stepX = Math.ceil(tw * 1.05);
+  const stepY = Math.max(Math.round(h * 0.16), fs * 4);
+  const reach = Math.ceil(Math.max(w, h) * 1.5);
+  let row = 0;
+  for(let y = -reach; y <= reach; y += stepY, row++){
+    const offset = (row % 2) ? stepX / 2 : 0;
+    for(let x = -reach; x <= reach; x += stepX){
+      ctx.fillText(text, x + offset, y);
     }
+  }
+  ctx.restore();
+  _wmLayers[key] = c;
+  return c;
+}
+
+// Designed corner badge: a translucent dark pill holding the logo + brand name.
+async function drawBrandBadge(ctx, w, h){
+  const logo = await loadLogo();
+  const pad = Math.max(12, Math.round(w * 0.028));
+  const fs = Math.max(15, Math.round(w * 0.03));
+  ctx.save();
+  ctx.font = `700 ${fs}px Poppins, Arial, sans-serif`;
+  const name = APP_NAME;
+  const textW = ctx.measureText(name).width;
+  const hasLogo = !!(logo && logo.width > 0);
+  const logoSize = Math.min(fs * 1.4, 52);
+  const gap = hasLogo ? Math.round(fs * 0.45) : 0;
+  const innerW = (hasLogo ? logoSize + gap : 0) + textW;
+  const badgeW = innerW + pad * 2;
+  const badgeH = Math.max(logoSize, fs) + pad * 2;
+  const bx = w - badgeW - pad;
+  const by = h - badgeH - pad;
+  // pill background with a soft shadow
+  ctx.shadowColor = 'rgba(0,0,0,0.55)';
+  ctx.shadowBlur = 16;
+  ctx.shadowOffsetY = 2;
+  ctx.fillStyle = 'rgba(15,23,42,0.58)';
+  roundRectPath(ctx, bx, by, badgeW, badgeH, badgeH/2);
+  ctx.fill();
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetY = 0;
+  if(hasLogo){
+    const ly = by + (badgeH - logoSize)/2;
+    ctx.drawImage(logo, bx + pad, ly, logoSize, logoSize);
+    ctx.fillStyle = '#ffffff';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(name, bx + pad + logoSize + gap, by + badgeH/2 + 1);
+  } else {
+    ctx.fillStyle = '#ffffff';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(name, bx + pad, by + badgeH/2 + 1);
+  }
+  ctx.restore();
+}
+
+// Full site mark: a subtle tiled brand layer + the designed corner badge.
+async function drawSiteLogo(ctx, w, h) {
+    try {
+      const layer = await getWatermarkLayer(w, h);
+      ctx.drawImage(layer, 0, 0);
+    } catch(e){}
+    try { await drawBrandBadge(ctx, w, h); } catch(e){}
+}
+
+// Fetch a remote media file and hand back a same-origin blob: URL. Tries the
+// direct URL first (works once Storage CORS is configured) and falls back to the
+// media-proxy Cloud Function (works with no bucket CORS setup at all).
+async function fetchVideoObjectUrl(url){
+  const candidates = [url, MEDIA_PROXY_BASE ? MEDIA_PROXY_BASE + encodeURIComponent(url) : null].filter(Boolean);
+  for(const u of candidates){
+    try {
+      const resp = await fetch(u);
+      if(!resp.ok) continue;
+      const blob = await resp.blob();
+      if(blob && blob.size > 0) return URL.createObjectURL(blob);
+    } catch(e){ /* try next candidate */ }
+  }
+  return null;
 }
 
 function downloadBlob(blob, filename) {
@@ -2485,12 +2580,20 @@ async function saveVideoItem(post) {
     }
 
     dlState = { cancel: false };
+    // Load the clip as a same-origin Blob URL so its frames can be drawn onto a
+    // <canvas> (required to burn the watermark). A cross-origin <video> would taint
+    // the canvas and MediaRecorder would produce nothing.
+    let blobUrl = null;
+    try { blobUrl = await fetchVideoObjectUrl(videoUrl); } catch(err){ console.error("Video fetch failed:", err); }
+    if (!blobUrl) {
+        showToast("Couldn't load this video to save", "error");
+        return;
+    }
     const vid = document.createElement('video');
-    vid.crossOrigin = 'anonymous';
     vid.playsInline = true;
     vid.preload = 'auto';
     vid.muted = true; // lets the clip buffer freely; sound is enabled right before playback below
-    vid.src = videoUrl;
+    vid.src = blobUrl;
 
     try {
         await new Promise((res, rej) => {
@@ -2500,6 +2603,7 @@ async function saveVideoItem(post) {
         });
     } catch (err) {
         console.error("Couldn't load video for saving:", err);
+        if (blobUrl) URL.revokeObjectURL(blobUrl);
         showToast("Couldn't save this video", "error");
         return;
     }
@@ -2553,6 +2657,7 @@ async function saveVideoItem(post) {
     };
     const cleanup = () => {
         if (audioCtx) { audioCtx.close().catch(() => {}); audioCtx = null; }
+        if (blobUrl) { URL.revokeObjectURL(blobUrl); blobUrl = null; }
     };
 
     const totalSec = vid.duration || 0;
