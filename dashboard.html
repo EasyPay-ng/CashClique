@@ -727,6 +727,25 @@ html, body { height: 100%; overflow: hidden; background: #000; }
     0%, 100% { opacity: 0.5; transform: scale(1); }
     50% { opacity: 1; transform: scale(1.1); }
 }
+.loading-videos .loading-sub {
+    color: #94a3b8;
+    font-size: 13px;
+    margin-top: -8px;
+}
+
+/* ====== FEED ERROR STATE ====== */
+.feed-error i { color: #f59e0b; }
+.feed-error p { max-width: 320px; line-height: 1.5; }
+.feed-reload-link {
+    margin-top: 14px;
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 14px;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.feed-reload-link:hover { color: white; }
 
 /* ====== EMPTY STATE ====== */
 .empty-videos {
@@ -1186,7 +1205,7 @@ html, body { height: 100%; overflow: hidden; background: #000; }
 <div class="video-container" id="video-container">
     <div class="loading-videos" id="loading">
         <i class="fas fa-spinner fa-spin"></i>
-        <p>Loading videos...</p>
+        <p>Building your feed...</p>
     </div>
 </div>
 
@@ -1222,6 +1241,30 @@ html, body { height: 100%; overflow: hidden; background: #000; }
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
+<script>
+/* Boot watchdog (plain script on purpose): if the feed module never starts —
+   e.g. the Firebase SDK import from gstatic.com is blocked or auth never resolves —
+   nothing below would run and the spinner would sit forever. */
+(function () {
+    window.__ccFeedBooted = false;
+    window.__ccBootWatchdog = setTimeout(function () {
+        if (window.__ccFeedBooted) return;
+        var container = document.getElementById('video-container');
+        if (!container || !document.getElementById('loading')) return;
+        var reason = navigator.onLine === false ? "You're offline. Check your internet connection and reload."
+            : (window.__ccModuleLoaded ? "Signing you in is taking too long. Check your connection and reload."
+                                       : "The app couldn't load its libraries. Check your connection (or any ad/script blocker) and reload.");
+        container.innerHTML =
+            '<div class="empty-videos feed-error">' +
+                '<i class="fas fa-triangle-exclamation"></i>' +
+                '<h2>Taking too long to start</h2>' +
+                '<p></p>' +
+                '<button class="upload-video-btn" onclick="window.location.reload()"><i class="fas fa-rotate-right"></i> Reload</button>' +
+            '</div>';
+        container.querySelector('p').textContent = reason;
+    }, 25000);
+})();
+</script>
 <script type="module">
 /* ============================================================
    CashClique - For You Feed Engine
@@ -1249,11 +1292,29 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+window.__ccModuleLoaded = true; // SDK imports resolved (see boot watchdog above)
 
 const SITE_LOGO_URL = "https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg";
 const APP_NAME = "CashClique";
 const INITIAL_POOL = 16;      // posts fetched for algorithmic ranking on first load
 const POSTS_PER_PAGE = 10;    // posts appended on infinite scroll
+const FEED_LOAD_TIMEOUT = 15000;   // ms we wait for the posts query before showing Retry
+const ADS_LOAD_TIMEOUT = 8000;     // ads are optional: never let them hold the feed hostage
+const USERS_LOAD_TIMEOUT = 6000;   // author profiles are optional (fallback avatars exist)
+const PROFILE_LOAD_TIMEOUT = 8000; // own profile (sidebar/following) is optional too
+
+// Race a promise against a timer so a hanging Firestore read can never freeze the UI.
+function withTimeout(promise, ms, label) {
+    let timer = null;
+    const timeout = new Promise((_, reject) => {
+        timer = setTimeout(() => {
+            const err = new Error(`${label || 'Request'} timed out after ${Math.round(ms / 1000)}s`);
+            err.code = 'timeout';
+            reject(err);
+        }, ms);
+    });
+    return Promise.race([Promise.resolve(promise), timeout]).finally(() => clearTimeout(timer));
+}
 
 // ==================== RATE LIMITER ====================
 const rateLimiter = {
@@ -1286,7 +1347,16 @@ let adSeenThisSession = {};    // real opportunity id -> impression counted
 
 // Affinity learning (localStorage): what categories / creators this user likes
 let prefs = { cats: {}, creators: {} };
-try { prefs = JSON.parse(localStorage.getItem("cc_reco_prefs") || "{}") || { cats: {}, creators: {} }; } catch (e) { prefs = { cats: {}, creators: {} }; }
+try {
+    const saved = JSON.parse(localStorage.getItem("cc_reco_prefs") || "null");
+    // Always guarantee both maps exist: a first-time visitor (or a stale/partial value)
+    // used to yield `prefs.cats === undefined`, which made computeScore() throw and
+    // left the feed stuck on "Building your feed...".
+    prefs = {
+        cats: (saved && typeof saved.cats === "object" && saved.cats) || {},
+        creators: (saved && typeof saved.creators === "object" && saved.creators) || {}
+    };
+} catch (e) { prefs = { cats: {}, creators: {} }; }
 function savePrefs() { try { localStorage.setItem("cc_reco_prefs", JSON.stringify(prefs)); } catch (e) {} }
 function bumpAffinity(category, creatorId) {
     if (category && typeof category === "string") prefs.cats[category] = (prefs.cats[category] || 0) + 1;
@@ -1302,75 +1372,150 @@ let tapTimeout = null;
 onAuthStateChanged(auth, async (user) => {
     if (!user) { window.location.href = "login.html"; return; }
     currentUser = user;
+    // Show something immediately even if the profile read is slow
+    document.getElementById('sidebar-username').textContent = user.displayName || user.email?.split('@')[0] || 'User';
+    document.getElementById('sidebar-email').textContent = user.email || '';
     try {
-        const userDoc = await getDoc(doc(db, "users", user.uid));
+        const userDoc = await withTimeout(getDoc(doc(db, "users", user.uid)), PROFILE_LOAD_TIMEOUT, 'Profile');
         if (userDoc.exists()) {
             const data = userDoc.data();
-            followingList = data.following || [];
-            document.getElementById('sidebar-username').textContent = data.username || user.email?.split('@')[0] || 'User';
-            document.getElementById('sidebar-email').textContent = user.email || '';
+            followingList = Array.isArray(data.following) ? data.following : [];
+            if (data.username) document.getElementById('sidebar-username').textContent = data.username;
             if (data.avatar) document.getElementById('sidebar-avatar').src = data.avatar;
         }
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error("Profile load skipped:", e); }
     startFeed();
 });
 
 // ==================== FEED LIFECYCLE ====================
-async function startFeed() {
+let feedRun = 0;               // guards against overlapping startFeed() calls (retry / pull-to-refresh)
+let feedStarting = false;
+
+function showFeedLoading(message, sub) {
     const container = document.getElementById('video-container');
     container.innerHTML = `
         <div class="loading-videos" id="loading">
             <i class="fas fa-spinner fa-spin"></i>
-            <p>Building your feed...</p>
+            <p>${escapeHtml(message || 'Building your feed...')}</p>
+            ${sub ? `<small class="loading-sub">${escapeHtml(sub)}</small>` : ''}
         </div>`;
+}
+
+function showFeedError(error) {
+    const container = document.getElementById('video-container');
+    const timedOut = error && error.code === 'timeout';
+    const offline = typeof navigator !== 'undefined' && navigator.onLine === false;
+    const title = offline ? "You're offline" : timedOut ? "Taking too long" : "Couldn't load your feed";
+    const detail = offline
+        ? "Check your internet connection and try again."
+        : timedOut
+            ? "The server is slow to respond right now. Check your connection and retry."
+            : (error && error.message) ? error.message : "Something went wrong while loading posts.";
+    container.innerHTML = `
+        <div class="empty-videos feed-error">
+            <i class="fas fa-triangle-exclamation"></i>
+            <h2>${escapeHtml(title)}</h2>
+            <p>${escapeHtml(detail)}</p>
+            <button class="upload-video-btn" id="feed-retry-btn"><i class="fas fa-rotate-right"></i> Retry</button>
+            <button class="feed-reload-link" id="feed-reload-btn">Reload page</button>
+        </div>`;
+    document.getElementById('feed-retry-btn').addEventListener('click', () => startFeed());
+    document.getElementById('feed-reload-btn').addEventListener('click', () => window.location.reload());
+}
+
+async function startFeed() {
+    if (feedStarting) return;          // a load is already in flight
+    feedStarting = true;
+    window.__ccFeedBooted = true;      // hand over from the boot watchdog to our own timeouts
+    if (window.__ccBootWatchdog) { clearTimeout(window.__ccBootWatchdog); window.__ccBootWatchdog = null; }
+    const run = ++feedRun;
+    const stillCurrent = () => run === feedRun;
+
+    showFeedLoading('Building your feed...');
     feedItems = []; allPosts = []; adPool = []; lastDoc = null;
     hasMoreVideos = true; watchedThisSession = {}; adSeenThisSession = {};
     adInterval = 4 + Math.floor(Math.random() * 3); // random 4-6 posts between ads
     lastAdFeedIndex = -999;
 
-    await Promise.all([loadInitialPosts(), loadAds()]);
-    buildFeed();
-    renderAllFeed();
+    // Friendly hint if the network is slow (but we are still within the timeout)
+    const slowHint = setTimeout(() => {
+        if (stillCurrent() && document.getElementById('loading')) {
+            const sub = document.createElement('small');
+            sub.className = 'loading-sub';
+            sub.textContent = 'Still loading… slow connection?';
+            document.getElementById('loading').appendChild(sub);
+        }
+    }, 5000);
+
+    try {
+        // Posts are required. Ads are a nice-to-have and are timeboxed independently so
+        // they can never delay the feed; a failed ad query simply yields no ads.
+        const [postsResult] = await Promise.all([
+            loadInitialPosts(),
+            loadAds().catch(err => { console.warn("Ads skipped:", err); adPool = []; })
+        ]);
+        if (!stillCurrent()) return;
+        if (!postsResult.ok) throw postsResult.error;
+
+        try {
+            buildFeed();
+        } catch (algoErr) {
+            // The ranking step must never take the feed down: fall back to chronological.
+            console.error("Ranking failed, using chronological feed:", algoErr);
+            buildChronologicalFeed();
+        }
+        renderAllFeed();
+    } catch (error) {
+        if (!stillCurrent()) return;
+        console.error("Feed failed to load:", error);
+        showFeedError(error);
+    } finally {
+        clearTimeout(slowHint);
+        if (stillCurrent()) feedStarting = false;
+    }
 }
 
+const hasMedia = p => !!((p.videoUrl && String(p.videoUrl).trim()) ||
+                         (p.imageBase64 && String(p.imageBase64).trim()) ||
+                         (p.image && String(p.image).trim()));
+
 // ---- Load a chronological pool of media posts (used by the algorithm) ----
+// Resolves to { ok: true } or { ok: false, error } — never hangs, never throws.
 async function loadInitialPosts() {
     try {
         const q = query(collection(db, "posts"), orderBy("timestamp", "desc"), limit(INITIAL_POOL));
-        const snapshot = await getDocs(q);
-        if (snapshot.empty) { hasMoreVideos = false; return; }
+        const snapshot = await withTimeout(getDocs(q), FEED_LOAD_TIMEOUT, 'Loading posts');
+        if (snapshot.empty) { hasMoreVideos = false; return { ok: true }; }
         lastDoc = snapshot.docs[snapshot.docs.length - 1];
-        const batch = snapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }))
-            .filter(p => (p.videoUrl && p.videoUrl.trim()) || (p.imageBase64 && String(p.imageBase64).trim()) || (p.image && String(p.image).trim()));
+        const batch = snapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() })).filter(hasMedia);
         allPosts = batch;
-        await ensureUsers(allPosts.map(p => p.userId));
-        if (batch.length < INITIAL_POOL) hasMoreVideos = false;
+        if (snapshot.docs.length < INITIAL_POOL) hasMoreVideos = false;
+        // Author profiles are optional (we have fallback avatars) — never block on them.
+        try { await withTimeout(ensureUsers(allPosts.map(p => p.userId)), USERS_LOAD_TIMEOUT, 'Loading authors'); }
+        catch (e) { console.warn("Author profiles skipped:", e); }
+        return { ok: true };
     } catch (error) {
         console.error("Error loading posts:", error);
-        showToast("Failed to load posts. Check console.", "error");
+        return { ok: false, error };
     }
 }
 
 // ---- Load live approved Ad campaigns ----
 async function loadAds() {
-    try {
-        const q = query(collection(db, "opportunities"), where("status", "in", ["approved", "active"]), limit(60));
-        const snap = await getDocs(q);
-        const now = Date.now();
-        adPool = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(opp => {
-            if (opp.paused === true) return false;
-            if (opp.expiresAt && opp.expiresAt?.seconds && opp.expiresAt.seconds * 1000 < now) return false;
-            if ((opp.currentViews || 0) >= (opp.targetViews || Infinity)) return false;
-            // Ad needs a creative (video upload or flyer image) and a destination link
-            const hasVideo = !!(opp.videoUrl && String(opp.videoUrl).trim());
-            const hasImage = !!(opp.flyer && String(opp.flyer).trim());
-            return (hasVideo || hasImage) && !!(opp.targetUrl && String(opp.targetUrl).trim());
-        });
-        // prefer ads with most remaining impressions
-        adPool.sort((a, b) => ((b.targetViews || 0) - (b.currentViews || 0)) - ((a.targetViews || 0) - (a.currentViews || 0)));
-    } catch (error) {
-        console.error("Error loading ads:", error);
-    }
+    const q = query(collection(db, "opportunities"), where("status", "in", ["approved", "active"]), limit(60));
+    const snap = await withTimeout(getDocs(q), ADS_LOAD_TIMEOUT, 'Loading ads');
+    const now = Date.now();
+    adPool = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(opp => {
+        if (opp.paused === true) return false;
+        if (opp.expiresAt && opp.expiresAt?.seconds && opp.expiresAt.seconds * 1000 < now) return false;
+        if ((opp.currentViews || 0) >= (opp.targetViews || Infinity)) return false;
+        // Ad needs a creative (video upload or flyer image) and a destination link
+        const hasVideo = !!(opp.videoUrl && String(opp.videoUrl).trim());
+        const hasImage = !!(opp.flyer && String(opp.flyer).trim());
+        return (hasVideo || hasImage) && !!(opp.targetUrl && String(opp.targetUrl).trim());
+    });
+    // prefer ads with most remaining impressions
+    adPool.sort((a, b) => ((b.targetViews || 0) - (b.currentViews || 0)) - ((a.targetViews || 0) - (a.currentViews || 0)));
 }
 
 function isVideoMedia(post) { return !!(post.videoUrl && String(post.videoUrl).trim()); }
@@ -1382,30 +1527,58 @@ function imageSrcOf(post) {
 }
 
 // ==================== RECOMMENDATION ALGORITHM ====================
+function postTimestampSec(p) {
+    const t = p.timestamp || p.createdAt;
+    if (!t) return 0;
+    if (typeof t.seconds === 'number') return t.seconds;                 // Firestore Timestamp
+    if (typeof t.toMillis === 'function') return t.toMillis() / 1000;
+    if (t instanceof Date) return t.getTime() / 1000;
+    const ms = new Date(t).getTime();                                     // ISO string / number
+    return Number.isFinite(ms) ? ms / 1000 : 0;
+}
+
 function computeScore(p) {
     const nowSec = Date.now() / 1000;
-    const ts = p.timestamp?.seconds || (p.createdAt?.seconds) || nowSec;
+    const ts = postTimestampSec(p) || nowSec;
     const ageDays = Math.max(0, (nowSec - ts) / 86400);
 
-    const likes = p.likes || 0;
-    const comments = p.commentCount || 0;
-    const views = p.views || 0;
+    const likes = Number(p.likes) || 0;
+    const comments = Number(p.commentCount) || 0;
+    const views = Number(p.views) || 0;
     const engagement = likes * 2.2 + comments * 3.5 + Math.min(views * 0.05, 25);
 
     const recency = 1 / (1 + Math.pow(ageDays, 1.1) * 0.55);
     const freshBonus = ageDays < 0.25 ? 1.4 : ageDays < 1 ? 1.15 : 1;
-    const catBoost = 1 + Math.min(prefs.cats[p.category] || 0, 10) * 0.22;
-    const creatorBoost = 1 + Math.min(prefs.creators[p.userId] || 0, 8) * 0.25;
+    const cats = (prefs && prefs.cats) || {};
+    const creators = (prefs && prefs.creators) || {};
+    const catBoost = 1 + Math.min(cats[p.category] || 0, 10) * 0.22;
+    const creatorBoost = 1 + Math.min(creators[p.userId] || 0, 8) * 0.25;
     const followBoost = followingList.includes(p.userId) ? 1.5 : 1;
     const videoBoost = isVideoMedia(p) ? 1.12 : 1;           // prioritise pushing videos
     const exploration = 0.78 + Math.random() * 0.5;           // keep the feed varied
 
-    return (engagement + 2) * recency * freshBonus * catBoost * creatorBoost * followBoost * videoBoost * exploration;
+    const score = (engagement + 2) * recency * freshBonus * catBoost * creatorBoost * followBoost * videoBoost * exploration;
+    return Number.isFinite(score) ? score : 0;
 }
 
 // Mix ranked posts + sponsored ads at random intervals
 function buildFeed() {
-    const ranked = [...allPosts].sort((a, b) => computeScore(b) - computeScore(a));
+    // Score each post exactly once (the comparator must be consistent for Array.sort)
+    const ranked = allPosts
+        .map(p => ({ p, s: computeScore(p) }))
+        .sort((a, b) => b.s - a.s)
+        .map(x => x.p);
+    interleaveAds(ranked);
+}
+
+// Fallback used when the ranking step throws for any reason: newest first, ads still mixed in.
+function buildChronologicalFeed() {
+    const chrono = [...allPosts].sort((a, b) => postTimestampSec(b) - postTimestampSec(a));
+    try { interleaveAds(chrono); }
+    catch (e) { console.error("Ad interleave failed, showing posts only:", e); feedItems = chrono.map(p => ({ kind: 'post', feedId: p.id, ...p })); }
+}
+
+function interleaveAds(ranked) {
     const feed = [];
     let postsSinceAd = 0;
     ranked.forEach(p => {
@@ -1426,6 +1599,7 @@ function pushNextAd(feed) {
     const ad = adPool[adRotation % adPool.length];
     adRotation = (adRotation + 1) % adPool.length;
     feed.push({ kind: 'ad', feedId: 'ad_' + ad.id, realAdId: ad.id, ...ad });
+    lastAdFeedIndex = feed.length - 1;
 }
 
 // ==================== RENDERING ====================
@@ -1435,10 +1609,17 @@ function renderAllFeed() {
 
     if (feedItems.length === 0) { showEmptyState(); return; }
 
+    let rendered = 0;
     feedItems.forEach((item, i) => {
-        const el = buildItemElement(item, i);
-        container.appendChild(el);
+        try {
+            container.appendChild(buildItemElement(item, i));
+            rendered++;
+        } catch (e) {
+            // one malformed post must not blank the whole feed
+            console.error("Skipping unrenderable feed item", item && item.feedId, e);
+        }
     });
+    if (rendered === 0) { showEmptyState(); return; }
 
     if (hasMoreVideos) appendLoadTrigger(container);
     setupIntersectionObserver();
@@ -1793,7 +1974,10 @@ function registerAdView(realAdId) {
 }
 
 // ==================== INFINITE SCROLL ====================
+let scrollObserverBound = false;
 function setupScrollObserver() {
+    if (scrollObserverBound) return;   // container persists across startFeed() runs; bind once
+    scrollObserverBound = true;
     const container = document.getElementById('video-container');
 
     container.addEventListener('scroll', () => {
@@ -1828,38 +2012,56 @@ function setupScrollObserver() {
 }
 
 async function loadMorePosts() {
-    if (isLoadingMore || !lastDoc) return;
+    if (isLoadingMore || !lastDoc || !hasMoreVideos) return;
     isLoadingMore = true;
+    const run = feedRun;
     try {
         const q = query(collection(db, "posts"), orderBy("timestamp", "desc"), startAfter(lastDoc), limit(POSTS_PER_PAGE));
-        const snapshot = await getDocs(q);
+        const snapshot = await withTimeout(getDocs(q), FEED_LOAD_TIMEOUT, 'Loading more posts');
+        if (run !== feedRun) return;   // feed was rebuilt (refresh/retry) while we were waiting
         if (snapshot.empty) { hasMoreVideos = false; const t = document.getElementById('load-more-trigger'); if (t) t.remove(); return; }
         lastDoc = snapshot.docs[snapshot.docs.length - 1];
-        const batch = snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
-            .filter(p => (p.videoUrl && p.videoUrl.trim()) || (p.imageBase64 && String(p.imageBase64).trim()) || (p.image && String(p.image).trim()));
-        if (batch.length === 0) { if (snapshot.docs.length === 0) hasMoreVideos = false; return; }
-        await ensureUsers(batch.map(p => p.userId));
+        if (snapshot.docs.length < POSTS_PER_PAGE) hasMoreVideos = false;
+        const batch = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).filter(hasMedia);
+        if (batch.length === 0) {
+            // page was all text-only posts; keep the trigger only if more pages may exist
+            if (!hasMoreVideos) { const t = document.getElementById('load-more-trigger'); if (t) t.remove(); }
+            return;
+        }
+        try { await withTimeout(ensureUsers(batch.map(p => p.userId)), USERS_LOAD_TIMEOUT, 'Loading authors'); }
+        catch (e) { console.warn("Author profiles skipped:", e); }
+        if (run !== feedRun) return;
 
         const container = document.getElementById('video-container');
         const trigger = document.getElementById('load-more-trigger');
         const startIdx = feedItems.length;
         batch.forEach((p, i) => {
-            feedItems.push({ kind: 'post', feedId: p.id, ...p });
-            container.insertBefore(buildItemElement(feedItems[feedItems.length - 1], startIdx + i), trigger);
+            const item = { kind: 'post', feedId: p.id, ...p };
+            feedItems.push(item);
+            try { container.insertBefore(buildItemElement(item, startIdx + i), trigger); }
+            catch (e) { console.error("Skipping unrenderable post", p.id, e); }
         });
 
         // drop in the next ad a random number of posts later
         const distance = feedItems.length - lastAdFeedIndex;
         if (adPool.length && distance >= adInterval) {
-            const item = { kind: 'ad', feedId: 'ad_' + adPool[adRotation % adPool.length].id, realAdId: adPool[adRotation % adPool.length].id, ...adPool[adRotation % adPool.length] };
+            const ad = adPool[adRotation % adPool.length];
+            const item = { kind: 'ad', feedId: 'ad_' + ad.id, realAdId: ad.id, ...ad };
             adRotation = (adRotation + 1) % adPool.length;
             feedItems.push(item);
-            container.insertBefore(buildItemElement(item, feedItems.length - 1), trigger);
+            try { container.insertBefore(buildItemElement(item, feedItems.length - 1), trigger); }
+            catch (e) { console.error("Skipping unrenderable ad", ad.id, e); }
             lastAdFeedIndex = feedItems.length - 1;
         }
+        if (!hasMoreVideos && trigger) trigger.remove();
         observeNewItems();
     } catch (error) {
         console.error("loadMore error:", error);
+        if (run === feedRun) {
+            const t = document.getElementById('load-more-trigger');
+            if (t) t.innerHTML = '<i class="fas fa-rotate-right"></i> Couldn\'t load more — scroll to retry';
+            showToast(error && error.code === 'timeout' ? "Slow connection — couldn't load more posts" : "Couldn't load more posts", "error");
+        }
     } finally {
         isLoadingMore = false;
     }
