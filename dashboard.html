@@ -1061,6 +1061,8 @@ html, body { height: 100%; overflow: hidden; background: #000; }
 }
 .video-item.active.playing .music-ticker-inner,
 .video-item.active.playing .music-disc { animation-play-state: running; }
+.video-item.muted .music-ticker-inner,
+.video-item.muted .music-disc { animation-play-state: paused; }
 @keyframes musicScroll {
     0% { transform: translateX(0); }
     100% { transform: translateX(-100%); }
@@ -1083,66 +1085,6 @@ html, body { height: 100%; overflow: hidden; background: #000; }
 }
 .sound-btn:hover { background: rgba(255,106,0,0.55); transform: scale(1.1); }
 
-/* ====== WATERMARK PROGRESS OVERLAY ====== */
-.wm-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 950;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0,0,0,0.78);
-    backdrop-filter: blur(8px);
-    color: white;
-    padding: 24px;
-}
-.wm-overlay.active { display: flex; }
-.wm-card {
-    width: min(340px, 92vw);
-    background: #161618;
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 20px;
-    padding: 28px 24px;
-    text-align: center;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-}
-.wm-logo {
-    width: 64px;
-    height: 64px;
-    border-radius: 16px;
-    object-fit: cover;
-    margin: 0 auto 16px;
-    box-shadow: 0 8px 24px rgba(255,106,0,0.35);
-    display: block;
-}
-.wm-title { font-weight: 700; font-size: 16px; margin-bottom: 8px; }
-.wm-sub { font-size: 13px; color: #9aa3af; line-height: 1.5; margin-bottom: 18px; }
-.wm-cancel {
-    background: rgba(255,255,255,0.08);
-    color: #fff;
-    border: 1px solid rgba(255,255,255,0.15);
-    padding: 9px 22px;
-    border-radius: 24px;
-    cursor: pointer;
-    font-size: 13px;
-    font-family: 'Poppins', sans-serif;
-    transition: 0.2s;
-}
-.wm-cancel:hover { background: rgba(239,68,68,0.6); }
-.wm-bar {
-    height: 6px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 4px;
-    overflow: hidden;
-    margin-bottom: 14px;
-    display: none;
-}
-.wm-bar-fill {
-    height: 100%;
-    width: 0;
-    background: linear-gradient(90deg, #ff6a00, #ff8a00);
-    transition: width 0.3s;
-}
 </style>
 </head>
 <body>
@@ -1227,17 +1169,6 @@ html, body { height: 100%; overflow: hidden; background: #000; }
     </div>
 </div>
 
-<!-- Watermark Download Overlay -->
-<div class="wm-overlay" id="wm-overlay">
-    <div class="wm-card">
-        <img class="wm-logo" src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg" alt="CashClique">
-        <div class="wm-title" id="wm-title">Preparing download...</div>
-        <div class="wm-sub" id="wm-sub"></div>
-        <div class="wm-bar" id="wm-bar"><div class="wm-bar-fill" id="wm-bar-fill"></div></div>
-        <button class="wm-cancel" onclick="cancelWatermark()"><i class="fas fa-times"></i> Cancel</button>
-    </div>
-</div>
-
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
@@ -1272,7 +1203,7 @@ html, body { height: 100%; overflow: hidden; background: #000; }
    - Personalized recommendation algorithm ("For You")
    - Sponsored opportunities interleaved at random intervals ("Ad")
    - TikTok-style sound ticker (always visible, animated on focus)
-   - Watermarked downloads (site logo) for photos & videos
+   - Save-to-device downloads for photos & videos (silent, no UI fuss)
    - View tracking + user affinity learning
    ============================================================ */
 
@@ -1653,7 +1584,7 @@ function buildItemElement(item, index) {
     el.dataset.observed = 'false';
 
     const mediaHTML = isVideo
-        ? `<video class="video-player" src="${escapeAttr(item.videoUrl)}" loop playsinline muted preload="metadata"></video>`
+        ? `<video class="video-player" src="${escapeAttr(item.videoUrl)}" loop playsinline preload="metadata"></video>`
         : `<img class="video-player post-image" src="${escapeAttr(imageSrcOf(item))}" alt="" loading="lazy">`;
 
     // ---------- LEFT / BOTTOM OVERLAY ----------
@@ -1686,7 +1617,7 @@ function buildItemElement(item, index) {
                 <div class="video-music">
                     <div class="music-disc" title="Original Sound"><i class="fas fa-music"></i></div>
                     <div class="music-ticker"><span class="music-ticker-inner">Original Sound - ${escapeHtml(item.username || 'Unknown')} &nbsp;•&nbsp; Original Sound - ${escapeHtml(item.username || 'Unknown')}</span></div>
-                    <button class="sound-btn" data-sound="${item.feedId}" title="Toggle sound"><i class="fas fa-volume-xmark"></i></button>
+                    <button class="sound-btn" data-sound="${item.feedId}" title="Mute sound"><i class="fas fa-volume-up"></i></button>
                 </div>` : ''}
             </div>`;
     }
@@ -1714,7 +1645,7 @@ function buildItemElement(item, index) {
                     <i class="fas fa-share"></i>
                     <span class="action-count">Share</span>
                 </div>
-                <div class="action-btn" data-download="${item.id}" title="Download with watermark">
+                <div class="action-btn" data-download="${item.id}" title="Save">
                     <i class="fas fa-download"></i>
                     <span class="action-count">Save</span>
                 </div>
@@ -1779,7 +1710,7 @@ function attachItemEvents(el, item, isVideo) {
         } else {
             tapTimeout = setTimeout(() => {
                 if (!isVideo) return;
-                if (media.paused) { media.play().catch(() => {}); if (playOverlay) playOverlay.classList.remove('show'); isPlaying = true; el.classList.add('playing'); }
+                if (media.paused) { playMedia(media, el); if (playOverlay) playOverlay.classList.remove('show'); isPlaying = true; el.classList.add('playing'); }
                 else { media.pause(); if (playOverlay) playOverlay.classList.add('show'); isPlaying = false; el.classList.remove('playing'); }
             }, 300);
         }
@@ -1798,26 +1729,21 @@ function attachItemEvents(el, item, isVideo) {
         });
         media.addEventListener('error', () => {
             console.error('Video error, retrying...', item.feedId);
-            setTimeout(() => { media.load(); media.play().catch(() => {}); }, 1500);
+            setTimeout(() => { media.load(); playMedia(media, el); }, 1500);
         });
         media.addEventListener('play', () => el.classList.add('playing'));
         media.addEventListener('pause', () => el.classList.remove('playing'));
-        // remember muted state per element
-        if (media.muted) {
-            const sb = el.querySelector('.sound-btn i');
-            if (sb) sb.className = 'fas fa-volume-xmark';
-        }
     }
 
-    // sound toggle
+    // Sound is ON by default on the feed - the speaker button mutes/unmutes.
     const soundBtn = el.querySelector('.sound-btn');
     if (soundBtn && media) {
+        setSoundState(el, media, false); // reflect the sound-on default in the UI
         soundBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            media.muted = !media.muted;
-            const ic = soundBtn.querySelector('i');
-            ic.className = media.muted ? 'fas fa-volume-xmark' : 'fas fa-volume-up';
-            if (!media.muted && media.paused) media.play().catch(() => {});
+            const nextMuted = !media.muted;
+            setSoundState(el, media, nextMuted);
+            if (!nextMuted && media.paused) playMedia(media, el);
         });
     }
 
@@ -1830,7 +1756,7 @@ function attachItemEvents(el, item, isVideo) {
         });
     }
 
-    // download with watermark (posts only)
+    // save to device (posts only)
     const dlBtn = el.querySelector('.action-btn[data-download]');
     if (dlBtn) {
         dlBtn.addEventListener('click', (e) => {
@@ -1856,6 +1782,65 @@ function handleDoubleTap(postId, heartEl, postEl) {
     const likeBtn = postEl.querySelector('.action-btn[data-post-id]');
     if (likeBtn && !likeBtn.classList.contains('liked')) toggleLike(postId, likeBtn);
     setTimeout(() => heartEl.classList.remove('animate'), 800);
+}
+
+// ==================== SOUND MANAGEMENT ====================
+// Feed videos play with their sound ON by default - no "tap to unmute".
+// Browsers only allow unmuted autoplay after a user gesture, so if the first
+// play() with sound is blocked we start muted in the background and lift the
+// mute automatically at the very first tap/scroll-touch/keypress.
+const soundPendingEls = new Set();
+let soundUnlockBound = false;
+
+function setSoundState(el, media, muted) {
+    media.muted = muted;
+    el.classList.toggle('muted', muted);
+    const sb = el.querySelector('.sound-btn');
+    if (sb) {
+        const ic = sb.querySelector('i');
+        if (ic) ic.className = muted ? 'fas fa-volume-xmark' : 'fas fa-volume-up';
+        sb.title = muted ? 'Sound off - tap to unmute' : 'Mute sound';
+    }
+}
+
+function playMedia(media, el) {
+    if (!media) return;
+    if (media.muted) media.muted = false; // always try with sound first
+    media.play().catch((err) => {
+        if (err && err.name === 'NotAllowedError') {
+            // Autoplay-with-sound needs a user gesture: start muted for now and
+            // let the first real gesture turn the sound on automatically.
+            if (media.muted === false) {
+                media.muted = true;
+                if (el) {
+                    soundPendingEls.add(el);
+                    bindSoundUnlock();
+                }
+            }
+            media.play().catch(() => {});
+        }
+    });
+}
+
+function bindSoundUnlock() {
+    if (soundUnlockBound) return;
+    soundUnlockBound = true;
+    const unlock = () => {
+        if (soundPendingEls.size === 0) return;
+        soundPendingEls.forEach(el => {
+            const m = el.querySelector('.video-player');
+            if (m) {
+                if (m.muted) {
+                    setSoundState(el, m, false);
+                    if (m.paused) m.play().catch(() => {});
+                }
+            }
+        });
+        soundPendingEls.clear();
+    };
+    ['pointerdown', 'touchend', 'keydown', 'click'].forEach(type => {
+        document.addEventListener(type, unlock, { passive: true });
+    });
 }
 
 // ==================== ACTIVE-ITEM / PLAYBACK MANAGER ====================
@@ -1909,7 +1894,7 @@ function activateItem(el) {
     el.classList.add('active');
     if (isVideoType && media) {
         if (media.ended || media.paused) { media.currentTime = 0; }
-        media.play().catch(() => {});
+        playMedia(media, el);
         if (el.classList.contains('playing') === false && !media.paused) el.classList.add('playing');
     }
     // restart sound ticker marquee (shows for the freshly focused video)
@@ -2158,7 +2143,7 @@ function pauseActiveMedia() {
 function resumeActiveMedia() {
     if (activeEl) {
         const m = activeEl.querySelector('.video-player');
-        if (m && activeEl.dataset.type === 'video') m.play().catch(() => {});
+        if (m && activeEl.dataset.type === 'video') playMedia(m, activeEl);
     }
 }
 
@@ -2241,7 +2226,10 @@ document.getElementById('logout').addEventListener('click', (e) => {
     signOut(auth).then(() => window.location.href = "login.html");
 });
 
-// ==================== WATERMARKED DOWNLOADS ====================
+// ==================== SAVE-TO-DEVICE DOWNLOADS ====================
+// Saves produce a normal photo/video download. Photos get a subtle site mark
+// baked in behind the scenes - the UI never announces it and filenames stay
+// plain. If the mark can't be applied, the original is saved silently instead.
 let logoImage = null;
 let logoPromise = null;
 function loadLogo() {
@@ -2250,12 +2238,46 @@ function loadLogo() {
     logoPromise = new Promise((resolve) => {
         const img = new Image();
         img.crossOrigin = 'anonymous';
-        img.onload = () => { logoImage = img; resolve(img); };
+        img.onload = () => { logoImage = removeLogoWhiteBackground(img); resolve(logoImage); };
         img.onerror = () => { logoImage = null; resolve(null); };
         img.src = SITE_LOGO_URL + (SITE_LOGO_URL.includes('?') ? '&' : '?') + 't=' + Date.now();
         setTimeout(() => resolve(logoImage), 6000);
     });
     return logoPromise;
+}
+
+// The site logo is a JPG sitting on a white square. Strip that white background
+// (with a soft ramp so edges stay clean) so the mark blends over any photo or
+// video instead of showing up as a white box.
+function removeLogoWhiteBackground(img) {
+    try {
+        const w = img.naturalWidth || img.width;
+        const h = img.naturalHeight || img.height;
+        if (!w || !h) return img;
+        const c = document.createElement('canvas');
+        c.width = w;
+        c.height = h;
+        const ctx = c.getContext('2d');
+        if (!ctx) return img;
+        ctx.drawImage(img, 0, 0, w, h);
+        const data = ctx.getImageData(0, 0, w, h);
+        const px = data.data;
+        let kept = 0;
+        for (let i = 0; i < px.length; i += 4) {
+            const whiteness = Math.min(px[i], px[i + 1], px[i + 2]);
+            let alpha;
+            if (whiteness <= 200) alpha = 255;
+            else if (whiteness >= 252) alpha = 0;
+            else alpha = Math.round(((252 - whiteness) / 52) * 255);
+            if (alpha < px[i + 3]) px[i + 3] = alpha;
+            if (px[i + 3] > 0) kept++;
+        }
+        ctx.putImageData(data, 0, 0);
+        if (!kept) return img; // nothing survived the cleanup: keep the original
+        return c;
+    } catch (err) {
+        return img; // canvas unavailable/tainted: keep the original logo
+    }
 }
 
 async function drawSiteLogo(ctx, w, h) {
@@ -2285,23 +2307,6 @@ async function drawSiteLogo(ctx, w, h) {
     }
 }
 
-function wmShow(status, sub) {
-    const ov = document.getElementById('wm-overlay');
-    if (ov) {
-        const t = document.getElementById('wm-title');
-        const sb = document.getElementById('wm-sub');
-        if (t) t.innerHTML = status;
-        if (sb) sb.textContent = sub || '';
-        ov.classList.add('active');
-    }
-}
-function wmHide() {
-    const ov = document.getElementById('wm-overlay');
-    if (ov) ov.classList.remove('active');
-}
-window.cancelWatermark = function () { if (wmState && wmState.cancel) wmState.cancel = true; };
-let wmState = { cancel: false, stop: null };
-
 function downloadBlob(blob, filename) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -2312,19 +2317,27 @@ function downloadBlob(blob, filename) {
     setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 2500);
 }
 
-// ----- Photo download (watermark painted onto canvas) -----
+function downloadViaAnchor(href, filename) {
+    const a = document.createElement('a');
+    a.href = href;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => a.remove(), 2500);
+}
+
 window.downloadPostItem = async function (postId) {
     const item = feedItems.find(i => i.kind === 'post' && i.id === postId);
     if (!item) return;
-    if (isVideoMedia(item)) await downloadVideoWithWatermark(item);
-    else await downloadImageWithWatermark(item);
+    if (isVideoMedia(item)) await saveVideoItem(item);
+    else await savePhotoItem(item);
 };
 
-async function downloadImageWithWatermark(post) {
-    wmState = { cancel: false };
+// ----- Photo save (site mark baked in, quietly) -----
+async function savePhotoItem(post) {
     const src = imageSrcOf(post);
-    if (!src) { showToast("No image to download", "error"); return; }
-    wmShow('Adding watermark to photo...', '');
+    if (!src) { showToast("Nothing to save", "error"); return; }
+    const name = `cashclique_${post.id}.jpg`;
     try {
         const img = new Image();
         if (!src.startsWith('data:')) img.crossOrigin = 'anonymous';
@@ -2334,7 +2347,7 @@ async function downloadImageWithWatermark(post) {
         canvas.height = img.naturalHeight || img.height;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        // subtle centered ghost watermark + corner logo
+        // subtle centered ghost mark + corner mark
         const logo = await loadLogo();
         if (logo && logo.width > 0) {
             const gw = canvas.width * 0.32;
@@ -2345,129 +2358,45 @@ async function downloadImageWithWatermark(post) {
             ctx.restore();
         }
         await drawSiteLogo(ctx, canvas.width, canvas.height);
-        canvas.toBlob((blob) => {
-            if (blob) downloadBlob(blob, `cashclique_${post.id}_watermarked.jpg`);
-            wmHide();
-        }, 'image/jpeg', 0.94);
+        const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.94));
+        if (blob) { downloadBlob(blob, name); showToast("Photo saved", "success"); return; }
+        throw new Error('no-blob');
     } catch (err) {
-        console.error(err);
-        wmHide();
-        showToast("Watermark failed. Saving original...", "info");
-        try {
+        console.error("Photo save failed, falling back to original:", err);
+    }
+    // Quiet fallback: save the original as-is.
+    try {
+        if (src.startsWith('data:')) { downloadViaAnchor(src, name); }
+        else {
             const resp = await fetch(src);
-            const blob = await resp.blob();
-            downloadBlob(blob, `cashclique_${post.id}.jpg`);
-        } catch (e2) {
-            const a = document.createElement('a');
-            a.href = src;
-            a.download = `cashclique_${post.id}.jpg`;
-            document.body.appendChild(a); a.click(); a.remove();
+            if (resp.ok) { const blob = await resp.blob(); downloadBlob(blob, name); }
+            else downloadViaAnchor(src, name);
         }
+        showToast("Photo saved", "success");
+    } catch (e) {
+        console.error("Photo fallback save failed:", e);
+        showToast("Could not save photo", "error");
     }
 }
 
-// ----- Video download (re-encoded with live watermark overlay) -----
-async function downloadVideoWithWatermark(post) {
-    if (typeof MediaRecorder === 'undefined' || !document.createElement('canvas').captureStream) {
-        showToast("Your browser can't watermark videos; saving original...", "info");
-        const a = document.createElement('a');
-        a.href = post.videoUrl; a.download = `cashclique_${post.id}.mp4`;
-        document.body.appendChild(a); a.click(); a.remove();
-        return;
-    }
-    wmState = { cancel: false, stop: null };
+// ----- Video save (original file, plain download) -----
+async function saveVideoItem(post) {
     const videoUrl = post.videoUrl;
-    const vid = document.createElement('video');
-    vid.crossOrigin = 'anonymous';
-    vid.muted = true;
-    vid.playsInline = true;
-    vid.preload = 'auto';
-    vid.src = videoUrl;
-
+    if (!videoUrl) { showToast("Nothing to save", "error"); return; }
+    const name = `cashclique_${post.id}.mp4`;
     try {
-        await new Promise((res, rej) => { vid.onloadedmetadata = res; vid.onerror = () => rej(new Error('meta')); setTimeout(() => rej(new Error('timeout')), 15000); });
-    } catch (e) {
-        wmHide();
-        showToast("Could not load video for watermarking; saving original...", "info");
-        const a = document.createElement('a');
-        a.href = videoUrl; a.download = `cashclique_${post.id}.mp4`;
-        document.body.appendChild(a); a.click(); a.remove();
-        return;
-    }
-
-    const vw = vid.videoWidth || 720;
-    const vh = vid.videoHeight || 1280;
-    const canvas = document.createElement('canvas');
-    canvas.width = vw;
-    canvas.height = vh;
-    const ctx = canvas.getContext('2d');
-
-    let raf = null;
-    const paint = async () => {
-        if (wmState.cancel) return;
-        if (!vid.paused && !vid.ended) {
-            try { ctx.drawImage(vid, 0, 0, vw, vh); } catch (e) {}
-            try { await drawSiteLogo(ctx, vw, vh); } catch (e) {}
+        const resp = await fetch(videoUrl);
+        if (resp.ok) {
+            const blob = await resp.blob();
+            downloadBlob(blob, name);
+            showToast("Video saved", "success");
+            return;
         }
-        raf = requestAnimationFrame(paint);
-    };
-
-    const mimes = ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm;codecs=vp9', 'video/webm', 'video/mp4'];
-    let mime = mimes.find(m => MediaRecorder.isTypeSupported(m)) || '';
-    const ext = mime.includes('mp4') ? 'mp4' : 'webm';
-
-    const canvasStream = canvas.captureStream(30);
-    let combined = new MediaStream(canvasStream.getVideoTracks());
-    let audioCtx = null;
-    try {
-        const AC = window.AudioContext || window.webkitAudioContext;
-        if (AC && !vid.muted) {
-            audioCtx = new AC();
-            const srcNode = audioCtx.createMediaElementSource(vid);
-            const dest = audioCtx.createMediaStreamDestination();
-            srcNode.connect(dest);
-            await audioCtx.resume();
-            dest.stream.getAudioTracks().forEach(t => combined.addTrack(t));
-        }
-    } catch (e) { console.warn("audio capture unavailable", e); }
-
-    const rec = new MediaRecorder(combined, { mimeType: mime, videoBitsPerSecond: 6000000 });
-    const chunks = [];
-    rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
-    rec.onstop = () => {
-        if (raf) cancelAnimationFrame(raf);
-        const type = mime || 'video/webm';
-        const blob = new Blob(chunks, { type });
-        wmHide();
-        if (audioCtx) audioCtx.close().catch(() => {});
-        if (wmState.cancel) { showToast("Download cancelled", "info"); return; }
-        if (blob.size > 0) { downloadBlob(blob, `cashclique_${post.id}_watermarked.${ext}`); showToast("Watermarked video saved!", "success"); }
-        else showToast("Recording empty. Try again.", "error");
-        wmState = { cancel: false, stop: null };
-    };
-
-    const totalSec = vid.duration || 0;
-    vid.ontimeupdate = () => {
-        const sec = Math.min(Math.floor(vid.currentTime || 0), Math.floor(totalSec));
-        const pct = totalSec ? Math.round((vid.currentTime / totalSec) * 100) : 0;
-        document.getElementById('wm-title').innerHTML = `Watermarking video... ${pct}%`;
-        document.getElementById('wm-sub').textContent = `${sec}s of ${Math.floor(totalSec)}s — please keep this tab open`;
-        if (wmState.cancel) { try { rec.stop(); } catch (e) {} }
-    };
-
-    wmShow('Watermarking video... 0%', `0s of ${Math.floor(totalSec)}s — please keep this tab open`);
-    vid.onended = () => { try { rec.stop(); } catch (e) {} };
-    vid.onerror = () => { try { rec.stop(); } catch (e) {} };
-
-    try {
-        rec.start(300);
-        paint();
-        vid.muted = false; // allow audio capture after user gesture
-        await vid.play();
     } catch (err) {
-        console.error(err);
-        try { rec.stop(); } catch (e) {}
+        console.error("Video save failed, falling back to direct download:", err);
     }
+    downloadViaAnchor(videoUrl, name);
+    showToast("Video saved", "success");
 }
 
 // ==================== UTILITIES ====================
@@ -2535,7 +2464,7 @@ function setupKeyboardNav() {
             if (activeEl) {
                 const m = activeEl.querySelector('.video-player');
                 if (m && activeEl.dataset.type === 'video') {
-                    if (m.paused) m.play().catch(() => {}); else m.pause();
+                    if (m.paused) playMedia(m, activeEl); else m.pause();
                 }
             }
         }
