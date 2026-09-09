@@ -1085,6 +1085,63 @@ html, body { height: 100%; overflow: hidden; background: #000; }
 }
 .sound-btn:hover { background: rgba(255,106,0,0.55); transform: scale(1.1); }
 
+
+/* ====== SAVE PROGRESS OVERLAY (used while a video is being rendered) ====== */
+.sv-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 950;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.78);
+    backdrop-filter: blur(8px);
+    color: white;
+    padding: 24px;
+}
+.sv-overlay.active { display: flex; }
+.sv-card {
+    width: min(340px, 92vw);
+    background: #161618;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 28px 24px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.sv-spinner {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(255,106,0,0.15);
+    color: #ff6a00;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin: 0 auto 16px;
+    animation: svPulse 1.2s ease-in-out infinite;
+}
+@keyframes svPulse {
+    0%, 100% { opacity: 0.6; transform: scale(0.95); }
+    50% { opacity: 1; transform: scale(1.05); }
+}
+.sv-title { font-weight: 700; font-size: 16px; margin-bottom: 8px; }
+.sv-sub { font-size: 13px; color: #9aa3af; line-height: 1.5; margin-bottom: 14px; min-height: 18px; }
+.sv-bar { height: 6px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; margin-bottom: 16px; }
+.sv-bar-fill { height: 100%; width: 0; background: linear-gradient(90deg, #ff6a00, #ff8a00); transition: width 0.3s; }
+.sv-cancel {
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.15);
+    padding: 9px 22px;
+    border-radius: 24px;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: 'Poppins', sans-serif;
+    transition: 0.2s;
+}
+.sv-cancel:hover { background: rgba(239,68,68,0.6); }
 </style>
 </head>
 <body>
@@ -1166,6 +1223,17 @@ html, body { height: 100%; overflow: hidden; background: #000; }
         <button class="comment-submit" onclick="submitComment()">
             <i class="fas fa-paper-plane"></i>
         </button>
+    </div>
+</div>
+
+<!-- Save progress overlay (shown while a video is being rendered) -->
+<div class="sv-overlay" id="sv-overlay">
+    <div class="sv-card">
+        <div class="sv-spinner"><i class="fas fa-download"></i></div>
+        <div class="sv-title">Saving video&#8230;</div>
+        <div class="sv-sub" id="sv-sub">Preparing&#8230;</div>
+        <div class="sv-bar"><div class="sv-bar-fill" id="sv-bar-fill"></div></div>
+        <button class="sv-cancel" onclick="cancelSave()"><i class="fas fa-times"></i> Cancel</button>
     </div>
 </div>
 
@@ -2227,9 +2295,10 @@ document.getElementById('logout').addEventListener('click', (e) => {
 });
 
 // ==================== SAVE-TO-DEVICE DOWNLOADS ====================
-// Saves produce a normal photo/video download. Photos get a subtle site mark
-// baked in behind the scenes - the UI never announces it and filenames stay
-// plain. If the mark can't be applied, the original is saved silently instead.
+// Saves produce a normal-looking download and the UI never announces the
+// mark. Photos get the site mark baked in quietly; videos are re-encoded with
+// the mark overlaid on every frame and are never saved as plain files. If the
+// mark cannot be applied, nothing is saved.
 let logoImage = null;
 let logoPromise = null;
 function loadLogo() {
@@ -2379,24 +2448,164 @@ async function savePhotoItem(post) {
     }
 }
 
-// ----- Video save (original file, plain download) -----
+// ----- Save progress overlay helpers -----
+let dlState = { cancel: false };
+
+function dlShow(sub) {
+    const ov = document.getElementById('sv-overlay');
+    if (!ov) return;
+    const subEl = document.getElementById('sv-sub');
+    if (subEl) subEl.textContent = sub || '';
+    const fill = document.getElementById('sv-bar-fill');
+    if (fill) fill.style.width = '0%';
+    ov.classList.add('active');
+}
+function dlProg(pct, sec, totalSec) {
+    const fill = document.getElementById('sv-bar-fill');
+    if (fill) fill.style.width = Math.max(0, Math.min(100, pct)) + '%';
+    const subEl = document.getElementById('sv-sub');
+    if (subEl) subEl.textContent = `${sec}s of ${Math.floor(totalSec)}s \u2014 keep this tab open`;
+}
+function dlHide() {
+    const ov = document.getElementById('sv-overlay');
+    if (ov) ov.classList.remove('active');
+}
+window.cancelSave = function () { if (dlState) dlState.cancel = true; };
+
+// ----- Video save (re-encoded with the site mark overlaid on every frame) -----
+// A video is never saved as a plain file. If the browser can't re-encode or
+// the clip can't load, the save stops with an error - no unmarked video ever
+// leaves this page.
 async function saveVideoItem(post) {
     const videoUrl = post.videoUrl;
     if (!videoUrl) { showToast("Nothing to save", "error"); return; }
-    const name = `cashclique_${post.id}.mp4`;
-    try {
-        const resp = await fetch(videoUrl);
-        if (resp.ok) {
-            const blob = await resp.blob();
-            downloadBlob(blob, name);
-            showToast("Video saved", "success");
-            return;
-        }
-    } catch (err) {
-        console.error("Video save failed, falling back to direct download:", err);
+    if (typeof MediaRecorder === 'undefined' || typeof document.createElement('canvas').captureStream !== 'function') {
+        showToast("Saving isn't supported on this browser", "error");
+        return;
     }
-    downloadViaAnchor(videoUrl, name);
-    showToast("Video saved", "success");
+
+    dlState = { cancel: false };
+    const vid = document.createElement('video');
+    vid.crossOrigin = 'anonymous';
+    vid.playsInline = true;
+    vid.preload = 'auto';
+    vid.muted = true; // lets the clip buffer freely; sound is enabled right before playback below
+    vid.src = videoUrl;
+
+    try {
+        await new Promise((res, rej) => {
+            vid.onloadedmetadata = res;
+            vid.onerror = () => rej(new Error('meta'));
+            setTimeout(() => rej(new Error('timeout')), 20000);
+        });
+    } catch (err) {
+        console.error("Couldn't load video for saving:", err);
+        showToast("Couldn't save this video", "error");
+        return;
+    }
+
+    const vw = vid.videoWidth || 720;
+    const vh = vid.videoHeight || 1280;
+    const canvas = document.createElement('canvas');
+    canvas.width = vw;
+    canvas.height = vh;
+    const ctx = canvas.getContext('2d');
+
+    let raf = null;
+    const paint = async () => {
+        if (dlState.cancel) return;
+        if (!vid.paused && !vid.ended) {
+            try { ctx.drawImage(vid, 0, 0, vw, vh); } catch (e) {}
+            try { await drawSiteLogo(ctx, vw, vh); } catch (e) {}
+        }
+        raf = requestAnimationFrame(paint);
+    };
+
+    const mimes = ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm;codecs=vp9', 'video/webm', 'video/mp4'];
+    const mime = mimes.find(m => MediaRecorder.isTypeSupported(m)) || '';
+    const ext = mime.includes('mp4') ? 'mp4' : 'webm';
+
+    const canvasStream = canvas.captureStream(30);
+    const combined = new MediaStream(canvasStream.getVideoTracks());
+    let audioCtx = null;
+    try {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (AC) {
+            audioCtx = new AC();
+            const srcNode = audioCtx.createMediaElementSource(vid);
+            const dest = audioCtx.createMediaStreamDestination();
+            srcNode.connect(dest);
+            await audioCtx.resume().catch(() => {});
+            dest.stream.getAudioTracks().forEach(t => combined.addTrack(t));
+        }
+    } catch (err) { console.warn("audio capture unavailable", err); }
+
+    const rec = new MediaRecorder(combined, { mimeType: mime, videoBitsPerSecond: 6000000 });
+    const chunks = [];
+    rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
+
+    let finished = false;
+    const finish = () => {
+        if (finished) return;
+        finished = true;
+        if (raf) { cancelAnimationFrame(raf); raf = null; }
+        try { if (rec.state !== 'inactive') rec.stop(); } catch (e) {}
+    };
+    const cleanup = () => {
+        if (audioCtx) { audioCtx.close().catch(() => {}); audioCtx = null; }
+    };
+
+    const totalSec = vid.duration || 0;
+    vid.ontimeupdate = () => {
+        const sec = Math.min(Math.floor(vid.currentTime || 0), Math.floor(totalSec));
+        const pct = totalSec ? Math.round((vid.currentTime / totalSec) * 100) : 0;
+        dlProg(pct, sec, totalSec);
+        if (dlState.cancel) finish();
+    };
+
+    rec.onstop = () => {
+        if (raf) { cancelAnimationFrame(raf); raf = null; }
+        dlHide();
+        cleanup();
+        const cancelled = dlState.cancel;
+        dlState = { cancel: false };
+        if (cancelled) { showToast("Save cancelled", "info"); return; }
+        const blob = new Blob(chunks, { type: mime || 'video/webm' });
+        if (blob.size > 0) {
+            downloadBlob(blob, `cashclique_${post.id}.${ext}`);
+            showToast("Video saved", "success");
+        } else {
+            showToast("Couldn't save this video. Try again.", "error");
+        }
+    };
+
+    vid.onended = finish;
+    vid.onerror = finish;
+
+    dlShow('Preparing\u2026');
+    try {
+        rec.start(300);
+    } catch (err) {
+        console.error("Video recorder could not start:", err);
+        dlHide();
+        cleanup();
+        dlState = { cancel: false };
+        showToast("Couldn't save this video. Try again.", "error");
+        return;
+    }
+    paint();
+    try {
+        vid.muted = false; // the save tap is the user gesture that allows sound
+        await vid.play();
+    } catch (err) {
+        console.error("Video save playback needed a muted retry:", err);
+        try {
+            vid.muted = true;
+            await vid.play();
+        } catch (e2) {
+            finish(); // recorder is running; stopping yields an empty clip -> error toast
+        }
+    }
 }
 
 // ==================== UTILITIES ====================
