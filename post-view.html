@@ -549,9 +549,32 @@ function downloadViaAnchor(href, filename){
   const a = document.createElement('a');
   a.href = href;
   a.download = filename;
+  a.rel = 'noopener';
   document.body.appendChild(a);
   a.click();
   setTimeout(() => a.remove(), 2500);
+}
+
+// Firebase Storage URLs are cross-origin. When CORS prevents the blob
+// download, request an attachment response instead of opening the video in a
+// new tab. The response header makes the browser save the file directly.
+function attachmentDownloadUrl(href, filename){
+  try{
+    const url = new URL(href, window.location.href);
+    const host = url.hostname.toLowerCase();
+    if(host === 'firebasestorage.googleapis.com' ||
+       host.endsWith('.firebasestorage.app') ||
+       host.endsWith('.storage.googleapis.com')){
+      const safeName = String(filename || 'cashclique-video.mp4')
+        .replace(/[\\"\r\n]/g, '_');
+      url.searchParams.set('response-content-disposition',
+        `attachment; filename="${safeName}"`);
+      url.searchParams.set('response-content-type', 'application/octet-stream');
+    }
+    return url.toString();
+  }catch(e){
+    return href;
+  }
 }
 
 function loadLogo(){
@@ -645,6 +668,7 @@ async function saveCurrentMedia(){
 // ----- Save progress overlay helpers -----
 let dlState = { cancel: false };
 function dlShow(sub){
+  dlState.cancel = false;
   const ov = document.getElementById('sv-overlay');
   if(!ov) return;
   const subEl = document.getElementById('sv-sub');
@@ -692,9 +716,15 @@ async function saveVideo(m){
   } catch(err){
     console.error("Video save failed:", err);
     dlHide();
-    // Fallback: open the video URL in a new tab so the user can long-press / save-as
-    try { window.open(videoUrl, '_blank'); showToast("Opened video — long-press to save"); }
-    catch(e2){ showToast("Couldn't save this video"); }
+    if(dlState.cancel || (err && err.name === 'AbortError')){
+      showToast("Save cancelled");
+      return;
+    }
+    // Do not open the media URL: that navigates to a video player. Ask
+    // Storage for an attachment response so the browser downloads it.
+    const filename = `cashclique_${m.id}.mp4`;
+    downloadViaAnchor(attachmentDownloadUrl(videoUrl, filename), filename);
+    showToast("Download started");
   }
 }
 

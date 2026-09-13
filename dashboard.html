@@ -2388,9 +2388,33 @@ function downloadViaAnchor(href, filename) {
     const a = document.createElement('a');
     a.href = href;
     a.download = filename;
+    a.rel = 'noopener';
     document.body.appendChild(a);
     a.click();
     setTimeout(() => a.remove(), 2500);
+}
+
+// Firebase Storage download URLs are cross-origin, so some browsers ignore
+// the download attribute and navigate to the video instead. Ask Storage for
+// an attachment response on the fallback URL. This keeps the feed open when
+// the normal blob download is blocked by the bucket's CORS settings.
+function attachmentDownloadUrl(href, filename) {
+    try {
+        const url = new URL(href, window.location.href);
+        const host = url.hostname.toLowerCase();
+        if (host === 'firebasestorage.googleapis.com' ||
+            host.endsWith('.firebasestorage.app') ||
+            host.endsWith('.storage.googleapis.com')) {
+            const safeName = String(filename || 'cashclique-video.mp4')
+                .replace(/[\\"\r\n]/g, '_');
+            url.searchParams.set('response-content-disposition',
+                `attachment; filename="${safeName}"`);
+            url.searchParams.set('response-content-type', 'application/octet-stream');
+        }
+        return url.toString();
+    } catch (e) {
+        return href;
+    }
 }
 
 window.downloadPostItem = async function (postId) {
@@ -2450,6 +2474,7 @@ async function savePhotoItem(post) {
 let dlState = { cancel: false };
 
 function dlShow(sub) {
+    dlState.cancel = false;
     const ov = document.getElementById('sv-overlay');
     if (!ov) return;
     const subEl = document.getElementById('sv-sub');
@@ -2497,9 +2522,15 @@ async function saveVideoItem(post) {
     } catch (err) {
         console.error("Video save failed:", err);
         dlHide();
-        // Fallback: open the video URL in a new tab so the user can long-press / save-as
-        try { window.open(videoUrl, '_blank'); showToast("Opened video \u2014 long-press to save", "info"); }
-        catch (e2) { showToast("Couldn't save this video", "error"); }
+        if (dlState.cancel || (err && err.name === 'AbortError')) {
+            showToast("Save cancelled", "info");
+            return;
+        }
+        // Do not open the media URL: that navigates to a video player. The
+        // attachment response tells the browser to download it instead.
+        const filename = `cashclique_${post.id}.mp4`;
+        downloadViaAnchor(attachmentDownloadUrl(videoUrl, filename), filename);
+        showToast("Download started", "success");
     }
 }
 
