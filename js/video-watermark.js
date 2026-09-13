@@ -1,236 +1,391 @@
 /*
- * Render a downloaded video through a canvas so the saved copy carries the
- * CashClique mark. This runs only when the browser supports MediaRecorder and
- * canvas capture; callers can fall back to the original file when it does not.
+ * Re-render a downloaded video through a canvas so the saved copy carries the
+ * CashClique mark, then hand the recording back as a Blob.
+ *
+ * This is deliberately strict: if the browser cannot record a watermarked
+ * video the promise rejects, so callers never fall back to saving the
+ * untouched source file. The video is played from an object URL created from
+ * bytes we already fetched, which keeps the canvas origin-clean and the
+ * watermark impossible to strip with CORS.
  */
 
-function supportedMimeType() {
-  if (typeof MediaRecorder === 'undefined' || !MediaRecorder.isTypeSupported) return '';
-  const types = [
-    'video/webm;codecs=vp9,opus',
-    'video/webm;codecs=vp8,opus',
-    'video/webm',
-    'video/mp4'
-  ];
-  return types.find(type => MediaRecorder.isTypeSupported(type)) || '';
+import { APP_NAME, drawCornerMark, getWatermarkMark } from "./watermark.js";
+
+const RECORDER_MIME_TYPES = [
+    "video/webm;codecs=vp9,opus",
+    "video/webm;codecs=vp8,opus",
+    "video/webm;codecs=vp9",
+    "video/webm",
+    "video/mp4;codecs=avc1.42E01E,mp4a.40.2",
+    "video/mp4"
+];
+
+export function supportedRecorderMimeType() {
+    if (typeof MediaRecorder === "undefined" || !MediaRecorder.isTypeSupported) return "";
+    return RECORDER_MIME_TYPES.find((type) => MediaRecorder.isTypeSupported(type)) || "";
+}
+
+export function videoWatermarkSupported() {
+    if (typeof MediaRecorder === "undefined" || !MediaRecorder.isTypeSupported) return false;
+    if (typeof HTMLCanvasElement === "undefined" || !HTMLCanvasElement.prototype.captureStream) return false;
+    return !!supportedRecorderMimeType();
 }
 
 function extensionForMime(mime) {
-  return String(mime || '').toLowerCase().includes('mp4') ? 'mp4' : 'webm';
+    return String(mime || "").toLowerCase().includes("mp4") ? "mp4" : "webm";
 }
 
-function loadWatermarkImage(url) {
-  return new Promise((resolve) => {
-    if (!url) return resolve(null);
-    const image = new Image();
-    let finished = false;
-    const finish = (result) => {
-      if (finished) return;
-      finished = true;
-      clearTimeout(timeout);
-      resolve(result);
-    };
-    const timeout = setTimeout(() => finish(null), 6000);
-    image.crossOrigin = 'anonymous';
-    image.onload = () => finish(removeWhiteBackground(image));
-    image.onerror = () => finish(null);
-    image.src = url + (url.includes('?') ? '&' : '?') + 'watermark=' + Date.now();
-  });
+function watermarkError(kind, message) {
+    const error = new Error(message);
+    error.name = "WatermarkError";
+    error.kind = kind;
+    if (kind === "cancelled") error.cancelled = true;
+    return error;
 }
 
-// The logo asset is a JPG with a white square behind the mark. Convert the
-// white pixels to transparency before it is painted over the video.
-function removeWhiteBackground(image) {
-  try {
-    const width = image.naturalWidth || image.width;
-    const height = image.naturalHeight || image.height;
-    const canvas = document.createElement('canvas');
-    if (!width || !height) return null;
-    canvas.width = width;
-    canvas.height = height;
-    const context = canvas.getContext('2d');
-    context.drawImage(image, 0, 0, width, height);
-    const pixels = context.getImageData(0, 0, width, height);
-    let visiblePixels = 0;
-    for (let i = 0; i < pixels.data.length; i += 4) {
-      const whiteness = Math.min(pixels.data[i], pixels.data[i + 1], pixels.data[i + 2]);
-      let alpha;
-      if (whiteness <= 200) alpha = 255;
-      else if (whiteness >= 252) alpha = 0;
-      else alpha = Math.round(((252 - whiteness) / 52) * 255);
-      pixels.data[i + 3] = Math.min(pixels.data[i + 3], alpha);
-      if (pixels.data[i + 3] > 0) visiblePixels++;
-    }
-    if (!visiblePixels) return null;
-    context.putImageData(pixels, 0, 0);
-    return canvas;
-  } catch (error) {
-    // A logo without CORS headers cannot safely be painted into a video canvas.
-    return null;
-  }
-}
-
-function paintWatermark(context, width, height, logo, appName) {
-  const padding = Math.max(12, Math.round(width * 0.03));
-  const markWidth = Math.min(width * 0.18, 220);
-
-  context.save();
-  context.globalAlpha = 0.86;
-  context.shadowColor = 'rgba(0, 0, 0, 0.55)';
-  context.shadowBlur = Math.max(4, Math.round(width * 0.012));
-  if (logo && logo.width > 0) {
-    const markHeight = markWidth * (logo.height / logo.width);
-    context.drawImage(logo, width - markWidth - padding, height - markHeight - padding, markWidth, markHeight);
-  } else {
-    context.fillStyle = 'rgba(255, 255, 255, 0.92)';
-    context.font = `700 ${Math.max(16, Math.round(width * 0.035))}px Arial, sans-serif`;
-    const label = appName || 'CashClique';
-    context.fillText(label, width - context.measureText(label).width - padding, height - padding);
-  }
-  context.restore();
-}
-
-function cancelledError() {
-  const error = new Error('Watermarked video save cancelled');
-  error.cancelled = true;
-  return error;
-}
-
+/**
+ * Render `videoBlob` with the CashClique logo burned into the lower-right
+ * corner. Resolves with `{ blob, extension, mimeType, hadAudio }`.
+ *
+ * options:
+ *   watermark  - prepared mark (canvas). Defaults to the cached site logo.
+ *   appName    - text used if no logo asset can be drawn at all.
+ *   isCancelled- polled between stages and on every animation frame.
+ *   onProgress - (currentTimeSeconds, durationSeconds) during recording.
+ */
 export async function renderWatermarkedVideo(videoBlob, options = {}) {
-  const {
-    logoUrl,
-    appName = 'CashClique',
-    isCancelled = () => false,
-    onProgress = () => {}
-  } = options;
+    const {
+        watermark = null,
+        appName = APP_NAME,
+        isCancelled = () => false,
+        onProgress = () => {}
+    } = options;
 
-  const mimeType = supportedMimeType();
-  if (!mimeType || !HTMLCanvasElement.prototype.captureStream) {
-    throw new Error('Watermarked video export is not supported in this browser');
-  }
-  if (isCancelled()) throw cancelledError();
+    if (!videoBlob || !videoBlob.size) {
+        throw watermarkError("render", "There is no video data to watermark");
+    }
 
-  const sourceUrl = URL.createObjectURL(videoBlob);
-  const video = document.createElement('video');
-  video.preload = 'auto';
-  video.playsInline = true;
-  video.muted = true;
-  video.src = sourceUrl;
+    const mimeType = supportedRecorderMimeType();
+    if (!mimeType || typeof HTMLCanvasElement === "undefined" || !HTMLCanvasElement.prototype.captureStream) {
+        throw watermarkError("unsupported", "This browser cannot record a watermarked video");
+    }
+    if (isCancelled()) throw watermarkError("cancelled", "Save cancelled");
 
-  let audioContext = null;
-  let animationFrame = 0;
-  let recorder = null;
-  let sourceStream = null;
-  let outputStream = null;
-  let cancelled = false;
+    const mark = watermark || (await getWatermarkMark()).canvas;
+    if (isCancelled()) throw watermarkError("cancelled", "Save cancelled");
 
-  try {
-    await new Promise((resolve, reject) => {
-      video.onloadedmetadata = resolve;
-      video.onerror = () => reject(new Error('Could not read the video'));
-      video.load();
-    });
+    const sourceUrl = URL.createObjectURL(videoBlob);
+    const video = document.createElement("video");
+    video.preload = "auto";
+    video.playsInline = true;
+    video.setAttribute("playsinline", "");
+    video.muted = true;
+    video.crossOrigin = "anonymous";
+    video.src = sourceUrl;
 
-    if (isCancelled()) throw cancelledError();
-    const width = video.videoWidth || 1280;
-    const height = video.videoHeight || 720;
-    const duration = Number.isFinite(video.duration) ? video.duration : 0;
-    const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
-    const context = canvas.getContext('2d', { alpha: false });
-    const logo = await loadWatermarkImage(logoUrl);
-    if (isCancelled()) throw cancelledError();
+    const state = { audioContext: null, nativeStream: null };
+    let animationFrame = 0;
+    let recorder = null;
+    let outputStream = null;
 
-    outputStream = canvas.captureStream(30);
-    sourceStream = video.captureStream ? video.captureStream() : null;
-
-    // Prefer an AudioContext destination so the element can remain muted while
-    // it plays automatically, without losing the source video's soundtrack.
-    let audioTracksAdded = false;
     try {
-      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-      if (AudioContextClass) {
-        audioContext = new AudioContextClass();
-        const source = audioContext.createMediaElementSource(video);
-        const destination = audioContext.createMediaStreamDestination();
-        source.connect(destination);
-        await audioContext.resume();
-        destination.stream.getAudioTracks().forEach(track => outputStream.addTrack(track));
-        audioTracksAdded = destination.stream.getAudioTracks().length > 0;
-      }
-    } catch (error) {
-      // Some browsers disallow MediaElementSource after an async gesture.
-      // The native capture stream below is still able to carry audio there.
-      audioTracksAdded = false;
-    }
-    if (!audioTracksAdded && sourceStream) {
-      sourceStream.getAudioTracks().forEach(track => outputStream.addTrack(track));
-    }
+        await waitForMetadata(video);
+        if (isCancelled()) throw watermarkError("cancelled", "Save cancelled");
 
-    const chunks = [];
-    recorder = new MediaRecorder(outputStream, { mimeType });
-    const recording = new Promise((resolve, reject) => {
-      let settled = false;
-      const stopRecording = () => {
-        if (settled) return;
-        if (recorder && recorder.state !== 'inactive') recorder.stop();
-      };
-      const finishWithError = (error) => {
-        if (settled) return;
-        settled = true;
-        cancelAnimationFrame(animationFrame);
-        video.pause();
-        if (recorder && recorder.state !== 'inactive') recorder.stop();
-        reject(error);
-      };
+        const width = video.videoWidth || 1280;
+        const height = video.videoHeight || 720;
+        const duration = Number.isFinite(video.duration) ? video.duration : 0;
 
-      recorder.ondataavailable = event => {
-        if (event.data && event.data.size) chunks.push(event.data);
-      };
-      recorder.onerror = () => finishWithError(new Error('Video recording failed'));
-      recorder.onstop = () => {
-        if (settled) return;
-        settled = true;
-        cancelAnimationFrame(animationFrame);
-        if (cancelled || isCancelled()) {
-          reject(cancelledError());
-          return;
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const context = canvas.getContext("2d", { alpha: false });
+        if (!context) throw watermarkError("render", "Canvas is unavailable in this browser");
+
+        outputStream = canvas.captureStream(30);
+
+        // Audio: route the element through an AudioContext into the recorded
+        // stream. Nothing is connected to the speakers, so the save stays
+        // silent while the soundtrack is preserved.
+        const hadAudio = await attachAudio(video, outputStream, state);
+
+        // Prove playback is allowed before the recorder runs, so a rejected
+        // autoplay promise cannot leave a half-recorded file behind.
+        await primePlayback(video, outputStream, state);
+        if (isCancelled()) throw watermarkError("cancelled", "Save cancelled");
+
+        const recorded = await recordPlayback({
+            video,
+            context,
+            outputStream,
+            width,
+            height,
+            duration,
+            mark,
+            appName,
+            mimeType,
+            isCancelled,
+            onProgress,
+            setRecorder: (instance) => { recorder = instance; },
+            setAnimationFrame: (id) => { animationFrame = id; }
+        });
+
+        if (!recorded.blob || !recorded.blob.size) {
+            throw watermarkError("render", "The watermarked video came back empty");
         }
-        resolve(new Blob(chunks, { type: recorder.mimeType || mimeType }));
-      };
-      video.onended = stopRecording;
-
-      const drawFrame = () => {
-        if (settled) return;
-        if (isCancelled()) {
-          cancelled = true;
-          finishWithError(cancelledError());
-          return;
+        return {
+            blob: recorded.blob,
+            extension: extensionForMime(recorded.mimeType || mimeType),
+            mimeType: recorded.mimeType || mimeType,
+            hadAudio
+        };
+    } finally {
+        cancelAnimationFrame(animationFrame);
+        if (recorder && recorder.state !== "inactive") {
+            try { recorder.stop(); } catch (error) { /* already stopped */ }
         }
-        context.drawImage(video, 0, 0, width, height);
-        paintWatermark(context, width, height, logo, appName);
-        if (duration > 0) onProgress(video.currentTime, duration);
-        animationFrame = requestAnimationFrame(drawFrame);
-      };
+        try { video.pause(); } catch (error) { /* already stopped */ }
+        video.removeAttribute("src");
+        try { video.load(); } catch (error) { /* noop */ }
+        if (state.audioContext) {
+            try { await state.audioContext.close(); } catch (error) { /* noop */ }
+        }
+        if (state.nativeStream) {
+            state.nativeStream.getTracks().forEach((track) => track.stop());
+        }
+        if (outputStream) outputStream.getTracks().forEach((track) => track.stop());
+        URL.revokeObjectURL(sourceUrl);
+    }
+}
 
-      recorder.start(1000);
-      drawFrame();
-      video.play().catch(error => finishWithError(error));
+function waitForMetadata(video) {
+    return new Promise((resolve, reject) => {
+        let settled = false;
+        const finish = (fn, arg) => {
+            if (settled) return;
+            settled = true;
+            video.onloadedmetadata = null;
+            video.onloadeddata = null;
+            video.onerror = null;
+            fn(arg);
+        };
+        video.onloadedmetadata = () => finish(resolve);
+        video.onloadeddata = () => finish(resolve);
+        video.onerror = () => finish(reject, watermarkError("render", "Could not decode the downloaded video"));
+        video.load();
     });
+}
 
-    if (!recording || !recording.size) throw new Error('Watermarked video was empty');
-    return { blob: recording, extension: extensionForMime(mimeType) };
-  } finally {
-    cancelAnimationFrame(animationFrame);
-    video.pause();
-    video.removeAttribute('src');
-    video.load();
-    if (audioContext) {
-      try { await audioContext.close(); } catch (error) {}
+/**
+ * Add the video's soundtrack to the recorded stream. Returns true when an
+ * audio track made it in. The element itself is never connected to the
+ * speakers, so saving a video stays silent.
+ */
+async function attachAudio(video, outputStream, state) {
+    const AudioContextClass = (typeof window !== "undefined" && (window.AudioContext || window.webkitAudioContext)) || null;
+    if (AudioContextClass) {
+        try {
+            const audioContext = new AudioContextClass();
+            const source = audioContext.createMediaElementSource(video);
+            const destination = audioContext.createMediaStreamDestination();
+            source.connect(destination); // graph only - no speaker output
+            await audioContext.resume();
+            const tracks = destination.stream.getAudioTracks();
+            if (tracks.length) {
+                tracks.forEach((track) => outputStream.addTrack(track));
+                state.audioContext = audioContext;
+                // The element must be unmuted for the graph to receive audio;
+                // rerouting above keeps it inaudible.
+                video.muted = false;
+                video.volume = 1;
+                return true;
+            }
+            await audioContext.close();
+        } catch (error) {
+            console.warn("[CashClique] audio graph unavailable, trying the element capture stream", error);
+            state.audioContext = null;
+        }
     }
-    if (sourceStream) sourceStream.getTracks().forEach(track => track.stop());
-    if (outputStream) outputStream.getTracks().forEach(track => track.stop());
-    URL.revokeObjectURL(sourceUrl);
-  }
+    // Fallback: the element's own capture stream. The element stays muted so
+    // nothing plays out loud while the save runs.
+    const native = captureFromElement(video);
+    if (native) {
+        state.nativeStream = native;
+        const tracks = native.getAudioTracks();
+        if (tracks.length) {
+            tracks.forEach((track) => outputStream.addTrack(track));
+            return true;
+        }
+    }
+    return false;
+}
+
+function captureFromElement(video) {
+    try {
+        if (typeof video.captureStream === "function") return video.captureStream();
+        if (typeof video.mozCaptureStream === "function") return video.mozCaptureStream();
+    } catch (error) {
+        // Older browsers refuse captureStream on an element already in a graph.
+    }
+    return null;
+}
+
+/**
+ * Start playback once to confirm the browser allows it, then rewind so the
+ * recording captures the whole clip. Unmuted playback keeps the AudioContext
+ * route (and therefore the soundtrack); if it is refused we retry muted with
+ * whatever audio the element's own capture stream still provides.
+ */
+async function primePlayback(video, outputStream, state) {
+    const rewind = () => {
+        try { video.pause(); } catch (error) { /* noop */ }
+        try { video.currentTime = 0; } catch (error) { /* seek unsupported */ }
+    };
+
+    try {
+        await video.play();
+        rewind();
+        return;
+    } catch (error) {
+        if (error && error.name === "AbortError") throw watermarkError("cancelled", "Save cancelled");
+    }
+
+    if (state.audioContext) {
+        try {
+            await state.audioContext.resume();
+            await video.play();
+            rewind();
+            return;
+        } catch (error) {
+            try { await state.audioContext.close(); } catch (closeError) { /* noop */ }
+            state.audioContext = null;
+        }
+    }
+
+    video.muted = true;
+    const native = captureFromElement(video);
+    if (native) {
+        state.nativeStream = native;
+        native.getAudioTracks().forEach((track) => outputStream.addTrack(track));
+    }
+    try {
+        await video.play();
+    } catch (error) {
+        throw watermarkError("render", "This browser refused to play the video for watermarking");
+    }
+    rewind();
+}
+
+function recordPlayback(config) {
+    const {
+        video,
+        context,
+        outputStream,
+        width,
+        height,
+        duration,
+        mark,
+        appName,
+        mimeType,
+        isCancelled,
+        onProgress,
+        setRecorder,
+        setAnimationFrame
+    } = config;
+
+    return new Promise((resolve, reject) => {
+        const chunks = [];
+        let settled = false;
+        let frameId = 0;
+
+        const recorder = new MediaRecorder(outputStream, {
+            mimeType,
+            videoBitsPerSecond: 5000000,
+            audioBitsPerSecond: 128000
+        });
+        setRecorder(recorder);
+
+        const cleanup = () => {
+            cancelAnimationFrame(frameId);
+            try { video.pause(); } catch (error) { /* noop */ }
+            video.onended = null;
+        };
+
+        const finishWithError = (error) => {
+            if (settled) return;
+            settled = true;
+            cleanup();
+            try {
+                if (recorder.state !== "inactive") recorder.stop();
+            } catch (error2) { /* noop */ }
+            reject(error);
+        };
+
+        recorder.ondataavailable = (event) => {
+            if (event.data && event.data.size) chunks.push(event.data);
+        };
+        recorder.onerror = (event) => {
+            const detail = event && event.error ? event.error.message : "";
+            finishWithError(watermarkError("render", "Video recording failed" + (detail ? ": " + detail : "")));
+        };
+        recorder.onstop = () => {
+            if (settled) return;
+            settled = true;
+            cleanup();
+            if (isCancelled()) {
+                reject(watermarkError("cancelled", "Save cancelled"));
+                return;
+            }
+            const blob = new Blob(chunks, { type: recorder.mimeType || mimeType });
+            if (!chunks.length || !blob.size) {
+                reject(watermarkError("render", "The watermarked video came back empty"));
+                return;
+            }
+            resolve({ blob, mimeType: recorder.mimeType || mimeType });
+        };
+
+        video.onended = () => {
+            if (settled) return;
+            // Let the last frames flush before stopping the recorder.
+            setTimeout(() => {
+                if (settled) return;
+                try {
+                    if (recorder.state !== "inactive") recorder.stop();
+                } catch (error) {
+                    finishWithError(watermarkError("render", "Could not finish the watermarked video"));
+                }
+            }, 160);
+        };
+
+        const drawFrame = () => {
+            if (settled) return;
+            if (isCancelled()) {
+                finishWithError(watermarkError("cancelled", "Save cancelled"));
+                return;
+            }
+            try {
+                context.drawImage(video, 0, 0, width, height);
+            } catch (error) {
+                finishWithError(watermarkError("render", "Could not draw the video onto the canvas"));
+                return;
+            }
+            drawCornerMark(context, width, height, mark, { appName });
+            if (duration > 0) {
+                try { onProgress(video.currentTime, duration); } catch (error) { /* UI only */ }
+            }
+            frameId = requestAnimationFrame(drawFrame);
+            setAnimationFrame(frameId);
+        };
+
+        try {
+            recorder.start(1000);
+        } catch (error) {
+            finishWithError(watermarkError("render", "Could not start the video recorder"));
+            return;
+        }
+        drawFrame();
+        video.play().catch((error) => {
+            finishWithError(watermarkError("render", "Could not play the video for watermarking"));
+        });
+    });
 }

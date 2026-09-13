@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Watermark save demo | CashClique</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px;
+    background: #fff5eb;
+    color: #20160f;
+    font-family: 'Segoe UI', Poppins, Arial, sans-serif;
+    line-height: 1.5;
+  }
+  main { max-width: 900px; margin: 0 auto; display: grid; gap: 18px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h2 { font-size: 15px; margin: 0 0 10px; color: #b34a00; text-transform: uppercase; letter-spacing: .06em; }
+  p.lede { margin: 0 0 8px; color: #6b5545; font-size: 14px; }
+  section {
+    background: #fff;
+    border: 1px solid #f0d8c2;
+    border-radius: 14px;
+    padding: 16px 18px;
+    box-shadow: 0 6px 18px rgba(179, 74, 0, .06);
+  }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  button {
+    background: #ff6a00;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  button.secondary { background: #fff; color: #b34a00; border: 1px solid #f0b489; }
+  button:disabled { opacity: .55; cursor: progress; }
+  input[type="text"] {
+    flex: 1 1 320px;
+    padding: 10px 12px;
+    border: 1px solid #e2c8b1;
+    border-radius: 10px;
+    font-size: 13px;
+  }
+  label.check { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; color: #6b5545; }
+  .marks { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-start; }
+  .mark { text-align: center; font-size: 12px; color: #6b5545; }
+  .mark canvas, .mark img { width: 84px; height: 84px; border-radius: 16px; background: #2b2b2b; display: block; }
+  .preview { max-width: 100%; border-radius: 12px; background: #000; display: block; margin-top: 10px; }
+  video.preview { max-height: 320px; }
+  #log {
+    background: #16110d;
+    color: #ffd9b8;
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 12px;
+    max-height: 320px;
+    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  #log .err { color: #ff9d8a; }
+  #log .ok { color: #9df5b4; }
+  code { background: #fdeee0; padding: 1px 5px; border-radius: 5px; font-size: 12px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>CashClique save watermark &mdash; browser demo</h1>
+    <p class="lede">
+      Exercises the real save flow used by <code>dashboard.html</code> and <code>post-view.html</code>
+      (<code>js/media-save.js</code>). Photos are re-encoded as JPEGs and videos are re-recorded
+      through canvas&nbsp;+&nbsp;MediaRecorder, both with the CashClique mark burned in.
+      <code>window.open</code> is intercepted below: if any code path tries to navigate to a media URL
+      it shows up in the log instead of leaving the page.
+    </p>
+  </header>
+
+  <section>
+    <h2>1. Watermark source</h2>
+    <div class="marks">
+      <div class="mark">
+        <canvas id="mark-default" width="168" height="168"></canvas>
+        <span id="mark-default-label">resolving&hellip;</span>
+      </div>
+      <div class="mark">
+        <canvas id="mark-local" width="168" height="168"></canvas>
+        <span>bundled assets/cashclique-watermark.svg</span>
+      </div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <label class="check">
+        <input type="checkbox" id="force-local" checked>
+        Use the bundled SVG asset for the saves below
+      </label>
+      <span class="lede">
+        This page lives in <code>/tools</code>, so the automatic lookup resolves
+        <code>/tools/assets/&hellip;</code> and lands on the drawn fallback mark. The bundled asset is
+        loaded explicitly from <code>../assets/</code> &mdash; untick the box to save with the default
+        resolution chain instead (Cloudinary favicon &rarr; local asset &rarr; drawn mark).
+      </span>
+    </div>
+  </section>
+
+  <section>
+    <h2>2. Photo &rarr; watermarked JPEG</h2>
+    <div class="row">
+      <button id="save-photo">Save sample photo</button>
+      <span id="photo-status" class="lede"></span>
+    </div>
+    <img id="photo-preview" class="preview" alt="" hidden>
+  </section>
+
+  <section>
+    <h2>3. Video &rarr; re-recorded with the mark</h2>
+    <div class="row">
+      <button id="save-video">Create sample clip and save it watermarked</button>
+      <span id="video-status" class="lede"></span>
+    </div>
+    <video id="video-preview" class="preview" controls playsinline hidden></video>
+  </section>
+
+  <section>
+    <h2>4. Real Firebase Storage URL</h2>
+    <p class="lede">
+      Paste a tokenized Storage download URL from the <code>cashclique-31718</code> bucket to check the
+      fetch chain (direct first, <code>downloadMedia</code> proxy second) end to end.
+    </p>
+    <div class="row">
+      <input type="text" id="media-url" placeholder="https://firebasestorage.googleapis.com/v0/b/.../o/...?alt=media&amp;token=...">
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button id="fetch-only" class="secondary">Fetch bytes only</button>
+      <button id="save-as-photo" class="secondary">Save as watermarked photo</button>
+      <button id="save-as-video" class="secondary">Save as watermarked video</button>
+    </div>
+    <img id="remote-photo-preview" class="preview" alt="" hidden>
+    <video id="remote-video-preview" class="preview" controls playsinline hidden></video>
+  </section>
+
+  <section>
+    <h2>5. Proxy deployment check</h2>
+    <div class="row">
+      <button id="proxy-check" class="secondary">Ping downloadMedia</button>
+      <span id="proxy-status" class="lede"></span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Log</h2>
+    <div id="log"></div>
+  </section>
+</main>
+
+<script type="module">
+import {
+  MEDIA_PROXY_URL,
+  buildProxyUrl,
+  createWatermarkedJpeg,
+  createWatermarkedVideo,
+  downloadBlob,
+  fetchMediaBlob,
+  mediaFilename,
+  videoWatermarkSupported
+} from "../js/media-save.js";
+import { LOCAL_WATERMARK_PATH, getWatermarkMark, loadImageElement, rasterize } from "../js/watermark.js";
+
+const logEl = document.getElementById("log");
+function log(message, kind) {
+  const line = document.createElement("div");
+  if (kind) line.className = kind;
+  const time = new Date().toTimeString().slice(0, 8);
+  line.textContent = "[" + time + "] " + message;
+  logEl.appendChild(line);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+// Requirement 5/8 proof: the save flow must never open a tab or navigate.
+const realOpen = window.open;
+window.open = function (url) {
+  log("BLOCKED window.open(" + url + ") - the save flow must not navigate", "err");
+  return null;
+};
+
+function markForSaves() {
+  return document.getElementById("force-local").checked ? localMark : null;
+}
+
+let localMark = null;
+let defaultMark = null;
+
+function paintMark(canvas, mark) {
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#2b2b2b";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  if (mark && mark.width) ctx.drawImage(mark, 12, 12, canvas.width - 24, canvas.height - 24);
+}
+
+async function loadMarks() {
+  try {
+    defaultMark = await getWatermarkMark();
+    paintMark(document.getElementById("mark-default"), defaultMark.canvas);
+    document.getElementById("mark-default-label").textContent = "resolved mark (" + defaultMark.source + ")";
+    log("Default watermark source: " + defaultMark.source, "ok");
+  } catch (error) {
+    log("Could not resolve the default watermark: " + error.message, "err");
+  }
+  try {
+    const assetUrl = new URL("../" + LOCAL_WATERMARK_PATH, document.baseURI).toString();
+    const image = await loadImageElement(assetUrl);
+    localMark = image ? rasterize(image) : null;
+    paintMark(document.getElementById("mark-local"), localMark);
+    log(localMark ? "Bundled SVG asset loaded" : "Bundled SVG asset missing", localMark ? "ok" : "err");
+  } catch (error) {
+    log("Bundled SVG asset failed: " + error.message, "err");
+  }
+}
+
+function samplePhotoBlob() {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1280;
+  canvas.height = 720;
+  const ctx = canvas.getContext("2d");
+  const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+  gradient.addColorStop(0, "#2b6cff");
+  gradient.addColorStop(0.5, "#7a3cff");
+  gradient.addColorStop(1, "#ff3c8e");
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  for (let i = 0; i < 26; i++) {
+    ctx.globalAlpha = 0.08 + (i % 5) * 0.03;
+    ctx.fillStyle = i % 2 ? "#ffffff" : "#000000";
+    ctx.beginPath();
+    ctx.arc((i * 173) % canvas.width, (i * 97) % canvas.height, 30 + i * 6, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "700 56px Segoe UI, Arial, sans-serif";
+  ctx.fillText("Sample CashClique photo", 60, 120);
+  ctx.font = "400 30px Segoe UI, Arial, sans-serif";
+  ctx.fillText("Saved copies must carry the CashClique mark", 60, 170);
+  return new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.95));
+}
+
+async function makeSampleVideo(seconds) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 640;
+  canvas.height = 360;
+  const ctx = canvas.getContext("2d");
+  const stream = canvas.captureStream(30);
+  const mime = ["video/webm;codecs=vp9", "video/webm", "video/mp4"]
+    .find((type) => MediaRecorder.isTypeSupported(type));
+  if (!mime) throw new Error("MediaRecorder has no usable mime type");
+  const recorder = new MediaRecorder(stream, { mimeType: mime });
+  const chunks = [];
+  recorder.ondataavailable = (event) => { if (event.data && event.data.size) chunks.push(event.data); };
+  const stopped = new Promise((resolve) => { recorder.onstop = resolve; });
+  recorder.start();
+  const startedAt = performance.now();
+  await new Promise((resolve) => {
+    const draw = () => {
+      const t = (performance.now() - startedAt) / 1000;
+      ctx.fillStyle = "#101820";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#ff6a00";
+      const x = (Math.sin(t * 2) * 0.5 + 0.5) * (canvas.width - 90);
+      ctx.beginPath();
+      ctx.arc(x + 45, 180, 45, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "600 28px Segoe UI, Arial, sans-serif";
+      ctx.fillText("Sample clip " + t.toFixed(1) + "s", 24, 48);
+      if (t < seconds) requestAnimationFrame(draw);
+      else resolve();
+    };
+    draw();
+  });
+  recorder.stop();
+  await stopped;
+  stream.getTracks().forEach((track) => track.stop());
+  return new Blob(chunks, { type: mime });
+}
+
+function preview(kind, blob, id) {
+  const el = document.getElementById(id);
+  el.src = URL.createObjectURL(blob);
+  el.hidden = false;
+  if (kind === "video") el.load();
+}
+
+function withButton(id, handler) {
+  const button = document.getElementById(id);
+  button.addEventListener("click", async () => {
+    button.disabled = true;
+    try {
+      await handler(button);
+    } catch (error) {
+      log(error.name + ": " + (error.userMessage || error.message), "err");
+      if (error.details) log("  details: " + error.details, "err");
+    } finally {
+      button.disabled = false;
+    }
+  });
+}
+
+withButton("save-photo", async () => {
+  const status = document.getElementById("photo-status");
+  status.textContent = "building sample photo…";
+  const source = await samplePhotoBlob();
+  log("Sample photo created: " + source.size + " bytes");
+  status.textContent = "watermarking…";
+  const started = performance.now();
+  const saved = await createWatermarkedJpeg({
+    id: "demo-photo",
+    blob: source,
+    watermark: markForSaves()
+  });
+  const ms = Math.round(performance.now() - started);
+  downloadBlob(saved.blob, saved.filename);
+  preview("image", saved.blob, "photo-preview");
+  log("Photo saved: " + saved.filename + " (" + saved.blob.type + ", " + saved.blob.size +
+      " bytes, mark: " + saved.watermarkSource + ", " + ms + "ms)", "ok");
+  status.textContent = saved.filename + " downloaded";
+});
+
+withButton("save-video", async () => {
+  const status = document.getElementById("video-status");
+  if (!videoWatermarkSupported()) {
+    status.textContent = "not supported here";
+    throw new Error("This browser cannot record a watermarked video (MediaRecorder/canvas.captureStream missing)");
+  }
+  status.textContent = "recording a 2s sample clip…";
+  const source = await makeSampleVideo(2);
+  log("Sample clip created: " + source.size + " bytes (" + source.type + ")");
+  status.textContent = "re-recording with the watermark (real time)…";
+  const started = performance.now();
+  let lastStage = "";
+  const saved = await createWatermarkedVideo({
+    id: "demo-video",
+    blob: source,
+    watermark: markForSaves(),
+    onStage: (stage) => {
+      if (stage !== lastStage) log("  stage: " + stage);
+      lastStage = stage;
+    },
+    onProgress: (seconds, total) => {
+      status.textContent = "watermarking " + Math.round((seconds / total) * 100) + "%";
+    }
+  });
+  const ms = Math.round(performance.now() - started);
+  downloadBlob(saved.blob, saved.filename);
+  preview("video", saved.blob, "video-preview");
+  log("Video saved: " + saved.filename + " (" + saved.blob.size + " bytes, audio: " +
+      saved.hadAudio + ", mark: " + saved.watermarkSource + ", " + ms + "ms)", "ok");
+  status.textContent = saved.filename + " downloaded";
+});
+
+withButton("fetch-only", async () => {
+  const url = document.getElementById("media-url").value.trim();
+  if (!url) throw new Error("Paste a Storage download URL first");
+  log("Fetching " + url.slice(0, 90) + "…");
+  const result = await fetchMediaBlob(url, { filename: mediaFilename("demo", "bin") });
+  log("Fetched " + result.blob.size + " bytes via " + (result.viaProxy ? "downloadMedia proxy" : "direct URL") +
+      " (" + (result.contentType || "unknown type") + ")", "ok");
+});
+
+withButton("save-as-photo", async () => {
+  const url = document.getElementById("media-url").value.trim();
+  if (!url) throw new Error("Paste a Storage download URL first");
+  const saved = await createWatermarkedJpeg({ id: "remote", src: url, watermark: markForSaves() });
+  downloadBlob(saved.blob, saved.filename);
+  preview("image", saved.blob, "remote-photo-preview");
+  log("Remote photo saved: " + saved.filename + " (" + saved.blob.size + " bytes, mark: " +
+      saved.watermarkSource + ")", "ok");
+});
+
+withButton("save-as-video", async () => {
+  const url = document.getElementById("media-url").value.trim();
+  if (!url) throw new Error("Paste a Storage download URL first");
+  if (!videoWatermarkSupported()) throw new Error("This browser cannot record a watermarked video");
+  const saved = await createWatermarkedVideo({
+    id: "remote",
+    src: url,
+    watermark: markForSaves(),
+    onStage: (stage) => log("  stage: " + stage)
+  });
+  downloadBlob(saved.blob, saved.filename);
+  preview("video", saved.blob, "remote-video-preview");
+  log("Remote video saved: " + saved.filename + " (" + saved.blob.size + " bytes, via proxy: " +
+      saved.viaProxy + ", audio: " + saved.hadAudio + ")", "ok");
+});
+
+withButton("proxy-check", async () => {
+  const status = document.getElementById("proxy-status");
+  status.textContent = "calling " + MEDIA_PROXY_URL;
+  const probe = buildProxyUrl("https://example.com/not-storage.mp4", "probe.bin");
+  try {
+    const response = await fetch(probe, { method: "GET" });
+    const text = await response.text();
+    log("downloadMedia responded " + response.status + ": " + text.slice(0, 200),
+        response.status === 400 ? "ok" : "err");
+    status.textContent = response.status === 400
+      ? "deployed (rejects a non-Storage URL as expected)"
+      : "unexpected status " + response.status;
+  } catch (error) {
+    log("downloadMedia unreachable from this browser: " + error.message, "err");
+    status.textContent = "unreachable (not deployed yet, or CORS blocked)";
+  }
+});
+
+window.addEventListener("beforeunload", () => { window.open = realOpen; });
+
+log("videoWatermarkSupported(): " + videoWatermarkSupported(), videoWatermarkSupported() ? "ok" : "err");
+await loadMarks();
+</script>
+</body>
+</html>

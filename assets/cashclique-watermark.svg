@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="CashClique">
+  <title>CashClique</title>
+  <defs>
+    <linearGradient id="ccBadge" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff9142"/>
+      <stop offset="0.55" stop-color="#ff6a00"/>
+      <stop offset="1" stop-color="#e05400"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="496" height="496" rx="124" ry="124" fill="url(#ccBadge)"/>
+  <rect x="13" y="13" width="486" height="486" rx="119" ry="119" fill="none" stroke="#ffffff" stroke-opacity="0.35" stroke-width="10"/>
+  <path d="M336 176 A 112 112 0 1 0 336 336" fill="none" stroke="#ffffff" stroke-width="60" stroke-linecap="round"/>
+  <circle cx="212" cy="256" r="19" fill="#ffffff"/>
+  <circle cx="258" cy="256" r="19" fill="#ffffff" fill-opacity="0.88"/>
+  <circle cx="304" cy="256" r="19" fill="#ffffff" fill-opacity="0.7"/>
+</svg>
