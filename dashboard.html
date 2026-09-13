@@ -1278,7 +1278,13 @@ html, body { height: 100%; overflow: hidden; background: #000; }
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, collection, query, orderBy, getDocs, onSnapshot, doc, getDoc, updateDoc, increment, arrayUnion, arrayRemove, addDoc, serverTimestamp, limit, startAfter, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { renderWatermarkedVideo } from "./js/video-watermark.js";
+import {
+    createWatermarkedJpeg,
+    createWatermarkedVideo,
+    downloadBlob,
+    mediaFilename,
+    videoWatermarkSupported
+} from "./js/media-save.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -1294,8 +1300,9 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 window.__ccModuleLoaded = true; // SDK imports resolved (see boot watchdog above)
 
-const SITE_LOGO_URL = "https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg";
-const APP_NAME = "CashClique";
+// Save-to-device details (logo URL, local watermark fallback, downloadMedia
+// proxy, JPEG/video re-encoding) live in ./js/media-save.js so this page and
+// post-view.html behave identically.
 const INITIAL_POOL = 16;      // posts fetched for algorithmic ranking on first load
 const POSTS_PER_PAGE = 10;    // posts appended on infinite scroll
 const FEED_LOAD_TIMEOUT = 15000;   // ms we wait for the posts query before showing Retry
@@ -2296,127 +2303,13 @@ document.getElementById('logout').addEventListener('click', (e) => {
 });
 
 // ==================== SAVE-TO-DEVICE DOWNLOADS ====================
-// Photos get the site mark baked in quietly via canvas. Videos are downloaded
-// directly as files (no re-encoding) for reliability across all browsers.
-let logoImage = null;
-let logoPromise = null;
-function loadLogo() {
-    if (logoImage) return Promise.resolve(logoImage);
-    if (logoPromise) return logoPromise;
-    logoPromise = new Promise((resolve) => {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.onload = () => { logoImage = removeLogoWhiteBackground(img); resolve(logoImage); };
-        img.onerror = () => { logoImage = null; resolve(null); };
-        img.src = SITE_LOGO_URL + (SITE_LOGO_URL.includes('?') ? '&' : '?') + 't=' + Date.now();
-        setTimeout(() => resolve(logoImage), 6000);
-    });
-    return logoPromise;
-}
-
-// The site logo is a JPG sitting on a white square. Strip that white background
-// (with a soft ramp so edges stay clean) so the mark blends over any photo or
-// video instead of showing up as a white box.
-function removeLogoWhiteBackground(img) {
-    try {
-        const w = img.naturalWidth || img.width;
-        const h = img.naturalHeight || img.height;
-        if (!w || !h) return img;
-        const c = document.createElement('canvas');
-        c.width = w;
-        c.height = h;
-        const ctx = c.getContext('2d');
-        if (!ctx) return img;
-        ctx.drawImage(img, 0, 0, w, h);
-        const data = ctx.getImageData(0, 0, w, h);
-        const px = data.data;
-        let kept = 0;
-        for (let i = 0; i < px.length; i += 4) {
-            const whiteness = Math.min(px[i], px[i + 1], px[i + 2]);
-            let alpha;
-            if (whiteness <= 200) alpha = 255;
-            else if (whiteness >= 252) alpha = 0;
-            else alpha = Math.round(((252 - whiteness) / 52) * 255);
-            if (alpha < px[i + 3]) px[i + 3] = alpha;
-            if (px[i + 3] > 0) kept++;
-        }
-        ctx.putImageData(data, 0, 0);
-        if (!kept) return img; // nothing survived the cleanup: keep the original
-        return c;
-    } catch (err) {
-        return img; // canvas unavailable/tainted: keep the original logo
-    }
-}
-
-async function drawSiteLogo(ctx, w, h) {
-    const logo = await loadLogo();
-    const pad = Math.max(12, Math.round(w * 0.03));
-    if (logo && logo.width > 0) {
-        const maxW = Math.min(w * 0.18, 220);
-        const ratio = logo.height / logo.width;
-        const dw = maxW;
-        const dh = maxW * ratio;
-        ctx.save();
-        ctx.globalAlpha = 0.92;
-        ctx.shadowColor = 'rgba(0,0,0,0.45)';
-        ctx.shadowBlur = 10;
-        ctx.drawImage(logo, w - dw - pad, h - dh - pad, dw, dh);
-        ctx.restore();
-    } else {
-        ctx.save();
-        ctx.font = `700 ${Math.max(16, Math.round(w * 0.035))}px Poppins, Arial, sans-serif`;
-        ctx.fillStyle = 'rgba(255,255,255,0.92)';
-        ctx.shadowColor = 'rgba(0,0,0,0.6)';
-        ctx.shadowBlur = 8;
-        const txt = APP_NAME;
-        const tw = ctx.measureText(txt).width;
-        ctx.fillText(txt, w - tw - pad, h - pad);
-        ctx.restore();
-    }
-}
-
-function downloadBlob(blob, filename) {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 2500);
-}
-
-function downloadViaAnchor(href, filename) {
-    const a = document.createElement('a');
-    a.href = href;
-    a.download = filename;
-    a.rel = 'noopener';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => a.remove(), 2500);
-}
-
-// Firebase Storage download URLs are cross-origin, so some browsers ignore
-// the download attribute and navigate to the video instead. Ask Storage for
-// an attachment response on the fallback URL. This keeps the feed open when
-// the normal blob download is blocked by the bucket's CORS settings.
-function attachmentDownloadUrl(href, filename) {
-    try {
-        const url = new URL(href, window.location.href);
-        const host = url.hostname.toLowerCase();
-        if (host === 'firebasestorage.googleapis.com' ||
-            host.endsWith('.firebasestorage.app') ||
-            host.endsWith('.storage.googleapis.com')) {
-            const safeName = String(filename || 'cashclique-video.mp4')
-                .replace(/[\\"\r\n]/g, '_');
-            url.searchParams.set('response-content-disposition',
-                `attachment; filename="${safeName}"`);
-            url.searchParams.set('response-content-type', 'application/octet-stream');
-        }
-        return url.toString();
-    } catch (e) {
-        return href;
-    }
-}
+// Photos are re-encoded as new JPEGs with the CashClique mark baked in. Videos
+// are re-recorded through canvas + MediaRecorder with the mark in the lower
+// right corner. Both fetch the bytes from the direct URL first and through the
+// downloadMedia Cloud Function proxy second (the Storage bucket may not send
+// CORS headers), and both hand a Blob to downloadBlob() only after the
+// watermark is in place. Nothing here navigates to the media URL, opens a tab,
+// or plays the video as a fallback: failures surface as an error toast.
 
 window.downloadPostItem = async function (postId) {
     const item = feedItems.find(i => i.kind === 'post' && i.id === postId);
@@ -2425,49 +2318,24 @@ window.downloadPostItem = async function (postId) {
     else await savePhotoItem(item);
 };
 
-// ----- Photo save (site mark baked in, quietly) -----
+// ----- Photo save (CashClique mark baked into a new JPEG) -----
 async function savePhotoItem(post) {
     const src = imageSrcOf(post);
     if (!src) { showToast("Nothing to save", "error"); return; }
-    const name = `cashclique_${post.id}.jpg`;
     try {
-        const img = new Image();
-        if (!src.startsWith('data:')) img.crossOrigin = 'anonymous';
-        await new Promise((res, rej) => { img.onload = res; img.onerror = () => rej(new Error('img')); img.src = src; });
-        const canvas = document.createElement('canvas');
-        canvas.width = img.naturalWidth || img.width;
-        canvas.height = img.naturalHeight || img.height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        // subtle centered ghost mark + corner mark
-        const logo = await loadLogo();
-        if (logo && logo.width > 0) {
-            const gw = canvas.width * 0.32;
-            const gh = gw * (logo.height / logo.width);
-            ctx.save();
-            ctx.globalAlpha = 0.09;
-            ctx.drawImage(logo, (canvas.width - gw) / 2, (canvas.height - gh) / 2, gw, gh);
-            ctx.restore();
-        }
-        await drawSiteLogo(ctx, canvas.width, canvas.height);
-        const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.94));
-        if (blob) { downloadBlob(blob, name); showToast("Photo saved", "success"); return; }
-        throw new Error('no-blob');
+        const saved = await createWatermarkedJpeg({
+            id: post.id,
+            src: src,
+            filename: mediaFilename(post.id, 'jpg')
+        });
+        downloadBlob(saved.blob, saved.filename);
+        showToast("Photo saved with CashClique watermark", "success");
     } catch (err) {
-        console.error("Photo save failed, falling back to original:", err);
-    }
-    // Quiet fallback: save the original as-is.
-    try {
-        if (src.startsWith('data:')) { downloadViaAnchor(src, name); }
-        else {
-            const resp = await fetch(src);
-            if (resp.ok) { const blob = await resp.blob(); downloadBlob(blob, name); }
-            else downloadViaAnchor(src, name);
-        }
-        showToast("Photo saved", "success");
-    } catch (e) {
-        console.error("Photo fallback save failed:", e);
-        showToast("Could not save photo", "error");
+        // No silent fallback: an unwatermarked copy is never saved, and the
+        // media URL is never opened. The user stays on the feed.
+        console.error("Photo save failed:", err);
+        if (err && err.kind === 'cancelled') { showToast("Save cancelled", "info"); return; }
+        showToast((err && err.userMessage) || "Could not save photo", "error");
     }
 }
 
@@ -2495,59 +2363,39 @@ function dlHide() {
 }
 window.cancelSave = function () { if (dlState) dlState.cancel = true; };
 
-// ----- Video save: fetch, watermark, and download the video -----
-// The source is rendered through a canvas and MediaRecorder so the downloaded
-// copy carries the CashClique logo without changing the feed playback.
+// ----- Video save: fetch, watermark, then download the recording -----
 async function saveVideoItem(post) {
     const videoUrl = post.videoUrl;
     if (!videoUrl) { showToast("Nothing to save", "error"); return; }
+    if (!videoWatermarkSupported()) {
+        showToast("This browser cannot save a watermarked copy of this video", "error");
+        return;
+    }
     dlState.cancel = false;
-    let sourceBlob = null;
-    let sourceName = `cashclique_${post.id}.mp4`;
-    dlShow('Downloading video\u2026');
     try {
-        const resp = await fetch(videoUrl);
-        if (!resp.ok) throw new Error('fetch ' + resp.status);
-        const contentType = resp.headers.get('content-type') || '';
-        let sourceExt = 'mp4';
-        if (contentType.includes('webm')) sourceExt = 'webm';
-        else if (contentType.includes('ogg')) sourceExt = 'ogg';
-        else if (contentType.includes('quicktime') || contentType.includes('mov')) sourceExt = 'mov';
-        sourceName = `cashclique_${post.id}.${sourceExt}`;
-        sourceBlob = await resp.blob();
-        if (!sourceBlob.size) throw new Error('empty video');
-        if (dlState.cancel) { dlHide(); showToast("Save cancelled", "info"); return; }
-
-        dlShow('Adding CashClique watermark\u2026');
-        const rendered = await renderWatermarkedVideo(sourceBlob, {
-            logoUrl: SITE_LOGO_URL,
-            appName: APP_NAME,
+        dlShow('Preparing video\u2026');
+        const saved = await createWatermarkedVideo({
+            id: post.id,
+            src: videoUrl,
             isCancelled: () => dlState.cancel,
+            onStage: (stage) => {
+                dlShow(stage === 'watermark' ? 'Adding CashClique watermark\u2026' : 'Downloading video\u2026');
+            },
             onProgress: (seconds, totalSeconds) => {
                 dlProg(Math.round((seconds / totalSeconds) * 100), Math.floor(seconds), totalSeconds);
             }
         });
         dlHide();
-        downloadBlob(rendered.blob, `cashclique_${post.id}.${rendered.extension}`);
+        downloadBlob(saved.blob, saved.filename);
         showToast("Video saved with CashClique watermark", "success");
     } catch (err) {
-        console.error("Video save failed:", err);
         dlHide();
-        if (dlState.cancel || (err && (err.name === 'AbortError' || err.cancelled))) {
+        if (dlState.cancel || (err && err.kind === 'cancelled')) {
             showToast("Save cancelled", "info");
             return;
         }
-        // If fetching worked but rendering is unavailable in this browser,
-        // still save the source instead of navigating away from the feed.
-        if (sourceBlob && sourceBlob.size) {
-            downloadBlob(sourceBlob, sourceName);
-            showToast("Video saved without watermark", "info");
-            return;
-        }
-        // Do not open the media URL: that navigates to a video player. The
-        // attachment response tells the browser to download it instead.
-        downloadViaAnchor(attachmentDownloadUrl(videoUrl, sourceName), sourceName);
-        showToast("Download started", "success");
+        console.error("Video save failed:", err);
+        showToast((err && err.userMessage) || "Could not save video", "error");
     }
 }
 
