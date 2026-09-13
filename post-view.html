@@ -181,6 +181,7 @@ body{background:#f5f5f5;min-height:100vh;padding:20px;}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, doc, collection, getDoc, onSnapshot, addDoc, updateDoc, increment, serverTimestamp, arrayUnion, arrayRemove, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { renderWatermarkedVideo } from "./js/video-watermark.js";
 
 const firebaseConfig = {
 apiKey:"AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -668,7 +669,6 @@ async function saveCurrentMedia(){
 // ----- Save progress overlay helpers -----
 let dlState = { cancel: false };
 function dlShow(sub){
-  dlState.cancel = false;
   const ov = document.getElementById('sv-overlay');
   if(!ov) return;
   const subEl = document.getElementById('sv-sub');
@@ -689,41 +689,58 @@ function dlHide(){
 }
 window.cancelSave = function(){ if(dlState) dlState.cancel = true; };
 
-// Video save: fetch the file directly and trigger a download.
-// No canvas re-encoding — avoids CORS tainting, Safari/iOS incompatibility,
-// real-time playback requirements, and empty-blob failures.
+// Video save: fetch, watermark, and download the video.
+// The source is rendered through a canvas and MediaRecorder so the downloaded
+// copy carries the CashClique logo without changing the post playback.
 async function saveVideo(m){
   const videoUrl = m.videoUrl;
   if(!videoUrl){ showToast("Nothing to save"); return; }
+  dlState.cancel = false;
+  let sourceBlob = null;
+  let sourceName = `cashclique_${m.id}.mp4`;
   dlShow('Downloading video\u2026');
   try {
     const resp = await fetch(videoUrl);
     if(!resp.ok) throw new Error('fetch ' + resp.status);
     const contentType = resp.headers.get('content-type') || '';
-    const blob = await resp.blob();
-    // Guess extension from content-type; fall back to mp4
-    let ext = 'mp4';
-    if(contentType.includes('webm')) ext = 'webm';
-    else if(contentType.includes('ogg')) ext = 'ogg';
-    else if(contentType.includes('quicktime') || contentType.includes('mov')) ext = 'mov';
+    let sourceExt = 'mp4';
+    if(contentType.includes('webm')) sourceExt = 'webm';
+    else if(contentType.includes('ogg')) sourceExt = 'ogg';
+    else if(contentType.includes('quicktime') || contentType.includes('mov')) sourceExt = 'mov';
+    sourceName = `cashclique_${m.id}.${sourceExt}`;
+    sourceBlob = await resp.blob();
+    if(!sourceBlob.size) throw new Error('empty video');
+    if(dlState.cancel){ dlHide(); showToast("Save cancelled"); return; }
+
+    dlShow('Adding CashClique watermark\u2026');
+    const rendered = await renderWatermarkedVideo(sourceBlob, {
+      logoUrl: SITE_LOGO_URL,
+      appName: APP_NAME,
+      isCancelled: () => dlState.cancel,
+      onProgress: (seconds, totalSeconds) => {
+        dlProg(Math.round((seconds / totalSeconds) * 100), Math.floor(seconds), totalSeconds);
+      }
+    });
     dlHide();
-    if(blob.size > 0){
-      downloadBlob(blob, `cashclique_${m.id}.${ext}`);
-      showToast("Video saved");
-    } else {
-      showToast("Couldn't save this video. Try again.");
-    }
-  } catch(err){
+    downloadBlob(rendered.blob, `cashclique_${m.id}.${rendered.extension}`);
+    showToast("Video saved with CashClique watermark");
+  }catch(err){
     console.error("Video save failed:", err);
     dlHide();
-    if(dlState.cancel || (err && err.name === 'AbortError')){
+    if(dlState.cancel || (err && (err.name === 'AbortError' || err.cancelled))){
       showToast("Save cancelled");
       return;
     }
+    // If fetching worked but rendering is unavailable in this browser,
+    // still save the source instead of navigating away from the post.
+    if(sourceBlob && sourceBlob.size){
+      downloadBlob(sourceBlob, sourceName);
+      showToast("Video saved without watermark");
+      return;
+    }
     // Do not open the media URL: that navigates to a video player. Ask
-    // Storage for an attachment response so the browser downloads it.
-    const filename = `cashclique_${m.id}.mp4`;
-    downloadViaAnchor(attachmentDownloadUrl(videoUrl, filename), filename);
+    // Storage for an attachment response so the browser downloads it instead.
+    downloadViaAnchor(attachmentDownloadUrl(videoUrl, sourceName), sourceName);
     showToast("Download started");
   }
 }
