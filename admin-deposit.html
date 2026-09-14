@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script src="js/theme.js">
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Admin - Exchange Rates | CashClique</title>
 
@@ -11,7 +13,7 @@
 
 <style>
 * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
-body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
+body { background:var(--cc-soft, #f5f6f8); color:var(--cc-ink, #1e2937); min-height:100vh; }
 
 .admin-container { max-width:800px; margin:0 auto; padding:20px; }
 
@@ -31,10 +33,10 @@ body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
     display:flex;
     gap:10px;
     margin-bottom:25px;
-    background:white;
+    background:var(--cc-surface, white);
     padding:5px;
     border-radius:16px;
-    border:2px solid #e2e8f0;
+    border:2px solid var(--cc-border, #e2e8f0);
     overflow-x:auto;
 }
 .tab-btn {
@@ -46,7 +48,7 @@ body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
     border-radius:12px;
     font-size:14px;
     font-weight:600;
-    color:#64748b;
+    color:var(--cc-muted, #64748b);
     cursor:pointer;
     transition:0.3s;
     display:flex;
@@ -59,7 +61,7 @@ body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
     color:white;
 }
 .tab-btn:hover:not(.active) {
-    background:#f1f5f9;
+    background:var(--cc-soft, #f1f5f9);
 }
 
 .tab-content { display:none; }
@@ -73,11 +75,11 @@ body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
     margin-bottom:25px;
 }
 .rate-card {
-    background:white;
+    background:var(--cc-surface, white);
     border-radius:20px;
     padding:25px;
     box-shadow:0 10px 40px rgba(0,0,0,0.08);
-    border:2px solid #e2e8f0;
+    border:2px solid var(--cc-border, #e2e8f0);
 }
 .rate-header {
     display:flex;
@@ -94,10 +96,10 @@ body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
     justify-content:center;
     font-size:24px;
 }
-.rate-icon.bank { background:#fff7ed; color:#ff6a00; }
-.rate-icon.crypto { background:#f1f5f9; color:#475569; }
+.rate-icon.bank { background:var(--cc-soft, #fff7ed); color:#ff6a00; }
+.rate-icon.crypto { background:var(--cc-soft, #f1f5f9); color:var(--cc-muted, #475569); }
 .rate-title { font-size:18px; font-weight:700; }
-.rate-subtitle { font-size:13px; color:#64748b; }
+.rate-subtitle { font-size:13px; color:var(--cc-muted, #64748b); }
 
 /* Crypto Rates List - ALL 5 CRYPTOS */
 .crypto-rates-list {
@@ -106,11 +108,11 @@ body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
     gap:15px;
 }
 .crypto-rate-item {
-    background:#f8fafc;
+    background:var(--cc-surface, #f8fafc);
     border-radius:16px;
     padding:20px 15px;
     text-align:center;
-    border:2px solid #e2e8f0;
+    border:2px solid var(--cc-border, #e2e8f0);
     transition:0.3s;
 }
 .crypto-rate-item:hover {
@@ -127,27 +129,27 @@ body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
 .crypto-symbol.eth { color:#627eea; }
 .crypto-symbol.btc { color:#f7931a; }
 .crypto-symbol.ton { color:#0088cc; }
-.crypto-name { font-size:11px; color:#64748b; margin-bottom:10px; font-weight:600; }
+.crypto-name { font-size:11px; color:var(--cc-muted, #64748b); margin-bottom:10px; font-weight:600; }
 .crypto-price {
     font-size:20px;
     font-weight:700;
-    color:#1e2937;
+    color:var(--cc-ink, #1e2937);
     margin-bottom:5px;
 }
-.crypto-unit { font-size:11px; color:#94a3b8; }
+.crypto-unit { font-size:11px; color:var(--cc-muted, #94a3b8); }
 .last-updated {
     margin-top:10px;
     font-size:10px;
-    color:#64748b;
+    color:var(--cc-muted, #64748b);
 }
 
 /* Input Section */
 .input-section {
-    background:white;
+    background:var(--cc-surface, white);
     border-radius:20px;
     padding:25px;
     box-shadow:0 4px 6px rgba(0,0,0,0.02);
-    border:2px solid #e2e8f0;
+    border:2px solid var(--cc-border, #e2e8f0);
     margin-bottom:20px;
 }
 .section-title {
@@ -173,7 +175,7 @@ body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
     font-size:13px;
     font-weight:600;
     margin-bottom:8px;
-    color:#334155;
+    color:var(--cc-ink, #334155);
 }
 .input-wrapper {
     position:relative;
@@ -192,11 +194,11 @@ body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
     padding:14px 15px 14px 40px;
     font-size:18px;
     font-weight:700;
-    border:2px solid #e2e8f0;
+    border:2px solid var(--cc-border, #e2e8f0);
     border-radius:12px;
     outline:none;
     transition:0.3s;
-    color:#1e2937;
+    color:var(--cc-ink, #1e2937);
 }
 .rate-input:focus {
     border-color:#ff6a00;
@@ -205,14 +207,14 @@ body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
 
 /* Preview Box */
 .preview-box {
-    background:#f8fafc;
+    background:var(--cc-surface, #f8fafc);
     border-radius:12px;
     padding:16px;
     margin-bottom:20px;
-    border:1px dashed #cbd5e1;
+    border:1px dashed var(--cc-border, #cbd5e1);
 }
-.preview-label { font-size:12px; color:#64748b; margin-bottom:5px; }
-.preview-value { font-size:18px; font-weight:700; color:#1e2937; }
+.preview-label { font-size:12px; color:var(--cc-muted, #64748b); margin-bottom:5px; }
+.preview-value { font-size:18px; font-weight:700; color:var(--cc-ink, #1e2937); }
 
 /* Buttons */
 .btn-primary {
@@ -243,9 +245,9 @@ body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
 
 .btn-secondary {
     width:100%;
-    background:#f1f5f9;
-    color:#475569;
-    border:2px solid #e2e8f0;
+    background:var(--cc-soft, #f1f5f9);
+    color:var(--cc-muted, #475569);
+    border:2px solid var(--cc-border, #e2e8f0);
     padding:14px;
     border-radius:12px;
     font-size:14px;
@@ -255,16 +257,16 @@ body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
     transition:0.3s;
 }
 .btn-secondary:hover {
-    background:#e2e8f0;
-    color:#1e2937;
+    background:var(--cc-soft, #e2e8f0);
+    color:var(--cc-ink, #1e2937);
 }
 
 /* History Section */
 .history-section {
-    background:white;
+    background:var(--cc-surface, white);
     border-radius:20px;
     padding:25px;
-    border:2px solid #e2e8f0;
+    border:2px solid var(--cc-border, #e2e8f0);
 }
 .history-title {
     font-size:16px;
@@ -283,7 +285,7 @@ body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
     justify-content:space-between;
     align-items:center;
     padding:15px;
-    border-bottom:1px solid #f1f5f9;
+    border-bottom:1px solid var(--cc-border, #f1f5f9);
 }
 .history-item:last-child { border-bottom:none; }
 .history-type {
@@ -294,11 +296,11 @@ body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
     margin-bottom:5px;
     display:inline-block;
 }
-.history-type.bank { background:#fff7ed; color:#ff6a00; }
-.history-type.crypto { background:#f1f5f9; color:#475569; }
-.history-details { font-weight:700; color:#1e2937; font-size:14px; }
-.history-time { font-size:12px; color:#94a3b8; }
-.history-admin { font-size:11px; color:#64748b; margin-top:2px; }
+.history-type.bank { background:var(--cc-soft, #fff7ed); color:#ff6a00; }
+.history-type.crypto { background:var(--cc-soft, #f1f5f9); color:var(--cc-muted, #475569); }
+.history-details { font-weight:700; color:var(--cc-ink, #1e2937); font-size:14px; }
+.history-time { font-size:12px; color:var(--cc-muted, #94a3b8); }
+.history-admin { font-size:11px; color:var(--cc-muted, #64748b); margin-top:2px; }
 
 /* Stats Grid */
 .stats-grid {
@@ -308,20 +310,20 @@ body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
     margin-bottom:25px;
 }
 .stat-card {
-    background:white;
+    background:var(--cc-surface, white);
     padding:20px;
     border-radius:16px;
     text-align:center;
-    border:2px solid #e2e8f0;
+    border:2px solid var(--cc-border, #e2e8f0);
 }
 .stat-value { font-size:24px; font-weight:700; color:#ff6a00; }
-.stat-label { font-size:12px; color:#64748b; margin-top:5px; }
+.stat-label { font-size:12px; color:var(--cc-muted, #64748b); margin-top:5px; }
 
 /* Loader */
 .loader-overlay {
     position:fixed;
     inset:0;
-    background:rgba(255,255,255,0.95);
+    background:var(--cc-glass, rgba(255,255,255,0.95));
     z-index:9999;
     display:none;
     flex-direction:column;
@@ -372,10 +374,10 @@ body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
     margin-bottom:20px;
 }
 .access-denied h2 { font-size:24px; margin-bottom:10px; }
-.access-denied p { color:#64748b; margin-bottom:20px; }
+.access-denied p { color:var(--cc-muted, #64748b); margin-bottom:20px; }
 
 .allowed-admins {
-    background:#f8fafc;
+    background:var(--cc-surface, #f8fafc);
     border-radius:12px;
     padding:15px;
     margin-top:20px;
@@ -383,7 +385,7 @@ body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
 }
 .allowed-admins h4 {
     font-size:12px;
-    color:#64748b;
+    color:var(--cc-muted, #64748b);
     margin-bottom:10px;
     text-transform:uppercase;
     letter-spacing:0.5px;
@@ -391,7 +393,7 @@ body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
 .allowed-admins ul {
     list-style:none;
     font-size:13px;
-    color:#334155;
+    color:var(--cc-ink, #334155);
 }
 .allowed-admins li {
     padding:5px 0;
@@ -413,13 +415,13 @@ body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
     padding-bottom:5px;
 }
 .nav-btn {
-    background:white;
-    border:2px solid #e2e8f0;
+    background:var(--cc-surface, white);
+    border:2px solid var(--cc-border, #e2e8f0);
     padding:10px 20px;
     border-radius:99px;
     font-size:14px;
     font-weight:600;
-    color:#64748b;
+    color:var(--cc-muted, #64748b);
     cursor:pointer;
     white-space:nowrap;
     transition:0.3s;
@@ -438,6 +440,7 @@ body { background:#f5f6f8; color:#1e2937; min-height:100vh; }
     .admin-header { padding:25px 15px; }
 }
 </style>
+<link rel="stylesheet" href="assets/theme.css">
 </head>
 <body>
 

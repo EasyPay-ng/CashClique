@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script src="js/theme.js">
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Post View | CashClique</title>
 
@@ -11,14 +13,14 @@
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{background:#f5f5f5;min-height:100vh;padding:20px;}
+body{background:var(--cc-soft, #f5f5f5);min-height:100vh;padding:20px;}
 
-.back-btn{margin-bottom:20px;background:white;border:none;padding:10px 16px;border-radius:8px;cursor:pointer;font-weight:500;box-shadow:0 3px 10px rgba(0,0,0,0.05);transition:0.2s;display:flex;align-items:center;gap:6px;}
+.back-btn{margin-bottom:20px;background:var(--cc-surface, white);border:none;padding:10px 16px;border-radius:8px;cursor:pointer;font-weight:500;box-shadow:0 3px 10px rgba(0,0,0,0.05);transition:0.2s;display:flex;align-items:center;gap:6px;}
 .back-btn:hover{transform:translateY(-1px);box-shadow:0 5px 15px rgba(0,0,0,0.1);}
 
-.container{max-width:600px;margin:0 auto;background:white;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.08);overflow:hidden;}
+.container{max-width:600px;margin:0 auto;background:var(--cc-surface, white);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.08);overflow:hidden;}
 
-.post-header{display:flex;align-items:center;gap:12px;padding:20px;border-bottom:1px solid #f0f0f0;}
+.post-header{display:flex;align-items:center;gap:12px;padding:20px;border-bottom:1px solid var(--cc-border, #f0f0f0);}
 .post-header img{width:45px;height:45px;border-radius:50%;cursor:pointer;transition:0.2s;object-fit:cover;}
 .post-header img:hover{transform:scale(1.05);}
 .post-header strong{font-size:16px;cursor:pointer;}
@@ -31,49 +33,49 @@ body{background:#f5f5f5;min-height:100vh;padding:20px;}
 .post-image{cursor:pointer;}
 .post-video{cursor:pointer;outline:none;}
 
-.post-actions{padding:0 20px 20px;display:flex;gap:35px;border-bottom:1px solid #f0f0f0;padding-bottom:20px;margin-top:15px;}
-.action-item{cursor:pointer;font-size:16px;transition:0.2s;display:flex;align-items:center;gap:6px;color:#555;}
+.post-actions{padding:0 20px 20px;display:flex;gap:35px;border-bottom:1px solid var(--cc-border, #f0f0f0);padding-bottom:20px;margin-top:15px;}
+.action-item{cursor:pointer;font-size:16px;transition:0.2s;display:flex;align-items:center;gap:6px;color:var(--cc-muted, #555);}
 .action-item:hover{color:#ff6a00;}
 .like-btn.liked{color:#ff4444;}
 .like-btn.liked i{font-weight:900;}
 
 .comments-section{padding:20px;}
-.comments-title{font-weight:600;margin-bottom:15px;font-size:15px;color:#444;}
+.comments-title{font-weight:600;margin-bottom:15px;font-size:15px;color:var(--cc-ink, #444);}
 
 .comment-list{display:flex;flex-direction:column;gap:15px;margin-bottom:20px;}
-.comment{background:#f8f8f8;padding:15px;border-radius:10px;transition:0.2s;}
-.comment:hover{background:#f0f0f0;}
+.comment{background:var(--cc-soft, #f8f8f8);padding:15px;border-radius:10px;transition:0.2s;}
+.comment:hover{background:var(--cc-soft, #f0f0f0);}
 .comment-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
 .comment-header strong{font-size:14px;color:#ff6a00;}
-.comment-header small{font-size:11px;color:#888;}
-.comment-text{font-size:14px;color:#333;line-height:1.5;margin-bottom:10px;word-wrap:break-word;}
-.comment-actions{display:flex;gap:15px;font-size:13px;color:#666;}
+.comment-header small{font-size:11px;color:var(--cc-muted, #888);}
+.comment-text{font-size:14px;color:var(--cc-ink, #333);line-height:1.5;margin-bottom:10px;word-wrap:break-word;}
+.comment-actions{display:flex;gap:15px;font-size:13px;color:var(--cc-muted, #666);}
 .comment-actions span{cursor:pointer;display:flex;align-items:center;gap:4px;}
 .comment-actions span:hover{color:#ff6a00;}
 
 .reply-list{margin-top:12px;margin-left:30px;display:flex;flex-direction:column;gap:12px;}
-.reply{background:#ffffff;padding:12px;border-radius:8px;border-left:2px solid #ff6a00;}
+.reply{background:var(--cc-surface, #ffffff);padding:12px;border-radius:8px;border-left:2px solid #ff6a00;}
 .reply .comment-header strong{font-size:13px;}
 .reply .comment-text{font-size:13px;}
 
 .reply-input-wrapper{margin-top:12px;display:flex;gap:8px;align-items:flex-end;}
-.reply-input{flex:1;padding:10px 12px;border:1px solid #ddd;border-radius:8px;resize:none;font-size:13px;outline:none;min-height:40px;font-family:'Poppins',sans-serif;}
+.reply-input{flex:1;padding:10px 12px;border:1px solid var(--cc-border, #ddd);border-radius:8px;resize:none;font-size:13px;outline:none;min-height:40px;font-family:'Poppins',sans-serif;}
 .reply-input:focus{border-color:#ff6a00;}
 .reply-btn-submit{background:#ff6a00;color:white;border:none;padding:10px 16px;border-radius:8px;font-weight:500;cursor:pointer;transition:0.2s;font-size:13px;white-space:nowrap;}
 .reply-btn-submit:hover{background:#e55d00;transform:translateY(-1px);}
 .reply-btn-submit:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
 
 .comment-input-wrapper{display:flex;gap:10px;align-items:flex-end;}
-.comment-input{flex:1;padding:12px 15px;border:1px solid #ddd;border-radius:10px;resize:none;font-size:14px;outline:none;transition:0.2s;min-height:48px;font-family:'Poppins',sans-serif;}
+.comment-input{flex:1;padding:12px 15px;border:1px solid var(--cc-border, #ddd);border-radius:10px;resize:none;font-size:14px;outline:none;transition:0.2s;min-height:48px;font-family:'Poppins',sans-serif;}
 .comment-input:focus{border-color:#ff6a00;}
 .comment-btn{background:#ff6a00;color:white;border:none;padding:12px 20px;border-radius:10px;font-weight:500;cursor:pointer;transition:0.2s;white-space:nowrap;}
 .comment-btn:hover{background:#e55d00;transform:translateY(-1px);}
 .comment-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
 
-.spinner{border:3px solid rgba(255,255,255,0.3);border-top:3px solid white;border-radius:50%;width:18px;height:18px;animation:spin 1s linear infinite;}
+.spinner{border:3px solid rgba(255,255,255,0.3);border-top:3px solid var(--cc-border, white);border-radius:50%;width:18px;height:18px;animation:spin 1s linear infinite;}
 @keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
 
-.loading{text-align:center;padding:50px;color:#888;}
+.loading{text-align:center;padding:50px;color:var(--cc-muted, #888);}
 
 /* Media Modal for Image Viewing */
 .media-modal{position:fixed;inset:0;background:rgba(0,0,0,0.95);display:none;align-items:center;justify-content:center;z-index:3000;cursor:zoom-out;padding:20px;}
@@ -107,12 +109,13 @@ body{background:#f5f5f5;min-height:100vh;padding:20px;}
 .sv-spinner{width:64px;height:64px;border-radius:50%;background:rgba(255,106,0,0.15);color:#ff6a00;display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 16px;animation:svPulse 1.2s ease-in-out infinite;}
 @keyframes svPulse{0%,100%{opacity:0.6;transform:scale(0.95);}50%{opacity:1;transform:scale(1.05);}}
 .sv-title{font-weight:700;font-size:16px;margin-bottom:8px;}
-.sv-sub{font-size:13px;color:#9aa3af;line-height:1.5;margin-bottom:14px;min-height:18px;}
+.sv-sub{font-size:13px;color:var(--cc-muted, #9aa3af);line-height:1.5;margin-bottom:14px;min-height:18px;}
 .sv-bar{height:6px;background:rgba(255,255,255,0.1);border-radius:4px;overflow:hidden;margin-bottom:16px;}
 .sv-bar-fill{height:100%;width:0;background:linear-gradient(90deg,#ff6a00,#ff8a00);transition:width 0.3s;}
 .sv-cancel{background:rgba(255,255,255,0.08);color:#fff;border:1px solid rgba(255,255,255,0.15);padding:9px 22px;border-radius:24px;cursor:pointer;font-size:13px;font-family:'Poppins',sans-serif;transition:0.2s;}
 .sv-cancel:hover{background:rgba(239,68,68,0.6);}
 </style>
+<link rel="stylesheet" href="assets/theme.css">
 </head>
 
 <body>
@@ -183,10 +186,9 @@ import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/
 import { getFirestore, doc, collection, getDoc, onSnapshot, addDoc, updateDoc, increment, serverTimestamp, arrayUnion, arrayRemove, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import {
   createWatermarkedJpeg,
-  createWatermarkedVideo,
+  createVideoDownload,
   downloadBlob,
-  mediaFilename,
-  videoWatermarkSupported
+  mediaFilename
 } from "./js/media-save.js";
 
 const firebaseConfig = {
@@ -521,12 +523,10 @@ document.addEventListener('keydown', (e) => {
 
 // ==================== SAVE-TO-DEVICE ====================
 // Photos are re-encoded as new JPEGs with the CashClique mark baked in. Videos
-// are re-recorded through canvas + MediaRecorder with the mark in the lower
-// right corner. Both fetch the bytes from the direct URL first and through the
-// downloadMedia Cloud Function proxy second (the Storage bucket may not send
-// CORS headers), and both hand a Blob to downloadBlob() only after the
-// watermark is in place. Nothing here navigates to the media URL, opens a tab,
-// or plays the video as a fallback: failures surface as an error toast.
+// download as the original file, with no watermark or re-encoding. Both try
+// the direct URL first and the downloadMedia proxy second for CORS-blocked
+// Storage files. Never navigate to the media URL, open a tab, or play the video
+// as a fallback: failures surface as an error toast.
 
 function imageDataSrc(raw){
   if(!raw) return '';
@@ -565,14 +565,8 @@ function dlShow(sub){
   const subEl = document.getElementById('sv-sub');
   if(subEl) subEl.textContent = sub || '';
   const fill = document.getElementById('sv-bar-fill');
-  if(fill) fill.style.width = '0%';
+  if(fill) fill.style.width = '35%';
   ov.classList.add('active');
-}
-function dlProg(pct, sec, totalSec){
-  const fill = document.getElementById('sv-bar-fill');
-  if(fill) fill.style.width = Math.max(0, Math.min(100, pct)) + '%';
-  const subEl = document.getElementById('sv-sub');
-  if(subEl) subEl.textContent = sec + 's of ' + Math.floor(totalSec) + 's \u2014 keep this tab open';
 }
 function dlHide(){
   const ov = document.getElementById('sv-overlay');
@@ -580,39 +574,29 @@ function dlHide(){
 }
 window.cancelSave = function(){ if(dlState) dlState.cancel = true; };
 
-// Video save: fetch, watermark, then download the recording.
+// Video save: fetch and download the original file.
 async function saveVideo(m){
   const videoUrl = m.videoUrl;
   if(!videoUrl){ showToast("Nothing to save"); return; }
-  if(!videoWatermarkSupported()){
-    showToast("This browser cannot save a watermarked copy of this video.");
-    return;
-  }
   dlState.cancel = false;
   try {
     dlShow('Preparing video\u2026');
-    const saved = await createWatermarkedVideo({
+    const saved = await createVideoDownload({
       id: m.id,
       src: videoUrl,
       isCancelled: () => dlState.cancel,
-      onStage: (stage) => {
-        dlShow(stage === 'watermark' ? 'Adding CashClique watermark\u2026' : 'Downloading video\u2026');
-      },
-      onProgress: (seconds, totalSeconds) => {
-        dlProg(Math.round((seconds / totalSeconds) * 100), Math.floor(seconds), totalSeconds);
-      }
+      onStage: () => dlShow('Downloading video…')
     });
     dlHide();
     downloadBlob(saved.blob, saved.filename);
-    showToast("Video saved with CashClique watermark");
+    showToast("Video saved");
   }catch(err){
     dlHide();
     if(dlState.cancel || (err && err.kind === 'cancelled')){
       showToast("Save cancelled");
       return;
     }
-    // No silent fallback: the unwatermarked source is never downloaded and the
-    // media URL is never opened. The user stays on the post.
+    // On failure, stay on the post instead of navigating to the media URL.
     console.error("Video save failed:", err);
     showToast((err && err.userMessage) || "Could not save video. Try again.");
   }

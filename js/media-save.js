@@ -5,9 +5,8 @@
  *   - Saved photos are re-encoded as a new JPEG with the CashClique mark
  *     burned in, from an origin-clean blob: URL, so canvas.toBlob() succeeds
  *     and the watermark cannot be stripped by CORS.
- *   - Saved videos are re-recorded through canvas + MediaRecorder with the
- *     mark in the lower-right corner. If that is impossible we fail loudly -
- *     an unwatermarked copy is never downloaded.
+ *   - Saved videos keep their original bytes, format, quality and audio. No
+ *     watermarking, playback, canvas or MediaRecorder support is required.
  *   - Bytes are fetched directly first and through the downloadMedia Firebase
  *     Function proxy second, because the Storage bucket may not send CORS
  *     headers. Nothing here ever navigates to the media URL, opens a tab, or
@@ -22,14 +21,11 @@ import {
     getWatermarkMark,
     loadImageElement
 } from "./watermark.js";
-import { renderWatermarkedVideo, videoWatermarkSupported } from "./video-watermark.js";
 
 export {
     APP_NAME,
     SITE_LOGO_URL,
-    getWatermarkMark,
-    renderWatermarkedVideo,
-    videoWatermarkSupported
+    getWatermarkMark
 };
 
 // HTTP proxy that streams a tokenized Firebase Storage download URL back with
@@ -327,69 +323,40 @@ export async function createWatermarkedJpeg(options = {}) {
 }
 
 /**
- * Fetch a video and re-record it with the CashClique mark. Rejects with a
- * MediaSaveError when the bytes cannot be fetched or the browser cannot render
- * a watermarked copy - callers must surface that instead of downloading the
- * untouched source.
+ * Download the original video, without re-encoding or adding a watermark.
+ * Keep the existing CORS proxy and cancellation behaviour on every page.
  */
-export async function createWatermarkedVideo(options = {}) {
-    const {
-        id = "",
-        src = "",
-        blob = null,
-        watermark = null,
-        isCancelled = () => false,
-        onProgress = () => {},
-        onStage = () => {}
-    } = options;
-
+export async function createVideoDownload(options = {}) {
+    const { id = "", src = "", blob = null, isCancelled = () => false, onStage = () => {} } = options;
     if (!src && !blob) throw new MediaSaveError("empty", "Nothing to save");
-    if (!videoWatermarkSupported()) {
-        throw new MediaSaveError("unsupported", "This browser cannot record a watermarked video");
-    }
-
     try {
-        let sourceBlob = blob;
-        let contentType = blob ? blob.type : "";
-        let viaProxy = false;
-
-        if (!sourceBlob) {
-            onStage("download");
-            const fetched = await fetchMediaBlob(src, {
-                filename: mediaFilename(id, "mp4"),
-                isCancelled
-            });
-            sourceBlob = fetched.blob;
-            contentType = fetched.contentType;
-            viaProxy = fetched.viaProxy;
-        }
-
         if (isCancelled()) throw new MediaSaveError("cancelled", "Save cancelled");
-
-        onStage("watermark");
-        const mark = watermark ? { canvas: watermark, source: "provided" } : await getWatermarkMark();
-        const rendered = await renderWatermarkedVideo(sourceBlob, {
-            watermark: mark && mark.canvas ? mark.canvas : null,
-            appName: APP_NAME,
-            isCancelled,
-            onProgress
-        });
-
-        if (!rendered || !rendered.blob || !rendered.blob.size) {
-            throw new MediaSaveError("render", "The watermarked video came back empty");
-        }
+        onStage("download");
+        const fetched = blob ? { blob, contentType: blob.type, viaProxy: false } :
+            await fetchMediaBlob(src, { filename: mediaFilename(id, videoExtensionFromUrl(src)), isCancelled });
+        if (isCancelled()) throw new MediaSaveError("cancelled", "Save cancelled");
+        if (!fetched.blob || !fetched.blob.size) throw new MediaSaveError("empty", "This video is empty");
+        const extension = extensionForContentType(fetched.contentType || fetched.blob.type, videoExtensionFromUrl(src));
         return {
-            blob: rendered.blob,
-            filename: mediaFilename(id, rendered.extension || "webm"),
-            extension: rendered.extension || "webm",
-            mimeType: rendered.mimeType || "",
-            hadAudio: !!rendered.hadAudio,
-            sourceContentType: contentType,
-            sourceExtension: extensionForContentType(contentType, "mp4"),
-            viaProxy,
-            watermarkSource: mark ? mark.source : "drawn"
+            blob: fetched.blob,
+            filename: mediaFilename(id, extension),
+            extension,
+            mimeType: fetched.contentType || fetched.blob.type,
+            viaProxy: fetched.viaProxy
         };
     } catch (error) {
         throw toMediaSaveError(error);
+    }
+}
+
+// Firebase Storage paths are percent-encoded. Use their extension only when
+// Content-Type is missing/generic, never include URL queries in the filename.
+function videoExtensionFromUrl(src) {
+    try {
+        const path = decodeURIComponent(new URL(src).pathname);
+        const match = path.match(/\.(mp4|webm|mov|m4v|mkv|ogv|avi|mpg|mpeg)$/i);
+        return match ? match[1].toLowerCase() : "mp4";
+    } catch (_) {
+        return "mp4";
     }
 }

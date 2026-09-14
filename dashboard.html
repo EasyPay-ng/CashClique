@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script src="js/theme.js">
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>For You | CashClique</title>
 
@@ -120,7 +122,7 @@ html, body { height: 100%; overflow: hidden; background: #000; }
     transform: translateY(-50%);
     width: 4px;
     height: 24px;
-    background: white;
+    background: var(--cc-surface, white);
     border-radius: 0 4px 4px 0;
 }
 
@@ -464,7 +466,7 @@ html, body { height: 100%; overflow: hidden; background: #000; }
     width: 52px;
     height: 52px;
     border-radius: 50%;
-    border: 2.5px solid white;
+    border: 2.5px solid var(--cc-border, white);
     overflow: hidden;
     cursor: pointer;
     position: relative;
@@ -494,7 +496,7 @@ html, body { height: 100%; overflow: hidden; background: #000; }
     align-items: center;
     justify-content: center;
     font-size: 10px;
-    border: 2.5px solid #000;
+    border: 2.5px solid var(--cc-border, #000);
     cursor: pointer;
     transition: 0.2s;
     z-index: 5;
@@ -560,7 +562,7 @@ html, body { height: 100%; overflow: hidden; background: #000; }
     bottom: 0;
     left: 0;
     right: 0;
-    background: white;
+    background: var(--cc-surface, white);
     border-radius: 24px 24px 0 0;
     max-height: 75vh;
     transform: translateY(100%);
@@ -575,7 +577,7 @@ html, body { height: 100%; overflow: hidden; background: #000; }
 }
 .comments-header {
     padding: 18px 22px;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--cc-border, #f1f5f9);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -583,13 +585,13 @@ html, body { height: 100%; overflow: hidden; background: #000; }
 .comments-count {
     font-weight: 700;
     font-size: 17px;
-    color: #1e2937;
+    color: var(--cc-ink, #1e2937);
 }
 .close-comments {
-    background: #f1f5f9;
+    background: var(--cc-soft, #f1f5f9);
     border: none;
     font-size: 18px;
-    color: #64748b;
+    color: var(--cc-muted, #64748b);
     cursor: pointer;
     width: 36px;
     height: 36px;
@@ -600,7 +602,7 @@ html, body { height: 100%; overflow: hidden; background: #000; }
     transition: 0.2s;
 }
 .close-comments:hover {
-    background: #fee2e2;
+    background: var(--cc-soft, #fee2e2);
     color: #ef4444;
 }
 .comments-list {
@@ -610,12 +612,12 @@ html, body { height: 100%; overflow: hidden; background: #000; }
     max-height: 50vh;
 }
 .comments-list::-webkit-scrollbar { width: 4px; }
-.comments-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+.comments-list::-webkit-scrollbar-thumb { background: var(--cc-soft, #cbd5e1); border-radius: 4px; }
 .comment-item {
     display: flex;
     gap: 12px;
     padding: 14px 0;
-    border-bottom: 1px solid #f8fafc;
+    border-bottom: 1px solid var(--cc-border, #f8fafc);
     animation: slideUp 0.3s ease;
 }
 @keyframes slideUp {
@@ -629,7 +631,7 @@ html, body { height: 100%; overflow: hidden; background: #000; }
     object-fit: cover;
     flex-shrink: 0;
     cursor: pointer;
-    border: 2px solid #f1f5f9;
+    border: 2px solid var(--cc-border, #f1f5f9);
 }
 .comment-body {
     flex: 1;
@@ -637,7 +639,7 @@ html, body { height: 100%; overflow: hidden; background: #000; }
 .comment-username {
     font-weight: 700;
     font-size: 14px;
-    color: #1e2937;
+    color: var(--cc-ink, #1e2937);
     margin-bottom: 4px;
     cursor: pointer;
     display: inline-flex;
@@ -647,26 +649,26 @@ html, body { height: 100%; overflow: hidden; background: #000; }
 .comment-username:hover { color: #ff6a00; }
 .comment-text {
     font-size: 14px;
-    color: #475569;
+    color: var(--cc-muted, #475569);
     line-height: 1.5;
 }
 .comment-time {
     font-size: 12px;
-    color: #94a3b8;
+    color: var(--cc-muted, #94a3b8);
     margin-top: 4px;
 }
 .comment-input-area {
     padding: 15px 20px;
-    border-top: 1px solid #f1f5f9;
+    border-top: 1px solid var(--cc-border, #f1f5f9);
     display: flex;
     gap: 12px;
-    background: white;
+    background: var(--cc-surface, white);
     border-radius: 0 0 24px 24px;
 }
 .comment-input {
     flex: 1;
     padding: 14px 18px;
-    border: 2px solid #e2e8f0;
+    border: 2px solid var(--cc-border, #e2e8f0);
     border-radius: 28px;
     outline: none;
     font-size: 14px;
@@ -728,7 +730,7 @@ html, body { height: 100%; overflow: hidden; background: #000; }
     50% { opacity: 1; transform: scale(1.1); }
 }
 .loading-videos .loading-sub {
-    color: #94a3b8;
+    color: var(--cc-muted, #94a3b8);
     font-size: 13px;
     margin-top: -8px;
 }
@@ -740,7 +742,7 @@ html, body { height: 100%; overflow: hidden; background: #000; }
     margin-top: 14px;
     background: none;
     border: none;
-    color: #94a3b8;
+    color: var(--cc-muted, #94a3b8);
     font-size: 14px;
     text-decoration: underline;
     cursor: pointer;
@@ -770,7 +772,7 @@ html, body { height: 100%; overflow: hidden; background: #000; }
     font-weight: 700;
 }
 .empty-videos p {
-    color: #94a3b8;
+    color: var(--cc-muted, #94a3b8);
     margin-bottom: 30px;
     font-size: 15px;
 }
@@ -1038,7 +1040,7 @@ html, body { height: 100%; overflow: hidden; background: #000; }
     height: 8px;
     border-radius: 50%;
     background: #ff6a00;
-    border: 2px solid #000;
+    border: 2px solid var(--cc-border, #000);
 }
 .music-ticker {
     flex: 1;
@@ -1127,7 +1129,7 @@ html, body { height: 100%; overflow: hidden; background: #000; }
     50% { opacity: 1; transform: scale(1.05); }
 }
 .sv-title { font-weight: 700; font-size: 16px; margin-bottom: 8px; }
-.sv-sub { font-size: 13px; color: #9aa3af; line-height: 1.5; margin-bottom: 14px; min-height: 18px; }
+.sv-sub { font-size: 13px; color: var(--cc-muted, #9aa3af); line-height: 1.5; margin-bottom: 14px; min-height: 18px; }
 .sv-bar { height: 6px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; margin-bottom: 16px; }
 .sv-bar-fill { height: 100%; width: 0; background: linear-gradient(90deg, #ff6a00, #ff8a00); transition: width 0.3s; }
 .sv-cancel {
@@ -1143,6 +1145,7 @@ html, body { height: 100%; overflow: hidden; background: #000; }
 }
 .sv-cancel:hover { background: rgba(239,68,68,0.6); }
 </style>
+<link rel="stylesheet" href="assets/theme.css">
 </head>
 <body>
 
@@ -1280,10 +1283,9 @@ import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/fi
 import { getFirestore, collection, query, orderBy, getDocs, onSnapshot, doc, getDoc, updateDoc, increment, arrayUnion, arrayRemove, addDoc, serverTimestamp, limit, startAfter, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import {
     createWatermarkedJpeg,
-    createWatermarkedVideo,
+    createVideoDownload,
     downloadBlob,
-    mediaFilename,
-    videoWatermarkSupported
+    mediaFilename
 } from "./js/media-save.js";
 
 const firebaseConfig = {
@@ -1301,7 +1303,7 @@ const db = getFirestore(app);
 window.__ccModuleLoaded = true; // SDK imports resolved (see boot watchdog above)
 
 // Save-to-device details (logo URL, local watermark fallback, downloadMedia
-// proxy, JPEG/video re-encoding) live in ./js/media-save.js so this page and
+// proxy, JPEG watermarking and original video downloads) live in ./js/media-save.js so this page and
 // post-view.html behave identically.
 const INITIAL_POOL = 16;      // posts fetched for algorithmic ranking on first load
 const POSTS_PER_PAGE = 10;    // posts appended on infinite scroll
@@ -2304,12 +2306,10 @@ document.getElementById('logout').addEventListener('click', (e) => {
 
 // ==================== SAVE-TO-DEVICE DOWNLOADS ====================
 // Photos are re-encoded as new JPEGs with the CashClique mark baked in. Videos
-// are re-recorded through canvas + MediaRecorder with the mark in the lower
-// right corner. Both fetch the bytes from the direct URL first and through the
-// downloadMedia Cloud Function proxy second (the Storage bucket may not send
-// CORS headers), and both hand a Blob to downloadBlob() only after the
-// watermark is in place. Nothing here navigates to the media URL, opens a tab,
-// or plays the video as a fallback: failures surface as an error toast.
+// download as the original file, with no watermark or re-encoding. Both try
+// the direct URL first and the downloadMedia proxy second for CORS-blocked
+// Storage files. Never navigate to the media URL, open a tab, or play the video
+// as a fallback: failures surface as an error toast.
 
 window.downloadPostItem = async function (postId) {
     const item = feedItems.find(i => i.kind === 'post' && i.id === postId);
@@ -2348,14 +2348,8 @@ function dlShow(sub) {
     const subEl = document.getElementById('sv-sub');
     if (subEl) subEl.textContent = sub || '';
     const fill = document.getElementById('sv-bar-fill');
-    if (fill) fill.style.width = '0%';
+    if (fill) fill.style.width = '35%';
     ov.classList.add('active');
-}
-function dlProg(pct, sec, totalSec) {
-    const fill = document.getElementById('sv-bar-fill');
-    if (fill) fill.style.width = Math.max(0, Math.min(100, pct)) + '%';
-    const subEl = document.getElementById('sv-sub');
-    if (subEl) subEl.textContent = `${sec}s of ${Math.floor(totalSec)}s \u2014 keep this tab open`;
 }
 function dlHide() {
     const ov = document.getElementById('sv-overlay');
@@ -2363,31 +2357,22 @@ function dlHide() {
 }
 window.cancelSave = function () { if (dlState) dlState.cancel = true; };
 
-// ----- Video save: fetch, watermark, then download the recording -----
+// ----- Video save: fetch and download the original file -----
 async function saveVideoItem(post) {
     const videoUrl = post.videoUrl;
     if (!videoUrl) { showToast("Nothing to save", "error"); return; }
-    if (!videoWatermarkSupported()) {
-        showToast("This browser cannot save a watermarked copy of this video", "error");
-        return;
-    }
     dlState.cancel = false;
     try {
         dlShow('Preparing video\u2026');
-        const saved = await createWatermarkedVideo({
+        const saved = await createVideoDownload({
             id: post.id,
             src: videoUrl,
             isCancelled: () => dlState.cancel,
-            onStage: (stage) => {
-                dlShow(stage === 'watermark' ? 'Adding CashClique watermark\u2026' : 'Downloading video\u2026');
-            },
-            onProgress: (seconds, totalSeconds) => {
-                dlProg(Math.round((seconds / totalSeconds) * 100), Math.floor(seconds), totalSeconds);
-            }
+            onStage: () => dlShow('Downloading video…')
         });
         dlHide();
         downloadBlob(saved.blob, saved.filename);
-        showToast("Video saved with CashClique watermark", "success");
+        showToast("Video saved", "success");
     } catch (err) {
         dlHide();
         if (dlState.cancel || (err && err.kind === 'cancelled')) {
