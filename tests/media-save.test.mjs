@@ -5,9 +5,9 @@
  * the save flow has to respect:
  *   - photos are re-encoded as a new watermarked JPEG from an origin-clean
  *     blob: URL,
- *   - videos are re-recorded through canvas + MediaRecorder with the mark,
+ *   - videos preserve the original bytes without a watermark,
  *   - bytes come from the direct URL first and the downloadMedia proxy second,
- *   - nothing ever downloads an unwatermarked copy, opens a tab, or navigates
+ *   - nothing opens a tab or navigates
  *     to the media URL.
  */
 
@@ -20,13 +20,12 @@ import {
     MediaSaveError,
     buildProxyUrl,
     createWatermarkedJpeg,
-    createWatermarkedVideo,
+    createVideoDownload,
     downloadBlob,
     extensionForContentType,
     fetchMediaBlob,
     isStorageDownloadUrl,
-    mediaFilename,
-    videoWatermarkSupported
+    mediaFilename
 } from "../js/media-save.js";
 import { SITE_LOGO_URL, getWatermarkMark, resetWatermarkMark } from "../js/watermark.js";
 
@@ -63,10 +62,6 @@ function withDom(options, fn) {
     };
 }
 
-function isFakeVideo(dom, source) {
-    return source instanceof dom.helpers.FakeVideo;
-}
-
 function isFakeImage(dom, source) {
     return source instanceof dom.helpers.FakeImage;
 }
@@ -92,7 +87,7 @@ test("photo: a data URL is re-encoded as a new watermarked JPEG", withDom({ remo
     assert.strictEqual(dom.calls.toBlob[0].quality, 0.94);
     assert.strictEqual(dom.calls.toBlob[0].width, 512);
 
-    // The photo itself plus the corner mark (and the faint centre ghost).
+    // The photo itself plus the corner mark (and the visible centre mark).
     assert.ok(dom.calls.drawImage.some((source) => isFakeImage(dom, source)), "photo drawn to canvas");
     assert.ok(dom.calls.drawImage.filter((source) => isMark(dom, source)).length >= 2,
         "logo mark drawn as ghost + corner");
@@ -310,132 +305,95 @@ test("helpers: filenames and extensions", () => {
 // Videos
 // ---------------------------------------------------------------------------
 
-test("video: unsupported browsers get an error, never the raw file", withDom({ recorderSupported: false }, async (t, dom) => {
+test("video: works without MediaRecorder and preserves original video bytes", withDom({ recorderSupported: false }, async (t, dom) => {
     dom.fetchHandler = async () => fakeResponse(VIDEO_BYTES, { contentType: "video/mp4" });
-
-    assert.strictEqual(videoWatermarkSupported(), false);
-    await assert.rejects(
-        createWatermarkedVideo({ id: "v1", src: STORAGE_URL }),
-        (error) => error instanceof MediaSaveError && error.kind === "unsupported" && !!error.userMessage
-    );
-    assert.strictEqual(dom.calls.fetch.length, 0, "we do not even fetch when we cannot watermark");
-    assert.strictEqual(dom.calls.downloads.length, 0, "the unwatermarked source is never saved");
-    assert.strictEqual(dom.calls.windowOpen.length, 0);
+    const stages = [];
+    const result = await createVideoDownload({ id: "v1", src: STORAGE_URL, onStage: s => stages.push(s) });
+    assert.deepStrictEqual(new Uint8Array(await result.blob.arrayBuffer()), VIDEO_BYTES);
+    assert.strictEqual(result.filename, "cashclique_v1.mp4");
+    assert.strictEqual(result.mimeType, "video/mp4");
+    assert.deepStrictEqual(stages, ["download"]);
     assert.strictEqual(dom.calls.recorderStarts.length, 0);
+    assert.strictEqual(dom.calls.drawImage.length, 0);
+    assert.strictEqual(dom.calls.imageSrcs.length, 0, "no watermark fetched");
+    assert.strictEqual(dom.calls.videoSrcs.length, 0, "no playback");
+    assert.strictEqual(dom.calls.downloads.length, 0, "caller initiates download");
 }));
 
-test("video: fetched bytes are re-recorded with the mark and returned as a Blob",
-    withDom({ remoteLogo: true }, async (t, dom) => {
-        dom.fetchHandler = async (url) => {
-            if (url === STORAGE_URL) return fakeResponse(VIDEO_BYTES, { contentType: "video/mp4" });
-            return fakeErrorResponse(404, "unexpected");
-        };
-
-        const stages = [];
-        const result = await createWatermarkedVideo({
-            id: "v2",
-            src: STORAGE_URL,
-            onStage: (stage) => stages.push(stage),
-            onProgress: () => {}
-        });
-
-        assert.ok(result.blob instanceof Blob);
-        assert.ok(result.blob.size > 0, "the recording has bytes");
-        assert.strictEqual(result.extension, "webm");
-        assert.strictEqual(result.filename, "cashclique_v2.webm");
-        assert.strictEqual(result.sourceExtension, "mp4");
-        assert.strictEqual(result.hadAudio, true, "audio track kept where possible");
-        assert.deepStrictEqual(stages, ["download", "watermark"]);
-
-        // Audio is routed through the graph, never to the speakers, and the
-        // context is closed once the recording is done.
-        assert.strictEqual(dom.calls.audioSources.length, 1, "soundtrack tapped from the video element");
-        assert.strictEqual(dom.calls.audioConnections.length, 1, "one graph connection");
-        assert.notStrictEqual(dom.calls.audioConnections[0], dom.audioContexts[0].destination,
-            "the recording is silent to the user");
-        assert.strictEqual(dom.audioContexts[0].closed, true, "audio context released");
-        assert.strictEqual(dom.calls.audioSources[0].muted, false,
-            "the element is unmuted so the graph receives audio");
-
-        assert.strictEqual(dom.calls.fetch[0], STORAGE_URL, "direct URL first");
-        assert.ok(dom.calls.videoSrcs[0].indexOf("blob:") === 0,
-            "the video plays from an object URL, not from the Storage URL");
-        assert.strictEqual(dom.calls.recorderStarts.length, 1);
-        assert.ok(dom.calls.drawImage.some((source) => isFakeVideo(dom, source)), "frames drawn");
-        assert.ok(dom.calls.drawImage.some((source) => isMark(dom, source)), "mark drawn on every frame");
-        assert.ok(dom.calls.revokedUrls.length >= 1, "object URLs released");
-        assert.strictEqual(dom.calls.downloads.length, 0);
-        assert.strictEqual(dom.calls.windowOpen.length, 0);
+for (const [mime, extension] of [["video/mp4", "mp4"], ["video/webm;codecs=vp9", "webm"], ["video/quicktime", "mov"]]) {
+    test(`video: returns supplied ${extension} Blob untouched`, withDom({}, async () => {
+        const blob = new Blob([VIDEO_BYTES], { type: mime });
+        const result = await createVideoDownload({ id: "clip", blob });
+        assert.strictEqual(result.blob, blob, "identical Blob retains audio and quality");
+        assert.strictEqual(result.filename, `cashclique_clip.${extension}`);
     }));
+}
 
-test("video: keeps audio via the element capture stream when there is no AudioContext",
-    withDom({ remoteLogo: true, audioContext: false }, async (t, dom) => {
-        dom.fetchHandler = async () => fakeResponse(VIDEO_BYTES, { contentType: "video/mp4" });
+test("video: uses encoded source extension when MIME type is generic", withDom({}, async (t, dom) => {
+    dom.fetchHandler = async () => fakeResponse(VIDEO_BYTES, { contentType: "application/octet-stream" });
+    const result = await createVideoDownload({ id: "clip", src: STORAGE_URL.replace("clip.mp4", "clip.webm") });
+    assert.strictEqual(result.filename, "cashclique_clip.webm");
+}));
 
-        const result = await createWatermarkedVideo({ id: "v7", src: STORAGE_URL });
-
-        assert.strictEqual(dom.audioContexts.length, 0, "this browser has no AudioContext");
-        assert.strictEqual(result.hadAudio, true, "audio still captured from the element");
-        assert.ok(result.blob.size > 0);
-        assert.strictEqual(dom.calls.recorderStarts.length, 1);
-        assert.strictEqual(dom.calls.downloads.length, 0);
-    }));
-
-test("video: the proxy is used when Storage blocks the direct fetch", withDom({ remoteLogo: true }, async (t, dom) => {
-    dom.fetchHandler = async (url) => {
-        if (url.indexOf(MEDIA_PROXY_URL) === 0) return fakeResponse(VIDEO_BYTES, { contentType: "video/mp4" });
+test("video: proxy fallback also preserves original bytes", withDom({}, async (t, dom) => {
+    dom.fetchHandler = async url => {
+        if (url.startsWith(MEDIA_PROXY_URL)) return fakeResponse(VIDEO_BYTES, { contentType: "video/mp4" });
         throw new TypeError("Failed to fetch");
     };
-
-    const result = await createWatermarkedVideo({ id: "v3", src: STORAGE_URL });
-
-    assert.strictEqual(dom.calls.fetch.length, 2);
-    assert.ok(dom.calls.fetch[1].indexOf(MEDIA_PROXY_URL) === 0);
+    const result = await createVideoDownload({ id: "proxy", src: STORAGE_URL });
     assert.strictEqual(result.viaProxy, true);
-    assert.ok(result.blob.size > 0);
+    assert.strictEqual(dom.calls.fetch.length, 2);
+    assert.deepStrictEqual(new Uint8Array(await result.blob.arrayBuffer()), VIDEO_BYTES);
+    downloadBlob(result.blob, result.filename);
+    assert.strictEqual(dom.calls.downloads.length, 1);
+    assert.ok(dom.calls.downloads[0].href.startsWith("blob:"));
 }));
 
-test("video: a recorder failure surfaces an error and never saves the source",
-    withDom({ remoteLogo: true }, async (t, dom) => {
-        dom.fetchHandler = async () => fakeResponse(VIDEO_BYTES, { contentType: "video/mp4" });
-
-        const pending = createWatermarkedVideo({ id: "v4", src: STORAGE_URL });
-        await waitFor(() => !!dom.currentRecorder && dom.currentRecorder.state === "recording");
-        dom.currentRecorder.fail("encoder died");
-
-        await assert.rejects(pending, (error) => error instanceof MediaSaveError && !!error.userMessage);
-        assert.strictEqual(dom.calls.downloads.length, 0);
-        assert.strictEqual(dom.calls.windowOpen.length, 0);
-    }));
-
-test("video: unreachable media raises a network error with no navigation", withDom({}, async (t, dom) => {
-    dom.fetchHandler = async () => {
-        throw new TypeError("Failed to fetch");
-    };
-
-    await assert.rejects(
-        createWatermarkedVideo({ id: "v5", src: STORAGE_URL }),
-        (error) => error instanceof MediaSaveError && error.kind === "network"
-    );
-    assert.strictEqual(dom.calls.fetch.length, 2, "direct + proxy");
-    assert.strictEqual(dom.calls.videoSrcs.length, 0, "the video element is never pointed at Storage");
+test("video: missing or empty sources fail without download", withDom({}, async (t, dom) => {
+    for (const options of [{}, { blob: new Blob([]) }]) {
+        await assert.rejects(createVideoDownload(options), e => e.kind === "empty");
+    }
     assert.strictEqual(dom.calls.downloads.length, 0);
+}));
+
+test("video: unreachable media raises an error without navigation", withDom({}, async (t, dom) => {
+    dom.fetchHandler = async () => { throw new TypeError("Failed to fetch"); };
+    await assert.rejects(createVideoDownload({ src: STORAGE_URL }), e => e.kind === "network");
+    assert.strictEqual(dom.calls.fetch.length, 2);
     assert.strictEqual(dom.calls.windowOpen.length, 0);
     assert.strictEqual(dom.calls.navigations.length, 0);
-}));
-
-test("video: cancelling mid-save stops before any download", withDom({ remoteLogo: true }, async (t, dom) => {
-    dom.fetchHandler = async () => fakeResponse(VIDEO_BYTES, { contentType: "video/mp4" });
-    let cancelled = false;
-
-    const pending = createWatermarkedVideo({
-        id: "v6",
-        src: STORAGE_URL,
-        isCancelled: () => cancelled
-    });
-    await waitFor(() => !!dom.currentRecorder && dom.currentRecorder.state === "recording");
-    cancelled = true;
-
-    await assert.rejects(pending, (error) => error.kind === "cancelled");
     assert.strictEqual(dom.calls.downloads.length, 0);
 }));
+
+test("video: cancelling before a save avoids fetching", withDom({}, async (t, dom) => {
+    await assert.rejects(createVideoDownload({ src: STORAGE_URL, isCancelled: () => true }), e => e.kind === "cancelled");
+    assert.strictEqual(dom.calls.fetch.length, 0);
+}));
+
+test("video: cancellation during fetch prevents download", withDom({}, async (t, dom) => {
+    let cancelled = false;
+    dom.fetchHandler = async () => {
+        cancelled = true;
+        return fakeResponse(VIDEO_BYTES, { contentType: "video/mp4" });
+    };
+    await assert.rejects(createVideoDownload({ src: STORAGE_URL, isCancelled: () => cancelled }), e => e.kind === "cancelled");
+    assert.strictEqual(dom.calls.downloads.length, 0);
+}));
+
+test("photo watermark: stronger opacity and size, with a contrast shadow", async () => {
+    const { drawCenterGhost, drawCornerMark } = await import("../js/watermark.js");
+    const draws = [];
+    const context = {
+        save() {}, restore() {},
+        drawImage(mark, x, y, width, height) {
+            draws.push({ alpha: this.globalAlpha, shadow: this.shadowColor, x, y, width, height });
+        }
+    };
+    const mark = { width: 256, height: 256 };
+    drawCenterGhost(context, 1000, 1000, mark);
+    drawCornerMark(context, 1000, 1000, mark);
+    assert.equal(draws[0].alpha, 0.32, "centre mark is over three times its old 9% opacity");
+    assert.equal(draws[1].alpha, 1, "corner logo is fully opaque");
+    assert.equal(draws[1].width, 220, "corner mark is larger than the previous 18%");
+    assert.ok(draws.every(draw => draw.shadow.startsWith("rgba(0,0,0,")), "shadows separate the logo from photo content");
+});

@@ -75,8 +75,8 @@
     <h1>CashClique save watermark &mdash; browser demo</h1>
     <p class="lede">
       Exercises the real save flow used by <code>dashboard.html</code> and <code>post-view.html</code>
-      (<code>js/media-save.js</code>). Photos are re-encoded as JPEGs and videos are re-recorded
-      through canvas&nbsp;+&nbsp;MediaRecorder, both with the CashClique mark burned in.
+      (<code>js/media-save.js</code>). Photos are re-encoded as watermarked JPEGs. Videos download unchanged,
+      without a watermark, keeping their original audio, format and quality.
       <code>window.open</code> is intercepted below: if any code path tries to navigate to a media URL
       it shows up in the log instead of leaving the page.
     </p>
@@ -118,9 +118,9 @@
   </section>
 
   <section>
-    <h2>3. Video &rarr; re-recorded with the mark</h2>
+    <h2>3. Video &rarr; original file, no watermark</h2>
     <div class="row">
-      <button id="save-video">Create sample clip and save it watermarked</button>
+      <button id="save-video">Create sample clip and save the original</button>
       <span id="video-status" class="lede"></span>
     </div>
     <video id="video-preview" class="preview" controls playsinline hidden></video>
@@ -138,7 +138,7 @@
     <div class="row" style="margin-top:10px">
       <button id="fetch-only" class="secondary">Fetch bytes only</button>
       <button id="save-as-photo" class="secondary">Save as watermarked photo</button>
-      <button id="save-as-video" class="secondary">Save as watermarked video</button>
+      <button id="save-as-video" class="secondary">Save original video</button>
     </div>
     <img id="remote-photo-preview" class="preview" alt="" hidden>
     <video id="remote-video-preview" class="preview" controls playsinline hidden></video>
@@ -163,12 +163,12 @@ import {
   MEDIA_PROXY_URL,
   buildProxyUrl,
   createWatermarkedJpeg,
-  createWatermarkedVideo,
+  createVideoDownload,
   downloadBlob,
   fetchMediaBlob,
-  mediaFilename,
-  videoWatermarkSupported
+  mediaFilename
 } from "../js/media-save.js";
+import { videoWatermarkSupported } from "../js/video-watermark.js";
 import { LOCAL_WATERMARK_PATH, getWatermarkMark, loadImageElement, rasterize } from "../js/watermark.js";
 
 const logEl = document.getElementById("log");
@@ -335,31 +335,26 @@ withButton("save-video", async () => {
   const status = document.getElementById("video-status");
   if (!videoWatermarkSupported()) {
     status.textContent = "not supported here";
-    throw new Error("This browser cannot record a watermarked video (MediaRecorder/canvas.captureStream missing)");
+    throw new Error("This browser cannot generate a sample clip. Test an existing video URL below instead.");
   }
   status.textContent = "recording a 2s sample clip…";
   const source = await makeSampleVideo(2);
   log("Sample clip created: " + source.size + " bytes (" + source.type + ")");
-  status.textContent = "re-recording with the watermark (real time)…";
+  status.textContent = "saving original video…";
   const started = performance.now();
   let lastStage = "";
-  const saved = await createWatermarkedVideo({
+  const saved = await createVideoDownload({
     id: "demo-video",
     blob: source,
-    watermark: markForSaves(),
     onStage: (stage) => {
       if (stage !== lastStage) log("  stage: " + stage);
       lastStage = stage;
-    },
-    onProgress: (seconds, total) => {
-      status.textContent = "watermarking " + Math.round((seconds / total) * 100) + "%";
     }
   });
   const ms = Math.round(performance.now() - started);
   downloadBlob(saved.blob, saved.filename);
   preview("video", saved.blob, "video-preview");
-  log("Video saved: " + saved.filename + " (" + saved.blob.size + " bytes, audio: " +
-      saved.hadAudio + ", mark: " + saved.watermarkSource + ", " + ms + "ms)", "ok");
+  log("Original video saved: " + saved.filename + " (" + saved.blob.size + " bytes, " + ms + "ms)", "ok");
   status.textContent = saved.filename + " downloaded";
 });
 
@@ -385,17 +380,15 @@ withButton("save-as-photo", async () => {
 withButton("save-as-video", async () => {
   const url = document.getElementById("media-url").value.trim();
   if (!url) throw new Error("Paste a Storage download URL first");
-  if (!videoWatermarkSupported()) throw new Error("This browser cannot record a watermarked video");
-  const saved = await createWatermarkedVideo({
+  const saved = await createVideoDownload({
     id: "remote",
     src: url,
-    watermark: markForSaves(),
     onStage: (stage) => log("  stage: " + stage)
   });
   downloadBlob(saved.blob, saved.filename);
   preview("video", saved.blob, "remote-video-preview");
   log("Remote video saved: " + saved.filename + " (" + saved.blob.size + " bytes, via proxy: " +
-      saved.viaProxy + ", audio: " + saved.hadAudio + ")", "ok");
+      saved.viaProxy + ", original bytes preserved)", "ok");
 });
 
 withButton("proxy-check", async () => {
@@ -418,7 +411,7 @@ withButton("proxy-check", async () => {
 
 window.addEventListener("beforeunload", () => { window.open = realOpen; });
 
-log("videoWatermarkSupported(): " + videoWatermarkSupported(), videoWatermarkSupported() ? "ok" : "err");
+log("Sample clip generation supported: " + videoWatermarkSupported() + ". Downloading an existing video needs no recorder.");
 await loadMarks();
 </script>
 </body>

@@ -1,0 +1,71 @@
+/* Neutral theme tokens. Inline page styles retain their light-mode fallbacks.
+   Brand colours and media overlays deliberately keep their original colours. */
+:root {
+    color-scheme: light;
+    --cc-page: #fff;
+    --cc-control-bg: #fff;
+    --cc-control-text: #171717;
+    --cc-control-border: #d4d4d4;
+}
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --cc-page: #090909;
+    --cc-glass: rgba(24,24,24,.95);
+    --cc-surface: #181818;
+    --cc-soft: #242424;
+    --cc-ink: #f5f5f5;
+    --cc-muted: #b8b8b8;
+    --cc-border: #404040;
+    --cc-control-bg: #181818;
+    --cc-control-text: #f5f5f5;
+    --cc-control-border: #525252;
+}
+html[data-theme] body { background: var(--cc-page); color: var(--cc-ink, #171717); }
+html[data-theme] input, html[data-theme] textarea, html[data-theme] select { color: var(--cc-ink, #171717); }
+html[data-theme="dark"] input, html[data-theme="dark"] textarea, html[data-theme="dark"] select {
+    background-color: var(--cc-surface);
+    border-color: var(--cc-border);
+}
+.cc-theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-shrink: 0;
+    min-height: 44px;
+    padding: 10px 14px;
+    border: 1px solid var(--cc-control-border);
+    border-radius: 12px;
+    background: var(--cc-control-bg);
+    color: var(--cc-control-text);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    cursor: pointer;
+    text-transform: none;
+    letter-spacing: normal;
+}
+.cc-theme-toggle:focus-visible { outline: 3px solid #ff6a00; outline-offset: 4px; }
+.cc-theme-track { width: 38px; height: 22px; padding: 3px; border-radius: 20px; background: #737373; }
+.cc-theme-track span { display: block; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform .15s; }
+.cc-theme-toggle[aria-checked="true"] .cc-theme-track { background: #ff6a00; }
+.cc-theme-toggle[aria-checked="true"] .cc-theme-track span { transform: translateX(16px); }
+.cc-theme-floating { position: fixed; bottom: max(20px, env(safe-area-inset-bottom)); left: 16px; z-index: 1200; box-shadow: 0 4px 20px #0003; }
+@media (prefers-reduced-motion: reduce) { .cc-theme-track span { transition: none; } }
+/* The immersive feed keeps media and its overlay controls unchanged. Only its
+   navigation, empty states and dialogs follow the selected appearance. */
+html[data-theme] .mobile-header {
+    background: var(--cc-control-bg);
+    color: var(--cc-control-text);
+}
+html[data-theme] .mobile-header :is(.menu-btn, .search-btn) { color: inherit; background: var(--cc-soft, #f2f2f2); }
+html[data-theme] :is(.sv-card, .feed-empty, .feed-error) { background: var(--cc-control-bg); color: var(--cc-control-text); }
+html[data-theme="light"] :is(.feed-empty, .feed-error) .feed-reload-link { color: #555; }
+
+html[data-theme] .sidebar { overflow-y: auto; left: 0; top: 0; }
+html[data-theme] .sv-cancel { color: var(--cc-control-text); border-color: var(--cc-control-border); background: var(--cc-soft, #eee); }
+html[data-theme] .sv-bar { background: var(--cc-soft, #eee); }
+.sv-overlay.active .sv-bar-fill { animation: cc-download-pending 1.2s ease-in-out infinite alternate; }
+@keyframes cc-download-pending { from { transform: translateX(0); } to { transform: translateX(180%); } }
+@media (prefers-reduced-motion: reduce) { .sv-overlay.active .sv-bar-fill { animation: none; } }

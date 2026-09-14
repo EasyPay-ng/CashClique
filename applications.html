@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script src="js/theme.js">
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Review Applications | CashClique Admin</title>
 
@@ -17,11 +19,11 @@
     --red: #f44336;
     --blue: #2196F3;
     --orange: #ff9800;
-    --bg-light: #f5f6f8;
-    --border-color: #e2e8f0;
-    --text-dark: #1e2937;
-    --text-light: #64748b;
-    --text-super-light: #94a3b8;
+    --bg-light: var(--cc-soft, #f5f6f8);
+    --border-color: var(--cc-border, #e2e8f0);
+    --text-dark: var(--cc-ink, #1e2937);
+    --text-light: var(--cc-muted, #64748b);
+    --text-super-light: var(--cc-muted, #94a3b8);
 }
 
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
@@ -39,7 +41,7 @@ body{background:var(--bg-light);min-height:100vh;color:var(--text-dark);overflow
 .page-title{font-size:28px;font-weight:700;color:var(--text-dark);margin-bottom:10px;}
 
 .stats-overview{display:flex;gap:15px;flex-wrap:wrap;margin-bottom:20px;}
-.stat-box{background:white;padding:15px 20px;border-radius:10px;display:flex;align-items:center;gap:15px;border:1px solid var(--border-color);flex:1;min-width:200px;}
+.stat-box{background:var(--cc-surface, white);padding:15px 20px;border-radius:10px;display:flex;align-items:center;gap:15px;border:1px solid var(--border-color);flex:1;min-width:200px;}
 .stat-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:16px;}
 .stat-icon.pending{background:var(--orange);}
 .stat-icon.approved{background:var(--green);}
@@ -48,14 +50,14 @@ body{background:var(--bg-light);min-height:100vh;color:var(--text-dark);overflow
 .stat-details .label{font-size:12px;color:var(--text-light);}
 
 /* Filters */
-.filters{background:white;padding:15px;border-radius:12px;margin-bottom:20px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;border:1px solid var(--border-color);}
-.filter-btn{padding:8px 15px;border:1px solid var(--border-color);background:white;border-radius:8px;cursor:pointer;font-size:14px;transition:0.3s;display:flex;align-items:center;gap:5px;}
+.filters{background:var(--cc-surface, white);padding:15px;border-radius:12px;margin-bottom:20px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;border:1px solid var(--border-color);}
+.filter-btn{padding:8px 15px;border:1px solid var(--border-color);background:var(--cc-surface, white);border-radius:8px;cursor:pointer;font-size:14px;transition:0.3s;display:flex;align-items:center;gap:5px;}
 .filter-btn:hover{border-color:var(--primary-color);}
 .filter-btn.active{background:var(--primary-color);color:white;border-color:var(--primary-color);}
 
 /* Applications Container */
 .applications-container{display:grid;grid-template-columns:1fr;gap:20px;}
-.review-card{background:white;border-radius:12px;border:1px solid var(--border-color);transition:0.3s;overflow:hidden;}
+.review-card{background:var(--cc-surface, white);border-radius:12px;border:1px solid var(--border-color);transition:0.3s;overflow:hidden;}
 .review-card:hover{box-shadow:0 8px 25px rgba(0,0,0,0.08);transform:translateY(-3px);}
 
 .card-main{padding:20px;}
@@ -83,11 +85,11 @@ body{background:var(--bg-light);min-height:100vh;color:var(--text-dark);overflow
 .reject-btn{background:var(--red);color:white;}
 .reject-btn:hover{background:#e03333;}
 .approved-tag, .rejected-tag{padding:10px 20px;border-radius:8px;font-weight:600;font-size:14px;}
-.approved-tag{background:#e8f5e9;color:var(--green);}
-.rejected-tag{background:#ffebee;color:var(--red);}
+.approved-tag{background:var(--cc-soft, #e8f5e9);color:var(--green);}
+.rejected-tag{background:var(--cc-soft, #ffebee);color:var(--red);}
 
 /* Empty States & Loading */
-.state-container{grid-column:1/-1;text-align:center;padding:60px 20px;background:white;border-radius:12px;border:1px solid var(--border-color);}
+.state-container{grid-column:1/-1;text-align:center;padding:60px 20px;background:var(--cc-surface, white);border-radius:12px;border:1px solid var(--border-color);}
 .state-icon{font-size:64px;margin-bottom:20px;opacity:0.3;color:var(--text-super-light);}
 .state-title{font-size:20px;color:var(--text-dark);margin-bottom:10px;}
 .state-text{font-size:14px;color:var(--text-light);}
@@ -95,7 +97,7 @@ body{background:var(--bg-light);min-height:100vh;color:var(--text-dark);overflow
 /* Rejection Modal */
 .modal{position:fixed;inset:0;background:rgba(15,23,42,0.6);display:none;align-items:center;justify-content:center;z-index:2000;padding:20px;backdrop-filter:blur(4px);}
 .modal.active{display:flex;}
-.modal-content{background:white;border-radius:16px;padding:30px;max-width:450px;width:100%;box-shadow:0 20px 40px rgba(0,0,0,0.2);}
+.modal-content{background:var(--cc-surface, white);border-radius:16px;padding:30px;max-width:450px;width:100%;box-shadow:0 20px 40px rgba(0,0,0,0.2);}
 .modal-title{font-size:20px;font-weight:700;color:var(--text-dark);margin-bottom:15px;}
 .modal-text{font-size:14px;color:var(--text-light);margin-bottom:20px;}
 .modal-form textarea{width:100%;min-height:100px;border-radius:8px;border:2px solid var(--border-color);padding:10px;font-family:'Poppins',sans-serif;font-size:14px;margin-bottom:20px;outline:none;}
@@ -115,6 +117,7 @@ body{background:var(--bg-light);min-height:100vh;color:var(--text-dark);overflow
     .creator-info{flex-direction:column;align-items:flex-start;}
 }
 </style>
+<link rel="stylesheet" href="assets/theme.css">
 </head>
 
 <body>

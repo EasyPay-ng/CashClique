@@ -3,8 +3,8 @@
  *
  * The save flow used to fall back to navigating to the Firebase Storage URL
  * (window.open / an <a download> pointed at the media) and to downloading the
- * untouched video when watermarking failed. These tests fail if any of that
- * comes back, and check both pages share the same js/media-save.js flow.
+ * untouched video when watermarking failed. Videos now intentionally download
+ * unchanged; navigation fallbacks remain forbidden. Both pages share one flow.
  */
 
 import test from "node:test";
@@ -66,15 +66,17 @@ for (const page of PAGES) {
         assert.ok(code.indexOf("location.href") === -1, "the save flow never navigates");
         assert.ok(code.indexOf(".play()") === -1, "the save flow never plays the video as a fallback");
 
-        // Watermark first, download second.
+        // Photos are watermarked; videos intentionally preserve the original file.
         assert.match(code, /await createWatermarkedJpeg\(/, "photos are watermarked");
-        assert.match(code, /await createWatermarkedVideo\(/, "videos are watermarked");
+        assert.match(code, /await createVideoDownload\(/, "videos download unchanged");
         const downloads = code.match(/downloadBlob\([^)]*\)/g) || [];
         assert.strictEqual(downloads.length, 2, "one download per media kind");
         downloads.forEach((call) => {
             assert.match(call, /downloadBlob\(saved\.blob, saved\.filename\)/,
-                `only the watermarked Blob is downloaded, got: ${call}`);
+                `only the prepared Blob is downloaded, got: ${call}`);
         });
+
+        assert.doesNotMatch(code, /videoWatermarkSupported|renderWatermarkedVideo/, "video saves need no recorder");
 
         // Failures are reported, not papered over.
         assert.match(code, /err\.userMessage/, "errors surface a user message");

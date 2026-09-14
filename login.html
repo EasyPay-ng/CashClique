@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script src="js/theme.js">
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Login • CashClique</title>
 
@@ -26,13 +28,13 @@
     --primary: #ff7a00;
     --primary-dark: #e96c00;
     --primary-light: #fff5eb;
-    --text-dark: #1a1a2e;
-    --text-light: #666;
-    --text-lighter: #999;
+    --text-dark: var(--cc-ink, #1a1a2e);
+    --text-light: var(--cc-muted, #666);
+    --text-lighter: var(--cc-muted, #999);
     --white: #fff;
     --error: #e74c3c;
     --success: #27ae60;
-    --border: #e0e0e0;
+    --border: var(--cc-border, #e0e0e0);
     --shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
     --shadow-hover: 0 15px 50px rgba(0, 0, 0, 0.15);
 }
@@ -43,7 +45,7 @@ html, body {
 }
 
 body {
-    background: linear-gradient(135deg, #fff5eb 0%, #ffe6d5 100%);
+    background: linear-gradient(135deg, var(--cc-soft, #fff5eb) 0%, var(--cc-soft, #ffe6d5) 100%);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -80,7 +82,7 @@ body::after {
 .container {
     width: 100%;
     max-width: 420px;
-    background: var(--white);
+    background: var(--cc-surface, var(--white));
     border-radius: 20px;
     padding: 40px 35px;
     box-shadow: var(--shadow);
@@ -200,7 +202,7 @@ h2 {
     color: var(--text-dark);
     outline: none;
     transition: all 0.3s ease;
-    background: var(--white);
+    background: var(--cc-surface, var(--white));
     -webkit-appearance: none;
 }
 
@@ -351,7 +353,7 @@ h2 {
     width: 20px;
     height: 20px;
     border: 3px solid rgba(255, 255, 255, 0.3);
-    border-top: 3px solid white;
+    border-top: 3px solid var(--cc-border, white);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
     display: none;
@@ -392,7 +394,7 @@ h2 {
     padding: 12px;
     border: 2px solid var(--border);
     border-radius: 12px;
-    background: var(--white);
+    background: var(--cc-surface, var(--white));
     cursor: pointer;
     font-size: 18px;
     color: var(--text-dark);
@@ -554,6 +556,7 @@ h2 {
     animation: shake 0.5s ease;
 }
 </style>
+<link rel="stylesheet" href="assets/theme.css">
 </head>
 <body>
 

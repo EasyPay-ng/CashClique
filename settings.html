@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script src="js/theme.js">
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Settings | CashClique</title>
 
@@ -15,12 +17,12 @@
     --primary-glow:rgba(255,106,0,0.15);
     --success:#22c55e;
     --error:#ef4444;
-    --bg-body:#f8f9fa;
-    --bg-card:#ffffff;
-    --text-primary:#1a1a1a;
-    --text-secondary:#666666;
-    --text-muted:#888888;
-    --border-light:#e8e8e8;
+    --bg-body:var(--cc-soft, #f8f9fa);
+    --bg-card:var(--cc-surface, #ffffff);
+    --text-primary:var(--cc-ink, #1a1a1a);
+    --text-secondary:var(--cc-muted, #666666);
+    --text-muted:var(--cc-muted, #888888);
+    --border-light:var(--cc-border, #e8e8e8);
     --shadow-sm:0 2px 8px rgba(0,0,0,0.04);
     --shadow-md:0 4px 20px rgba(0,0,0,0.08);
     --shadow-lg:0 8px 40px rgba(0,0,0,0.12);
@@ -96,7 +98,7 @@ body{background:var(--bg-body);min-height:100vh;padding:20px;-webkit-font-smooth
 .form-group{margin-bottom:24px;}
 .form-group label{display:block;margin-bottom:10px;font-weight:600;color:var(--text-secondary);font-size:14px;text-transform:uppercase;letter-spacing:0.5px;}
 .form-group input, .form-group textarea{width:100%;padding:16px 18px;border:2px solid var(--border-light);border-radius:var(--radius-md);font-size:15px;outline:none;transition:var(--transition-base);background:var(--bg-body);}
-.form-group input:focus, .form-group textarea:focus{border-color:var(--primary);background:white;box-shadow:0 0 0 4px var(--primary-glow);}
+.form-group input:focus, .form-group textarea:focus{border-color:var(--primary);background:var(--cc-surface, white);box-shadow:0 0 0 4px var(--primary-glow);}
 .form-group input::placeholder, .form-group textarea::placeholder{color:var(--text-muted);}
 .form-group input:read-only{background:var(--bg-body);color:var(--text-muted);cursor:not-allowed;}
 
@@ -118,8 +120,8 @@ body{background:var(--bg-body);min-height:100vh;padding:20px;-webkit-font-smooth
 .button-group{display:flex;gap:16px;flex-wrap:wrap;}
 
 /* Danger Zone */
-.danger-zone{margin-top:32px;padding:28px;background:#fef5f5;border-radius:var(--radius-lg);border:2px solid #ffebee;transition:var(--transition-base);}
-.danger-zone:hover{border-color:#ffcdd2;background:#fff5f5;}
+.danger-zone{margin-top:32px;padding:28px;background:var(--cc-soft, #fef5f5);border-radius:var(--radius-lg);border:2px solid var(--cc-border, #ffebee);transition:var(--transition-base);}
+.danger-zone:hover{border-color:#ffcdd2;background:var(--cc-soft, #fff5f5);}
 .danger-zone h3{font-size:18px;color:var(--error);margin-bottom:12px;display:flex;align-items:center;gap:10px;}
 .danger-zone h3::before{content:'⚠️';}
 .danger-zone p{color:var(--text-muted);margin-bottom:20px;line-height:1.6;font-size:15px;}
@@ -130,18 +132,18 @@ body{background:var(--bg-body);min-height:100vh;padding:20px;-webkit-font-smooth
 /* Modal */
 .modal{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;pointer-events:none;transition:opacity 0.3s;backdrop-filter:blur(4px);}
 .modal.active{opacity:1;pointer-events:auto;}
-.modal-content{background:white;padding:40px;border-radius:var(--radius-xl);max-width:480px;width:90%;text-align:center;box-shadow:var(--shadow-lg);transform:scale(0.9) translateY(20px);transition:var(--transition-bounce);}
+.modal-content{background:var(--cc-surface, white);padding:40px;border-radius:var(--radius-xl);max-width:480px;width:90%;text-align:center;box-shadow:var(--shadow-lg);transform:scale(0.9) translateY(20px);transition:var(--transition-bounce);}
 .modal.active .modal-content{transform:scale(1) translateY(0);}
 .modal-title{font-size:24px;font-weight:700;margin-bottom:16px;color:var(--text-primary);}
 .modal-text{font-size:16px;color:var(--text-secondary);line-height:1.6;margin-bottom:24px;}
-.modal-warning{background:#fef5f5;padding:16px;border-radius:var(--radius-md);margin-bottom:24px;border-left:4px solid var(--error);}
+.modal-warning{background:var(--cc-soft, #fef5f5);padding:16px;border-radius:var(--radius-md);margin-bottom:24px;border-left:4px solid var(--error);}
 .modal-warning p{margin:0;font-size:14px;color:var(--error);font-weight:500;}
 .modal-confirm-input{width:100%;max-width:320px;padding:14px;border:2px solid var(--border-light);border-radius:var(--radius-md);text-align:center;font-size:16px;margin-bottom:24px;font-weight:600;text-transform:uppercase;transition:var(--transition-base);}
 .modal-confirm-input:focus{border-color:var(--error);box-shadow:0 0 0 4px rgba(239,68,68,0.1);outline:none;}
 .modal-buttons{display:flex;gap:16px;justify-content:center;}
 
 /* Loading State */
-.loading-spinner{display:inline-block;width:20px;height:20px;border:3px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 1s linear infinite;}
+.loading-spinner{display:inline-block;width:20px;height:20px;border:3px solid rgba(255,255,255,0.3);border-top-color:var(--cc-border, white);border-radius:50%;animation:spin 1s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
 /* Mobile Responsive */
@@ -167,6 +169,7 @@ body{background:var(--bg-body);min-height:100vh;padding:20px;-webkit-font-smooth
 .modal-title{font-size:20px;}
 }
 </style>
+<link rel="stylesheet" href="assets/theme.css">
 </head>
 
 <body>

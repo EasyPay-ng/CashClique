@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script src="js/theme.js">
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Opportunities | CashClique</title>
 
@@ -13,7 +15,7 @@
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
 
 body {
-    background: linear-gradient(135deg, #f8f9fc 0%, #eef1f8 100%);
+    background: linear-gradient(135deg, var(--cc-soft, #f8f9fc) 0%, var(--cc-soft, #eef1f8) 100%);
     min-height: 100vh;
     overflow-x: hidden;
 }
@@ -170,14 +172,14 @@ body {
     font-weight: 800;
     margin-bottom: 15px;
     line-height: 1.2;
-    background: linear-gradient(135deg, #fff 0%, #e2e8f0 100%);
+    background: linear-gradient(135deg, var(--cc-surface, #fff) 0%, var(--cc-soft, #e2e8f0) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
 .hero-subtitle {
     font-size: 16px;
-    color: #94a3b8;
+    color: var(--cc-muted, #94a3b8);
     max-width: 550px;
     line-height: 1.7;
     margin-bottom: 30px;
@@ -198,7 +200,7 @@ body {
 }
 .hero-stat-label {
     font-size: 13px;
-    color: #64748b;
+    color: var(--cc-muted, #64748b);
     text-transform: uppercase;
     letter-spacing: 1px;
     margin-top: 4px;
@@ -206,7 +208,7 @@ body {
 
 /* ====== STATS BANNER ====== */
 .stats-banner {
-    background: white;
+    background: var(--cc-surface, white);
     border-radius: 20px;
     padding: 30px;
     margin-bottom: 40px;
@@ -216,7 +218,7 @@ body {
     gap: 20px;
     text-align: center;
     box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-    border: 1px solid #f1f5f9;
+    border: 1px solid var(--cc-border, #f1f5f9);
 }
 .stat-item {
     flex: 1;
@@ -226,7 +228,7 @@ body {
     transition: 0.3s;
 }
 .stat-item:hover {
-    background: #f8fafc;
+    background: var(--cc-surface, #f8fafc);
     transform: translateY(-3px);
 }
 .stat-icon {
@@ -239,19 +241,19 @@ body {
     margin: 0 auto 12px;
     font-size: 22px;
 }
-.stat-icon.orange { background: linear-gradient(135deg, #fff7ed, #ffedd5); color: #ff6a00; }
-.stat-icon.green { background: linear-gradient(135deg, #f0fdf4, #dcfce7); color: #22c55e; }
-.stat-icon.blue { background: linear-gradient(135deg, #eff6ff, #dbeafe); color: #3b82f6; }
-.stat-icon.purple { background: linear-gradient(135deg, #faf5ff, #f3e8ff); color: #a855f7; }
+.stat-icon.orange { background: linear-gradient(135deg, var(--cc-soft, #fff7ed), var(--cc-soft, #ffedd5)); color: #ff6a00; }
+.stat-icon.green { background: linear-gradient(135deg, var(--cc-soft, #f0fdf4), var(--cc-soft, #dcfce7)); color: #22c55e; }
+.stat-icon.blue { background: linear-gradient(135deg, var(--cc-soft, #eff6ff), var(--cc-soft, #dbeafe)); color: #3b82f6; }
+.stat-icon.purple { background: linear-gradient(135deg, var(--cc-surface, #faf5ff), var(--cc-soft, #f3e8ff)); color: #a855f7; }
 .stat-value {
     font-size: 28px;
     font-weight: 800;
-    color: #1e2937;
+    color: var(--cc-ink, #1e2937);
     margin-bottom: 5px;
 }
 .stat-label {
     font-size: 13px;
-    color: #64748b;
+    color: var(--cc-muted, #64748b);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     font-weight: 500;
@@ -265,12 +267,12 @@ body {
 .section-header h2 {
     font-size: 28px;
     font-weight: 700;
-    color: #1e2937;
+    color: var(--cc-ink, #1e2937);
     margin-bottom: 10px;
 }
 .section-header p {
     font-size: 15px;
-    color: #64748b;
+    color: var(--cc-muted, #64748b);
     max-width: 500px;
     margin: 0 auto;
     line-height: 1.6;
@@ -286,7 +288,7 @@ body {
 
 /* ====== OPPORTUNITY CARD ====== */
 .opportunity-card {
-    background: white;
+    background: var(--cc-surface, white);
     border-radius: 24px;
     overflow: hidden;
     box-shadow: 0 4px 20px rgba(0,0,0,0.06);
@@ -294,7 +296,7 @@ body {
     display: flex;
     flex-direction: column;
     position: relative;
-    border: 1px solid #f1f5f9;
+    border: 1px solid var(--cc-border, #f1f5f9);
 }
 .opportunity-card:hover {
     transform: translateY(-8px);
@@ -356,23 +358,23 @@ body {
 .card-title {
     font-size: 22px;
     font-weight: 700;
-    color: #1e2937;
+    color: var(--cc-ink, #1e2937);
     margin-bottom: 12px;
 }
 .card-description {
     font-size: 14.5px;
-    color: #64748b;
+    color: var(--cc-muted, #64748b);
     line-height: 1.7;
     margin-bottom: 25px;
     flex: 1;
 }
 
 .card-features {
-    background: #f8fafc;
+    background: var(--cc-surface, #f8fafc);
     border-radius: 16px;
     padding: 22px;
     margin-bottom: 25px;
-    border: 1px solid #f1f5f9;
+    border: 1px solid var(--cc-border, #f1f5f9);
 }
 .card-features h4 {
     font-size: 12px;
@@ -396,7 +398,7 @@ body {
     padding-left: 28px;
     margin-bottom: 12px;
     font-size: 14px;
-    color: #475569;
+    color: var(--cc-muted, #475569);
     line-height: 1.5;
 }
 .card-features li::before {
@@ -409,7 +411,7 @@ body {
     font-size: 12px;
     width: 20px;
     height: 20px;
-    background: #f0fdf4;
+    background: var(--cc-soft, #f0fdf4);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -462,17 +464,17 @@ body {
 
 /* ====== HOW IT WORKS SECTION ====== */
 .how-it-works {
-    background: white;
+    background: var(--cc-surface, white);
     border-radius: 24px;
     padding: 40px;
     margin-top: 20px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-    border: 1px solid #f1f5f9;
+    border: 1px solid var(--cc-border, #f1f5f9);
 }
 .how-it-works h3 {
     font-size: 24px;
     font-weight: 700;
-    color: #1e2937;
+    color: var(--cc-ink, #1e2937);
     margin-bottom: 30px;
     text-align: center;
 }
@@ -484,8 +486,8 @@ body {
 .works-card {
     padding: 30px;
     border-radius: 20px;
-    background: #f8fafc;
-    border: 1px solid #f1f5f9;
+    background: var(--cc-surface, #f8fafc);
+    border: 1px solid var(--cc-border, #f1f5f9);
     transition: 0.3s;
     position: relative;
     overflow: hidden;
@@ -493,7 +495,7 @@ body {
 .works-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-    border-color: #e2e8f0;
+    border-color: var(--cc-border, #e2e8f0);
 }
 .works-card::before {
     content: '';
@@ -527,11 +529,11 @@ body {
 .works-card h4 {
     font-size: 18px;
     font-weight: 700;
-    color: #1e2937;
+    color: var(--cc-ink, #1e2937);
     margin-bottom: 12px;
 }
 .works-card p {
-    color: #64748b;
+    color: var(--cc-muted, #64748b);
     font-size: 14px;
     line-height: 1.7;
 }
@@ -541,12 +543,12 @@ body {
 }
 .works-list li {
     padding: 8px 0;
-    color: #475569;
+    color: var(--cc-muted, #475569);
     font-size: 13.5px;
     display: flex;
     align-items: center;
     gap: 10px;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--cc-border, #f1f5f9);
 }
 .works-list li:last-child { border-bottom: none; }
 .works-list li i {
@@ -554,7 +556,7 @@ body {
     font-size: 12px;
     width: 20px;
     height: 20px;
-    background: #f0fdf4;
+    background: var(--cc-soft, #f0fdf4);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -592,7 +594,7 @@ body {
 }
 .cta-section p {
     font-size: 15px;
-    color: #94a3b8;
+    color: var(--cc-muted, #94a3b8);
     max-width: 500px;
     margin: 0 auto 30px;
     position: relative;
@@ -712,6 +714,7 @@ body {
     .works-grid { grid-template-columns: 1fr; }
 }
 </style>
+<link rel="stylesheet" href="assets/theme.css">
 </head>
 <body>
 

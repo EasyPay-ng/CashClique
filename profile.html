@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script src="js/theme.js">
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Profile | CashClique</title>
 <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
@@ -19,13 +21,13 @@
     --info:#3b82f6;
     --verified-blue:#1DA1F2;
     --verified-gold:#FFD700;
-    --bg-body:#f8f9fa;
-    --bg-card:#ffffff;
-    --bg-elevated:#ffffff;
-    --text-primary:#1a1a1a;
-    --text-secondary:#666666;
-    --text-muted:#888888;
-    --border-light:#e8e8e8;
+    --bg-body:var(--cc-soft, #f8f9fa);
+    --bg-card:var(--cc-surface, #ffffff);
+    --bg-elevated:var(--cc-surface, #ffffff);
+    --text-primary:var(--cc-ink, #1a1a1a);
+    --text-secondary:var(--cc-muted, #666666);
+    --text-muted:var(--cc-muted, #888888);
+    --border-light:var(--cc-border, #e8e8e8);
     --shadow-sm:0 2px 8px rgba(0,0,0,0.04);
     --shadow-md:0 4px 20px rgba(0,0,0,0.08);
     --shadow-lg:0 8px 40px rgba(0,0,0,0.12);
@@ -75,9 +77,9 @@ body{background:var(--bg-body);min-height:100vh;-webkit-font-smoothing:antialias
 .profile-avatar{width:110px;height:110px;border-radius:50%;border:4px solid var(--primary);object-fit:cover;background:linear-gradient(135deg,var(--primary-light),var(--primary));padding:3px;transition:var(--transition-slow);box-shadow:0 8px 32px var(--primary-glow);}
 .profile-avatar:hover{transform:rotate(2deg) scale(1.05);box-shadow:0 12px 40px rgba(255,106,0,0.25);}
 
-.verified-badge,.gold-badge{position:absolute;bottom:4px;right:4px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid white;font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,0.15);animation:badgePop 0.5s var(--transition-bounce);z-index:2;}
+.verified-badge,.gold-badge{position:absolute;bottom:4px;right:4px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid var(--cc-border, white);font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,0.15);animation:badgePop 0.5s var(--transition-bounce);z-index:2;}
 .verified-badge{background:var(--verified-blue);color:white;}
-.gold-badge{background:var(--verified-gold);color:#1a1a1a;}
+.gold-badge{background:var(--verified-gold);color:var(--cc-ink, #1a1a1a);}
 @keyframes badgePop{0%{transform:scale(0) rotate(-180deg);}70%{transform:scale(1.2) rotate(10deg);}100%{transform:scale(1) rotate(0);}}
 
 /* Avatar Upload Overlay */
@@ -123,7 +125,7 @@ body{background:var(--bg-body);min-height:100vh;-webkit-font-smoothing:antialias
 .follow-btn:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(255,106,0,0.35);}
 .follow-btn:hover i{transform:scale(1.1);}
 .follow-btn.following{background:var(--bg-body);color:var(--text-secondary);box-shadow:var(--shadow-sm);border:2px solid var(--border-light);}
-.follow-btn.following:hover{background:#f0f0f0;box-shadow:var(--shadow-md);}
+.follow-btn.following:hover{background:var(--cc-soft, #f0f0f0);box-shadow:var(--shadow-md);}
 
 .edit-btn{background:transparent;border:2.5px solid var(--primary);color:var(--primary);}
 .edit-btn:hover{background:var(--primary);color:white;transform:translateY(-3px);box-shadow:0 8px 24px var(--primary-glow);}
@@ -191,7 +193,7 @@ body{background:var(--bg-body);min-height:100vh;-webkit-font-smoothing:antialias
 .error-state i{font-size:48px;color:var(--error);margin-bottom:16px;}
 .error-state h3{font-size:18px;font-weight:700;color:var(--text-primary);margin-bottom:8px;}
 .error-state p{font-size:14px;color:var(--text-secondary);line-height:1.6;max-width:320px;margin:0 auto 16px;}
-.error-state code{background:#fee2e2;color:var(--error);padding:2px 8px;border-radius:4px;font-size:12px;}
+.error-state code{background:var(--cc-soft, #fee2e2);color:var(--error);padding:2px 8px;border-radius:4px;font-size:12px;}
 
 /* Image Upload Modal */
 .upload-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:3000;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px);opacity:0;transition:opacity 0.3s;}
@@ -257,12 +259,12 @@ body{background:var(--bg-body);min-height:100vh;-webkit-font-smoothing:antialias
 .badge-card:hover{border-color:var(--primary);transform:translateY(-2px);box-shadow:var(--shadow-md);}
 .badge-card:hover::before{opacity:1;}
 .badge-card:active{transform:scale(0.98);}
-.badge-card.selected{border-color:var(--primary);background:linear-gradient(135deg,#fff7ed 0%,white 100%);box-shadow:0 8px 32px var(--primary-glow);}
+.badge-card.selected{border-color:var(--primary);background:linear-gradient(135deg,var(--cc-soft, #fff7ed) 0%,var(--cc-surface, white) 100%);box-shadow:0 8px 32px var(--primary-glow);}
 .badge-card.selected::before{opacity:1;}
 .badge-icon{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:20px;box-shadow:0 8px 24px rgba(0,0,0,0.15);transition:var(--transition-bounce);}
 .badge-card:hover .badge-icon{transform:scale(1.1) rotate(5deg);}
 .blue-badge{background:var(--verified-blue);color:white;}
-.gold-badge-card{background:var(--verified-gold);color:#1a1a1a;}
+.gold-badge-card{background:var(--verified-gold);color:var(--cc-ink, #1a1a1a);}
 .badge-title{font-size:16px;font-weight:700;margin-bottom:6px;color:var(--text-primary);}
 .badge-price{font-size:24px;font-weight:800;color:var(--primary);margin-bottom:12px;}
 .badge-requirements{text-align:left;font-size:12px;color:var(--text-secondary);margin-bottom:12px;padding:12px;background:var(--bg-body);border-radius:var(--radius-md);}
@@ -284,7 +286,7 @@ body{background:var(--bg-body);min-height:100vh;-webkit-font-smoothing:antialias
 .confirm-btn{background:var(--primary);color:white;box-shadow:0 4px 16px var(--primary-glow);}
 .confirm-btn:hover{background:var(--primary-light);transform:translateY(-2px);box-shadow:0 8px 28px rgba(255,106,0,0.35);}
 .confirm-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;filter:grayscale(1);}
-.cancel-btn{background:white;color:var(--text-secondary);border:2px solid var(--border-light);}
+.cancel-btn{background:var(--cc-surface, white);color:var(--text-secondary);border:2px solid var(--border-light);}
 .cancel-btn:hover{background:var(--bg-body);border-color:var(--text-muted);color:var(--text-primary);}
 
 /* Toast Notifications */
@@ -373,6 +375,7 @@ body{background:var(--bg-body);min-height:100vh;-webkit-font-smoothing:antialias
     .verification-overlay{padding-top:max(20px,env(safe-area-inset-top));padding-bottom:max(20px,env(safe-area-inset-bottom));}
 }
 </style>
+<link rel="stylesheet" href="assets/theme.css">
 </head>
 
 <body>

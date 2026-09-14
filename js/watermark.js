@@ -1,7 +1,7 @@
 /*
  * CashClique watermark helpers shared by every "Save" flow.
  *
- * Saved media must always carry the CashClique mark, so this module owns one
+ * Saved photos must always carry the CashClique mark, so this module owns one
  * cached copy of the logo plus the drawing code that stamps it on a canvas.
  *
  * The mark is the same favicon every page links to (Cloudinary). It is fetched
@@ -94,7 +94,7 @@ export function rasterize(image) {
 
 /**
  * The Cloudinary favicon is a JPG sitting on a white square. Knock the white
- * out with a soft ramp so the mark blends over photos and videos instead of
+ * out with a soft ramp so the mark blends over photos instead of
  * showing up as a white box.
  */
 export function stripWhiteBackground(image) {
@@ -124,7 +124,7 @@ export function stripWhiteBackground(image) {
 
 /**
  * The mark, as a transparent canvas, plus where it came from.
- * Cached: one network round-trip per page, reused by photos and videos.
+ * Cached: one network round-trip per page, reused by photos.
  */
 export function getWatermarkMark() {
     if (markPromise) return markPromise;
@@ -215,20 +215,20 @@ function roundRect(context, x, y, width, height, radius) {
 
 /** Lower-right corner mark. Falls back to the wordmark if no logo is usable. */
 export function drawCornerMark(context, width, height, mark, options = {}) {
-    const { alpha = 0.92, appName = APP_NAME } = options;
+    const { alpha = 1, appName = APP_NAME } = options;
     const padding = Math.max(12, Math.round(width * 0.03));
     context.save();
-    context.shadowColor = "rgba(0,0,0,0.55)";
+    context.shadowColor = "rgba(0,0,0,0.85)";
     context.shadowBlur = Math.max(6, Math.round(width * 0.014));
     if (mark && mark.width > 0 && mark.height > 0) {
-        const markWidth = Math.min(width * 0.18, 220);
+        const markWidth = Math.min(width * 0.22, 300);
         const markHeight = markWidth * (mark.height / mark.width);
         context.globalAlpha = alpha;
         context.drawImage(mark, width - markWidth - padding, height - markHeight - padding, markWidth, markHeight);
     } else {
         context.globalAlpha = 1;
-        context.fillStyle = "rgba(255,255,255,0.94)";
-        context.font = `700 ${Math.max(16, Math.round(width * 0.035))}px Poppins, Arial, sans-serif`;
+        context.fillStyle = "#ffffff";
+        context.font = `900 ${Math.max(16, Math.round(width * 0.035))}px Poppins, Arial, sans-serif`;
         const label = appName || APP_NAME;
         const textWidth = context.measureText(label).width;
         context.fillText(label, width - textWidth - padding, height - padding);
@@ -236,14 +236,16 @@ export function drawCornerMark(context, width, height, mark, options = {}) {
     context.restore();
 }
 
-/** Faint centred mark used on saved photos. */
+/** Clearly visible centred mark used on saved photos. */
 export function drawCenterGhost(context, width, height, mark, options = {}) {
-    const { alpha = 0.09 } = options;
+    const { alpha = 0.32 } = options;
     if (!mark || !mark.width || !mark.height) return;
     const ghostWidth = width * 0.32;
     const ghostHeight = ghostWidth * (mark.height / mark.width);
     context.save();
     context.globalAlpha = alpha;
+    context.shadowColor = "rgba(0,0,0,0.8)";
+    context.shadowBlur = Math.max(4, Math.round(width * 0.008));
     context.drawImage(mark, (width - ghostWidth) / 2, (height - ghostHeight) / 2, ghostWidth, ghostHeight);
     context.restore();
 }

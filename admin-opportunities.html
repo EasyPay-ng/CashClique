@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
+<script src="js/theme.js">
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>Admin • Ad Campaigns | CashClique</title>
 
@@ -11,7 +13,7 @@
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{background:#f5f6f8;color:#1e2937;min-height:100vh;overflow-x:hidden;}
+body{background:var(--cc-soft, #f5f6f8);color:var(--cc-ink, #1e2937);min-height:100vh;overflow-x:hidden;}
 
 .mobile-header{display:none; background:#1e2937; color:white; padding:15px; align-items:center; gap:15px; position:sticky; top:0; z-index:101}
 .menu-btn{background:none; border:none; color:white; font-size:18px;}
@@ -23,82 +25,82 @@ body{background:#f5f6f8;color:#1e2937;min-height:100vh;overflow-x:hidden;}
 
 .main{margin-left:260px;padding:25px;}
 .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-.sub{font-size:14px; color:#64748b; margin-top:4px}
+.sub{font-size:14px; color:var(--cc-muted, #64748b); margin-top:4px}
 
 .btn{padding:10px 16px; border:none; border-radius:8px; cursor:pointer; font-weight:500}
 .btn-dark{background:#1e2937; color:white}
 
-.card{background:white; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.05)}
-.card-head{padding:15px; border-bottom:1px solid #f1f5f9}
+.card{background:var(--cc-surface, white); border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.05)}
+.card-head{padding:15px; border-bottom:1px solid var(--cc-border, #f1f5f9)}
 
 .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px}
-.filter{padding:6px 14px;border:1px solid #cbd5e1;border-radius:999px;cursor:pointer;background:white;transition:0.2s}
+.filter{padding:6px 14px;border:1px solid var(--cc-border, #cbd5e1);border-radius:999px;cursor:pointer;background:var(--cc-surface, white);transition:0.2s}
 .filter.active{background:#ff6a00;color:#fff;border-color:#ff6a00}
 
-.search{display:flex; align-items:center; border:1px solid #e2e8f0; border-radius:8px; padding:0 12px; gap:8px}
+.search{display:flex; align-items:center; border:1px solid var(--cc-border, #e2e8f0); border-radius:8px; padding:0 12px; gap:8px}
 .search input{border:none; outline:none; padding:10px 0; width:100%}
 
-.kpis{display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:1px; background:#e2e8f0}
-.kpi{background:white; padding:15px; text-align:center}
-.kpi .label{font-size:12px; color:#64748b}
+.kpis{display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:1px; background:var(--cc-soft, #e2e8f0)}
+.kpi{background:var(--cc-surface, white); padding:15px; text-align:center}
+.kpi .label{font-size:12px; color:var(--cc-muted, #64748b)}
 .kpi .val{font-size:22px; font-weight:700; margin-top:4px}
 
 .list{padding:15px;}
-.item{padding:15px;border-radius:12px;margin-bottom:15px;border:1px solid #e2e8f0;transition:0.2s}
+.item{padding:15px;border-radius:12px;margin-bottom:15px;border:1px solid var(--cc-border, #e2e8f0);transition:0.2s}
 .item:hover{box-shadow:0 3px 10px rgba(0,0,0,0.05)}
 .row{display:flex;justify-content:space-between;align-items:center; gap:12px}
 .title{font-weight:600;font-size:16px}
-.meta{font-size:12px;color:#666; margin-top:4px}
-.small{font-size:11px;color:#94a3b8}
+.meta{font-size:12px;color:var(--cc-muted, #666); margin-top:4px}
+.small{font-size:11px;color:var(--cc-muted, #94a3b8)}
 
 .thumb{width:60px; height:60px; border-radius:6px; object-fit:cover; cursor:pointer}
 
-.progress-bar{width:100%; height:6px; background:#f1f5f9; border-radius:999px; overflow:hidden}
+.progress-bar{width:100%; height:6px; background:var(--cc-soft, #f1f5f9); border-radius:999px; overflow:hidden}
 .progress-fill{height:100%; background:#ff6a00; transition:0.3s}
 
 .badge{padding:4px 10px;border-radius:6px;font-size:12px;font-weight:500}
-.badge.approved{background:#d1e7dd;color:#0f5132}
-.badge.rejected{background:#f8d7da;color:#721c24}
+.badge.approved{background:var(--cc-soft, #d1e7dd);color:#0f5132}
+.badge.rejected{background:var(--cc-soft, #f8d7da);color:#721c24}
 .badge.pending{background:#fff3cd;color:#856404}
-.badge.paused{background:#e2e8f0;color:#475569}
-.badge.completed{background:#dbeafe;color:#1e40af}
+.badge.paused{background:var(--cc-soft, #e2e8f0);color:var(--cc-muted, #475569)}
+.badge.completed{background:var(--cc-soft, #dbeafe);color:#1e40af}
 
 .actions{display:flex;gap:8px;margin-top:12px;justify-content:flex-end}
 .actions button{padding:6px 12px; border:none; border-radius:6px; cursor:pointer}
 
-.empty{text-align:center; padding:40px; color:#999}
+.empty{text-align:center; padding:40px; color:var(--cc-muted, #999)}
 
 /* Modal Styles */
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:200}
 .modal.active{display:flex}
-.modal-box{background:#fff;padding:25px;border-radius:12px;width:95%;max-width:700px;max-height:90vh;overflow-y:auto}
-.modal-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding-bottom:15px; border-bottom:2px solid #f1f5f9;}
+.modal-box{background:var(--cc-surface, #fff);padding:25px;border-radius:12px;width:95%;max-width:700px;max-height:90vh;overflow-y:auto}
+.modal-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding-bottom:15px; border-bottom:2px solid var(--cc-border, #f1f5f9);}
 
 .btn-ok{background:#10b981;color:#fff}
 .btn-no{background:#ef4444;color:#fff}
-.btn-ghost{background:#f1f5f9;color:#64748b;}
+.btn-ghost{background:var(--cc-soft, #f1f5f9);color:var(--cc-muted, #64748b);}
 
 .campaign-preview{width:100%; max-height:300px; object-fit:cover; border-radius:8px; margin-bottom:20px; cursor:pointer;}
 
 .detail-section{margin-bottom:20px;}
-.detail-section h4{color:#1e2937; font-size:14px; font-weight:600; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px;}
+.detail-section h4{color:var(--cc-ink, #1e2937); font-size:14px; font-weight:600; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.5px;}
 .detail-grid{display:grid; grid-template-columns:repeat(2, 1fr); gap:12px;}
-.detail-item{background:#f8fafc; padding:12px; border-radius:8px;}
-.detail-label{font-size:11px; color:#64748b; text-transform:uppercase; margin-bottom:4px;}
-.detail-value{font-size:14px; color:#1e2937; font-weight:500;}
+.detail-item{background:var(--cc-surface, #f8fafc); padding:12px; border-radius:8px;}
+.detail-label{font-size:11px; color:var(--cc-muted, #64748b); text-transform:uppercase; margin-bottom:4px;}
+.detail-value{font-size:14px; color:var(--cc-ink, #1e2937); font-weight:500;}
 .detail-value.url{color:#ff6a00; word-break:break-all;}
 
-.requirements-box{background:#fff7ed; border:1px solid #ff6a00; border-radius:8px; padding:15px; margin-bottom:20px;}
+.requirements-box{background:var(--cc-soft, #fff7ed); border:1px solid #ff6a00; border-radius:8px; padding:15px; margin-bottom:20px;}
 .req-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;}
 .req-item{text-align:center;}
 .req-icon{font-size:20px; color:#ff6a00; margin-bottom:5px;}
 
-.performance-box{background:#f0fdf4; border:1px solid #22c55e; border-radius:8px; padding:15px; margin-bottom:20px;}
+.performance-box{background:var(--cc-soft, #f0fdf4); border:1px solid #22c55e; border-radius:8px; padding:15px; margin-bottom:20px;}
 .perf-grid{display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; text-align:center;}
 .perf-value{font-size:20px; font-weight:700; color:#16a34a;}
 
-.admin-note-section{margin-top:20px; padding-top:20px; border-top:2px solid #f1f5f9;}
-textarea{width:100%;padding:12px;margin-top:10px;border:1px solid #e2e8f0;border-radius:8px;min-height:80px; font-family:'Poppins', sans-serif;}
+.admin-note-section{margin-top:20px; padding-top:20px; border-top:2px solid var(--cc-border, #f1f5f9);}
+textarea{width:100%;padding:12px;margin-top:10px;border:1px solid var(--cc-border, #e2e8f0);border-radius:8px;min-height:80px; font-family:'Poppins', sans-serif;}
 
 @media(max-width:900px){
     .mobile-header{display:flex;}
@@ -107,6 +109,7 @@ textarea{width:100%;padding:12px;margin-top:10px;border:1px solid #e2e8f0;border
     .main{margin-left:0;width:100%;padding:15px;}
 }
 </style>
+<link rel="stylesheet" href="assets/theme.css">
 </head>
 
 <body>
