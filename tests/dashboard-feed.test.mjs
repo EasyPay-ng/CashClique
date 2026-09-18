@@ -158,3 +158,39 @@ test("dashboard feed: the Videos tab shows only video posts", async () => {
     assert.doesNotMatch(markup, /data-post-id="photo1"/);
     assert.equal(dom.getElementById("video-count").textContent, "1");
 });
+
+test("dashboard feed: ranking, not the clock, orders the For You feed", async () => {
+    const minutes = 60 * 1000;
+    const fixture = [
+        postDoc("fresh-empty", {
+            userId: "u9", username: "newbie", content: "my very first post",
+            category: "Comedy", likes: 0, commentCount: 0, views: 0,
+            timestamp: { toDate: () => new Date(Date.now() - 2 * minutes) }
+        }),
+        postDoc("old-banger", {
+            userId: "u8", username: "veteran", content: "the clip everyone kept watching",
+            category: "Comedy", videoUrl: VIDEO_URL, likes: 4200, commentCount: 310, views: 90000,
+            timestamp: { toDate: () => new Date(Date.now() - 20 * 24 * 60 * minutes) }
+        }),
+        postDoc("steady", {
+            userId: "u7", username: "steady", content: "yesterday's photo",
+            category: "Sports", imageUrl: PHOTO_URL, likes: 40, commentCount: 3, views: 120,
+            timestamp: { toDate: () => new Date(Date.now() - 26 * 60 * minutes) }
+        })
+    ];
+
+    const { dom } = runDashboard(fixture, { sessionStorage: { getItem: () => "salty", setItem() {}, removeItem() {} } });
+    await flushTimes(12);
+
+    const order = Array.from(dom.getElementById("feed").innerHTML
+        .matchAll(/class="post" data-post-id="([^"]+)"/g)).map(match => match[1]);
+
+    assert.deepEqual(order.slice().sort(), ["fresh-empty", "old-banger", "steady"], "every post is rendered once");
+    assert.ok(order.indexOf("old-banger") < order.indexOf("fresh-empty"),
+        `the popular video from three weeks ago should outrank an empty brand-new post, got: ${order}`);
+    assert.ok(order.indexOf("old-banger") < order.indexOf("steady"), "it outranks a quiet photo too");
+
+    // The user can see why an older post is up there.
+    assert.match(dom.getElementById("feed").innerHTML, /post-age-tag[^>]*>throwback/,
+        "older posts in the mix are labelled");
+});

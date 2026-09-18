@@ -16,6 +16,7 @@ import {
     postMediaKind,
     videoShellHTML
 } from "../js/feed-media.js";
+import { likedCategories, orderForFeed, timeValue } from "../js/feed-ranking.js";
 
 export const VIDEO_URL =
     "https://firebasestorage.googleapis.com/v0/b/cashclique-31718.firebasestorage.app" +
@@ -129,18 +130,27 @@ export function makeFirestore(posts) {
         orderBy: (...args) => ({ __orderBy: args }),
         limit: (value) => ({ __limit: value }),
         startAfter: (value) => ({ __startAfter: value }),
+        // Enough of Firestore's query surface for the feed: orderBy desc,
+        // where("timestamp", "<", cutoff), limit and startAfter.
         getDocs: async (query) => {
             calls.getDocs.push(query);
             const clauses = (query && query.clauses) || [];
+            let rows = posts.slice();
+            const filter = clauses.find(clause => clause && clause.__where);
+            if (filter && filter.__where[1] === "<") {
+                rows = rows.filter(post => timeValue(post.data()) < filter.__where[2].getTime());
+            }
+            const ordered = clauses.some(clause => clause && clause.__orderBy);
+            if (ordered) rows.sort((a, b) => timeValue(b.data()) - timeValue(a.data()));
             const limited = clauses.find(clause => clause && clause.__limit);
-            const wanted = limited ? limited.__limit : posts.length;
             const after = clauses.find(clause => clause && clause.__startAfter);
             let startIndex = 0;
             if (after) {
-                const index = posts.indexOf(after.__startAfter);
-                startIndex = index >= 0 ? index + 1 : posts.length;
+                const index = rows.findIndex(item => item === after.__startAfter);
+                startIndex = index >= 0 ? index + 1 : rows.length;
             }
-            return snapshotOf(posts.slice(startIndex, startIndex + wanted));
+            const wanted = limited ? limited.__limit : rows.length;
+            return snapshotOf(rows.slice(startIndex, startIndex + wanted));
         },
         getDoc: async (reference) => {
             const id = (reference && reference.__doc || "").split("/").pop();
@@ -168,12 +178,14 @@ export function runDashboard(posts, overrides = {}) {
         ...firebase,
         // Real data-saver helpers, so the markup under test is the shipped one.
         lazyImageFrameHTML, postImageSrc, postMediaKind, videoShellHTML, playVideoInShell,
+        likedCategories, orderForFeed, timeValue,
         createWatermarkedJpeg: async () => ({ blob: null, filename: "x.jpg" }),
         createVideoDownload: async () => ({ blob: null, filename: "x.mp4" }),
         downloadBlob: () => {},
         mediaFilename: (id, extension) => `${id}.${extension}`,
         document: dom,
         localStorage: { getItem: () => null, setItem() {}, removeItem() {} },
+        sessionStorage: { getItem: () => null, setItem() {}, removeItem() {} },
         URL, URLSearchParams, Promise, Math, Date, JSON, Object, Array, String, Number, Set, Map, Error,
         console: { log() {}, warn() {}, error() {} },
         setTimeout: () => 0,          // deferred work (FCM, debounce) never fires here

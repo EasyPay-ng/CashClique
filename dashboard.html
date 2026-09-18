@@ -149,6 +149,9 @@ body{background:var(--cc-soft, #f5f6f8);display:flex;min-height:100vh;}
 .priority-badge{position:absolute;top:-8px;left:-8px;background:linear-gradient(135deg,#ff6a00,#e55d00);color:white;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700;display:flex;align-items:center;gap:4px;box-shadow:0 4px 10px rgba(255,106,0,0.3);}
 .priority-badge i{font-size:10px;}
 
+/* Older posts that the ranker kept in the mix: say so, quietly. */
+.post-age-tag{margin-left:6px;background:var(--cc-soft, #f1f5f9);color:var(--cc-muted, #64748b);border-radius:20px;padding:1px 8px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;}
+
 .ad-container{margin-top:15px;padding:15px;background:var(--cc-surface, #f8fafc);border-radius:12px;border:1px solid var(--cc-border, #e2e8f0);cursor:pointer;transition:0.2s;}
 .ad-container:hover{background:var(--cc-soft, #f1f5f9);border-color:var(--cc-border, #cbd5e1);}
 .ad-tag{background:#ff6a00;color:white;font-size:10px;padding:3px 8px;border-radius:4px;font-weight:600;display:inline-block;margin-bottom:8px;}
@@ -555,6 +558,7 @@ import {
     postMediaKind,
     videoShellHTML
 } from "./js/feed-media.js";
+import { likedCategories, orderForFeed, timeValue } from "./js/feed-ranking.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -649,6 +653,9 @@ async function setupPushNotifications(currentUser) {
 // they scroll into view, videos only when tapped, comments only when opened.
 const FEED_PAGE_SIZE = 12;        // posts fetched on first paint
 const FEED_MORE_SIZE = 8;         // posts fetched per "Load more" tap
+const THROWBACK_SIZE = 6;         // older posts pulled in for the ranking
+const THROWBACK_MORE_SIZE = 4;    // extra older posts per "Load more" tap
+const THROWBACK_AFTER_DAYS = 3;   // "older" starts here
 const COMMENTS_PAGE_SIZE = 30;    // comments fetched when a thread is opened
 const NOTIFICATIONS_LIMIT = 40;
 const SUPPORT_MESSAGES_LIMIT = 50; // newest support messages kept on screen
@@ -677,6 +684,10 @@ let feedLoaded = false;
 let feedCursor = null;
 let feedExhausted = false;
 let loadingMore = false;
+let throwbackCursor = null;
+let throwbacksExhausted = false;
+let throwbackLoading = false;
+let feedSaltCache = null;
 let latestPostId = null;
 let newPostsCount = 0;
 let newPostsWatch = null;
@@ -689,6 +700,37 @@ const commentSubs = new Map();
 const commentCounts = new Map();
 const viewTimers = {};
 const viewObservers = new Map();
+
+// One salt per browser session: the ranking reshuffles between visits but stays
+// stable while the user scrolls, so paging never jumps around.
+function feedSalt() {
+    if (feedSaltCache) return feedSaltCache;
+    try {
+        feedSaltCache = sessionStorage.getItem("cashclique_feed_salt");
+        if (!feedSaltCache) {
+            feedSaltCache = Math.random().toString(36).slice(2, 10);
+            sessionStorage.setItem("cashclique_feed_salt", feedSaltCache);
+        }
+    } catch (error) {
+        feedSaltCache = "static";
+    }
+    return feedSaltCache;
+}
+
+// Everything the ranker needs: what you follow, what you keep liking and how
+// often each creator shows up in the loaded pool.
+function rankingOptions() {
+    const creatorCounts = new Map();
+    allPostsCache.forEach(post => creatorCounts.set(post.userId, (creatorCounts.get(post.userId) || 0) + 1));
+    allPostsCache.forEach(post => { post.smallCreator = (creatorCounts.get(post.userId) || 0) <= 2; });
+    return {
+        now: Date.now(),
+        following: followingList,
+        affinity: likedCategories(allPostsCache, currentUser ? currentUser.uid : ""),
+        selfId: currentUser ? currentUser.uid : "",
+        salt: feedSalt()
+    };
+}
 
 function resolveInitialTab() {
     const fromUrl = new URLSearchParams(window.location.search).get("feed");
@@ -746,6 +788,7 @@ onAuthStateChanged(auth, async (user) => {
     await loadFeed();
     // Everything below is secondary: it starts after the first page is painted.
     loadAds();
+    loadThrowbacks();
     loadNotifications();
     initCSChat();
     setTimeout(() => setupPushNotifications(user), 4000);
@@ -1220,21 +1263,29 @@ async function loadFeed() {
 }
 
 async function loadMorePosts() {
-    if (loadingMore || feedExhausted || !feedCursor) return;
+    if (loadingMore) return;
+    const canLoadNewer = !feedExhausted && feedCursor;
+    if (!canLoadNewer && throwbacksExhausted) return;
+
     loadingMore = true;
     const btn = document.getElementById("load-more");
     if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...'; }
     try {
-        const nextPage = query(
-            collection(db, "posts"),
-            orderBy("timestamp", "desc"),
-            startAfter(feedCursor),
-            limit(FEED_MORE_SIZE)
-        );
-        const snapshot = await getDocs(nextPage);
-        if (snapshot.docs.length) feedCursor = snapshot.docs[snapshot.docs.length - 1];
-        if (snapshot.size < FEED_MORE_SIZE) feedExhausted = true;
-        await ingestPostDocs(snapshot.docs);
+        if (canLoadNewer) {
+            const nextPage = query(
+                collection(db, "posts"),
+                orderBy("timestamp", "desc"),
+                startAfter(feedCursor),
+                limit(FEED_MORE_SIZE)
+            );
+            const snapshot = await getDocs(nextPage);
+            if (snapshot.docs.length) feedCursor = snapshot.docs[snapshot.docs.length - 1];
+            if (snapshot.size < FEED_MORE_SIZE) feedExhausted = true;
+            await ingestPostDocs(snapshot.docs);
+        }
+        // Each tap also reaches a little further back, so older posts keep
+        // entering the pool the ranker sorts.
+        await loadThrowbacks(THROWBACK_MORE_SIZE, false);
         renderFeed({ keepScroll: true });
     } catch (error) {
         console.error("Loading more posts failed:", error);
@@ -1242,6 +1293,37 @@ async function loadMorePosts() {
         if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-arrow-down"></i> Try again'; }
     } finally {
         loadingMore = false;
+    }
+}
+
+// Older posts that still deserve a slot. Fetched after the first page paints so
+// they never delay the feed, and paged further as the user scrolls. The
+// ranker — not the date — decides where they land.
+async function loadThrowbacks(count = THROWBACK_SIZE, render = true) {
+    if (throwbackLoading || throwbacksExhausted) return;
+    throwbackLoading = true;
+    try {
+        const cutoff = new Date(Date.now() - THROWBACK_AFTER_DAYS * 86400000);
+        const parts = [
+            collection(db, "posts"),
+            where("timestamp", "<", cutoff),
+            orderBy("timestamp", "desc")
+        ];
+        if (throwbackCursor) parts.push(startAfter(throwbackCursor));
+        parts.push(limit(count));
+        const snapshot = await getDocs(query(...parts));
+        if (snapshot.docs.length) throwbackCursor = snapshot.docs[snapshot.docs.length - 1];
+        if (snapshot.size < count) throwbacksExhausted = true;
+        if (snapshot.size) {
+            await ingestPostDocs(snapshot.docs);
+            if (feedLoaded && render) renderFeed({ keepScroll: true });
+        }
+    } catch (error) {
+        // The ranking simply works with what it has (a missing index, offline).
+        console.warn("Older posts unavailable:", error);
+        throwbacksExhausted = true;
+    } finally {
+        throwbackLoading = false;
     }
 }
 
@@ -1281,9 +1363,12 @@ async function refreshNewPosts() {
     seenPostIds.clear();
     feedCursor = null;
     feedExhausted = false;
+    throwbackCursor = null;
+    throwbacksExhausted = false;
     resetObservers();
     rewindComments();
     await loadFeed();
+    loadThrowbacks(THROWBACK_SIZE, false);
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -1346,12 +1431,6 @@ function distributeAdsForCreator(posts, ads) {
     return adsWithPosts;
 }
 
-function timeValue(post) {
-    const stamp = post && post.timestamp;
-    const date = stamp && typeof stamp.toDate === "function" ? stamp.toDate() : null;
-    return date ? date.getTime() : 0;
-}
-
 function filteredPosts() {
     let posts = allPostsCache.slice();
     if (currentFeedTab === "following") posts = posts.filter(item => item.isFromFollowed);
@@ -1364,7 +1443,13 @@ function filteredPosts() {
             (item.username && String(item.username).toLowerCase().includes(needle))
         );
     }
-    return posts.sort((a, b) => timeValue(b) - timeValue(a));
+    if (currentFeedTab === "following") {
+        // Updates from people you follow stay chronological.
+        return posts.sort((a, b) => timeValue(b) - timeValue(a));
+    }
+    // For You and Videos are ranked: engagement and relevance decide, so an
+    // older video with real engagement can sit above a brand-new empty post.
+    return orderForFeed(posts, rankingOptions());
 }
 
 function adForPostMap(posts) {
@@ -1402,11 +1487,13 @@ function emptyFeedHTML(message) {
 
 function feedFootHTML() {
     if (allPostsCache.length === 0) return "";
-    if (feedExhausted) return `<div class="feed-foot"><small>You're all caught up.</small></div>`;
+    if (feedExhausted && throwbacksExhausted) {
+        return `<div class="feed-foot"><small>You're all caught up.</small></div>`;
+    }
     return `
         <div class="feed-foot">
             <button class="load-more-btn" id="load-more"><i class="fas fa-arrow-down"></i> Load more posts</button>
-            <small>Only ${FEED_MORE_SIZE} more posts are fetched per tap.</small>
+            <small>Fresh posts and older ones you may have missed.</small>
         </div>`;
 }
 
@@ -1482,6 +1569,12 @@ function postHTML(post, attachedAd = null) {
             <i class="fas fa-${isFollowing ? 'check' : 'plus'}"></i> ${isFollowing ? 'Following' : 'Follow'}
         </button>` : '';
     const priorityBadge = post.isFromFollowed && !post.hasViewed ? `<div class="priority-badge"><i class="fas fa-star"></i> Following Update</div>` : '';
+    // The ranker keeps good older posts in play; label them so the feed does
+    // not look like it is showing stale content by accident.
+    const ageDays = (Date.now() - timeValue(post)) / 86400000;
+    const throwbackTag = ageDays >= THROWBACK_AFTER_DAYS
+        ? '<span class="post-age-tag" title="An older post that is still worth watching">throwback</span>'
+        : '';
     const categoryBadge = post.category ? `<span class="post-category">${escapeHtml(post.category)}</span>` : '';
     const profileHref = `profile.html?uid=${encodeURIComponent(post.userId)}`;
 
@@ -1507,7 +1600,7 @@ function postHTML(post, attachedAd = null) {
                     <div class="post-author-name" onclick="window.location.href='${profileHref}'">
                         <span>${escapeHtml(post.username || "Anonymous")}</span>${verifiedBadge}
                     </div>
-                    <div class="post-time">${timestamp}</div>
+                    <div class="post-time">${timestamp}${throwbackTag}</div>
                 </div>
                 ${followBtnHTML}
                 <i class="fas fa-ellipsis-v three-dot" onclick="window.location.href='post-view.html?postId=${postId}'"></i>
