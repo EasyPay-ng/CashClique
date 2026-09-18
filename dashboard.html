@@ -7,8 +7,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Dashboard | CashClique</title>
 
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 <link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="manifest" href="/manifest.json">
 
@@ -22,6 +26,17 @@ body{background:var(--cc-soft, #f5f6f8);display:flex;min-height:100vh;}
 .sidebar a:hover{background:rgba(255,255,255,0.2);}
 .sidebar a.active{background:rgba(255,255,255,0.2);}
 .sidebar i{width:20px;text-align:center;}
+.side-nav{display:flex;flex-direction:column;gap:4px;flex:1;min-height:0;overflow-y:auto;scrollbar-width:thin;}
+.side-nav::-webkit-scrollbar{width:5px;}
+.side-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.3);border-radius:10px;}
+.side-label{font-size:10.5px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;opacity:0.7;margin:12px 6px 2px;}
+.side-label:first-child{margin-top:0;}
+.side-nav a{font-size:14.5px;}
+.side-nav a.nav-active{background:rgba(255,255,255,0.24);box-shadow:inset 3px 0 0 #fff;font-weight:600;}
+.nav-count{margin-left:auto;background:rgba(255,255,255,0.28);border-radius:20px;font-size:11px;font-weight:700;padding:1px 8px;min-width:22px;text-align:center;}
+.side-foot{display:flex;flex-direction:column;gap:6px;border-top:1px solid rgba(255,255,255,0.25);padding-top:12px;}
+.data-saver-note{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--cc-muted, #64748b);background:var(--cc-soft, #f8fafc);border:1px dashed var(--cc-border, #e2e8f0);border-radius:10px;padding:9px 12px;}
+.data-saver-note i{color:#22c55e;}
 
 .sidebar-close {position:absolute;top:15px;right:15px;background:none;border:none;color:white;font-size:24px;cursor:pointer;display:none;width:35px;height:35px;border-radius:50%;align-items:center;justify-content:center;transition:0.2s;}
 .sidebar-close:hover{background:rgba(255,255,255,0.2);}
@@ -127,12 +142,15 @@ body{background:var(--cc-soft, #f5f6f8);display:flex;min-height:100vh;}
 .comment-submit{background:#ff6a00;color:white;border:none;width:40px;height:40px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:0.2s;flex-shrink:0;}
 .comment-submit:hover{background:#e55d00;transform:scale(1.05);}
 
-.post-image{margin-top:12px;width:100%;max-height:450px;border-radius:12px;object-fit:cover;cursor:pointer;border:1px solid var(--cc-border, #f1f5f9);}
+
 .three-dot{position:absolute;top:10px;right:10px;cursor:pointer;font-size:20px;color:var(--cc-muted, #94a3b8);padding:5px;transition:0.2s;}
 .three-dot:hover{color:var(--cc-ink, #334155);}
 
 .priority-badge{position:absolute;top:-8px;left:-8px;background:linear-gradient(135deg,#ff6a00,#e55d00);color:white;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700;display:flex;align-items:center;gap:4px;box-shadow:0 4px 10px rgba(255,106,0,0.3);}
 .priority-badge i{font-size:10px;}
+
+/* Older posts that the ranker kept in the mix: say so, quietly. */
+.post-age-tag{margin-left:6px;background:var(--cc-soft, #f1f5f9);color:var(--cc-muted, #64748b);border-radius:20px;padding:1px 8px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;}
 
 .ad-container{margin-top:15px;padding:15px;background:var(--cc-surface, #f8fafc);border-radius:12px;border:1px solid var(--cc-border, #e2e8f0);cursor:pointer;transition:0.2s;}
 .ad-container:hover{background:var(--cc-soft, #f1f5f9);border-color:var(--cc-border, #cbd5e1);}
@@ -141,10 +159,61 @@ body{background:var(--cc-soft, #f5f6f8);display:flex;min-height:100vh;}
 .ad-description{color:var(--cc-muted, #64748b);font-size:13px;line-height:1.5;}
 .ad-image{width:100%;max-height:300px;border-radius:8px;object-fit:cover;margin-top:10px;border:1px solid var(--cc-border, #e2e8f0);}
 
-/* Video Button - Floating with Animation */
-.video-btn{position:fixed;bottom:170px;right:30px;background:linear-gradient(135deg,#ff4757,#ff6b81);color:white;border:none;width:60px;height:60px;border-radius:50%;font-size:24px;cursor:pointer;box-shadow:0 10px 25px rgba(255,71,87,0.3);transition:0.3s;z-index:99;display:flex;align-items:center;justify-content:center;animation:pulse-video 2s infinite;}
-.video-btn:hover{transform:scale(1.1);background:linear-gradient(135deg,#ff6b81,#ff4757);box-shadow:0 15px 35px rgba(255,71,87,0.4);}
-@keyframes pulse-video{0%,100%{box-shadow:0 10px 25px rgba(255,71,87,0.3);}50%{box-shadow:0 10px 35px rgba(255,71,87,0.5);transform:scale(1.05);}}
+/* ====== DATA SAVER MEDIA (nothing downloads until it is on screen / tapped) ======
+   Images only load once they scroll near the viewport, and videos stay a poster
+   shell until the user taps play. That keeps the feed light on mobile data. */
+.media-frame{margin-top:12px;position:relative;width:100%;aspect-ratio:4/3;max-height:520px;border-radius:12px;overflow:hidden;background:var(--cc-soft, #f1f5f9);border:1px solid var(--cc-border, #f1f5f9);}
+.media-frame img{display:block;width:100%;height:100%;object-fit:cover;cursor:zoom-in;opacity:0;transition:opacity 0.25s;}
+.media-frame img.loaded{opacity:1;}
+.media-frame.loading::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(100deg,rgba(148,163,184,0) 25%,rgba(148,163,184,0.22) 50%,rgba(148,163,184,0) 75%);background-size:220% 100%;animation:mediaShimmer 1.4s ease-in-out infinite;}
+.media-frame.media-failed{display:flex;align-items:center;justify-content:center;color:var(--cc-muted, #94a3b8);font-size:13px;}
+@keyframes mediaShimmer{from{background-position:120% 0;}to{background-position:-120% 0;}}
+
+.video-shell{margin-top:12px;position:relative;width:100%;aspect-ratio:16/9;max-height:520px;border-radius:12px;overflow:hidden;border:1px solid var(--cc-border, #f1f5f9);background:radial-gradient(circle at 50% 40%,#2b2b30,#0b0b0d 70%);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer;text-align:center;padding:14px;}
+.video-shell .vs-play{width:62px;height:62px;border-radius:50%;background:linear-gradient(135deg,#ff6a00,#e55d00);display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 12px 30px rgba(0,0,0,0.45);transition:transform 0.2s;}
+.video-shell:hover .vs-play,.video-shell:focus-visible .vs-play{transform:scale(1.08);}
+.video-shell .vs-label{font-size:14px;font-weight:600;}
+.video-shell .vs-hint{font-size:11.5px;color:#cbd5e1;display:flex;align-items:center;gap:6px;}
+.video-shell .vs-hint i{color:#4ade80;}
+.video-shell video{width:100%;height:100%;object-fit:contain;background:#000;display:block;}
+.video-shell.playing{cursor:default;padding:0;background:#000;}
+.video-shell.playing:hover .vs-play{transform:none;}
+
+/* Feed pagination + freshness */
+.feed-foot{display:flex;flex-direction:column;align-items:center;gap:10px;padding:6px 0 40px;}
+.load-more-btn{background:var(--cc-surface, #fff);border:2px solid var(--cc-border, #e2e8f0);color:var(--cc-ink, #1e2937);font-family:'Poppins',sans-serif;font-weight:600;font-size:14px;padding:12px 24px;border-radius:12px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:0.2s;}
+.load-more-btn:hover:not(:disabled){border-color:#ff6a00;color:#ff6a00;}
+.load-more-btn:disabled{cursor:default;opacity:0.7;}
+.feed-foot small{color:var(--cc-muted, #94a3b8);font-size:12px;}
+.new-posts-btn{width:100%;margin-bottom:6px;padding:12px 16px;border-radius:12px;border:1px dashed #ff6a00;background:rgba(255,106,0,0.08);color:#ff6a00;font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
+.new-posts-btn:hover{background:rgba(255,106,0,0.15);}
+
+/* Skeleton cards while the first page loads */
+.skeleton{background:var(--cc-surface, #fff);border:1px solid var(--cc-border, #e2e8f0);border-radius:16px;padding:20px;box-shadow:0 4px 15px rgba(0,0,0,0.03);}
+.skeleton .sk-line{height:12px;border-radius:8px;background:var(--cc-soft, #f1f5f9);margin-bottom:10px;}
+.skeleton .sk-line.sk-title{width:42%;height:14px;}
+.skeleton .sk-line.sk-short{width:64%;}
+.skeleton .sk-media{height:170px;border-radius:12px;background:var(--cc-soft, #f1f5f9);margin-top:14px;}
+@media (prefers-reduced-motion: no-preference){
+.skeleton .sk-line,.skeleton .sk-media{animation:skPulse 1.3s ease-in-out infinite;}
+@keyframes skPulse{0%,100%{opacity:1;}50%{opacity:0.55;}}
+}
+
+.comment-loading,.comment-empty{padding:14px;text-align:center;color:var(--cc-muted, #94a3b8);font-size:13px;}
+.comment-loading i{margin-right:6px;color:#ff6a00;}
+
+/* ====== SAVE PROGRESS OVERLAY ====== */
+.sv-overlay{position:fixed;inset:0;z-index:2500;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.78);backdrop-filter:blur(8px);color:white;padding:24px;}
+.sv-overlay.active{display:flex;}
+.sv-card{width:min(340px,92vw);background:#161618;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:28px 24px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5);}
+.sv-spinner{width:64px;height:64px;border-radius:50%;background:rgba(255,106,0,0.15);color:#ff6a00;display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 16px;animation:svPulse 1.2s ease-in-out infinite;}
+@keyframes svPulse{0%,100%{opacity:0.6;transform:scale(0.95);}50%{opacity:1;transform:scale(1.05);}}
+.sv-title{font-size:17px;font-weight:700;margin-bottom:6px;}
+.sv-sub{font-size:13px;color:#a1a1aa;margin-bottom:16px;}
+.sv-bar{height:6px;border-radius:20px;background:rgba(255,255,255,0.12);overflow:hidden;margin-bottom:20px;}
+.sv-bar-fill{height:100%;width:35%;border-radius:20px;background:linear-gradient(90deg,#ff6a00,#ff8f3f);transition:width 0.4s ease;}
+.sv-cancel{background:rgba(239,68,68,0.8);color:#fff;border:none;border-radius:24px;padding:11px 22px;cursor:pointer;font-size:13px;font-family:'Poppins',sans-serif;transition:0.2s;}
+.sv-cancel:hover{background:rgba(239,68,68,1);}
 
 .create-btn{position:fixed;bottom:30px;right:30px;background:#ff6a00;color:white;border:none;width:60px;height:60px;border-radius:50%;font-size:24px;cursor:pointer;box-shadow:0 10px 25px rgba(255,106,0,0.3);transition:0.3s;z-index:99;display:flex;align-items:center;justify-content:center;}
 .create-btn:hover{transform:scale(1.1);background:#e55d00;}
@@ -236,8 +305,8 @@ body{background:var(--cc-soft, #f5f6f8);display:flex;min-height:100vh;}
 .feed-loading{text-align:center; padding:40px; color:var(--cc-muted, #888);}
 .feed-loading i{font-size:30px; color:#ff6a00; margin-bottom:10px;}
 
-/* Video Player Styles */
-.post-video{margin-top:12px;width:100%;max-height:450px;border-radius:12px;cursor:pointer;border:1px solid var(--cc-border, #f1f5f9);background:#000;}
+/* Video Player Styles (a real <video> is created only after the tap) */
+.post-video{width:100%;height:100%;max-height:520px;cursor:pointer;background:#000;display:block;}
 
 @media(max-width:900px){
 .sidebar{transform:translateX(-100%);}
@@ -250,7 +319,6 @@ body{background:var(--cc-soft, #f5f6f8);display:flex;min-height:100vh;}
 .tip-options{grid-template-columns:repeat(2,1fr);}
 .cs-btn{bottom:90px;right:20px;width:50px;height:50px;font-size:20px;}
 .create-btn{bottom:20px;right:20px;width:50px;height:50px;font-size:20px;}
-.video-btn{bottom:160px;right:20px;width:50px;height:50px;font-size:20px;}
 
 /* Mobile CS Overlay Fixes */
 .cs-overlay{padding:10px;align-items:flex-end;}
@@ -278,14 +346,26 @@ body{background:var(--cc-soft, #f5f6f8);display:flex;min-height:100vh;}
         <i class="fas fa-times"></i>
     </button>
     <div class="logo">
-        <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg"> CashClique
+        <img src="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg" alt="CashClique logo"> CashClique
     </div>
-    <a href="#" class="active"><i class="fas fa-home"></i> Dashboard</a>
-    <a href="my-content.html"><i class="fas fa-file-alt"></i> My Content</a>
-    <a href="earnings.html"><i class="fas fa-dollar-sign"></i> Earnings</a>
-    <a href="opportunities.html"><i class="fas fa-fire"></i> Opportunities</a>
-    <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
-    <a href="#" id="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    <nav class="side-nav">
+        <span class="side-label">Browse</span>
+        <a href="dashboard.html" class="nav-active" data-feed-mode="all"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="dashboard.html?feed=videos" data-feed-mode="videos"><i class="fas fa-play-circle"></i> Videos <span class="nav-count" id="video-count" style="display:none;">0</span></a>
+        <a href="dashboard.html?feed=following" data-feed-mode="following"><i class="fas fa-user-group"></i> Following</a>
+        <span class="side-label">Earn</span>
+        <a href="my-content.html"><i class="fas fa-file-alt"></i> My Content</a>
+        <a href="earnings.html"><i class="fas fa-wallet"></i> Wallet</a>
+        <a href="opportunities.html"><i class="fas fa-fire"></i> Opportunities</a>
+        <a href="boost.html"><i class="fas fa-rocket"></i> Boost Profile</a>
+        <span class="side-label">Account</span>
+        <a href="post.html"><i class="fas fa-plus-circle"></i> Create Post</a>
+        <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+        <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+    </nav>
+    <div class="side-foot">
+        <a href="#" id="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </div>
 </div>
 
 <!-- MAIN -->
@@ -299,7 +379,7 @@ body{background:var(--cc-soft, #f5f6f8);display:flex;min-height:100vh;}
                 <span class="badge" id="notif-count">0</span>
             </div>
             <div class="user" onclick="window.location.href='profile.html'">
-                <img id="user-avatar" src="https://i.pravatar.cc/150?img=3">
+                <img id="user-avatar" src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2296%22%20height%3D%2296%22%20viewBox%3D%220%200%2096%2096%22%3E%3Crect%20width%3D%2296%22%20height%3D%2296%22%20rx%3D%2248%22%20fill%3D%22%23ff6a00%22%2F%3E%3C%2Fsvg%3E" alt="Your avatar">
                 <div class="user-info">
                     <span id="username" style="font-weight:600;font-size:14px;">Loading...</span>
                     <span id="user-verified-badge" class="verified-badge" style="display:none;"><i class="fas fa-check"></i></span>
@@ -330,6 +410,11 @@ body{background:var(--cc-soft, #f5f6f8);display:flex;min-height:100vh;}
         <div class="feed-tabs">
             <button class="feed-tab active" data-tab="all">For You</button>
             <button class="feed-tab" data-tab="following">Following</button>
+            <button class="feed-tab" data-tab="videos"><i class="fas fa-play-circle"></i> Videos</button>
+        </div>
+        <div class="data-saver-note">
+            <i class="fas fa-bolt"></i>
+            <span>Data saver: photos load as you scroll, videos only when you tap play.</span>
         </div>
     </div>
 
@@ -342,10 +427,6 @@ body{background:var(--cc-soft, #f5f6f8);display:flex;min-height:100vh;}
 </div>
 
 <!-- Floating Buttons -->
-<button class="video-btn" onclick="window.location.href='videos.html'" title="Watch Videos">
-    <i class="fas fa-play-circle"></i>
-</button>
-
 <button class="cs-btn" id="cs-btn" onclick="openCSChat()">
     <i class="fas fa-headset"></i>
 </button>
@@ -414,6 +495,17 @@ body{background:var(--cc-soft, #f5f6f8);display:flex;min-height:100vh;}
     <img id="modal-image" src="">
 </div>
 
+<!-- Save progress overlay (shown while a photo or video is being saved) -->
+<div class="sv-overlay" id="sv-overlay">
+    <div class="sv-card">
+        <div class="sv-spinner"><i class="fas fa-download"></i></div>
+        <div class="sv-title" id="sv-title">Saving&#8230;</div>
+        <div class="sv-sub" id="sv-sub">Preparing&#8230;</div>
+        <div class="sv-bar"><div class="sv-bar-fill" id="sv-bar-fill"></div></div>
+        <button class="sv-cancel" onclick="cancelSave()"><i class="fas fa-times"></i> Cancel</button>
+    </div>
+</div>
+
 <div class="tip-modal" id="tip-modal">
     <div class="tip-content">
         <h3><i class="fas fa-hand-holding-dollar"></i> Send a Tip</h3>
@@ -451,9 +543,22 @@ body{background:var(--cc-soft, #f5f6f8);display:flex;min-height:100vh;}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, updateDoc, collection, query, where, getDocs, onSnapshot, arrayUnion, arrayRemove, orderBy, addDoc, increment, serverTimestamp, writeBatch, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getStorage } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+import { getFirestore, doc, getDoc, updateDoc, collection, query, where, getDocs, onSnapshot, arrayUnion, arrayRemove, orderBy, addDoc, increment, serverTimestamp, writeBatch, runTransaction, limit, startAfter } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
+import {
+    createWatermarkedJpeg,
+    createVideoDownload,
+    downloadBlob,
+    mediaFilename
+} from "./js/media-save.js";
+import {
+    lazyImageFrameHTML,
+    playVideoInShell,
+    postImageSrc,
+    postMediaKind,
+    videoShellHTML
+} from "./js/feed-media.js";
+import { likedCategories, orderForFeed, timeValue } from "./js/feed-ranking.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -470,27 +575,47 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const messaging = getMessaging(app);
 
-// ==================== USER AVATAR CACHE ====================
-const userAvatarCache = {};
+// ==================== USER PROFILE CACHE ====================
+// One users/{uid} read per person per visit (the old feed read the same
+// document twice per post, once for the avatar and once for the tick).
+function initialAvatar(name) {
+    const letter = String(name || "U").trim().charAt(0).toUpperCase();
+    const safe = /[A-Z0-9]/.test(letter) ? letter : "U";
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">` +
+        `<rect width="96" height="96" rx="48" fill="#ff6a00"/>` +
+        `<text x="48" y="63" font-family="Poppins,Arial,sans-serif" font-size="42" font-weight="600" ` +
+        `fill="#ffffff" text-anchor="middle">${safe}</text></svg>`;
+    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
 
-async function getUserAvatar(userId) {
-    if (userAvatarCache[userId]) {
-        return userAvatarCache[userId];
-    }
-    
-    try {
-        const userDoc = await getDoc(doc(db, "users", userId));
-        if (userDoc.exists()) {
-            const userData = userDoc.data();
-            const avatar = userData.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.username || 'U')}&background=ff6a00&color=fff&size=150`;
-            userAvatarCache[userId] = avatar;
-            return avatar;
+async function ensureUserProfile(userId) {
+    if (!userId) return null;
+    if (userProfileCache[userId]) return userProfileCache[userId];
+    if (userProfileJobs[userId]) return userProfileJobs[userId];
+
+    const job = (async () => {
+        let profile = { username: "", avatar: "", verified: false };
+        try {
+            const snap = await getDoc(doc(db, "users", userId));
+            if (snap.exists()) {
+                const data = snap.data();
+                profile = {
+                    username: data.username || "",
+                    avatar: data.avatar || "",
+                    verified: !!(data.isVerified || data.verified)
+                };
+            }
+        } catch (error) {
+            console.warn("Could not load a user profile:", error);
         }
-    } catch (error) {
-        console.error("Error fetching user avatar:", error);
-    }
-    
-    return `https://ui-avatars.com/api/?name=U&background=ff6a00&color=fff&size=150`;
+        if (!profile.avatar) profile.avatar = initialAvatar(profile.username || "U");
+        userProfileCache[userId] = profile;
+        delete userProfileJobs[userId];
+        return profile;
+    })();
+
+    userProfileJobs[userId] = job;
+    return job;
 }
 
 function showToast(message, type = "success") {
@@ -521,25 +646,98 @@ async function setupPushNotifications(currentUser) {
   }
 }
 
+// ==================== FEED TUNING ====================
+// The feed used to subscribe to every post document in the collection, which
+// pulled every caption, every base64 photo and every video through the user's
+// data plan on each visit. Now: one small page at a time, images only when
+// they scroll into view, videos only when tapped, comments only when opened.
+const FEED_PAGE_SIZE = 12;        // posts fetched on first paint
+const FEED_MORE_SIZE = 8;         // posts fetched per "Load more" tap
+const THROWBACK_SIZE = 6;         // older posts pulled in for the ranking
+const THROWBACK_MORE_SIZE = 4;    // extra older posts per "Load more" tap
+const THROWBACK_AFTER_DAYS = 3;   // "older" starts here
+const COMMENTS_PAGE_SIZE = 30;    // comments fetched when a thread is opened
+const NOTIFICATIONS_LIMIT = 40;
+const SUPPORT_MESSAGES_LIMIT = 50; // newest support messages kept on screen
+const MEDIA_ROOT_MARGIN = "300px";// start loading a photo just before it shows
+const VIEW_DWELL_MS = 2000;       // how long a post must be on screen to count
+
 const feed = document.getElementById("feed");
 let currentUser = null;
 let currentUsername = "User";
 let currentBalance = 0;
-let viewTimers = {};
 let followingList = [];
-let userVerificationCache = {};
 let allPostsCache = [];
 let approvedApplications = [];
 let opportunitiesCache = {};
 let viewedAds = [];
-let currentFeedTab = localStorage.getItem('cashclique_feed_tab') || 'all';
+let currentFeedTab = resolveInitialTab();
 let searchQuery = "";
 let selectedCategory = "";
 let csChatId = null;
 let csUnsubscribe = null;
 let selectedCSImageBase64 = null;
 let replyToComment = null;
-let feedLoaded = false; // Track if feed has loaded
+let feedLoaded = false;
+
+// Pagination + freshness
+let feedCursor = null;
+let feedExhausted = false;
+let loadingMore = false;
+let throwbackCursor = null;
+let throwbacksExhausted = false;
+let throwbackLoading = false;
+let feedSaltCache = null;
+let latestPostId = null;
+let newPostsCount = 0;
+let newPostsWatch = null;
+const seenPostIds = new Set();
+
+// Caches (one read per user, one write per counted view)
+const userProfileCache = {};
+const userProfileJobs = {};
+const commentSubs = new Map();
+const commentCounts = new Map();
+const viewTimers = {};
+const viewObservers = new Map();
+
+// One salt per browser session: the ranking reshuffles between visits but stays
+// stable while the user scrolls, so paging never jumps around.
+function feedSalt() {
+    if (feedSaltCache) return feedSaltCache;
+    try {
+        feedSaltCache = sessionStorage.getItem("cashclique_feed_salt");
+        if (!feedSaltCache) {
+            feedSaltCache = Math.random().toString(36).slice(2, 10);
+            sessionStorage.setItem("cashclique_feed_salt", feedSaltCache);
+        }
+    } catch (error) {
+        feedSaltCache = "static";
+    }
+    return feedSaltCache;
+}
+
+// Everything the ranker needs: what you follow, what you keep liking and how
+// often each creator shows up in the loaded pool.
+function rankingOptions() {
+    const creatorCounts = new Map();
+    allPostsCache.forEach(post => creatorCounts.set(post.userId, (creatorCounts.get(post.userId) || 0) + 1));
+    allPostsCache.forEach(post => { post.smallCreator = (creatorCounts.get(post.userId) || 0) <= 2; });
+    return {
+        now: Date.now(),
+        following: followingList,
+        affinity: likedCategories(allPostsCache, currentUser ? currentUser.uid : ""),
+        selfId: currentUser ? currentUser.uid : "",
+        salt: feedSalt()
+    };
+}
+
+function resolveInitialTab() {
+    const fromUrl = new URLSearchParams(window.location.search).get("feed");
+    const stored = localStorage.getItem("cashclique_feed_tab");
+    const tab = fromUrl || stored || "all";
+    return ["all", "following", "videos"].includes(tab) ? tab : "all";
+}
 
 // Categories for filter
 const CATEGORIES = [
@@ -560,26 +758,40 @@ onAuthStateChanged(auth, async (user) => {
     currentUser = user;
 
     const userRef = doc(db, "users", user.uid);
+    let knownFollowing = null;
     onSnapshot(userRef, (snap) => {
-        if (snap.exists()) {
-            const data = snap.data();
-            currentUsername = data.username || user.email?.split('@')[0] || "User";
-            currentBalance = data.balance || 0;
-            followingList = data.following || [];
-            viewedAds = data.viewedAds || [];
-            document.getElementById("username").innerText = currentUsername;
-            document.getElementById("user-avatar").src = data.avatar || `https://i.pravatar.cc/150?u=${user.uid}`;
-            if (data.isVerified || data.verified) document.getElementById("user-verified-badge").style.display = "inline-flex";
+        if (!snap.exists()) return;
+        const data = snap.data();
+        currentUsername = data.username || user.email?.split('@')[0] || "User";
+        currentBalance = data.balance || 0;
+        followingList = data.following || [];
+        viewedAds = data.viewedAds || [];
+        document.getElementById("username").innerText = currentUsername;
+        document.getElementById("user-avatar").src = data.avatar || initialAvatar(currentUsername);
+        if (data.isVerified || data.verified) document.getElementById("user-verified-badge").style.display = "inline-flex";
+
+        // The follow list decides what "Following" means inside the cached feed.
+        const signature = followingList.join(",");
+        if (knownFollowing !== null && knownFollowing !== signature) {
+            allPostsCache = allPostsCache.map(post => ({
+                ...post,
+                isFromFollowed: followingList.includes(post.userId)
+            }));
+            if (feedLoaded) renderFeed();
         }
+        knownFollowing = signature;
+        listenForNewPostsFromFollowing(signature);
     });
 
-    setupPushNotifications(user);
-    initCSChat();
     populateCategoryFilter();
-    loadFeed();
+    setupFeedInteractions();
+    await loadFeed();
+    // Everything below is secondary: it starts after the first page is painted.
+    loadAds();
+    loadThrowbacks();
     loadNotifications();
-    attachUIEvents();
-    listenForNewPostsFromFollowing();
+    initCSChat();
+    setTimeout(() => setupPushNotifications(user), 4000);
 });
 
 function populateCategoryFilter() {
@@ -626,7 +838,8 @@ window.selectCategory = function(category) {
     document.getElementById('category-filter-btn').classList.remove('active');
     document.getElementById('category-filter-menu').classList.remove('show');
     
-    // Re-render feed
+    // Re-render feed from the posts already in memory (no extra reads)
+    rewindComments();
     renderFeed();
 };
 
@@ -639,14 +852,28 @@ document.addEventListener('click', (e) => {
     }
 });
 
-function listenForNewPostsFromFollowing() {
-    if (followingList.length === 0) return;
-    const postsQuery = query(collection(db, "posts"), where("userId", "in", followingList), orderBy("timestamp", "desc"));
-    onSnapshot(postsQuery, (snapshot) => {
-        snapshot.docChanges().forEach(change => {
-            if (change.type === "added") {
+// Only ever one live "did someone you follow post?" listener: the old version
+// re-sent the whole following timeline to the client on every change.
+let followingWatchSignature = null;
+let followingWatch = null;
+function listenForNewPostsFromFollowing(signature) {
+    if (!signature || signature === followingWatchSignature) return;
+    const followed = followingList.slice(0, 10); // Firestore "in" caps at 10 ids
+    if (followed.length === 0) return;
+    if (followingWatch) { followingWatch(); followingWatch = null; }
+    followingWatchSignature = signature;
+
+    const followingPostsQuery = query(
+        collection(db, "posts"),
+        where("userId", "in", followed),
+        orderBy("timestamp", "desc"),
+        limit(5)
+    );
+    try {
+        followingWatch = onSnapshot(followingPostsQuery, (snapshot) => {
+            snapshot.docChanges().forEach(change => {
+                if (change.type !== "added") return;
                 const post = change.doc.data();
-                const postId = change.doc.id;
                 const postTime = post.timestamp?.toDate?.() || new Date();
                 const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
                 if (postTime > fiveMinutesAgo && post.userId !== currentUser.uid) {
@@ -654,20 +881,23 @@ function listenForNewPostsFromFollowing() {
                         type: "new_post",
                         title: `${post.username || "Someone you follow"} posted new content`,
                         fromUserId: post.userId,
-                        postId: postId
+                        postId: change.doc.id
                     });
                 }
-            }
-        });
-    });
+            });
+        }, (error) => console.warn("New-post listener stopped:", error));
+    } catch (error) {
+        console.warn("New-post listener unavailable:", error);
+    }
 }
 
 async function initCSChat() {
-    const chatsQuery = query(collection(db, "supportChats"), where("userId", "==", currentUser.uid));
-    const snapshot = await getDocs(chatsQuery);
-    if (!snapshot.empty) {
-        csChatId = snapshot.docs[0].id;
-        loadCSMessages();
+    try {
+        const chatsQuery = query(collection(db, "supportChats"), where("userId", "==", currentUser.uid), limit(1));
+        const snapshot = await getDocs(chatsQuery);
+        if (!snapshot.empty) csChatId = snapshot.docs[0].id;
+    } catch (error) {
+        console.warn("Support chat unavailable:", error);
     }
 }
 
@@ -685,23 +915,26 @@ window.openCSChat = async () => {
             unreadByAdmin: false
         });
         csChatId = chatDoc.id;
-        loadCSMessages();
     }
+    loadCSMessages();
     await updateDoc(doc(db, "supportChats", csChatId), { unreadByUser: false });
     document.getElementById('cs-btn').classList.remove('has-unread');
 };
 
 window.closeCSChat = () => {
     document.getElementById('cs-overlay').classList.remove('active');
+    // Stop reading the thread while the panel is closed.
+    if (csUnsubscribe) { csUnsubscribe(); csUnsubscribe = null; }
 };
 
 function loadCSMessages() {
-    if (csUnsubscribe) csUnsubscribe();
-    const messagesQuery = query(collection(db, "supportChats", csChatId, "messages"), orderBy("timestamp", "asc"));
+    if (csUnsubscribe || !csChatId) return;
+    // Only the newest messages: the panel is a chat window, not an archive.
+    const messagesQuery = query(collection(db, "supportChats", csChatId, "messages"), orderBy("timestamp", "desc"), limit(SUPPORT_MESSAGES_LIMIT));
     csUnsubscribe = onSnapshot(messagesQuery, (snapshot) => {
         const messagesContainer = document.getElementById('cs-messages');
         messagesContainer.innerHTML = '';
-        snapshot.forEach(doc => {
+        snapshot.docs.slice().reverse().forEach(doc => {
             const msg = doc.data();
             const isUser = msg.sender === 'user';
             const time = msg.timestamp ? formatTime(msg.timestamp.toDate()) : 'Just now';
@@ -783,9 +1016,14 @@ window.sendCSMessage = async () => {
 };
 
 function escapeHtml(text) {
+    if (text === null || text === undefined) return '';
     const div = document.createElement('div');
-    div.textContent = text;
+    div.textContent = String(text);
     return div.innerHTML;
+}
+
+function escapeAttr(text) {
+    return escapeHtml(text).replace(/"/g, '&quot;');
 }
 
 window.toggleFollow = async (userId, button) => {
@@ -823,90 +1061,336 @@ window.toggleFollow = async (userId, button) => {
     }
 };
 
-async function getUserVerificationStatus(userId) {
-    if (userVerificationCache[userId] !== undefined) return userVerificationCache[userId];
-    try {
-        const userDoc = await getDoc(doc(db, "users", userId));
-        if (userDoc.exists()) {
-            const isVerified = userDoc.data().isVerified || userDoc.data().verified || false;
-            userVerificationCache[userId] = isVerified;
-            return isVerified;
-        }
-    } catch (e) { console.error(e); }
-    return false;
+// ==================== LAZY MEDIA ====================
+// Photos keep their URL in data-src until they scroll close to the viewport,
+// and a video is only a poster shell until the user taps play. Nothing here
+// touches the network until the viewer actually asks for it.
+function mediaHTML(post) {
+    if (post.mediaKind === "video") {
+        return videoShellHTML({ videoUrl: post.videoUrl, poster: post.imageSrc });
+    }
+    if (post.mediaKind === "image") {
+        return lazyImageFrameHTML(post.imageSrc);
+    }
+    return "";
 }
 
-async function loadFeed() {
-    // Keep loading spinner until we have data
-    feed.innerHTML = `
+let mediaObserver = null;
+let viewObserver = null;
+
+function resetObservers() {
+    Object.keys(viewTimers).forEach(id => { clearTimeout(viewTimers[id]); delete viewTimers[id]; });
+    viewObservers.clear();
+    if (mediaObserver) { mediaObserver.disconnect(); mediaObserver = null; }
+    if (viewObserver) { viewObserver.disconnect(); viewObserver = null; }
+}
+
+function observeLazyMedia() {
+    const frames = document.querySelectorAll("[data-lazy-media='1']");
+    if (frames.length === 0) return;
+    if (!("IntersectionObserver" in window)) {
+        frames.forEach(loadLazyImage);
+        return;
+    }
+    if (!mediaObserver) {
+        mediaObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) return;
+                mediaObserver.unobserve(entry.target);
+                loadLazyImage(entry.target);
+            });
+        }, { rootMargin: MEDIA_ROOT_MARGIN });
+    }
+    frames.forEach(frame => mediaObserver.observe(frame));
+}
+
+function loadLazyImage(frame) {
+    const img = frame.querySelector("img[data-src]");
+    frame.removeAttribute("data-lazy-media");
+    if (!img) return;
+    const src = img.dataset.src;
+    img.removeAttribute("data-src");
+    if (!src) return;
+    img.addEventListener("load", () => {
+        img.classList.add("loaded");
+        frame.classList.remove("loading");
+    }, { once: true });
+    img.addEventListener("error", () => {
+        frame.classList.remove("loading");
+        frame.classList.add("media-failed");
+        frame.textContent = "Photo unavailable";
+    }, { once: true });
+    img.src = src;
+}
+
+function observePostViews() {
+    const targets = document.querySelectorAll(".post[data-viewed='false'], .ad-container[data-viewed='false']");
+    if (targets.length === 0) return;
+    if (!("IntersectionObserver" in window)) {
+        // Old browser: register a single view instead of one write per post.
+        if (targets.length) registerView(targets[0]);
+        return;
+    }
+    if (!viewObserver) {
+        viewObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) startViewTimer(entry.target);
+                else stopViewTimer(entry.target);
+            });
+        }, { threshold: 0.6 });
+    }
+    targets.forEach(target => {
+        if (viewObservers.has(target)) return;
+        viewObservers.set(target, true);
+        viewObserver.observe(target);
+    });
+}
+
+function startViewTimer(el) {
+    const key = el.dataset.postId || el.dataset.adId;
+    if (!key || viewTimers[key]) return;
+    viewTimers[key] = setTimeout(() => {
+        delete viewTimers[key];
+        registerView(el);
+    }, VIEW_DWELL_MS);
+}
+
+function stopViewTimer(el) {
+    const key = el.dataset.postId || el.dataset.adId;
+    if (!key || !viewTimers[key]) return;
+    clearTimeout(viewTimers[key]);
+    delete viewTimers[key];
+}
+
+async function registerView(el) {
+    if (!currentUser || el.dataset.viewed === "true") return;
+    el.dataset.viewed = "true";
+    const postId = el.dataset.postId;
+    const adId = el.dataset.adId;
+    try {
+        if (postId) {
+            await updateDoc(doc(db, "posts", postId), {
+                views: increment(1),
+                viewedBy: arrayUnion(currentUser.uid)
+            });
+            const cached = allPostsCache.find(item => item.id === postId);
+            if (cached) { cached.views = (cached.views || 0) + 1; cached.hasViewed = true; }
+            const counter = document.querySelector(`[data-view-count='${postId}']`);
+            if (counter) counter.textContent = String((parseInt(counter.textContent, 10) || 0) + 1);
+        } else if (adId) {
+            await updateDoc(doc(db, "applications", adId), { currentViews: increment(1) });
+            await updateDoc(doc(db, "users", currentUser.uid), { viewedAds: arrayUnion(adId) });
+        }
+    } catch (error) {
+        el.dataset.viewed = "false";
+    }
+}
+
+// ==================== FEED LOADING (paged) ====================
+function ingestPostDocs(docs) {
+    const fresh = [];
+    const userIds = new Set();
+    docs.forEach(postDoc => {
+        if (seenPostIds.has(postDoc.id)) return;
+        seenPostIds.add(postDoc.id);
+        const data = postDoc.data() || {};
+        fresh.push({ ...data, id: postDoc.id });
+        if (data.userId) userIds.add(data.userId);
+    });
+
+    return Promise.all(Array.from(userIds, ensureUserProfile)).then(() => {
+        fresh.forEach(post => {
+            const profile = userProfileCache[post.userId] || {};
+            allPostsCache.push({
+                ...post,
+                type: "post",
+                username: post.username || profile.username || "Anonymous",
+                userAvatar: profile.avatar || initialAvatar(post.username || "U"),
+                isVerified: !!profile.verified,
+                category: post.category || "General",
+                mediaKind: postMediaKind(post),
+                imageSrc: postImageSrc(post),
+                isFromFollowed: followingList.includes(post.userId),
+                hasViewed: Array.isArray(post.viewedBy) && post.viewedBy.includes(currentUser.uid)
+            });
+        });
+        return fresh.length;
+    });
+}
+
+function skeletonHTML() {
+    return `
         <div class="feed-loading">
             <i class="fas fa-spinner fa-spin"></i>
             <p>Loading your feed...</p>
         </div>
-    `;
-    
-    const postsQuery = query(collection(db, "posts"), orderBy("timestamp", "desc"));
-    onSnapshot(postsQuery, async (snapshot) => {
-        allPostsCache = [];
-        
-        // If no posts in database, show empty state
-        if (snapshot.empty) {
-            feedLoaded = true;
-            renderFeed();
-            return;
-        }
-        
-        // Collect all unique user IDs from posts
-        const userIds = new Set();
-        snapshot.docs.forEach(doc => userIds.add(doc.data().userId));
-        
-        // Pre-fetch all user avatars in parallel
-        const avatarPromises = Array.from(userIds).map(id => getUserAvatar(id));
-        await Promise.all(avatarPromises);
-        
-        for (const postDoc of snapshot.docs) {
-            const post = postDoc.data();
-            const postId = postDoc.id;
-            const isVerified = await getUserVerificationStatus(post.userId);
-            const isFromFollowed = followingList.includes(post.userId);
-            const hasViewed = post.viewedBy && post.viewedBy.includes(currentUser.uid);
-            
-            const userAvatar = await getUserAvatar(post.userId);
-            
-            allPostsCache.push({ 
-                id: postId, 
-                type: 'post', 
-                userId: post.userId,
-                timestamp: post.timestamp,
-                userAvatar: userAvatar,
-                category: post.category || 'General',
-                videoUrl: post.videoUrl || null,
-                ...post, 
-                isFromFollowed, 
-                isVerified, 
-                hasViewed 
-            });
-        }
-        
+        ${Array.from({ length: 3 }, () => `
+            <div class="skeleton">
+                <div class="sk-line sk-title"></div>
+                <div class="sk-line"></div>
+                <div class="sk-line sk-short"></div>
+                <div class="sk-media"></div>
+            </div>`).join("")}`;
+}
+
+async function loadFeed() {
+    feed.innerHTML = skeletonHTML();
+    feedLoaded = false;
+    try {
+        const firstPage = query(
+            collection(db, "posts"),
+            orderBy("timestamp", "desc"),
+            limit(FEED_PAGE_SIZE)
+        );
+        const snapshot = await getDocs(firstPage);
+        feedCursor = snapshot.docs[snapshot.docs.length - 1] || null;
+        feedExhausted = snapshot.size < FEED_PAGE_SIZE;
+        latestPostId = snapshot.docs.length ? snapshot.docs[0].id : null;
+        await ingestPostDocs(snapshot.docs);
         feedLoaded = true;
         renderFeed();
-    });
+        watchNewPosts();
+    } catch (error) {
+        console.error("Feed load failed:", error);
+        feedLoaded = true;
+        feed.innerHTML = `
+            <div class="post feed-error" style="text-align:center;padding:40px 20px;">
+                <i class="fas fa-triangle-exclamation" style="font-size:36px;color:#f59e0b;margin-bottom:12px;"></i>
+                <p style="color:#64748b;font-weight:500;margin-bottom:14px;">Could not load your feed right now.</p>
+                <button class="load-more-btn" id="feed-retry"><i class="fas fa-rotate-right"></i> Try again</button>
+            </div>`;
+    }
+}
 
-    const applicationsQuery = query(collection(db, "applications"), where("status", "==", "approved"));
-    onSnapshot(applicationsQuery, async (snapshot) => {
-        approvedApplications = [];
+async function loadMorePosts() {
+    if (loadingMore) return;
+    const canLoadNewer = !feedExhausted && feedCursor;
+    if (!canLoadNewer && throwbacksExhausted) return;
+
+    loadingMore = true;
+    const btn = document.getElementById("load-more");
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...'; }
+    try {
+        if (canLoadNewer) {
+            const nextPage = query(
+                collection(db, "posts"),
+                orderBy("timestamp", "desc"),
+                startAfter(feedCursor),
+                limit(FEED_MORE_SIZE)
+            );
+            const snapshot = await getDocs(nextPage);
+            if (snapshot.docs.length) feedCursor = snapshot.docs[snapshot.docs.length - 1];
+            if (snapshot.size < FEED_MORE_SIZE) feedExhausted = true;
+            await ingestPostDocs(snapshot.docs);
+        }
+        // Each tap also reaches a little further back, so older posts keep
+        // entering the pool the ranker sorts.
+        await loadThrowbacks(THROWBACK_MORE_SIZE, false);
+        renderFeed({ keepScroll: true });
+    } catch (error) {
+        console.error("Loading more posts failed:", error);
+        showToast("Could not load more posts", "error");
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-arrow-down"></i> Try again'; }
+    } finally {
+        loadingMore = false;
+    }
+}
+
+// Older posts that still deserve a slot. Fetched after the first page paints so
+// they never delay the feed, and paged further as the user scrolls. The
+// ranker — not the date — decides where they land.
+async function loadThrowbacks(count = THROWBACK_SIZE, render = true) {
+    if (throwbackLoading || throwbacksExhausted) return;
+    throwbackLoading = true;
+    try {
+        const cutoff = new Date(Date.now() - THROWBACK_AFTER_DAYS * 86400000);
+        const parts = [
+            collection(db, "posts"),
+            where("timestamp", "<", cutoff),
+            orderBy("timestamp", "desc")
+        ];
+        if (throwbackCursor) parts.push(startAfter(throwbackCursor));
+        parts.push(limit(count));
+        const snapshot = await getDocs(query(...parts));
+        if (snapshot.docs.length) throwbackCursor = snapshot.docs[snapshot.docs.length - 1];
+        if (snapshot.size < count) throwbacksExhausted = true;
+        if (snapshot.size) {
+            await ingestPostDocs(snapshot.docs);
+            if (feedLoaded && render) renderFeed({ keepScroll: true });
+        }
+    } catch (error) {
+        // The ranking simply works with what it has (a missing index, offline).
+        console.warn("Older posts unavailable:", error);
+        throwbacksExhausted = true;
+    } finally {
+        throwbackLoading = false;
+    }
+}
+
+// One cheap listener (a single document) instead of streaming the whole
+// collection: it only ever tells the user that fresh posts exist.
+function watchNewPosts() {
+    if (newPostsWatch) return;
+    try {
+        newPostsWatch = onSnapshot(
+            query(collection(db, "posts"), orderBy("timestamp", "desc"), limit(1)),
+            (snapshot) => {
+                if (snapshot.empty) return;
+                const newestId = snapshot.docs[0].id;
+                if (!latestPostId) { latestPostId = newestId; return; }
+                if (newestId === latestPostId || seenPostIds.has(newestId)) return;
+                newPostsCount = 1;
+                const pill = document.getElementById("new-posts");
+                if (pill) { pill.style.display = "flex"; return; }
+                if (feedLoaded && allPostsCache.length) {
+                    feed.insertAdjacentHTML("afterbegin", newPostsPillHTML());
+                }
+            },
+            (error) => console.warn("New-post watch stopped:", error)
+        );
+    } catch (error) {
+        console.warn("New-post watch unavailable:", error);
+    }
+}
+
+function newPostsPillHTML() {
+    return `<button class="new-posts-btn" id="new-posts"><i class="fas fa-arrow-up"></i> New posts are ready — tap to refresh</button>`;
+}
+
+async function refreshNewPosts() {
+    newPostsCount = 0;
+    allPostsCache = [];
+    seenPostIds.clear();
+    feedCursor = null;
+    feedExhausted = false;
+    throwbackCursor = null;
+    throwbacksExhausted = false;
+    resetObservers();
+    rewindComments();
+    await loadFeed();
+    loadThrowbacks(THROWBACK_SIZE, false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// Ads are loaded after the first page so they never delay the feed, and the
+// list is capped (the old listener re-read every approved application).
+async function loadAds() {
+    try {
+        const appsQuery = query(collection(db, "applications"), where("status", "==", "approved"), limit(30));
+        const snapshot = await getDocs(appsQuery);
         const opportunityIds = new Set();
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            if (data.opportunityId) opportunityIds.add(data.opportunityId);
+        snapshot.forEach(appDoc => {
+            const opportunityId = appDoc.data().opportunityId;
+            if (opportunityId && !opportunitiesCache[opportunityId]) opportunityIds.add(opportunityId);
         });
-        const opportunityPromises = Array.from(opportunityIds).map(async (oppId) => {
+        await Promise.all(Array.from(opportunityIds).map(async (opportunityId) => {
             try {
-                const oppDoc = await getDoc(doc(db, "opportunities", oppId));
-                if (oppDoc.exists()) opportunitiesCache[oppId] = oppDoc.data();
-            } catch (e) {}
-        });
-        await Promise.all(opportunityPromises);
+                const oppDoc = await getDoc(doc(db, "opportunities", opportunityId));
+                if (oppDoc.exists()) opportunitiesCache[opportunityId] = oppDoc.data();
+            } catch (error) { /* a missing opportunity just means no ad creative */ }
+        }));
+
+        approvedApplications = [];
         snapshot.forEach(appDoc => {
             const appData = appDoc.data();
             const oppData = opportunitiesCache[appData.opportunityId] || {};
@@ -922,8 +1406,10 @@ async function loadFeed() {
                 advertiserName: oppData.advertiserName || appData.advertiserName || 'Advertiser'
             });
         });
-        if (feedLoaded) renderFeed();
-    });
+        if (feedLoaded && approvedApplications.length) renderFeed({ keepScroll: true });
+    } catch (error) {
+        console.warn("Ads unavailable:", error);
+    }
 }
 
 function distributeAdsForCreator(posts, ads) {
@@ -931,11 +1417,7 @@ function distributeAdsForCreator(posts, ads) {
     const numAds = ads.length;
     const numPosts = posts.length;
     if (numPosts === 0 || numAds === 0) return adsWithPosts;
-    posts.sort((a, b) => {
-        const aTime = a.timestamp?.toDate?.() || new Date(0);
-        const bTime = b.timestamp?.toDate?.() || new Date(0);
-        return bTime - aTime;
-    });
+    posts.sort((a, b) => timeValue(b) - timeValue(a));
     const postsPerAd = Math.floor(numPosts / numAds);
     const remainder = numPosts % numAds;
     let postIndex = 0;
@@ -949,58 +1431,36 @@ function distributeAdsForCreator(posts, ads) {
     return adsWithPosts;
 }
 
-async function renderFeed() {
-    feed.innerHTML = "";
-    let filteredPosts = [...allPostsCache];
-    
-    // Filter by tab (all/following)
-    if (currentFeedTab === 'following') {
-        filteredPosts = filteredPosts.filter(item => item.isFromFollowed);
-    }
-    
-    // Filter by category
-    if (selectedCategory) {
-        filteredPosts = filteredPosts.filter(item => item.category === selectedCategory);
-    }
-    
-    // Filter by search query
-    if (searchQuery.trim() !== "") {
-        const sq = searchQuery.toLowerCase();
-        filteredPosts = filteredPosts.filter(item =>
-            (item.content && item.content.toLowerCase().includes(sq)) ||
-            (item.username && item.username.toLowerCase().includes(sq))
+function filteredPosts() {
+    let posts = allPostsCache.slice();
+    if (currentFeedTab === "following") posts = posts.filter(item => item.isFromFollowed);
+    if (currentFeedTab === "videos") posts = posts.filter(item => item.mediaKind === "video");
+    if (selectedCategory) posts = posts.filter(item => item.category === selectedCategory);
+    const needle = searchQuery.trim().toLowerCase();
+    if (needle) {
+        posts = posts.filter(item =>
+            (item.content && String(item.content).toLowerCase().includes(needle)) ||
+            (item.username && String(item.username).toLowerCase().includes(needle))
         );
     }
-    
-    filteredPosts.sort((a, b) => {
-        const aTime = a.timestamp?.toDate?.() || new Date(0);
-        const bTime = b.timestamp?.toDate?.() || new Date(0);
-        return bTime - aTime;
-    });
-    
-    // Only show "no posts" message if feed has loaded and there are no posts
-    if (feedLoaded && filteredPosts.length === 0) {
-        let msg = searchQuery !== "" ? "No posts match your search." : 
-                  selectedCategory ? `No posts in ${selectedCategory} category.` :
-                  (currentFeedTab === 'following' ? "You aren't following anyone who has posted yet." : "No posts found.");
-        feed.innerHTML = `<div class="post" style="text-align:center; padding:40px 20px;"><i class="fas fa-folder-open" style="font-size:40px;color:#cbd5e1;margin-bottom:15px;"></i><p style="color:#64748b;font-weight:500;">${msg}</p></div>`;
-        return;
+    if (currentFeedTab === "following") {
+        // Updates from people you follow stay chronological.
+        return posts.sort((a, b) => timeValue(b) - timeValue(a));
     }
-    
-    // If still loading, keep spinner (don't overwrite)
-    if (!feedLoaded && filteredPosts.length === 0) {
-        return;
-    }
-    
+    // For You and Videos are ranked: engagement and relevance decide, so an
+    // older video with real engagement can sit above a brand-new empty post.
+    return orderForFeed(posts, rankingOptions());
+}
+
+function adForPostMap(posts) {
     const adsByCreator = {};
     approvedApplications.forEach(app => {
-        const creatorId = app.creatorId;
-        if (!creatorId) return;
-        if (!adsByCreator[creatorId]) adsByCreator[creatorId] = [];
-        adsByCreator[creatorId].push(app);
+        if (!app.creatorId) return;
+        if (!adsByCreator[app.creatorId]) adsByCreator[app.creatorId] = [];
+        adsByCreator[app.creatorId].push(app);
     });
     const postsByUser = {};
-    filteredPosts.forEach(post => {
+    posts.forEach(post => {
         if (!postsByUser[post.userId]) postsByUser[post.userId] = [];
         postsByUser[post.userId].push(post);
     });
@@ -1008,253 +1468,389 @@ async function renderFeed() {
     Object.keys(adsByCreator).forEach(creatorId => {
         const creatorAds = adsByCreator[creatorId];
         const creatorPosts = postsByUser[creatorId] || [];
-        if (creatorPosts.length > 0 && creatorAds.length > 0) {
-            const distributed = distributeAdsForCreator(creatorPosts, creatorAds);
-            distributed.forEach(({ postId, ad }) => {
+        if (creatorPosts.length && creatorAds.length) {
+            distributeAdsForCreator(creatorPosts, creatorAds).forEach(({ postId, ad }) => {
                 if (!adToPostMap.has(postId)) adToPostMap.set(postId, ad);
             });
         }
     });
-    for (const post of filteredPosts) {
-        await renderPostHTML(post, adToPostMap.get(post.id));
-    }
-    attachEventHandlers();
+    return adToPostMap;
 }
 
-async function renderPostHTML(post, attachedAd = null) {
+function emptyFeedHTML(message) {
+    return `
+        <div class="post" style="text-align:center;padding:40px 20px;">
+            <i class="fas fa-folder-open" style="font-size:40px;color:#cbd5e1;margin-bottom:15px;"></i>
+            <p style="color:#64748b;font-weight:500;">${message}</p>
+        </div>`;
+}
+
+function feedFootHTML() {
+    if (allPostsCache.length === 0) return "";
+    if (feedExhausted && throwbacksExhausted) {
+        return `<div class="feed-foot"><small>You're all caught up.</small></div>`;
+    }
+    return `
+        <div class="feed-foot">
+            <button class="load-more-btn" id="load-more"><i class="fas fa-arrow-down"></i> Load more posts</button>
+            <small>Fresh posts and older ones you may have missed.</small>
+        </div>`;
+}
+
+function renderFeed(options = {}) {
+    if (!feedLoaded) return;
+    const scrollY = window.scrollY;
+    rewindComments();
+    resetObservers();
+
+    const posts = filteredPosts();
+    if (posts.length === 0) {
+        const message = searchQuery !== ""
+            ? "No posts match your search."
+            : selectedCategory
+                ? `No posts in ${selectedCategory} category.`
+                : currentFeedTab === "following"
+                    ? "You aren't following anyone who has posted yet."
+                    : currentFeedTab === "videos"
+                        ? "No videos here yet — check back soon."
+                        : "No posts found.";
+        feed.innerHTML = emptyFeedHTML(message);
+        syncFeedChrome();
+        return;
+    }
+
+    const adToPostMap = adForPostMap(posts);
+    const html = posts.map(post => postHTML(post, adToPostMap.get(post.id))).join("");
+    const pill = newPostsCount > 0 ? newPostsPillHTML() : "";
+    feed.innerHTML = `${pill}${html}${feedFootHTML()}`;
+    if (options.keepScroll) window.scrollTo(0, scrollY);
+    observeLazyMedia();
+    observePostViews();
+    syncFeedChrome();
+}
+
+function syncFeedChrome() {
+    const videoCount = allPostsCache.filter(post => post.mediaKind === "video").length;
+    const badge = document.getElementById("video-count");
+    if (badge) {
+        badge.textContent = String(videoCount);
+        badge.style.display = videoCount > 0 ? "inline-block" : "none";
+    }
+    document.querySelectorAll(".feed-tab").forEach(tab => {
+        tab.classList.toggle("active", tab.dataset.tab === currentFeedTab);
+    });
+    document.querySelectorAll("[data-feed-mode]").forEach(link => {
+        link.classList.toggle("nav-active", link.dataset.feedMode === currentFeedTab);
+    });
+}
+
+function setFeedTab(tab) {
+    if (!["all", "following", "videos"].includes(tab)) tab = "all";
+    currentFeedTab = tab;
+    try { localStorage.setItem("cashclique_feed_tab", tab); } catch (error) { /* storage can be blocked */ }
+    try {
+        const url = new URL(window.location.href);
+        if (tab === "all") url.searchParams.delete("feed");
+        else url.searchParams.set("feed", tab);
+        window.history.replaceState(null, "", url);
+    } catch (error) { /* file:// or sandboxed contexts */ }
+    renderFeed();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function postHTML(post, attachedAd = null) {
     const postId = post.id;
-    const isLiked = post.likedBy && post.likedBy.includes(currentUser.uid);
+    const isLiked = Array.isArray(post.likedBy) && post.likedBy.includes(currentUser.uid);
     const timestamp = post.timestamp ? formatTime(post.timestamp.toDate()) : "Just now";
     const verifiedBadge = post.isVerified ? `<span class="verified-badge-post" title="Verified Account"><i class="fas fa-check"></i></span>` : '';
     const isFollowing = followingList.includes(post.userId);
-    const showFollowBtn = post.userId !== currentUser.uid;
-    const followBtnHTML = showFollowBtn ? 
-        `<button class="follow-btn ${isFollowing ? 'following' : ''}" onclick="toggleFollow('${post.userId}', this)">
+    const followBtnHTML = post.userId !== currentUser.uid ? `
+        <button class="follow-btn ${isFollowing ? 'following' : ''}" data-follow="${escapeAttr(post.userId)}">
             <i class="fas fa-${isFollowing ? 'check' : 'plus'}"></i> ${isFollowing ? 'Following' : 'Follow'}
         </button>` : '';
-    const postEl = document.createElement("div");
-    postEl.className = "post";
-    postEl.dataset.postId = postId;
-    postEl.dataset.viewed = post.hasViewed;
-    
-    // Handle media - image or video
-    let mediaHTML = '';
-    if (post.videoUrl) {
-        mediaHTML = `<video src="${post.videoUrl}" class="post-video" controls poster="" preload="metadata"></video>`;
-    } else if (post.imageBase64) {
-        mediaHTML = `<img src="${post.imageBase64}" class="post-image" onclick="viewImage(this.src)" loading="lazy">`;
-    }
-    
     const priorityBadge = post.isFromFollowed && !post.hasViewed ? `<div class="priority-badge"><i class="fas fa-star"></i> Following Update</div>` : '';
-    
-    // Category badge
+    // The ranker keeps good older posts in play; label them so the feed does
+    // not look like it is showing stale content by accident.
+    const ageDays = (Date.now() - timeValue(post)) / 86400000;
+    const throwbackTag = ageDays >= THROWBACK_AFTER_DAYS
+        ? '<span class="post-age-tag" title="An older post that is still worth watching">throwback</span>'
+        : '';
     const categoryBadge = post.category ? `<span class="post-category">${escapeHtml(post.category)}</span>` : '';
-    
+    const profileHref = `profile.html?uid=${encodeURIComponent(post.userId)}`;
+
     let adHTML = '';
     if (attachedAd) {
         const hasViewed = viewedAds.includes(attachedAd.id);
-        const adImgHTML = attachedAd.flyer ? `<img src="${attachedAd.flyer}" class="ad-image">` : '';
         adHTML = `
-            <div class="ad-container" data-ad-id="${attachedAd.id}" data-viewed="${hasViewed}" onclick="handleAdClick('${attachedAd.id}', '${attachedAd.targetUrl}')">
+            <div class="ad-container" data-ad-id="${escapeAttr(attachedAd.id)}"
+                 data-target-url="${escapeAttr(attachedAd.targetUrl || '')}" data-viewed="${hasViewed}">
                 <span class="ad-tag">SPONSORED</span>
-                <div class="ad-title">${attachedAd.title || 'Advertisement'}</div>
-                <div class="ad-description">${attachedAd.description || ''}</div>
-                ${adImgHTML}
-            </div>
-        `;
-        if (!hasViewed) trackAdView(attachedAd.id);
+                <div class="ad-title">${escapeHtml(attachedAd.title || 'Advertisement')}</div>
+                <div class="ad-description">${escapeHtml(attachedAd.description || '')}</div>
+                ${lazyImageFrameHTML(attachedAd.flyer, "16/9")}
+            </div>`;
     }
-    
-    postEl.innerHTML = `
-        ${priorityBadge}
-        <div class="post-header">
-            <img src="${post.userAvatar}" class="profile-pic" data-uid="${post.userId}" onclick="window.location.href='profile.html?uid=${post.userId}'" loading="lazy">
-            <div class="post-author">
-                <div class="post-author-name" onclick="window.location.href='profile.html?uid=${post.userId}'">
-                    <span>${post.username || "Anonymous"}</span>${verifiedBadge}
+
+    return `
+        <div class="post" data-post-id="${postId}" data-viewed="${post.hasViewed ? 'true' : 'false'}">
+            ${priorityBadge}
+            <div class="post-header">
+                <img src="${escapeAttr(post.userAvatar)}" class="profile-pic" data-uid="${escapeAttr(post.userId)}" onclick="window.location.href='${profileHref}'" loading="lazy" decoding="async" alt="">
+                <div class="post-author">
+                    <div class="post-author-name" onclick="window.location.href='${profileHref}'">
+                        <span>${escapeHtml(post.username || "Anonymous")}</span>${verifiedBadge}
+                    </div>
+                    <div class="post-time">${timestamp}${throwbackTag}</div>
                 </div>
-                <div class="post-time">${timestamp}</div>
+                ${followBtnHTML}
+                <i class="fas fa-ellipsis-v three-dot" onclick="window.location.href='post-view.html?postId=${postId}'"></i>
             </div>
-            ${followBtnHTML}
-            <i class="fas fa-ellipsis-v three-dot" onclick="window.location.href='post-view.html?postId=${postId}'"></i>
-        </div>
-        ${categoryBadge}
-        <p>${post.content}</p>
-        ${mediaHTML}
-        <div class="post-actions">
-            <span class="action-item like-btn ${isLiked ? 'liked' : ''}" data-id="${postId}" data-owner="${post.userId}" data-liked="${isLiked}">
-                <i class="${isLiked ? 'fas' : 'far'} fa-heart"></i> ${post.likes || 0}
-            </span>
-            <span class="action-item comment-toggle" data-post-id="${postId}">
-                <i class="far fa-comment"></i> ${post.commentCount || 0}
-            </span>
-            <span class="action-item">
-                <i class="far fa-eye"></i> ${post.views || 0}
-            </span>
-            <span class="action-item tip-jar" data-id="${postId}" data-owner="${post.userId}" data-username="${post.username}">
-                <i class="fas fa-hand-holding-dollar"></i> Tip
-            </span>
-        </div>
-        <div class="comments-section" id="comments-${postId}">
-            <div class="comments-header">
-                <span class="comments-title">Comments (${post.commentCount || 0})</span>
-                <button class="close-comments" onclick="toggleComments('${postId}')">
-                    <i class="fas fa-times"></i>
-                </button>
+            ${categoryBadge}
+            <p>${escapeHtml(post.content || "")}</p>
+            ${mediaHTML(post)}
+            <div class="post-actions">
+                <span class="action-item like-btn ${isLiked ? 'liked' : ''}" data-id="${postId}" data-owner="${escapeAttr(post.userId)}" data-liked="${isLiked}">
+                    <i class="${isLiked ? 'fas' : 'far'} fa-heart"></i> <span data-like-count="${postId}">${post.likes || 0}</span>
+                </span>
+                <span class="action-item comment-toggle" data-post-id="${postId}">
+                    <i class="far fa-comment"></i> <span data-comment-count="${postId}">${post.commentCount || 0}</span>
+                </span>
+                <span class="action-item">
+                    <i class="far fa-eye"></i> <span data-view-count="${postId}">${post.views || 0}</span>
+                </span>
+                <span class="action-item tip-jar" data-id="${postId}" data-owner="${escapeAttr(post.userId)}" data-username="${escapeAttr(post.username || '')}">
+                    <i class="fas fa-hand-holding-dollar"></i> Tip
+                </span>
+                ${post.mediaKind !== "text" ? `
+                <span class="action-item save-media" data-id="${postId}">
+                    <i class="fas fa-download"></i> Save
+                </span>` : ''}
             </div>
-            <div class="comment-list" id="comment-list-${postId}"></div>
-            <div class="comment-input-area">
-                <div class="reply-indicator" id="reply-indicator-${postId}">
-                    <i class="fas fa-reply"></i>
-                    <span>Replying to <strong id="reply-to-name-${postId}"></strong></span>
-                    <button class="cancel-reply" onclick="cancelReply('${postId}')">
+            <div class="comments-section" id="comments-${postId}">
+                <div class="comments-header">
+                    <span class="comments-title">Comments (${post.commentCount || 0})</span>
+                    <button class="close-comments" onclick="toggleComments('${postId}')">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
-                <div class="comment-input-wrapper">
-                    <textarea class="comment-input" id="comment-input-${postId}" placeholder="Write a comment..." rows="1"></textarea>
-                    <button class="comment-submit" onclick="addComment('${postId}', '${post.userId}')">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
+                <div class="comment-list" id="comment-list-${postId}"></div>
+                <div class="comment-input-area">
+                    <div class="reply-indicator" id="reply-indicator-${postId}">
+                        <i class="fas fa-reply"></i>
+                        <span>Replying to <strong id="reply-to-name-${postId}"></strong></span>
+                        <button class="cancel-reply" onclick="cancelReply('${postId}')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="comment-input-wrapper">
+                        <textarea class="comment-input" id="comment-input-${postId}" placeholder="Write a comment..." rows="1"></textarea>
+                        <button class="comment-submit" onclick="addComment('${postId}', '${escapeAttr(post.userId)}')">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
-        ${adHTML}
-    `;
-    feed.appendChild(postEl);
-    if (!post.hasViewed) trackView(postId);
-    loadComments(postId);
+            ${adHTML}
+        </div>`;
 }
 
-function loadComments(postId) {
-    const commentsRef = query(collection(db, "posts", postId, "comments"), orderBy("timestamp", "asc"));
-    onSnapshot(commentsRef, async (cSnap) => {
-        const list = document.getElementById(`comment-list-${postId}`);
-        if (!list) return;
-        list.innerHTML = "";
-        updateDoc(doc(db, "posts", postId), { commentCount: cSnap.size }).catch(() => {});
-        const titleEl = list.parentElement.querySelector('.comments-title');
-        if (titleEl) titleEl.textContent = `Comments (${cSnap.size})`;
-        
-        for (const c of cSnap.docs) {
-            const d = c.data();
-            const cVerified = await getUserVerificationStatus(d.userId);
-            const vBadge = cVerified ? `<span class="verified-badge-post" style="width:14px;height:14px;font-size:9px;"><i class="fas fa-check"></i></span>` : '';
-            const isReply = d.replyTo && d.replyTo.commentId;
-            const replyToHTML = isReply ? `<div class="comment-reply-to"><i class="fas fa-reply" style="font-size:10px;"></i> Replying to ${d.replyTo.username || 'comment'}</div>` : '';
-            
-            const commenterAvatar = await getUserAvatar(d.userId);
-            
-            const div = document.createElement("div");
-            div.className = `comment-item ${isReply ? 'replying-to' : ''}`;
-            div.id = `comment-${c.id}`;
-            div.innerHTML = `
-                <img src="${commenterAvatar}" class="comment-avatar" onclick="window.location.href='profile.html?uid=${d.userId}'">
-                <div class="comment-content">
-                    <div class="comment-header">
-                        <span class="comment-author" onclick="window.location.href='profile.html?uid=${d.userId}'">${d.username || "User"}${vBadge}</span>
-                        <span class="comment-time">${d.timestamp ? formatTime(d.timestamp.toDate()) : 'Just now'}</span>
-                    </div>
-                    ${replyToHTML}
-                    <div class="comment-text">${escapeHtml(d.text)}</div>
-                    <div class="comment-actions">
-                        <span class="comment-action" onclick="setReply('${postId}', '${c.id}', '${d.username}', '${d.userId}')">
-                            <i class="fas fa-reply"></i> Reply
-                        </span>
-                    </div>
+// ==================== COMMENTS (loaded only when a thread is opened) ====================
+function commentHTML(postId, commentId, data, profile) {
+    const isReply = data.replyTo && data.replyTo.commentId;
+    const replyToHTML = isReply
+        ? `<div class="comment-reply-to"><i class="fas fa-reply" style="font-size:10px;"></i> Replying to ${escapeHtml(data.replyTo.username || 'comment')}</div>`
+        : '';
+    const vBadge = profile && profile.verified
+        ? `<span class="verified-badge-post" style="width:14px;height:14px;font-size:9px;"><i class="fas fa-check"></i></span>`
+        : '';
+    const avatar = (profile && profile.avatar) || initialAvatar(data.username || "U");
+    const authorHref = `profile.html?uid=${encodeURIComponent(data.userId || '')}`;
+    return `
+        <div class="comment-item ${isReply ? 'replying-to' : ''}" id="comment-${commentId}">
+            <img src="${escapeAttr(avatar)}" class="comment-avatar" alt="" loading="lazy" decoding="async"
+                 onclick="window.location.href='${authorHref}'">
+            <div class="comment-content">
+                <div class="comment-header">
+                    <span class="comment-author" onclick="window.location.href='${authorHref}'">${escapeHtml(data.username || "User")}${vBadge}</span>
+                    <span class="comment-time">${data.timestamp ? formatTime(data.timestamp.toDate()) : 'Just now'}</span>
                 </div>
-            `;
-            list.appendChild(div);
+                ${replyToHTML}
+                <div class="comment-text">${escapeHtml(data.text || "")}</div>
+                <div class="comment-actions">
+                    <span class="comment-action" onclick="setReply('${postId}', '${commentId}', '${escapeAttr(data.username || '')}', '${escapeAttr(data.userId || '')}')">
+                        <i class="fas fa-reply"></i> Reply
+                    </span>
+                </div>
+            </div>
+        </div>`;
+}
+
+function openComments(postId) {
+    const list = document.getElementById(`comment-list-${postId}`);
+    if (!list || commentSubs.has(postId)) return;
+    list.innerHTML = `<div class="comment-loading"><i class="fas fa-spinner fa-spin"></i> Loading comments...</div>`;
+    const commentsQuery = query(
+        collection(db, "posts", postId, "comments"),
+        orderBy("timestamp", "desc"),
+        limit(COMMENTS_PAGE_SIZE)
+    );
+    const unsubscribe = onSnapshot(commentsQuery, async (snapshot) => {
+        const listEl = document.getElementById(`comment-list-${postId}`);
+        if (!listEl) { closeComments(postId); return; }
+        const docs = snapshot.docs.slice().reverse(); // newest last, like a thread
+        await Promise.all(Array.from(new Set(docs.map(item => item.data().userId)), ensureUserProfile));
+        if (docs.length === 0) {
+            listEl.innerHTML = `<div class="comment-empty">No comments yet — be the first!</div>`;
+        } else {
+            listEl.innerHTML = docs
+                .map(item => commentHTML(postId, item.id, item.data(), userProfileCache[item.data().userId]))
+                .join("");
         }
+        // Only trust the count when the whole (capped) thread is in view.
+        if (snapshot.size < COMMENTS_PAGE_SIZE) syncCommentCount(postId, snapshot.size);
+    }, (error) => {
+        console.warn("Comments unavailable:", error);
+        const listEl = document.getElementById(`comment-list-${postId}`);
+        if (listEl) listEl.innerHTML = `<div class="comment-empty">Could not load comments.</div>`;
     });
+    commentSubs.set(postId, unsubscribe);
 }
 
-function trackView(postId) {
-    if (viewTimers[postId]) clearTimeout(viewTimers[postId]);
-    viewTimers[postId] = setTimeout(async () => {
-        const postEl = document.querySelector(`[data-post-id="${postId}"]`);
-        if (postEl && postEl.dataset.viewed !== "true") {
-            try {
-                await updateDoc(doc(db, "posts", postId), { views: increment(1), viewedBy: arrayUnion(currentUser.uid) });
-                postEl.dataset.viewed = "true";
-            } catch (e) {}
-        }
-    }, 2000);
-}
-
-function trackAdView(adId) {
-    if (viewTimers[adId]) clearTimeout(viewTimers[adId]);
-    viewTimers[adId] = setTimeout(async () => {
-        const adEl = document.querySelector(`[data-ad-id="${adId}"]`);
-        if (adEl && adEl.dataset.viewed !== "true") {
-            try {
-                await updateDoc(doc(db, "applications", adId), { currentViews: increment(1) });
-                await updateDoc(doc(db, "users", currentUser.uid), { viewedAds: arrayUnion(adId) });
-                adEl.dataset.viewed = "true";
-            } catch (e) {}
-        }
-    }, 2000);
-}
-
-window.handleAdClick = async function(adId, targetUrl) {
-    if (targetUrl) {
-        window.open(targetUrl, '_blank');
-        try {
-            await updateDoc(doc(db, "applications", adId), { clicks: increment(1) });
-        } catch (e) {}
+function closeComments(postId) {
+    const unsubscribe = commentSubs.get(postId);
+    if (unsubscribe) {
+        try { unsubscribe(); } catch (error) { /* already closed */ }
     }
+    commentSubs.delete(postId);
+}
+
+function rewindComments() {
+    Array.from(commentSubs.keys()).forEach(closeComments);
+}
+
+function syncCommentCount(postId, count) {
+    if (commentCounts.get(postId) === count) return;
+    commentCounts.set(postId, count);
+    const post = allPostsCache.find(item => item.id === postId);
+    if (!post || (post.commentCount || 0) === count) return;
+    post.commentCount = count;
+    const badge = document.querySelector(`[data-comment-count='${postId}']`);
+    if (badge) badge.textContent = String(count);
+    updateDoc(doc(db, "posts", postId), { commentCount: count }).catch(() => {});
+}
+window.handleAdClick = async function(adId, targetUrl) {
+    if (!targetUrl) return;
+    window.open(targetUrl, '_blank');
+    try {
+        await updateDoc(doc(db, "applications", adId), { clicks: increment(1) });
+    } catch (error) { /* a failed click count must not block the visit */ }
 };
 
-function attachUIEvents() {
-    document.querySelectorAll('.feed-tab').forEach(tab => {
-        tab.addEventListener('click', (e) => {
-            document.querySelectorAll('.feed-tab').forEach(t => t.classList.remove('active'));
-            e.target.classList.add('active');
-            currentFeedTab = e.target.dataset.tab;
-            localStorage.setItem('cashclique_feed_tab', currentFeedTab);
-            renderFeed();
+// ==================== FEED INTERACTIONS (one delegated listener) ====================
+function setupFeedInteractions() {
+    document.querySelectorAll(".feed-tab").forEach(tab => {
+        tab.addEventListener("click", () => setFeedTab(tab.dataset.tab));
+    });
+
+    // Sidebar feed shortcuts switch the cached feed instead of reloading the app.
+    document.querySelectorAll("[data-feed-mode]").forEach(link => {
+        link.addEventListener("click", (event) => {
+            event.preventDefault();
+            setFeedTab(link.dataset.feedMode);
+            closeSidebar();
         });
     });
+
+    const searchInput = document.getElementById("search-input");
     let searchTimeout;
-    document.getElementById('search-input').addEventListener('input', (e) => {
+    searchInput.addEventListener("input", (event) => {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {
-            searchQuery = e.target.value;
+            searchQuery = event.target.value;
             renderFeed();
         }, 300);
     });
-}
 
-function attachEventHandlers() {
-    document.querySelectorAll(".like-btn").forEach(btn => {
-        btn.onclick = async () => {
-            if (btn.dataset.liked === "true") return;
-            const postId = btn.dataset.id;
-            const ownerId = btn.dataset.owner;
-            try {
-                await updateDoc(doc(db, "posts", postId), { likes: increment(1), likedBy: arrayUnion(currentUser.uid) });
-                btn.dataset.liked = "true";
-                btn.classList.add("liked");
-                btn.innerHTML = `<i class="fas fa-heart"></i> ${(parseInt(btn.innerText) || 0) + 1}`;
-                if (ownerId !== currentUser.uid) {                    await sendNotification(ownerId, { type: "like", title: `${currentUsername} liked your post`, fromUserId: currentUser.uid, postId: postId });
-                }
-            } catch (e) { console.error("Like failed:", e); }
-        };
-    });
-    document.querySelectorAll(".tip-jar").forEach(btn => {
-        btn.onclick = () => {
-            if (btn.dataset.owner === currentUser.uid) return alert("You can't tip yourself!");
-            openTipModal(btn.dataset.id, btn.dataset.owner, btn.dataset.username);
-        };
-    });
-    document.querySelectorAll(".comment-toggle").forEach(btn => {
-        btn.onclick = () => {
-            const postId = btn.dataset.postId;
-            toggleComments(postId);
-        };
+    feed.addEventListener("click", onFeedClick);
+    feed.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        const shell = event.target.closest(".video-shell");
+        if (!shell) return;
+        event.preventDefault();
+        playVideoInShell(shell);
     });
 }
 
+function closeSidebar() {
+    const sidebar = document.getElementById("sidebar");
+    if (sidebar) sidebar.classList.remove("active");
+}
+
+async function onFeedClick(event) {
+    const target = event.target;
+
+    const shell = target.closest(".video-shell");
+    if (shell) { playVideoInShell(shell); return; }
+
+    if (target.closest("#new-posts")) { refreshNewPosts(); return; }
+    if (target.closest("#load-more")) { loadMorePosts(); return; }
+    if (target.closest("#feed-retry")) { loadFeed(); return; }
+
+    const ad = target.closest(".ad-container");
+    if (ad) { window.handleAdClick(ad.dataset.adId, ad.dataset.targetUrl); return; }
+
+    const likeBtn = target.closest(".like-btn");
+    if (likeBtn) { handleLike(likeBtn); return; }
+
+    const saveBtn = target.closest(".save-media");
+    if (saveBtn) { downloadPostItem(saveBtn.dataset.id); return; }
+
+    const commentBtn = target.closest(".comment-toggle");
+    if (commentBtn) { toggleComments(commentBtn.dataset.postId); return; }
+
+    const tipBtn = target.closest(".tip-jar");
+    if (tipBtn) {
+        if (tipBtn.dataset.owner === currentUser.uid) { alert("You can't tip yourself!"); return; }
+        openTipModal(tipBtn.dataset.id, tipBtn.dataset.owner, tipBtn.dataset.username);
+        return;
+    }
+
+    const followBtn = target.closest(".follow-btn");
+    if (followBtn) { toggleFollow(followBtn.dataset.follow, followBtn); return; }
+
+    const image = target.closest(".media-frame img");
+    if (image && image.src) viewImage(image.src);
+}
+
+async function handleLike(btn) {
+    if (btn.dataset.liked === "true") return;
+    const postId = btn.dataset.id;
+    const ownerId = btn.dataset.owner;
+    btn.dataset.liked = "true";
+    btn.classList.add("liked");
+    const icon = btn.querySelector("i");
+    if (icon) icon.className = "fas fa-heart";
+    const counter = btn.querySelector("[data-like-count]");
+    if (counter) counter.textContent = String((parseInt(counter.textContent, 10) || 0) + 1);
+    const cached = allPostsCache.find(item => item.id === postId);
+    if (cached) {
+        cached.likes = (cached.likes || 0) + 1;
+        cached.likedBy = (cached.likedBy || []).concat(currentUser.uid);
+    }
+    try {
+        await updateDoc(doc(db, "posts", postId), { likes: increment(1), likedBy: arrayUnion(currentUser.uid) });
+        if (ownerId !== currentUser.uid) {
+            await sendNotification(ownerId, {
+                type: "like",
+                title: `${currentUsername} liked your post`,
+                fromUserId: currentUser.uid,
+                postId: postId
+            });
+        }
+    } catch (error) {
+        console.error("Like failed:", error);
+    }
+}
 let currentTipData = null;
 function openTipModal(postId, ownerId, username) {
     currentTipData = { postId, ownerId, username };
@@ -1358,7 +1954,9 @@ async function sendNotification(toUserId, data) {
 }
 
 function loadNotifications() {
-    onSnapshot(query(collection(db, "users", currentUser.uid, "notifications"), orderBy("timestamp", "desc")), (snap) => {
+    // Only the latest few: the panel is a dropdown, and the old query streamed
+    // the user's entire notification history on every visit.
+    onSnapshot(query(collection(db, "users", currentUser.uid, "notifications"), orderBy("timestamp", "desc"), limit(NOTIFICATIONS_LIMIT)), (snap) => {
         const panel = document.getElementById("notification-panel");
         panel.innerHTML = "";
         let unread = 0;
@@ -1413,6 +2011,102 @@ document.addEventListener("click", (e) => {
     if (e.target.id === "tip-modal") closeTipModal();
 });
 
+// ==================== SAVE-TO-DEVICE DOWNLOADS ====================
+// Photos are re-encoded as new JPEGs with the CashClique mark baked in. Videos
+// download as the original file, with no watermark or re-encoding. Both try
+// the direct URL first and the downloadMedia proxy second for CORS-blocked
+// Storage files. Never navigate to the media URL, open a tab, or start
+// playback as a fallback: failures surface as an error toast.
+
+window.downloadPostItem = async function (postId) {
+    const item = allPostsCache.find(entry => entry.id === postId);
+    if (!item) return;
+    if (item.mediaKind === "video") await saveVideoItem(item);
+    else await savePhotoItem(item);
+};
+
+// ----- Photo save (CashClique mark baked into a new JPEG) -----
+async function savePhotoItem(post) {
+    const src = post.imageSrc || postImageSrc(post);
+    if (!src) { showToast("Nothing to save", "error"); return; }
+    dlState.cancel = false;
+    try {
+        dlShow("Saving photo\u2026", "Adding the CashClique watermark\u2026");
+        const saved = await createWatermarkedJpeg({
+            id: post.id,
+            src: src,
+            filename: mediaFilename(post.id, 'jpg')
+        });
+        dlHide();
+        downloadBlob(saved.blob, saved.filename);
+        showToast("Photo saved with CashClique watermark", "success");
+    } catch (err) {
+        dlHide();
+        if (dlState.cancel || (err && err.kind === 'cancelled')) {
+            showToast("Save cancelled", "info");
+            return;
+        }
+        // No silent fallback: an unwatermarked copy is never saved and the
+        // media URL is never opened. The user stays on the feed.
+        console.error("Photo save failed:", err);
+        showToast((err && err.userMessage) || "Could not save photo", "error");
+    }
+}
+
+// ----- Save progress overlay helpers -----
+let dlState = { cancel: false };
+
+function dlShow(title, sub) {
+    const overlay = document.getElementById('sv-overlay');
+    if (!overlay) return;
+    const titleEl = document.getElementById('sv-title');
+    if (titleEl) titleEl.textContent = title || 'Saving\u2026';
+    const subEl = document.getElementById('sv-sub');
+    if (subEl) subEl.textContent = sub || '';
+    const fill = document.getElementById('sv-bar-fill');
+    if (fill) fill.style.width = '35%';
+    overlay.classList.add('active');
+}
+
+function dlHide() {
+    const overlay = document.getElementById('sv-overlay');
+    if (overlay) overlay.classList.remove('active');
+}
+
+window.cancelSave = function () { if (dlState) dlState.cancel = true; };
+
+// ----- Video save: fetch and download the original file -----
+async function saveVideoItem(post) {
+    const videoUrl = post.videoUrl;
+    if (!videoUrl) { showToast("Nothing to save", "error"); return; }
+    dlState.cancel = false;
+    try {
+        dlShow("Saving video\u2026", "Preparing\u2026");
+        const saved = await createVideoDownload({
+            id: post.id,
+            src: videoUrl,
+            isCancelled: () => dlState.cancel,
+            onStage: () => {
+                dlShow("Saving video\u2026", "Downloading the original file\u2026");
+                const fill = document.getElementById('sv-bar-fill');
+                if (fill) fill.style.width = '70%';
+            }
+        });
+        dlHide();
+        downloadBlob(saved.blob, saved.filename);
+        showToast("Video saved", "success");
+    } catch (err) {
+        dlHide();
+        if (dlState.cancel || (err && err.kind === 'cancelled')) {
+            showToast("Save cancelled", "info");
+            return;
+        }
+        console.error("Video save failed:", err);
+        showToast((err && err.userMessage) || "Could not save video", "error");
+    }
+}
+
+// ==================== UTILITIES ====================
 function formatTime(d) {
     const diff = Math.floor((new Date() - d) / 1000);
     if(diff < 60) return "Just now";
@@ -1431,9 +2125,12 @@ window.closeMediaModal = () => document.getElementById("media-modal").style.disp
 
 window.toggleMenu = () => document.getElementById("sidebar").classList.toggle("active");
 
-window.toggleComments = (id) => { 
-    const el = document.getElementById("comments-"+id); 
-    el.classList.toggle('active');
+window.toggleComments = (id) => {
+    const el = document.getElementById("comments-" + id);
+    if (!el) return;
+    // Comments are only fetched while the thread is actually open.
+    if (el.classList.toggle('active')) openComments(id);
+    else closeComments(id);
 };
 
 document.getElementById("logout").addEventListener("click", (e) => { 

@@ -163,9 +163,14 @@ textarea::placeholder { color: var(--cc-muted, #aaa); font-style: italic; }
     CashClique
   </div>
   <a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+  <a href="dashboard.html?feed=videos"><i class="fas fa-play-circle"></i> Videos</a>
+  <a href="dashboard.html?feed=following"><i class="fas fa-user-group"></i> Following</a>
   <a href="my-content.html"><i class="fas fa-file-alt"></i> My Content</a>
-  <a href="earnings.html"><i class="fas fa-dollar-sign"></i> Earnings</a>
+  <a href="earnings.html"><i class="fas fa-wallet"></i> Wallet</a>
   <a href="opportunities.html"><i class="fas fa-fire"></i> Opportunities</a>
+  <a href="boost.html"><i class="fas fa-rocket"></i> Boost Profile</a>
+  <a href="post.html" class="active"><i class="fas fa-plus-circle"></i> Create Post</a>
+  <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
   <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
   <a href="#" id="sidebar-logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
 </div>
@@ -585,14 +590,27 @@ document.getElementById('post-btn').addEventListener('click', async () => {
     const userRef = doc(db, "users", currentUser.uid);
     const userSnap = await getDoc(userRef);
     const username = userSnap.exists() ? (userSnap.data().username || currentUser.email.split('@')[0]) : currentUser.email.split('@')[0];
-    
+
+    let imageUrl = null;
+    let imageBase64 = selectedImageBase64 || null;
+    if (selectedImageBase64) {
+      try {
+        showToast("Uploading photo...", "info");
+        imageUrl = await uploadPostImage(selectedImageBase64);
+        imageBase64 = null; // the document no longer carries the photo
+      } catch (error) {
+        console.warn("Photo upload failed, keeping the embedded copy:", error);
+      }
+    }
+
     await addDoc(collection(db, "posts"), {
       userId: currentUser.uid,
       username: username,
       content: text,
       category: selectedCategory.name,
       categoryIcon: selectedCategory.icon,
-      imageBase64: selectedImageBase64 || null,
+      imageUrl: imageUrl,
+      imageBase64: imageBase64,
       videoUrl: videoDownloadUrl || null,
       likes: 0,
       likedBy: [],
@@ -618,6 +636,26 @@ function fileToBase64(file) {
     reader.onload = () => resolve(reader.result);
     reader.onerror = reject;
   });
+}
+
+function dataUrlToBlob(dataUrl) {
+  const parts = String(dataUrl).split(',');
+  const mime = (parts[0].match(/data:([^;]+)/) || [])[1] || 'image/jpeg';
+  const binary = atob(parts[1] || '');
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new Blob([bytes], { type: mime });
+}
+
+// The photo goes to Storage so the post document stays a couple of KB instead
+// of embedding a base64 copy that every feed reader would have to download.
+// If the upload fails (rules, offline), the compressed base64 copy is kept so
+// publishing never breaks.
+async function uploadPostImage(dataUrl) {
+  const blob = dataUrlToBlob(dataUrl);
+  const path = `images/${currentUser.uid}/${Date.now()}_post.jpg`;
+  const snapshot = await uploadBytesResumable(ref(storage, path), blob);
+  return getDownloadURL(snapshot.ref);
 }
 
 function showToast(msg, type = 'success') {

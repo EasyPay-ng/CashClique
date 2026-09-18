@@ -285,23 +285,25 @@ function loadPost(){
       video.style.width = '100%';
       video.style.maxHeight = '500px';
       mediaContainer.appendChild(video);
-    } else if(post.imageBase64){
-      // Image content
+    } else if(post.imageUrl || post.imageBase64){
+      // Image content (newer posts store an uploaded URL, older ones base64)
+      const photoSrc = post.imageUrl || post.imageBase64;
       const img = document.createElement('img');
-      img.src = post.imageBase64;
+      img.src = photoSrc;
       img.className = 'post-media post-image';
       img.alt = 'Post image';
-      img.onclick = () => viewImage(post.imageBase64);
+      img.decoding = 'async';
+      img.onclick = () => viewImage(photoSrc);
       mediaContainer.appendChild(img);
     }
 
     // Media available? Reveal the Save action (hidden for text-only posts).
-    if(post.videoUrl || post.imageBase64){
+    if(post.videoUrl || post.imageUrl || post.imageBase64){
       currentMedia = {
         type: post.videoUrl ? 'video' : 'image',
         id: postId,
         videoUrl: post.videoUrl || null,
-        imageRaw: post.imageBase64 || null
+        imageRaw: post.imageUrl || post.imageBase64 || null
       };
       saveActionEl.style.display = 'inline-flex';
     } else {

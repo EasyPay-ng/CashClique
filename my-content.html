@@ -140,9 +140,14 @@ body{background:var(--cc-soft, #f5f5f5);min-height:100vh;padding:0;}
 CashClique
 </div>
 <a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+<a href="dashboard.html?feed=videos"><i class="fas fa-play-circle"></i> Videos</a>
+<a href="dashboard.html?feed=following"><i class="fas fa-user-group"></i> Following</a>
 <a href="my-content.html" class="active"><i class="fas fa-file-alt"></i> My Content</a>
-<a href="earnings.html"><i class="fas fa-dollar-sign"></i> Earnings</a>
+<a href="earnings.html"><i class="fas fa-wallet"></i> Wallet</a>
 <a href="opportunities.html"><i class="fas fa-fire"></i> Opportunities</a>
+<a href="boost.html"><i class="fas fa-rocket"></i> Boost Profile</a>
+<a href="post.html"><i class="fas fa-plus-circle"></i> Create Post</a>
+<a href="profile.html"><i class="fas fa-user"></i> Profile</a>
 <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
 <a href="#" id="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
 </div>
@@ -294,17 +299,24 @@ function loadUserPosts() {
 
             const card = document.createElement("div");
             card.className = "post-card";
+            // Thumbnails stay lightweight: a video card is a poster (the file
+            // only loads when the post is actually opened) and photos are lazy.
+            const rawPhoto = post.imageUrl || post.imageBase64 || post.image || '';
+            const photoSrc = !rawPhoto ? '' :
+                (rawPhoto.startsWith('data:') || rawPhoto.startsWith('http') || rawPhoto.startsWith('blob:')
+                    ? rawPhoto
+                    : 'data:image/jpeg;base64,' + rawPhoto);
+            const photoHTML = photoSrc
+                ? `<img src="${photoSrc}" class="post-image" alt="Post image" loading="lazy" decoding="async">`
+                : `<div class="no-image-placeholder"><i class="fas fa-file-alt"></i></div>`;
+
             card.innerHTML = `
                 <div class="post-image-container" onclick="viewPost('${postId}')">
-                    ${post.videoUrl 
-                        ? `<video src="${post.videoUrl}" class="post-image" preload="metadata" muted playsinline></video>
-                           <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.25);pointer-events:none;">
-                               <span style="width:52px;height:52px;border-radius:50%;background:rgba(255,106,0,0.92);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(0,0,0,0.35);"><i class="fas fa-play" style="font-size:18px;margin-left:3px;"></i></span>
-                           </div>` 
-                        : post.imageBase64 
-                        ? `<img src="${post.imageBase64}" class="post-image" alt="Post image">` 
-                        : (post.image ? `<img src="${post.image.startsWith('data:')||post.image.startsWith('http')?post.image:'data:image/jpeg;base64,'+post.image}" class="post-image" alt="Post image">` : `<div class="no-image-placeholder"><i class="fas fa-file-alt"></i></div>`)
-                    }
+                    ${post.videoUrl
+                        ? `<div class="post-image" style="background:linear-gradient(135deg,#1f2937,#111827);display:flex;align-items:center;justify-content:center;">
+                               <span style="width:56px;height:56px;border-radius:50%;background:rgba(255,106,0,0.92);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(0,0,0,0.35);"><i class="fas fa-play" style="font-size:18px;margin-left:3px;"></i></span>
+                           </div>`
+                        : photoHTML}
                 </div>
                 <div class="post-content">
                     <div class="post-text">${post.content || 'No caption'}</div>
