@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script src="js/theme.js">
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - Transactions Ledger | CashClique</title>
+
+<link rel="icon" href="https://res.cloudinary.com/dq7fpxfbc/image/upload/v1772726030/logo2_drw2fc.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{background:var(--cc-soft, #f5f6f8);min-height:100vh;color:var(--cc-ink, #1e2937);overflow-x:hidden;}
+
+/* Login Overlay */
+.login-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#ff6a00,#e65100);display:flex;align-items:center;justify-content:center;z-index:9999;}
+.login-box{background:var(--cc-surface, white);padding:40px;border-radius:16px;width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
+.login-title{text-align:center;margin-bottom:30px;font-size:24px;font-weight:700;color:var(--cc-ink, #333);}
+.login-input{width:100%;padding:15px;margin-bottom:20px;border:2px solid var(--cc-border, #ddd);border-radius:10px;font-size:16px;outline:none;}
+.login-input:focus{border-color:#ff6a00;}
+.login-btn{width:100%;background:#ff6a00;color:white;padding:15px;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;transition:0.3s;}
+.login-btn:hover{background:#d95600;}
+.error-msg{color:#d32f2f;text-align:center;margin-bottom:15px;font-size:14px;display:none;background:var(--cc-soft, #ffebee);padding:10px;border-radius:8px;}
+
+/* Admin Sidebar */
+.sidebar{width:260px;background:#1e2937;color:white;padding:25px;display:flex;flex-direction:column;gap:10px;position:fixed;height:100%;z-index:100;}
+.sidebar h2{font-size:22px;margin-bottom:30px;font-weight:700;color:#ff6a00;display:flex;align-items:center;gap:10px;}
+.sidebar a{color:#cbd5e1;text-decoration:none;padding:14px 16px;border-radius:10px;transition:0.3s;font-weight:500;display:flex;align-items:center;gap:10px;}
+.sidebar a:hover, .sidebar a.active{background:#ff6a00;color:white;}
+
+/* Main Content */
+.main{margin-left:260px;padding:30px;width:calc(100% - 260px);}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;padding-bottom:20px;border-bottom:2px solid var(--cc-border, #e2e8f0);flex-wrap:wrap;gap:15px;}
+.header h1{font-size:28px;font-weight:700;display:flex;align-items:center;gap:10px;}
+.header p{font-size:14px;color:var(--cc-muted, #64748b);margin-top:4px;}
+
+/* Stats Grid */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:30px;}
+.stat-card{background:var(--cc-surface, white);padding:22px;border-radius:16px;box-shadow:0 4px 15px rgba(0,0,0,0.03);border:1px solid var(--cc-border, #e2e8f0);}
+.stat-label{font-size:12px;color:var(--cc-muted, #64748b);text-transform:uppercase;font-weight:700;letter-spacing:0.5px;}
+.stat-value{font-size:26px;font-weight:700;color:var(--cc-ink, #1e2937);margin-top:8px;}
+.stat-value.success{color:#10b981;}
+.stat-value.warning{color:#f59e0b;}
+.stat-value.primary{color:#3b82f6;}
+.stat-value.purple{color:#a855f7;}
+.stat-value.danger{color:#ef4444;}
+
+/* Filters Bar */
+.filter-bar{background:var(--cc-surface, white);border:1px solid var(--cc-border, #e2e8f0);border-radius:16px;padding:18px 20px;margin-bottom:25px;display:flex;gap:15px;flex-wrap:wrap;align-items:center;justify-content:space-between;}
+.search-box{position:relative;flex:1;min-width:260px;}
+.search-box input{width:100%;padding:12px 14px 12px 42px;border:2px solid var(--cc-border, #e2e8f0);border-radius:10px;font-size:14px;outline:none;transition:0.3s;}
+.search-box input:focus{border-color:#ff6a00;box-shadow:0 0 0 3px rgba(255,106,0,0.1);}
+.search-box i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--cc-muted, #94a3b8);font-size:15px;}
+
+.filter-selects{display:flex;gap:10px;flex-wrap:wrap;}
+.filter-select{padding:12px 16px;border:2px solid var(--cc-border, #e2e8f0);border-radius:10px;font-size:14px;font-weight:500;outline:none;background:var(--cc-surface, white);color:var(--cc-ink, #1e2937);cursor:pointer;}
+.filter-select:focus{border-color:#ff6a00;}
+
+/* Type Pills */
+.type-pills{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.type-pill{padding:8px 16px;border-radius:20px;background:var(--cc-surface, white);border:1px solid var(--cc-border, #e2e8f0);color:var(--cc-muted, #64748b);font-size:13px;font-weight:600;cursor:pointer;transition:0.2s;display:inline-flex;align-items:center;gap:6px;}
+.type-pill:hover{border-color:#ff6a00;color:#ff6a00;}
+.type-pill.active{background:#ff6a00;border-color:#ff6a00;color:white;}
+
+/* Table Container */
+.table-container{background:var(--cc-surface, white);border-radius:16px;box-shadow:0 4px 15px rgba(0,0,0,0.03);border:1px solid var(--cc-border, #e2e8f0);overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+thead th{padding:16px 20px;text-align:left;background:var(--cc-surface, #f8fafc);font-weight:600;color:var(--cc-muted, #64748b);border-bottom:1px solid var(--cc-border, #e2e8f0);font-size:12px;text-transform:uppercase;letter-spacing:0.5px;}
+tbody tr{border-bottom:1px solid var(--cc-border, #f1f5f9);transition:0.2s;}
+tbody tr:hover{background:var(--cc-surface, #f8fafc);}
+td{padding:16px 20px;font-size:14px;color:var(--cc-ink, #334155);vertical-align:middle;}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;}
+.badge-deposit{background:#dbeafe;color:#1e40af;}
+.badge-withdrawal{background:#fee2e2;color:#991b1b;}
+.badge-tip{background:#f3e8ff;color:#6b21a8;}
+.badge-boost{background:#ffedd5;color:#9a3412;}
+.badge-opportunity{background:#ecfdf5;color:#065f46;}
+.badge-reward{background:#fef3c7;color:#92400e;}
+
+.status-badge{padding:4px 10px;border-radius:12px;font-size:11px;font-weight:700;text-transform:uppercase;display:inline-block;}
+.status-completed{background:#dcfce7;color:#166534;}
+.status-pending{background:#fef3c7;color:#b45309;}
+.status-rejected{background:#fee2e2;color:#991b1b;}
+
+/* Buttons */
+.btn{padding:8px 14px;border:none;border-radius:8px;font-weight:600;cursor:pointer;transition:0.2s;font-size:13px;display:inline-flex;align-items:center;gap:6px;}
+.btn-primary{background:#ff6a00;color:white;}
+.btn-primary:hover{background:#e55d00;}
+.btn-secondary{background:var(--cc-soft, #f1f5f9);color:var(--cc-ink, #1e2937);border:1px solid var(--cc-border, #e2e8f0);}
+.btn-secondary:hover{background:var(--cc-soft, #e2e8f0);}
+.btn-success{background:#10b981;color:white;}
+.btn-success:hover{background:#059669;}
+.btn-danger{background:#ef4444;color:white;}
+.btn-danger:hover{background:#dc2626;}
+
+/* Full Details Overlay */
+.page-overlay{position:fixed;inset:0;background:rgba(15,23,42,0.65);z-index:3000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px);padding:20px;}
+.page-overlay.active{display:flex;}
+.modal-window{background:var(--cc-surface, white);border-radius:20px;width:100%;max-width:720px;max-height:90vh;overflow-y:auto;box-shadow:0 25px 50px rgba(0,0,0,0.25);border:1px solid var(--cc-border, #e2e8f0);animation:modalIn 0.25s ease;}
+
+@keyframes modalIn{from{opacity:0;transform:scale(0.96);}to{opacity:1;transform:scale(1);}}
+
+.modal-head{padding:22px 25px;border-bottom:1px solid var(--cc-border, #e2e8f0);display:flex;align-items:center;justify-content:space-between;background:var(--cc-surface, #fafafa);position:sticky;top:0;z-index:10;}
+.modal-head h3{font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px;}
+.close-btn{background:none;border:none;font-size:22px;color:var(--cc-muted, #64748b);cursor:pointer;}
+.close-btn:hover{color:var(--cc-ink, #0f172a);}
+
+.modal-body-content{padding:25px;}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+@media(max-width:600px){.detail-grid{grid-template-columns:1fr;}}
+.detail-item{background:var(--cc-soft, #f8fafc);border:1px solid var(--cc-border, #e2e8f0);border-radius:12px;padding:14px 16px;}
+.detail-item.full-width{grid-column:1/-1;}
+.detail-item-label{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--cc-muted, #64748b);letter-spacing:0.5px;margin-bottom:4px;}
+.detail-item-value{font-size:14px;font-weight:600;color:var(--cc-ink, #1e2937);word-break:break-word;}
+
+.empty-state{text-align:center;padding:60px 20px;color:var(--cc-muted, #64748b);}
+.empty-state i{font-size:48px;color:#cbd5e1;margin-bottom:15px;}
+
+@media(max-width:900px){
+    .sidebar{transform:translateX(-100%);transition:0.3s;}
+    .sidebar.active{transform:translateX(0);}
+    .main{margin-left:0;width:100%;padding:15px;}
+}
+</style>
+<link rel="stylesheet" href="assets/theme.css">
+</head>
+
+<body>
+
+<!-- Login Overlay -->
+<div class="login-overlay" id="login-overlay">
+    <div class="login-box">
+        <h2 class="login-title">🔒 Admin Portal</h2>
+        <div class="error-msg" id="error-msg"></div>
+        <input type="email" class="login-input" id="admin-email" placeholder="Admin Email">
+        <input type="password" class="login-input" id="admin-password" placeholder="Password">
+        <button class="login-btn" onclick="adminLogin()">Secure Login</button>
+        <p style="text-align:center;margin-top:20px;font-size:12px;color:#888;">Authorized Personnel Only</p>
+    </div>
+</div>
+
+<!-- Admin Sidebar -->
+<div class="sidebar" id="sidebar" style="display:none;">
+    <h2><i class="fas fa-shield-halved"></i> Admin</h2>
+    <a href="admin.html"><i class="fas fa-chart-pie"></i> Dashboard</a>
+    <a href="admin-transactions.html" class="active"><i class="fas fa-receipt"></i> Transactions</a>
+    <a href="admin-opportunities.html"><i class="fas fa-bullhorn"></i> Manage Ads</a>
+    <a href="applications.html"><i class="fas fa-file"></i> Review Applicants</a>
+    <a href="admin-deposit.html"><i class="fas fa-chart-line"></i> Rates</a>
+    <a href="admin-chat.html"><i class="fas fa-headset"></i> Support</a>
+    <a href="#" onclick="adminLogout()" style="margin-top:auto;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+</div>
+
+<!-- Main Content -->
+<div class="main" id="main-content" style="display:none;">
+    <div class="header">
+        <div>
+            <h1><i class="fas fa-receipt" style="color:#ff6a00;"></i> Transactions Management</h1>
+            <p>Comprehensive ledger and real-time audit trail of all CashClique financial operations.</p>
+        </div>
+        <button class="btn btn-secondary" onclick="exportCSV()"><i class="fas fa-file-csv"></i> Export Table</button>
+    </div>
+
+    <!-- STATS GRID -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Total Volume (USD)</div>
+            <div class="stat-value primary" id="stat-total-volume">$0.00</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Total Deposits</div>
+            <div class="stat-value success" id="stat-total-deposits">$0.00</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Total Withdrawals</div>
+            <div class="stat-value danger" id="stat-total-withdrawals">$0.00</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Pending Withdrawals</div>
+            <div class="stat-value warning" id="stat-pending-withdrawals">$0.00</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Total Tips Volume</div>
+            <div class="stat-value purple" id="stat-total-tips">$0.00</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Total Boost Purchases</div>
+            <div class="stat-value" id="stat-total-boosts">$0.00</div>
+        </div>
+    </div>
+
+    <!-- TYPE PILLS -->
+    <div class="type-pills">
+        <button class="type-pill active" onclick="setTypeFilter('all', this)"><i class="fas fa-list"></i> All Types</button>
+        <button class="type-pill" onclick="setTypeFilter('deposit', this)"><i class="fas fa-arrow-down"></i> Deposits</button>
+        <button class="type-pill" onclick="setTypeFilter('withdrawal', this)"><i class="fas fa-arrow-up"></i> Withdrawals</button>
+        <button class="type-pill" onclick="setTypeFilter('tip', this)"><i class="fas fa-gift"></i> Tips</button>
+        <button class="type-pill" onclick="setTypeFilter('boost', this)"><i class="fas fa-rocket"></i> Boosts</button>
+        <button class="type-pill" onclick="setTypeFilter('opportunity', this)"><i class="fas fa-bullhorn"></i> Opportunity Funding</button>
+        <button class="type-pill" onclick="setTypeFilter('payout', this)"><i class="fas fa-dollar-sign"></i> Payouts / Rewards</button>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filter-bar">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="tx-search" placeholder="Search by ID, User, Email, Address, Hash..." oninput="filterTransactions()">
+        </div>
+        <div class="filter-selects">
+            <select class="filter-select" id="status-filter" onchange="filterTransactions()">
+                <option value="all">All Statuses</option>
+                <option value="completed">Completed / Approved</option>
+                <option value="pending">Pending</option>
+                <option value="rejected">Rejected</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- TRANSACTIONS TABLE -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Tx ID / Hash</th>
+                    <th>Type</th>
+                    <th>User / Initiator</th>
+                    <th>Target / Counterparty</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Date & Time</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="tx-tbody">
+                <tr><td colspan="8"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading transactions...</p></div></td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- TRANSACTION FULL DETAILS MODAL -->
+<div class="page-overlay" id="tx-modal">
+    <div class="modal-window">
+        <div class="modal-head">
+            <h3 id="modal-title"><i class="fas fa-receipt" style="color:#ff6a00;"></i> Transaction Full Details</h3>
+            <button class="close-btn" onclick="closeTxModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body-content">
+            <div class="detail-grid" id="modal-grid">
+                <!-- Dynamically populated -->
+            </div>
+            <div id="modal-actions" style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px;">
+                <!-- Action buttons -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, onSnapshot, doc, updateDoc, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
+    authDomain: "cashclique-31718.firebaseapp.com",
+    projectId: "cashclique-31718",
+    storageBucket: "cashclique-31718.firebasestorage.app",
+    messagingSenderId: "1064282591269",
+    appId: "1:1064282591269:web:17fbaf9b683d5b0dfbafcc"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const ALLOWED_ADMIN_EMAILS = ["beniwealth70@gmail.com", "baasituoppor01@gmail.com"];
+let currentUser = null;
+
+let allTxMap = {};
+let usersMap = {};
+let currentTypeFilter = "all";
+
+window.adminLogin = async () => {
+    const email = document.getElementById("admin-email").value.trim();
+    const password = document.getElementById("admin-password").value;
+    const errorMsg = document.getElementById("error-msg");
+    errorMsg.style.display = "none";
+
+    if (!ALLOWED_ADMIN_EMAILS.includes(email)) {
+        errorMsg.innerText = "Access Denied: Email not authorized";
+        errorMsg.style.display = "block";
+        return;
+    }
+
+    try { await signInWithEmailAndPassword(auth, email, password); } 
+    catch (e) { errorMsg.innerText = "Invalid email or password"; errorMsg.style.display = "block"; }
+};
+
+window.adminLogout = () => {
+    if (confirm("Logout from admin portal?")) {
+        signOut(auth).then(() => location.reload());
+    }
+};
+
+onAuthStateChanged(auth, (user) => {
+    if (user && ALLOWED_ADMIN_EMAILS.includes(user.email)) {
+        currentUser = user;
+        document.getElementById("login-overlay").style.display = "none";
+        document.getElementById("sidebar").style.display = "flex";
+        document.getElementById("main-content").style.display = "block";
+        initListeners();
+    }
+});
+
+function initListeners() {
+    // 1. Users cache for name/email resolution
+    onSnapshot(collection(db, "users"), (snap) => {
+        usersMap = {};
+        snap.forEach(d => { usersMap[d.id] = { id: d.id, ...d.data() }; });
+        filterTransactions();
+    });
+
+    // 2. Transactions collection
+    onSnapshot(collection(db, "transactions"), (snap) => {
+        snap.forEach(docSnap => {
+            const d = docSnap.data();
+            const id = docSnap.id;
+            allTxMap["tx_" + id] = {
+                id: id,
+                recordSource: "transactions",
+                ...d
+            };
+        });
+        updateMetricsAndTable();
+    });
+
+    // 3. Withdrawals collection
+    onSnapshot(collection(db, "withdrawals"), (snap) => {
+        snap.forEach(docSnap => {
+            const d = docSnap.data();
+            const id = docSnap.id;
+            allTxMap["wd_" + id] = {
+                id: id,
+                recordSource: "withdrawals",
+                type: "withdrawal",
+                amount: -(Math.abs(d.amount || 0)),
+                amountUSD: Math.abs(d.amount || 0),
+                ...d
+            };
+        });
+        updateMetricsAndTable();
+    });
+
+    // 4. Boosts collection
+    onSnapshot(collection(db, "boosts"), (snap) => {
+        snap.forEach(docSnap => {
+            const d = docSnap.data();
+            const id = docSnap.id;
+            // Only add if not already in transactions
+            if (!allTxMap["tx_" + id]) {
+                allTxMap["boost_" + id] = {
+                    id: id,
+                    recordSource: "boosts",
+                    type: "boost",
+                    amount: -(Math.abs(d.cost || 0)),
+                    amountUSD: Math.abs(d.cost || 0),
+                    ...d
+                };
+            }
+        });
+        updateMetricsAndTable();
+    });
+}
+
+function formatDate(ts) {
+    if (!ts) return "N/A";
+    if (ts.toDate) return ts.toDate().toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" });
+    if (typeof ts === "number" || ts instanceof Date) {
+        return new Date(ts).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" });
+    }
+    return String(ts);
+}
+
+function updateMetricsAndTable() {
+    let totalDeposits = 0;
+    let totalWithdrawals = 0;
+    let pendingWithdrawals = 0;
+    let totalTips = 0;
+    let totalBoosts = 0;
+    let totalVolume = 0;
+
+    Object.values(allTxMap).forEach(tx => {
+        const type = (tx.type || "").toLowerCase();
+        const amt = Math.abs(Number(tx.amountUSD || tx.amount) || 0);
+        const status = (tx.status || (tx.paid ? "approved" : "completed")).toLowerCase();
+
+        totalVolume += amt;
+
+        if (type === "deposit") {
+            if (status === "completed" || status === "approved") totalDeposits += amt;
+        } else if (type === "withdrawal") {
+            if (status === "pending" || !tx.paid) pendingWithdrawals += amt;
+            else if (status === "approved" || status === "completed") totalWithdrawals += amt;
+        } else if (type === "tip") {
+            totalTips += amt;
+        } else if (type === "boost") {
+            totalBoosts += amt;
+        }
+    });
+
+    document.getElementById("stat-total-volume").textContent = `$${totalVolume.toFixed(2)}`;
+    document.getElementById("stat-total-deposits").textContent = `$${totalDeposits.toFixed(2)}`;
+    document.getElementById("stat-total-withdrawals").textContent = `$${totalWithdrawals.toFixed(2)}`;
+    document.getElementById("stat-pending-withdrawals").textContent = `$${pendingWithdrawals.toFixed(2)}`;
+    document.getElementById("stat-total-tips").textContent = `$${totalTips.toFixed(2)}`;
+    document.getElementById("stat-total-boosts").textContent = `$${totalBoosts.toFixed(2)}`;
+
+    filterTransactions();
+}
+
+window.setTypeFilter = (type, btn) => {
+    currentTypeFilter = type;
+    document.querySelectorAll(".type-pill").forEach(p => p.classList.remove("active"));
+    btn.classList.add("active");
+    filterTransactions();
+};
+
+window.filterTransactions = () => {
+    const search = (document.getElementById("tx-search").value || "").trim().toLowerCase();
+    const statusVal = document.getElementById("status-filter").value.toLowerCase();
+    const tbody = document.getElementById("tx-tbody");
+
+    let list = Object.values(allTxMap);
+
+    // Filter by type
+    if (currentTypeFilter !== "all") {
+        list = list.filter(tx => {
+            const t = (tx.type || "").toLowerCase();
+            if (currentTypeFilter === "payout") return t === "payout" || t === "reward" || tx.earning !== undefined;
+            return t === currentTypeFilter;
+        });
+    }
+
+    // Filter by status
+    if (statusVal !== "all") {
+        list = list.filter(tx => {
+            const stat = (tx.status || (tx.paid ? "approved" : "pending")).toLowerCase();
+            if (statusVal === "completed") return stat === "completed" || stat === "approved";
+            return stat === statusVal;
+        });
+    }
+
+    // Filter by search
+    if (search) {
+        list = list.filter(tx => {
+            const uid = (tx.userId || tx.from || "").toLowerCase();
+            const user = usersMap[tx.userId || tx.from] || {};
+            const userName = (tx.username || user.username || "").toLowerCase();
+            const userEmail = (tx.email || user.email || "").toLowerCase();
+            const txId = (tx.transactionId || tx.transactionHash || tx.id || "").toLowerCase();
+            const desc = (tx.description || tx.method || tx.walletAddress || "").toLowerCase();
+            return uid.includes(search) || userName.includes(search) || userEmail.includes(search) || txId.includes(search) || desc.includes(search);
+        });
+    }
+
+    // Sort by timestamp descending
+    list.sort((a, b) => {
+        const timeA = a.timestamp?.seconds ? a.timestamp.seconds * 1000 : (typeof a.timestamp === "number" ? a.timestamp : 0);
+        const timeB = b.timestamp?.seconds ? b.timestamp.seconds * 1000 : (typeof b.timestamp === "number" ? b.timestamp : 0);
+        return timeB - timeA;
+    });
+
+    if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><i class="fas fa-search"></i><p>No transactions match the selected filters.</p></div></td></tr>`;
+        return;
+    }
+
+    let html = "";
+    list.forEach(tx => {
+        const key = tx.recordSource + "_" + tx.id;
+        const type = (tx.type || "transaction").toLowerCase();
+        const typeBadge = getTypeBadge(type);
+        const status = (tx.status || (tx.paid ? "approved" : (type === "withdrawal" ? "pending" : "completed"))).toLowerCase();
+        const statusClass = status === "completed" || status === "approved" ? "status-completed" : (status === "pending" ? "status-pending" : "status-rejected");
+
+        const rawAmt = Number(tx.amountUSD || tx.amount) || 0;
+        const isNegative = rawAmt < 0 || type === "withdrawal" || type === "boost" || type === "opportunity";
+        const amtDisplay = (isNegative ? "-" : "+") + "$" + Math.abs(rawAmt).toFixed(2);
+        const amtColor = isNegative ? "#ef4444" : "#10b981";
+
+        const user = usersMap[tx.userId || tx.from] || {};
+        const userName = tx.username || user.username || tx.creatorName || tx.fromUsername || "User";
+        const userEmail = tx.email || user.email || "";
+
+        let counterparty = "—";
+        if (type === "tip") {
+            const receiver = usersMap[tx.to] || {};
+            counterparty = receiver.username || tx.to || "Recipient";
+        } else if (type === "opportunity") {
+            counterparty = tx.advertiserName || "Campaign";
+        } else if (type === "boost") {
+            counterparty = tx.postId ? `Post: ${tx.postId.substring(0, 8)}...` : "Profile";
+        }
+
+        const dateStr = formatDate(tx.timestamp);
+        const displayId = (tx.transactionId || tx.transactionHash || tx.id || "").substring(0, 10) + "...";
+
+        html += `
+            <tr>
+                <td><code>${displayId}</code></td>
+                <td>${typeBadge}</td>
+                <td>
+                    <strong>${escapeHtml(userName)}</strong>
+                    ${userEmail ? `<br><small style="color:#64748b;">${escapeHtml(userEmail)}</small>` : ""}
+                </td>
+                <td><small>${escapeHtml(counterparty)}</small></td>
+                <td style="font-weight:700;color:${amtColor};">${amtDisplay}</td>
+                <td><span class="status-badge ${statusClass}">${status}</span></td>
+                <td><small>${dateStr}</small></td>
+                <td>
+                    <button class="btn btn-secondary" onclick="viewTxDetails('${key}')">
+                        <i class="fas fa-eye"></i> Details
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+
+    tbody.innerHTML = html;
+};
+
+function getTypeBadge(type) {
+    if (type === "deposit") return `<span class="badge badge-deposit"><i class="fas fa-arrow-down"></i> Deposit</span>`;
+    if (type === "withdrawal") return `<span class="badge badge-withdrawal"><i class="fas fa-arrow-up"></i> Withdrawal</span>`;
+    if (type === "tip") return `<span class="badge badge-tip"><i class="fas fa-gift"></i> Tip</span>`;
+    if (type === "boost") return `<span class="badge badge-boost"><i class="fas fa-rocket"></i> Boost</span>`;
+    if (type === "opportunity") return `<span class="badge badge-opportunity"><i class="fas fa-bullhorn"></i> Opportunity</span>`;
+    return `<span class="badge badge-reward"><i class="fas fa-trophy"></i> Reward</span>`;
+}
+
+function escapeHtml(str) {
+    if (!str) return "";
+    return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+window.viewTxDetails = (key) => {
+    const tx = allTxMap[key];
+    if (!tx) return;
+
+    const modal = document.getElementById("tx-modal");
+    const grid = document.getElementById("modal-grid");
+    const actions = document.getElementById("modal-actions");
+
+    const user = usersMap[tx.userId || tx.from] || {};
+    const type = (tx.type || tx.recordSource).toUpperCase();
+    const status = (tx.status || (tx.paid ? "approved" : "pending")).toUpperCase();
+
+    let gridHTML = `
+        <div class="detail-item">
+            <div class="detail-item-label">Transaction ID / Key</div>
+            <div class="detail-item-value"><code>${tx.transactionId || tx.id}</code></div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-item-label">Type & Category</div>
+            <div class="detail-item-value">${type}</div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-item-label">Amount (USD)</div>
+            <div class="detail-item-value" style="font-size:16px;font-weight:700;color:#ff6a00;">
+                $${Math.abs(Number(tx.amountUSD || tx.amount) || 0).toFixed(2)}
+            </div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-item-label">Status</div>
+            <div class="detail-item-value">${status}</div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-item-label">Date & Time</div>
+            <div class="detail-item-value">${formatDate(tx.timestamp)}</div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-item-label">User / Initiator</div>
+            <div class="detail-item-value">
+                <strong>${tx.username || user.username || "User"}</strong><br>
+                <small>${user.email || tx.email || "No email"}</small><br>
+                <code>${tx.userId || tx.from || "N/A"}</code>
+            </div>
+        </div>
+    `;
+
+    // Crypto details if deposit / withdrawal
+    if (tx.cryptoCurrency || tx.cryptoAmount || tx.method) {
+        gridHTML += `
+            <div class="detail-item">
+                <div class="detail-item-label">Method / Asset</div>
+                <div class="detail-item-value">${tx.cryptoCurrency || tx.method || "USDT"} (${tx.cryptoAmount ? tx.cryptoAmount : "USD"})</div>
+            </div>
+        `;
+    }
+
+    if (tx.walletAddress || tx.address || tx.destinationAddress) {
+        gridHTML += `
+            <div class="detail-item full-width">
+                <div class="detail-item-label">Destination / Wallet Address</div>
+                <div class="detail-item-value"><code>${tx.walletAddress || tx.address || tx.destinationAddress}</code></div>
+            </div>
+        `;
+    }
+
+    if (tx.transactionHash || tx.hash) {
+        const h = tx.transactionHash || tx.hash;
+        gridHTML += `
+            <div class="detail-item full-width">
+                <div class="detail-item-label">Blockchain Transaction Hash</div>
+                <div class="detail-item-value"><code>${h}</code></div>
+            </div>
+        `;
+    }
+
+    if (tx.description || tx.note) {
+        gridHTML += `
+            <div class="detail-item full-width">
+                <div class="detail-item-label">Description / Memo</div>
+                <div class="detail-item-value">${escapeHtml(tx.description || tx.note)}</div>
+            </div>
+        `;
+    }
+
+    // Boost specific details
+    if (tx.service || tx.quantity) {
+        gridHTML += `
+            <div class="detail-item">
+                <div class="detail-item-label">Boost Service</div>
+                <div class="detail-item-value">${(tx.service || "").toUpperCase()} (+${Number(tx.quantity || 0).toLocaleString()})</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-item-label">Target Post ID</div>
+                <div class="detail-item-value"><code>${tx.postId || "Profile"}</code></div>
+            </div>
+        `;
+    }
+
+    grid.innerHTML = gridHTML;
+
+    // Action buttons
+    let actionHTML = `<button class="btn btn-secondary" onclick="closeTxModal()">Close</button>`;
+    if (tx.recordSource === "withdrawals" && (tx.status === "pending" || !tx.paid)) {
+        actionHTML += `
+            <button class="btn btn-danger" onclick="rejectWd('${tx.id}', '${tx.userId}', ${Math.abs(tx.amount || 0)})"><i class="fas fa-times"></i> Reject</button>
+            <button class="btn btn-success" onclick="approveWd('${tx.id}')"><i class="fas fa-check"></i> Approve Payout</button>
+        `;
+    }
+    actions.innerHTML = actionHTML;
+
+    modal.classList.add("active");
+};
+
+window.closeTxModal = () => {
+    document.getElementById("tx-modal").classList.remove("active");
+};
+
+window.approveWd = async (id) => {
+    if (!confirm("Approve this withdrawal and mark as completed?")) return;
+    try {
+        await updateDoc(doc(db, "withdrawals", id), { paid: true, status: "approved" });
+        closeTxModal();
+        alert("Withdrawal approved!");
+    } catch (e) {
+        alert("Failed to approve withdrawal.");
+    }
+};
+
+window.rejectWd = async (id, userId, amt) => {
+    if (!confirm(`Reject this $${amt} withdrawal and refund user's balance?`)) return;
+    try {
+        await updateDoc(doc(db, "withdrawals", id), { paid: false, status: "rejected" });
+        await updateDoc(doc(db, "users", userId), { balance: increment(amt) });
+        closeTxModal();
+        alert("Withdrawal rejected and balance refunded.");
+    } catch (e) {
+        alert("Failed to reject withdrawal.");
+    }
+};
+
+window.exportCSV = () => {
+    const list = Object.values(allTxMap);
+    if (!list.length) return alert("No transactions to export.");
+
+    let csv = "ID,Type,User,Amount,Status,Date\n";
+    list.forEach(tx => {
+        const type = tx.type || "";
+        const user = usersMap[tx.userId || tx.from]?.username || tx.userId || "";
+        const amt = tx.amountUSD || tx.amount || 0;
+        const stat = tx.status || "";
+        const date = formatDate(tx.timestamp).replace(/,/g, "");
+        csv += `"${tx.id}","${type}","${user}","${amt}","${stat}","${date}"\n`;
+    });
+
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `cashclique_transactions_${Date.now()}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+};
+</script>
+</body>
+</html>
