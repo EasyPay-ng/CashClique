@@ -174,3 +174,51 @@ describe("ranking: helpers", () => {
     assert.equal(orderForFeed([], { now: NOW }).length, 0);
     assert.equal(orderForFeed(null).length, 0);
 });
+
+describe("ranking: high amounts of likes, views or comments are pushed more on FYP", () => {
+    const regularPost = post("regular", { mediaKind: "video", likes: 10, views: 50, commentCount: 2, at: NOW - 2 * HOUR });
+    const viralPost = post("viral", { mediaKind: "video", likes: 500, views: 10000, commentCount: 80, at: NOW - 2 * HOUR });
+
+    const regularScore = scorePost(regularPost, { now: NOW, jitter: false });
+    const viralScore = scorePost(viralPost, { now: NOW, jitter: false });
+
+    assert.ok(viralScore > regularScore * 3, `high engagement posts receive a massive push (regular: ${regularScore.toFixed(2)}, viral: ${viralScore.toFixed(2)})`);
+
+    const ranked = rankPosts([regularPost, viralPost], { now: NOW });
+    assert.deepEqual(ranked.map(p => p.id), ["viral", "regular"]);
+});
+
+describe("ranking: feed shuffles when user has previously interacted and shuffles newest videos first when unseen videos exist", () => {
+    const unseenVideos = [
+        post("uv1", { mediaKind: "video", at: NOW - 10 * 60 * 1000, hasViewed: false }),
+        post("uv2", { mediaKind: "video", at: NOW - 5 * 60 * 1000, hasViewed: false })
+    ];
+    const seenPost = post("seen1", { mediaKind: "video", likes: 200, at: NOW - 2 * HOUR, hasViewed: true });
+    const textPost = post("text1", { mediaKind: "text", likes: 300, at: NOW - 3 * HOUR, hasViewed: false });
+
+    // When hasInteracted is true AND unseen videos exist:
+    const orderedInteracted = orderForFeed([...seenPost ? [seenPost] : [], ...unseenVideos, textPost], {
+        now: NOW,
+        salt: "user_session_1",
+        hasInteracted: true
+    });
+
+    const firstTwoIds = orderedInteracted.slice(0, 2).map(p => p.id);
+    assert.ok(firstTwoIds.includes("uv1") && firstTwoIds.includes("uv2"),
+        "the newest unseen videos are shuffled to the top when unseen videos exist");
+
+    // When hasInteracted is true BUT all videos have already been seen:
+    const allSeenVideos = [
+        post("sv1", { mediaKind: "video", likes: 50, at: NOW - 5 * 60 * 1000, hasViewed: true }),
+        post("sv2", { mediaKind: "video", likes: 2000, at: NOW - 24 * HOUR, hasViewed: true })
+    ];
+    const orderedAllSeen = orderForFeed(allSeenVideos, {
+        now: NOW,
+        salt: "user_session_1",
+        hasInteracted: true
+    });
+
+    // It should NOT prioritize the 5m ago post over the high-engagement post
+    // because no unseen videos exist, so it does not shuffle newest to the top.
+    assert.equal(orderedAllSeen[0].id, "sv2", "without unseen videos, newest is not pushed over high engagement");
+});

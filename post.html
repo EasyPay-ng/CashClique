@@ -109,6 +109,27 @@ textarea::placeholder { color: var(--cc-muted, #aaa); font-style: italic; }
 .remove-image, .remove-video { position: absolute; top: 10px; right: 10px; background: rgba(0, 0, 0, 0.7); color: white; border: none; padding: 8px 16px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
 .remove-image:hover, .remove-video:hover { background: rgba(0, 0, 0, 0.9); }
 
+/* Toggle Switch Styles */
+.opportunity-ad-toggle { margin-bottom: 25px; }
+.ad-toggle-card { background: var(--cc-surface, #f8fafc); border: 2px solid var(--cc-border, #e2e8f0); border-radius: 14px; padding: 18px 20px; transition: all 0.3s; }
+.ad-toggle-header { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 10px; }
+.ad-toggle-title-wrap { flex: 1; }
+.active-badge { display: inline-flex; align-items: center; gap: 5px; background: rgba(16, 185, 129, 0.12); color: #059669; font-size: 11px; font-weight: 700; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; margin-bottom: 6px; }
+.ad-toggle-title { font-size: 16px; font-weight: 700; color: var(--cc-ink, #1e2937); }
+.ad-toggle-desc { font-size: 13px; color: var(--cc-muted, #64748b); line-height: 1.5; margin-bottom: 12px; }
+.ad-status-pill { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 10px; font-size: 12px; font-weight: 600; }
+.ad-status-pill.ads-enabled { background: rgba(255, 106, 0, 0.08); color: #d95600; border: 1px solid rgba(255, 106, 0, 0.2); }
+.ad-status-pill.ads-disabled { background: rgba(59, 130, 246, 0.08); color: #2563eb; border: 1px solid rgba(59, 130, 246, 0.2); }
+.switch { position: relative; display: inline-block; width: 50px; height: 28px; flex-shrink: 0; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--cc-border, #cbd5e1); transition: 0.3s; }
+.slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: 0.3s; }
+input:checked + .slider { background-color: #ff6a00; }
+input:focus + .slider { box-shadow: 0 0 1px #ff6a00; }
+input:checked + .slider:before { transform: translateX(22px); }
+.slider.round { border-radius: 34px; }
+.slider.round:before { border-radius: 50%; }
+
 /* Buttons */
 .button-group { display: flex; gap: 12px; margin-top: 30px; }
 .post-btn, .cancel-btn { flex: 1; padding: 16px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
@@ -268,6 +289,28 @@ textarea::placeholder { color: var(--cc-muted, #aaa); font-style: italic; }
         </div>
       </div>
 
+      <!-- Opportunity Ad Policy Toggle (Visible for users on an active opportunity) -->
+      <div class="opportunity-ad-toggle" id="opportunity-ad-section" style="display:none;">
+        <div class="ad-toggle-card">
+          <div class="ad-toggle-header">
+            <div class="ad-toggle-title-wrap">
+              <span class="active-badge"><i class="fas fa-shield-alt"></i> Active Opportunity Creator</span>
+              <div class="ad-toggle-title">Allow Ads on this Post</div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="allow-ads-toggle" checked>
+              <span class="slider round"></span>
+            </label>
+          </div>
+          <p class="ad-toggle-desc" id="ad-toggle-desc">
+            Allow sponsored ads to appear on this post. <strong>When ads are allowed, you cannot purchase boost services (views/likes) for this post.</strong>
+          </p>
+          <div class="ad-status-pill ads-enabled" id="ad-status-pill">
+            <i class="fas fa-bullhorn"></i> <span id="ad-status-text">Ads Allowed: Boosting views/likes is disabled for this post.</span>
+          </div>
+        </div>
+      </div>
+
       <div class="button-group">
         <button class="cancel-btn" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> Cancel</button>
         <button class="post-btn" id="post-btn">
@@ -283,7 +326,7 @@ textarea::placeholder { color: var(--cc-muted, #aaa); font-style: italic; }
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 const firebaseConfig = {
@@ -330,6 +373,8 @@ let videoDownloadUrl = null;
 let uploadTask = null;
 let isDropdownOpen = false;
 
+let isOnActiveOpportunity = false;
+
 // Initialize
 function init() {
   renderCategories(CATEGORIES);
@@ -341,9 +386,66 @@ function init() {
     }
   });
 
-  onAuthStateChanged(auth, user => {
+  onAuthStateChanged(auth, async user => {
     if (!user) return window.location.href = "login.html";
     currentUser = user;
+    await checkActiveOpportunityStatus(user.uid);
+  });
+}
+
+async function checkActiveOpportunityStatus(uid) {
+  try {
+    const appsQuery = query(
+      collection(db, "applications"),
+      where("creatorId", "==", uid),
+      where("status", "==", "approved")
+    );
+    const snap = await getDocs(appsQuery);
+    if (!snap.empty) {
+      for (const appDoc of snap.docs) {
+        const appData = appDoc.data();
+        if (appData.opportunityId) {
+          const oppSnap = await getDoc(doc(db, "opportunities", appData.opportunityId));
+          if (oppSnap.exists()) {
+            const oppData = oppSnap.data();
+            if (oppData.status === "approved" || oppData.status === "active") {
+              isOnActiveOpportunity = true;
+              break;
+            }
+          }
+        } else {
+          isOnActiveOpportunity = true;
+          break;
+        }
+      }
+    }
+    if (isOnActiveOpportunity) {
+      const section = document.getElementById("opportunity-ad-section");
+      if (section) section.style.display = "block";
+      setupAdToggleEvents();
+    }
+  } catch (err) {
+    console.warn("Could not check active opportunity status:", err);
+  }
+}
+
+function setupAdToggleEvents() {
+  const toggle = document.getElementById("allow-ads-toggle");
+  if (!toggle) return;
+  toggle.addEventListener("change", () => {
+    const isAllowed = toggle.checked;
+    const pill = document.getElementById("ad-status-pill");
+    const text = document.getElementById("ad-status-text");
+    const desc = document.getElementById("ad-toggle-desc");
+    if (isAllowed) {
+      pill.className = "ad-status-pill ads-enabled";
+      text.textContent = "Ads Allowed: Boosting views/likes is disabled for this post.";
+      desc.innerHTML = "Allow sponsored ads to appear on this post. <strong>When ads are allowed, you cannot purchase boost services (views/likes) for this post.</strong>";
+    } else {
+      pill.className = "ad-status-pill ads-disabled";
+      text.textContent = "Ads Disallowed: You can boost this video's views and likes.";
+      desc.innerHTML = "Ads will NOT be placed on this post. <strong>Because ads are disabled, you can boost this post's views and likes.</strong>";
+    }
   });
 }
 
@@ -603,6 +705,10 @@ document.getElementById('post-btn').addEventListener('click', async () => {
       }
     }
 
+    const allowAdsToggle = document.getElementById("allow-ads-toggle");
+    const allowAds = isOnActiveOpportunity ? (allowAdsToggle ? allowAdsToggle.checked : true) : false;
+    const canBoost = !allowAds;
+
     await addDoc(collection(db, "posts"), {
       userId: currentUser.uid,
       username: username,
@@ -612,6 +718,10 @@ document.getElementById('post-btn').addEventListener('click', async () => {
       imageUrl: imageUrl,
       imageBase64: imageBase64,
       videoUrl: videoDownloadUrl || null,
+      allowAds: allowAds,
+      canBoost: canBoost,
+      boostedLikes: 0,
+      boostedViews: 0,
       likes: 0,
       likedBy: [],
       commentCount: 0,

@@ -33,41 +33,53 @@ body{background:var(--cc-soft, #f5f6f8);min-height:100vh;color:var(--cc-ink, #1e
 
 /* Main Content */
 .main{margin-left:260px;padding:30px;width:calc(100% - 260px);}
-.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;padding-bottom:20px;border-bottom:2px solid var(--cc-border, #e2e8f0);}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;padding-bottom:20px;border-bottom:2px solid var(--cc-border, #e2e8f0);flex-wrap:wrap;gap:15px;}
 .header h1{font-size:28px;font-weight:700;}
 
 /* Stats Grid */
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:30px;}
-.stat-card{background:var(--cc-surface, white);padding:25px;border-radius:16px;box-shadow:0 4px 15px rgba(0,0,0,0.03);border:1px solid var(--cc-border, #e2e8f0);}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:20px;margin-bottom:30px;}
+.stat-card{background:var(--cc-surface, white);padding:22px;border-radius:16px;box-shadow:0 4px 15px rgba(0,0,0,0.03);border:1px solid var(--cc-border, #e2e8f0);display:flex;flex-direction:column;justify-content:space-between;}
 .stat-label{font-size:12px;color:var(--cc-muted, #64748b);text-transform:uppercase;font-weight:700;letter-spacing:0.5px;}
-.stat-value{font-size:28px;font-weight:700;color:var(--cc-ink, #1e2937);margin-top:8px;}
+.stat-value{font-size:26px;font-weight:700;color:var(--cc-ink, #1e2937);margin-top:8px;}
 .stat-value.success{color:#10b981;}
 .stat-value.warning{color:#f59e0b;}
 .stat-value.primary{color:#3b82f6;}
 .stat-value.purple{color:#a855f7;}
+.stat-value.danger{color:#ef4444;}
+.stat-sub{font-size:11px;color:var(--cc-muted, #64748b);margin-top:4px;font-weight:500;}
+.stat-sub span.real{color:#10b981;font-weight:600;}
+.stat-sub span.boost{color:#f59e0b;font-weight:600;}
 
 /* Tabs */
 .tabs{display:flex;gap:10px;margin-bottom:20px;background:var(--cc-surface, #fff);padding:8px;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,0.02);border:1px solid var(--cc-border, #e2e8f0);flex-wrap:wrap;}
-.tab{padding:12px 24px;cursor:pointer;font-weight:600;color:var(--cc-muted, #64748b);border-radius:8px;transition:0.3s;font-size:14px;}
+.tab{padding:12px 20px;cursor:pointer;font-weight:600;color:var(--cc-muted, #64748b);border-radius:8px;transition:0.3s;font-size:14px;display:inline-flex;align-items:center;gap:8px;}
 .tab.active{background:#ff6a00;color:white;}
+.tab .tab-badge{background:rgba(255,255,255,0.25);padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;}
+.tab:not(.active) .tab-badge{background:var(--cc-soft, #e2e8f0);color:var(--cc-ink, #1e2937);}
 
 /* Search Bar */
-.search-container { margin-bottom:20px; position:relative; }
-.search-input { width:100%; max-width:400px; padding:14px 14px 14px 45px; border:2px solid var(--cc-border, #e2e8f0); border-radius:12px; font-size:15px; outline:none; transition:0.3s; }
-.search-input:focus { border-color:#ff6a00; box-shadow:0 0 0 4px rgba(255,106,0,0.1); }
-.search-icon { position:absolute; left:16px; top:50%; transform:translateY(-50%); color:var(--cc-muted, #94a3b8); font-size:16px; }
+.search-container{margin-bottom:20px;position:relative;display:flex;gap:12px;flex-wrap:wrap;}
+.search-input{width:100%;max-width:400px;padding:12px 14px 12px 42px;border:2px solid var(--cc-border, #e2e8f0);border-radius:12px;font-size:14px;outline:none;transition:0.3s;}
+.search-input:focus{border-color:#ff6a00;box-shadow:0 0 0 4px rgba(255,106,0,0.1);}
+.search-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--cc-muted, #94a3b8);font-size:15px;}
+
+/* Section Banner */
+.section-banner{background:linear-gradient(135deg,rgba(255,106,0,0.08),rgba(255,106,0,0.02));border:1px solid rgba(255,106,0,0.25);border-radius:14px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:15px;}
+.section-banner i{font-size:28px;color:#ff6a00;}
+.section-banner-title{font-size:15px;font-weight:700;color:var(--cc-ink, #1e2937);}
+.section-banner-sub{font-size:13px;color:var(--cc-muted, #64748b);margin-top:2px;}
 
 /* Tables */
 .table-container{background:var(--cc-surface, white);border-radius:16px;box-shadow:0 4px 15px rgba(0,0,0,0.03);border:1px solid var(--cc-border, #e2e8f0);overflow-x:auto;}
 table{width:100%;border-collapse:collapse;}
-thead th{padding:18px;text-align:left;background:var(--cc-surface, #f8fafc);font-weight:600;color:var(--cc-muted, #64748b);border-bottom:1px solid var(--cc-border, #e2e8f0);font-size:13px;text-transform:uppercase;}
+thead th{padding:16px 18px;text-align:left;background:var(--cc-surface, #f8fafc);font-weight:600;color:var(--cc-muted, #64748b);border-bottom:1px solid var(--cc-border, #e2e8f0);font-size:12px;text-transform:uppercase;letter-spacing:0.5px;}
 tbody tr{border-bottom:1px solid var(--cc-border, #f1f5f9);transition:0.2s;}
 tbody tr:hover{background:var(--cc-surface, #f8fafc);}
-td{padding:18px;font-size:14px;color:var(--cc-ink, #334155);}
+td{padding:16px 18px;font-size:14px;color:var(--cc-ink, #334155);vertical-align:middle;}
 .balance-display{font-weight:700;color:#ff6a00;}
 
 /* Buttons & Badges */
-.btn{padding:8px 16px;border:none;border-radius:8px;font-weight:600;cursor:pointer;transition:0.2s;font-size:13px;display:inline-flex;align-items:center;gap:6px;}
+.btn{padding:8px 14px;border:none;border-radius:8px;font-weight:600;cursor:pointer;transition:0.2s;font-size:13px;display:inline-flex;align-items:center;gap:6px;}
 .btn-primary{background:#ff6a00;color:white;}
 .btn-primary:hover{background:#e55d00;}
 .btn-success{background:#10b981;color:white;}
@@ -77,21 +89,37 @@ td{padding:18px;font-size:14px;color:var(--cc-ink, #334155);}
 .btn-secondary{background:var(--cc-soft, #e2e8f0);color:var(--cc-ink, #1e2937);}
 .btn-secondary:hover{background:var(--cc-soft, #cbd5e1);}
 
-.badge{display:inline-block;padding:6px 12px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;}
 .badge-pending{background:#fef3c7;color:#b45309;}
-.badge-approved{background:var(--cc-soft, #dcfce7);color:#166534;}
-.badge-rejected{background:var(--cc-soft, #fee2e2);color:#991b1b;}
-.badge-tip{background:var(--cc-soft, #f3e8ff);color:#7c3aed;}
+.badge-approved{background:#dcfce7;color:#166534;}
+.badge-rejected{background:#fee2e2;color:#991b1b;}
+.badge-tip{background:#f3e8ff;color:#7c3aed;}
+
+/* Reward specific badges */
+.badge-organic-clean{background:#dcfce7;color:#15803d;}
+.badge-organic-mixed{background:#fef3c7;color:#b45309;}
+.badge-organic-boosted{background:#fee2e2;color:#b91c1c;}
+
+.ad-badge-inline{font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;display:inline-flex;align-items:center;gap:4px;}
+.ad-badge-inline.on{background:#ecfdf5;color:#047857;}
+.ad-badge-inline.off{background:#fef3c7;color:#b45309;}
+
+/* Metric Pill Breakdown */
+.metric-pill-breakdown{display:inline-flex;flex-direction:column;gap:2px;}
+.metric-pill-breakdown .total{font-weight:700;}
+.metric-pill-breakdown .split{font-size:11px;color:var(--cc-muted, #64748b);display:flex;gap:6px;align-items:center;}
+.metric-pill-breakdown .split .r{color:#10b981;font-weight:600;}
+.metric-pill-breakdown .split .b{color:#f59e0b;font-weight:600;}
 
 /* Modal */
-.modal{position:fixed;inset:0;background:rgba(15,23,42,0.6);display:none;align-items:center;justify-content:center;z-index:3000;backdrop-filter:blur(4px);}
+.modal{position:fixed;inset:0;background:rgba(15,23,42,0.6);display:none;align-items:center;justify-content:center;z-index:3000;backdrop-filter:blur(4px);padding:20px;}
 .modal.active{display:flex;}
-.modal-content{background:var(--cc-surface, white);padding:30px;border-radius:20px;width:450px;max-width:95%;box-shadow:0 20px 40px rgba(0,0,0,0.2);}
-.modal-title{font-size:20px;font-weight:700;margin-bottom:20px;color:var(--cc-ink, #1e2937);}
+.modal-content{background:var(--cc-surface, white);padding:30px;border-radius:20px;width:550px;max-width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 40px rgba(0,0,0,0.2);}
+.modal-title{font-size:20px;font-weight:700;margin-bottom:20px;color:var(--cc-ink, #1e2937);display:flex;align-items:center;gap:10px;}
 .form-group{margin-bottom:15px;}
 .form-group label{display:block;margin-bottom:8px;font-weight:600;font-size:14px;}
-input[type="number"]{width:100%;padding:14px;border:2px solid var(--cc-border, #e2e8f0);border-radius:10px;font-size:15px;outline:none;}
-input[type="number"]:focus{border-color:#ff6a00;}
+input[type="number"], input[type="text"]{width:100%;padding:12px 14px;border:2px solid var(--cc-border, #e2e8f0);border-radius:10px;font-size:15px;outline:none;}
+input[type="number"]:focus, input[type="text"]:focus{border-color:#ff6a00;}
 .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:24px;}
 
 /* Full Page Overlay */
@@ -104,13 +132,18 @@ input[type="number"]:focus{border-color:#ff6a00;}
 .overlay-content{padding:30px 20px;max-width:700px;margin:0 auto;width:100%;flex:1;}
 
 .detail-card{background:var(--cc-surface, white);border:1px solid var(--cc-border, #e2e8f0);border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.03);}
-.detail-row{padding:18px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--cc-border, #f1f5f9);gap:20px;}
+.detail-row{padding:16px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--cc-border, #f1f5f9);gap:20px;}
 .detail-row:last-child{border-bottom:none;}
 .detail-label{font-size:13px;color:var(--cc-muted, #64748b);font-weight:600;text-transform:uppercase;}
-.detail-value{font-size:15px;font-weight:700;color:var(--cc-ink, #1e2937);text-align:right;word-break:break-word;}
+.detail-value{font-size:14px;font-weight:700;color:var(--cc-ink, #1e2937);text-align:right;word-break:break-word;}
 
-/* Tip specific styles */
-.tip-arrow{color:#ff6a00;font-size:16px;margin:0 8px;}
+/* Creator Posts Card in Modal */
+.post-inspect-card{display:flex;gap:15px;padding:14px;border:1px solid var(--cc-border, #e2e8f0);border-radius:12px;margin-bottom:12px;background:var(--cc-surface, #fafafa);align-items:center;}
+.post-inspect-thumb{width:60px;height:60px;border-radius:8px;object-fit:cover;background:#e2e8f0;display:flex;align-items:center;justify-content:center;color:#64748b;flex-shrink:0;}
+.post-inspect-info{flex:1;min-width:0;}
+.post-inspect-caption{font-size:13px;font-weight:600;color:var(--cc-ink, #1e2937);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;}
+.post-inspect-stats{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;}
+
 .user-badge{display:inline-flex;align-items:center;gap:6px;background:var(--cc-soft, #f1f5f9);padding:6px 12px;border-radius:20px;font-size:13px;font-weight:600;}
 .user-badge i{color:var(--cc-muted, #64748b);font-size:12px;}
 
@@ -139,9 +172,10 @@ input[type="number"]:focus{border-color:#ff6a00;}
 <!-- Admin Sidebar -->
 <div class="sidebar" id="sidebar" style="display:none;">
     <h2><i class="fas fa-shield-halved"></i> Admin</h2>
-    <a href="#" class="active"><i class="fas fa-chart-pie"></i> Dashboard</a>
+    <a href="admin.html" class="active"><i class="fas fa-chart-pie"></i> Dashboard</a>
+    <a href="admin-transactions.html"><i class="fas fa-receipt"></i> Transactions</a>
     <a href="admin-opportunities.html"><i class="fas fa-bullhorn"></i> Manage Ads</a>
-    <a href="applications.html"><i class="fas fa-file"></i> Review applicants</a>
+    <a href="applications.html"><i class="fas fa-file"></i> Review Applicants</a>
     <a href="admin-deposit.html"><i class="fas fa-chart-line"></i> Rates</a>
     <a href="admin-chat.html"><i class="fas fa-headset"></i> Support</a>
     <a href="#" onclick="adminLogout()" style="margin-top:auto;"><i class="fas fa-sign-out-alt"></i> Logout</a>
@@ -150,44 +184,84 @@ input[type="number"]:focus{border-color:#ff6a00;}
 <!-- Main Content -->
 <div class="main" id="main-content" style="display:none;">
     <div class="header">
-        <h1>Dashboard Overview</h1>
+        <div>
+            <h1>Dashboard & Performance Metrics</h1>
+            <p style="color:var(--cc-muted, #64748b);font-size:14px;margin-top:4px;">Real-time platform activity, organic vs boosted engagement audits, and campaign rewards.</p>
+        </div>
     </div>
 
-    <!-- STATS GRID -->
+    <!-- UPGRADED STATS GRID -->
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-label">Total Users</div>
             <div class="stat-value" id="total-users">0</div>
+            <div class="stat-sub">Registered accounts</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Active Opportunities</div>
+            <div class="stat-value primary" id="active-opps">0</div>
+            <div class="stat-sub">Campaigns running</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Reward-Eligible Creators</div>
+            <div class="stat-value success" id="eligible-creators">0</div>
+            <div class="stat-sub">Accepted on active campaigns</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Platform Volume</div>
+            <div class="stat-value primary" id="total-platform-vol">$0.00</div>
+            <div class="stat-sub">Gross platform flow</div>
         </div>
         <div class="stat-card">
             <div class="stat-label">Total Distributed</div>
             <div class="stat-value success" id="total-distributed">$0.00</div>
+            <div class="stat-sub">Paid to creators</div>
         </div>
         <div class="stat-card">
             <div class="stat-label">Total Deposits</div>
             <div class="stat-value primary" id="total-deposits">$0.00</div>
+            <div class="stat-sub">User deposits credited</div>
         </div>
         <div class="stat-card">
             <div class="stat-label">Pending Withdrawals</div>
             <div class="stat-value warning" id="pending-withdrawals">$0.00</div>
+            <div class="stat-sub">Awaiting admin review</div>
         </div>
         <div class="stat-card">
             <div class="stat-label">Total Payouts</div>
             <div class="stat-value success" id="total-payouts">$0.00</div>
+            <div class="stat-sub">Approved withdrawals</div>
         </div>
         <div class="stat-card">
             <div class="stat-label">Total Tips Sent</div>
             <div class="stat-value purple" id="total-tips">$0.00</div>
+            <div class="stat-sub">Peer-to-peer tips</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Boost Revenue</div>
+            <div class="stat-value" id="total-boosts">$0.00</div>
+            <div class="stat-sub">Purchased service orders</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Engagement Views Audit</div>
+            <div class="stat-value" id="total-views-stat">0</div>
+            <div class="stat-sub" id="total-views-breakdown"><span class="real">0 Real</span> • <span class="boost">0 Boosted</span></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Engagement Likes Audit</div>
+            <div class="stat-value" id="total-likes-stat">0</div>
+            <div class="stat-sub" id="total-likes-breakdown"><span class="real">0 Real</span> • <span class="boost">0 Boosted</span></div>
         </div>
     </div>
 
     <!-- TABS -->
     <div class="tabs">
-        <div class="tab active" id="tab-users" onclick="switchTab('users')">Users & Balances</div>
-        <div class="tab" id="tab-withdrawals" onclick="switchTab('withdrawals')">Withdrawals</div>
-        <div class="tab" id="tab-deposits" onclick="switchTab('deposits')">Deposits</div>
-        <div class="tab" id="tab-posts" onclick="switchTab('posts')">Assign Earnings</div>
-        <div class="tab" id="tab-tips" onclick="switchTab('tips')">Tips Log</div>
+        <div class="tab active" id="tab-users" onclick="switchTab('users')"><i class="fas fa-users"></i> Users & Balances</div>
+        <div class="tab" id="tab-rewards" onclick="switchTab('rewards')"><i class="fas fa-trophy"></i> Users Eligible for Reward <span class="tab-badge" id="rewards-count-badge">0</span></div>
+        <div class="tab" id="tab-withdrawals" onclick="switchTab('withdrawals')"><i class="fas fa-arrow-up"></i> Withdrawals</div>
+        <div class="tab" id="tab-deposits" onclick="switchTab('deposits')"><i class="fas fa-arrow-down"></i> Deposits</div>
+        <div class="tab" id="tab-posts" onclick="switchTab('posts')"><i class="fas fa-dollar-sign"></i> Assign Earnings</div>
+        <div class="tab" id="tab-tips" onclick="switchTab('tips')"><i class="fas fa-gift"></i> Tips Log</div>
     </div>
 
     <!-- TAB 1: USERS -->
@@ -200,6 +274,46 @@ input[type="number"]:focus{border-color:#ff6a00;}
             <table id="users-table">
                 <thead><tr><th>User Info</th><th>Balance</th><th>User ID</th><th>Action</th></tr></thead>
                 <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- TAB: USERS ELIGIBLE FOR REWARD -->
+    <div id="view-rewards" style="display:none;">
+        <div class="section-banner">
+            <i class="fas fa-award"></i>
+            <div>
+                <div class="section-banner-title">Opportunity Reward Eligibility & Engagement Verification</div>
+                <div class="section-banner-sub">Review creators currently accepted on active opportunities. Real audience metrics are strictly separated from purchased/boosted engagements to guarantee fair advertiser payouts.</div>
+            </div>
+        </div>
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="reward-search" class="search-input" placeholder="Search creator name, opportunity title, or email..." onkeyup="filterEligibleRewards()">
+            <select class="search-input" id="reward-quality-filter" style="max-width:200px;padding-left:14px;" onchange="filterEligibleRewards()">
+                <option value="all">All Quality Tiers</option>
+                <option value="clean">100% Organic Only</option>
+                <option value="low">Low Boost (&lt; 20%)</option>
+                <option value="high">High Boost (&ge; 20%)</option>
+            </select>
+        </div>
+        <div class="table-container">
+            <table id="rewards-table">
+                <thead>
+                    <tr>
+                        <th>Creator</th>
+                        <th>Active Opportunity</th>
+                        <th>Posts</th>
+                        <th>Views Audit (Real vs Boost)</th>
+                        <th>Likes Audit (Real vs Boost)</th>
+                        <th>Comments</th>
+                        <th>Organic Quality</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="rewards-tbody">
+                    <tr><td colspan="8" style="text-align:center;padding:40px;color:#94a3b8;">Loading eligible creators...</td></tr>
+                </tbody>
             </table>
         </div>
     </div>
@@ -253,10 +367,10 @@ input[type="number"]:focus{border-color:#ff6a00;}
     </div>
 </div>
 
-<!-- MODALS -->
+<!-- MODAL: ADJUST USER BALANCE -->
 <div class="modal" id="balance-modal">
     <div class="modal-content">
-        <h3 class="modal-title">Adjust User Balance</h3>
+        <h3 class="modal-title"><i class="fas fa-wallet" style="color:#ff6a00;"></i> Adjust User Balance</h3>
         <div class="form-group">
             <label>Add or Subtract Amount ($)</label>
             <input type="number" id="amount-adjustment" step="0.01" placeholder="e.g. 25.50 or -10.00">
@@ -268,9 +382,10 @@ input[type="number"]:focus{border-color:#ff6a00;}
     </div>
 </div>
 
+<!-- MODAL: SET POST EARNINGS -->
 <div class="modal" id="payout-modal">
     <div class="modal-content">
-        <h3 class="modal-title">Set Post Earnings</h3>
+        <h3 class="modal-title"><i class="fas fa-dollar-sign" style="color:#ff6a00;"></i> Set Post Earnings</h3>
         <div class="form-group">
             <label>Earnings Amount ($)</label>
             <input type="number" id="post-earnings" step="0.01" min="0" placeholder="0.00">
@@ -282,10 +397,50 @@ input[type="number"]:focus{border-color:#ff6a00;}
     </div>
 </div>
 
+<!-- MODAL: INSPECT CREATOR POSTS & ENGAGEMENTS -->
+<div class="modal" id="inspect-posts-modal">
+    <div class="modal-content" style="width:700px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+            <h3 class="modal-title" style="margin-bottom:0;" id="inspect-modal-title"><i class="fas fa-chart-bar" style="color:#ff6a00;"></i> Creator Posts Audit</h3>
+            <button class="btn btn-secondary" style="padding:4px 10px;" onclick="closeModal('inspect-posts-modal')"><i class="fas fa-times"></i></button>
+        </div>
+        <p style="font-size:13px;color:var(--cc-muted, #64748b);margin-bottom:20px;" id="inspect-modal-sub">Breakdown of organic versus boosted metrics per post.</p>
+        <div id="inspect-posts-list" style="max-height:450px;overflow-y:auto;padding-right:5px;">
+            <!-- Populated by JS -->
+        </div>
+        <div class="modal-actions" style="margin-top:15px;">
+            <button class="btn btn-secondary" onclick="closeModal('inspect-posts-modal')">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: AWARD REWARD PAYOUT -->
+<div class="modal" id="award-reward-modal">
+    <div class="modal-content">
+        <h3 class="modal-title"><i class="fas fa-trophy" style="color:#ff6a00;"></i> Disburse Campaign Reward</h3>
+        <div style="background:var(--cc-soft, #f8fafc);border:1px solid var(--cc-border, #e2e8f0);border-radius:12px;padding:12px 14px;margin-bottom:15px;font-size:13px;">
+            <div style="font-weight:700;color:var(--cc-ink, #1e2937);" id="award-opp-title">Campaign</div>
+            <div style="color:var(--cc-muted, #64748b);margin-top:2px;">Creator: <strong id="award-creator-name">Creator</strong></div>
+        </div>
+        <div class="form-group">
+            <label>Reward Payout Amount ($)</label>
+            <input type="number" id="award-reward-amount" step="0.01" min="0.01" placeholder="e.g. 150.00">
+        </div>
+        <div class="form-group">
+            <label>Payout Note / Memo</label>
+            <input type="text" id="award-reward-memo" placeholder="e.g. Approved reward for campaign milestone completion">
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" onclick="closeModal('award-reward-modal')">Cancel</button>
+            <button class="btn btn-success" onclick="confirmAwardReward()"><i class="fas fa-check"></i> Disburse Reward</button>
+        </div>
+    </div>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, doc, onSnapshot, query, where, updateDoc, serverTimestamp, increment, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, doc, onSnapshot, query, where, updateDoc, addDoc, serverTimestamp, increment, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -308,11 +463,19 @@ let allUsers = {};
 let allWithdrawals = {};
 let allDeposits = {};
 let allTips = {};
+let allPosts = [];
+let allOpportunities = {};
+let allApplications = [];
+let eligibleCreatorsList = [];
 
 // Safe Date Formatter
 function formatDate(ts) {
-    if (!ts || !ts.toDate) return "N/A";
-    return ts.toDate().toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit' });
+    if (!ts) return "N/A";
+    if (ts.toDate) return ts.toDate().toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit' });
+    if (typeof ts === 'number' || ts instanceof Date) {
+        return new Date(ts).toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit' });
+    }
+    return String(ts);
 }
 
 // Format Keys
@@ -348,11 +511,359 @@ onAuthStateChanged(auth, (user) => {
 
 function loadAllData() {
     loadUsers();
+    loadOpportunities();
+    loadApplications();
     loadWithdrawals();
     loadDeposits();
     loadPosts();
     loadTips();
+    loadBoosts();
 }
+
+/* ====================
+   OPPORTUNITIES & APPLICATIONS
+==================== */
+function loadOpportunities() {
+    onSnapshot(collection(db, "opportunities"), (snap) => {
+        allOpportunities = {};
+        let activeCount = 0;
+        snap.forEach(d => {
+            const data = d.data();
+            allOpportunities[d.id] = { id: d.id, ...data };
+            const status = (data.status || "active").toLowerCase();
+            if (status === "active" || status === "approved") {
+                activeCount++;
+            }
+        });
+        document.getElementById("active-opps").innerText = activeCount;
+        computeEligibleCreators();
+    });
+}
+
+function loadApplications() {
+    onSnapshot(collection(db, "applications"), (snap) => {
+        allApplications = [];
+        snap.forEach(d => {
+            allApplications.push({ id: d.id, ...d.data() });
+        });
+        computeEligibleCreators();
+    });
+}
+
+function computeEligibleCreators() {
+    // Find approved applications for active opportunities
+    const approved = allApplications.filter(app => {
+        if ((app.status || "").toLowerCase() !== "approved") return false;
+        const opp = allOpportunities[app.opportunityId];
+        // If opp exists and is active/approved
+        if (!opp) return true; // keep if opportunity record still exists
+        const oppStatus = (opp.status || "active").toLowerCase();
+        return oppStatus !== "cancelled" && oppStatus !== "deleted" && oppStatus !== "closed";
+    });
+
+    eligibleCreatorsList = [];
+
+    approved.forEach(app => {
+        const creatorId = app.creatorId;
+        const user = allUsers[creatorId] || {};
+        const opp = allOpportunities[app.opportunityId] || {};
+
+        // Aggregate posts for this creator
+        const creatorPosts = allPosts.filter(p => p.userId === creatorId);
+        let totalViews = 0;
+        let realViews = 0;
+        let boostedViews = 0;
+        let totalLikes = 0;
+        let realLikes = 0;
+        let boostedLikes = 0;
+        let totalComments = 0;
+        let adsAllowedPosts = 0;
+
+        creatorPosts.forEach(p => {
+            const pViews = Number(p.views) || 0;
+            const bViews = Number(p.boostedViews) || 0;
+            const rViews = Math.max(0, pViews - bViews);
+
+            const pLikes = Number(p.likes) || 0;
+            const bLikes = Number(p.boostedLikes) || 0;
+            const rLikes = Math.max(0, pLikes - bLikes);
+
+            totalViews += pViews;
+            realViews += rViews;
+            boostedViews += bViews;
+
+            totalLikes += pLikes;
+            realLikes += rLikes;
+            boostedLikes += bLikes;
+
+            totalComments += Number(p.commentCount) || 0;
+
+            if (p.allowAds === true) adsAllowedPosts++;
+        });
+
+        // Boost fraction
+        const totalEngagement = totalViews + totalLikes;
+        const totalBoosted = boostedViews + boostedLikes;
+        const boostPercentage = totalEngagement > 0 ? (totalBoosted / totalEngagement) * 100 : 0;
+
+        let qualityTier = "clean";
+        if (boostPercentage >= 20) qualityTier = "high";
+        else if (boostPercentage > 0) qualityTier = "low";
+
+        eligibleCreatorsList.push({
+            applicationId: app.id,
+            creatorId: creatorId,
+            creatorName: app.creatorName || user.username || "Creator",
+            creatorEmail: app.creatorEmail || user.email || "",
+            opportunityId: app.opportunityId,
+            opportunityTitle: app.opportunityTitle || opp.title || "Opportunity",
+            advertiserName: app.advertiserName || opp.advertiserName || "Advertiser",
+            targetReward: opp.reward || opp.budget || 0,
+            postsCount: creatorPosts.length,
+            adsAllowedPosts: adsAllowedPosts,
+            totalViews: totalViews,
+            realViews: realViews,
+            boostedViews: boostedViews,
+            totalLikes: totalLikes,
+            realLikes: realLikes,
+            boostedLikes: boostedLikes,
+            totalComments: totalComments,
+            boostPercentage: boostPercentage,
+            qualityTier: qualityTier,
+            posts: creatorPosts
+        });
+    });
+
+    const badge = document.getElementById("rewards-count-badge");
+    if (badge) badge.innerText = eligibleCreatorsList.length;
+    document.getElementById("eligible-creators").innerText = eligibleCreatorsList.length;
+
+    filterEligibleRewards();
+}
+
+window.filterEligibleRewards = () => {
+    const search = (document.getElementById("reward-search").value || "").toLowerCase().trim();
+    const tier = document.getElementById("reward-quality-filter").value;
+    const tbody = document.getElementById("rewards-tbody");
+
+    let list = eligibleCreatorsList;
+
+    if (tier !== "all") {
+        list = list.filter(item => item.qualityTier === tier);
+    }
+
+    if (search) {
+        list = list.filter(item => {
+            const name = item.creatorName.toLowerCase();
+            const email = item.creatorEmail.toLowerCase();
+            const opp = item.opportunityTitle.toLowerCase();
+            const adv = item.advertiserName.toLowerCase();
+            const uid = item.creatorId.toLowerCase();
+            return name.includes(search) || email.includes(search) || opp.includes(search) || adv.includes(search) || uid.includes(search);
+        });
+    }
+
+    if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:#94a3b8;">No eligible creators found for the selected criteria.</td></tr>`;
+        return;
+    }
+
+    let html = "";
+    list.forEach(item => {
+        let qualityBadge = "";
+        if (item.qualityTier === "clean") {
+            qualityBadge = `<span class="badge badge-organic-clean"><i class="fas fa-shield-check"></i> 100% Organic</span>`;
+        } else if (item.qualityTier === "low") {
+            qualityBadge = `<span class="badge badge-organic-mixed"><i class="fas fa-exclamation-circle"></i> Low Boost (${item.boostPercentage.toFixed(1)}%)</span>`;
+        } else {
+            qualityBadge = `<span class="badge badge-organic-boosted"><i class="fas fa-triangle-exclamation"></i> High Boost (${item.boostPercentage.toFixed(1)}%)</span>`;
+        }
+
+        html += `
+            <tr>
+                <td>
+                    <strong>${escapeHtml(item.creatorName)}</strong>
+                    ${item.creatorEmail ? `<br><small style="color:#64748b;">${escapeHtml(item.creatorEmail)}</small>` : ""}
+                    <br><code style="font-size:11px;background:#f1f5f9;padding:2px 6px;border-radius:4px;">${item.creatorId.substring(0, 10)}...</code>
+                </td>
+                <td>
+                    <strong>${escapeHtml(item.opportunityTitle)}</strong>
+                    <br><small style="color:#64748b;">By: ${escapeHtml(item.advertiserName)}</small>
+                    ${item.targetReward ? `<br><span style="font-size:11px;font-weight:700;color:#10b981;">Target Reward: $${Number(item.targetReward).toFixed(2)}</span>` : ""}
+                </td>
+                <td>
+                    <strong>${item.postsCount}</strong>
+                    <br><small style="color:#64748b;">${item.adsAllowedPosts} ads on</small>
+                </td>
+                <td>
+                    <div class="metric-pill-breakdown">
+                        <span class="total">${item.totalViews.toLocaleString()} Views</span>
+                        <div class="split">
+                            <span class="r"><i class="fas fa-check"></i> ${item.realViews.toLocaleString()} Real</span>
+                            <span class="b"><i class="fas fa-bolt"></i> ${item.boostedViews.toLocaleString()} Boost</span>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="metric-pill-breakdown">
+                        <span class="total">${item.totalLikes.toLocaleString()} Likes</span>
+                        <div class="split">
+                            <span class="r"><i class="fas fa-check"></i> ${item.realLikes.toLocaleString()} Real</span>
+                            <span class="b"><i class="fas fa-bolt"></i> ${item.boostedLikes.toLocaleString()} Boost</span>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <strong>${item.totalComments.toLocaleString()}</strong>
+                </td>
+                <td>
+                    ${qualityBadge}
+                </td>
+                <td style="white-space:nowrap;">
+                    <div style="display:flex;gap:6px;">
+                        <button class="btn btn-secondary" onclick="openCreatorInspectModal('${item.creatorId}', '${escapeAttr(item.creatorName)}', '${escapeAttr(item.opportunityTitle)}')">
+                            <i class="fas fa-search"></i> Inspect
+                        </button>
+                        <button class="btn btn-success" onclick="openAwardRewardModal('${item.creatorId}', '${escapeAttr(item.creatorName)}', '${item.opportunityId}', '${escapeAttr(item.opportunityTitle)}', ${item.targetReward || 0})">
+                            <i class="fas fa-award"></i> Reward
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    });
+
+    tbody.innerHTML = html;
+};
+
+function escapeHtml(str) {
+    if (!str) return "";
+    return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+function escapeAttr(str) {
+    if (!str) return "";
+    return String(str).replace(/'/g, "\\'").replace(/"/g, "&quot;");
+}
+
+/* ====================
+   INSPECT CREATOR POSTS MODAL
+==================== */
+window.openCreatorInspectModal = (creatorId, creatorName, oppTitle) => {
+    document.getElementById("inspect-modal-title").innerHTML = `<i class="fas fa-chart-bar" style="color:#ff6a00;"></i> Audit: ${creatorName}`;
+    document.getElementById("inspect-modal-sub").innerText = `Posts review for active campaign: ${oppTitle}`;
+
+    const creatorPosts = allPosts.filter(p => p.userId === creatorId);
+    const container = document.getElementById("inspect-posts-list");
+
+    if (creatorPosts.length === 0) {
+        container.innerHTML = `<div style="text-align:center;padding:40px;color:#94a3b8;">No posts found for this creator.</div>`;
+    } else {
+        let html = "";
+        creatorPosts.forEach((p, idx) => {
+            const pLikes = Number(p.likes) || 0;
+            const bLikes = Number(p.boostedLikes) || 0;
+            const rLikes = Math.max(0, pLikes - bLikes);
+
+            const pViews = Number(p.views) || 0;
+            const bViews = Number(p.boostedViews) || 0;
+            const rViews = Math.max(0, pViews - bViews);
+
+            const allowAds = p.allowAds === true;
+            const adBadge = allowAds
+                ? `<span class="ad-badge-inline on"><i class="fas fa-bullhorn"></i> Ads Allowed (Boost Prohibited)</span>`
+                : `<span class="ad-badge-inline off"><i class="fas fa-rocket"></i> Boost Eligible</span>`;
+
+            const rawPhoto = p.imageUrl || p.imageBase64 || p.image;
+            const thumb = p.videoUrl
+                ? `<div class="post-inspect-thumb" style="background:#1f2937;color:#fff;"><i class="fas fa-play"></i></div>`
+                : (rawPhoto
+                    ? `<img src="${rawPhoto}" class="post-inspect-thumb">`
+                    : `<div class="post-inspect-thumb"><i class="fas fa-file-alt"></i></div>`);
+
+            html += `
+                <div class="post-inspect-card">
+                    ${thumb}
+                    <div class="post-inspect-info">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                            <span style="font-weight:700;font-size:12px;color:#64748b;">Post #${idx + 1} (${p.id.substring(0, 8)}...)</span>
+                            ${adBadge}
+                        </div>
+                        <div class="post-inspect-caption">${escapeHtml(p.content || "No caption")}</div>
+                        <div class="post-inspect-stats">
+                            <span style="color:#10b981;font-weight:600;"><i class="fas fa-check"></i> ${rViews.toLocaleString()} Real Views</span>
+                            <span style="color:#f59e0b;font-weight:600;"><i class="fas fa-bolt"></i> ${bViews.toLocaleString()} Boost Views</span>
+                            <span style="color:#10b981;font-weight:600;"><i class="fas fa-heart"></i> ${rLikes.toLocaleString()} Real Likes</span>
+                            <span style="color:#f59e0b;font-weight:600;"><i class="fas fa-bolt"></i> ${bLikes.toLocaleString()} Boost Likes</span>
+                            <span><i class="fas fa-comment"></i> ${Number(p.commentCount || 0).toLocaleString()} Comments</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    document.getElementById("inspect-posts-modal").classList.add("active");
+};
+
+/* ====================
+   AWARD REWARD MODAL
+==================== */
+window.openAwardRewardModal = (creatorId, creatorName, oppId, oppTitle, targetReward) => {
+    window.currentRewardCreatorId = creatorId;
+    window.currentRewardOppId = oppId;
+    window.currentRewardOppTitle = oppTitle;
+
+    document.getElementById("award-opp-title").innerText = oppTitle || "Campaign";
+    document.getElementById("award-creator-name").innerText = creatorName || creatorId;
+    document.getElementById("award-reward-amount").value = targetReward > 0 ? targetReward : "";
+    document.getElementById("award-reward-memo").value = `Campaign Reward: ${oppTitle}`;
+
+    document.getElementById("award-reward-modal").classList.add("active");
+};
+
+window.confirmAwardReward = async () => {
+    const creatorId = window.currentRewardCreatorId;
+    const oppId = window.currentRewardOppId;
+    const oppTitle = window.currentRewardOppTitle;
+    const amount = parseFloat(document.getElementById("award-reward-amount").value);
+    const memo = document.getElementById("award-reward-memo").value.trim() || `Campaign Reward: ${oppTitle}`;
+
+    if (!creatorId || isNaN(amount) || amount <= 0) {
+        return alert("Please enter a valid reward amount greater than 0.");
+    }
+
+    if (!confirm(`Confirm disbursement of $${amount.toFixed(2)} to creator? This will immediately credit the creator's balance and record a verified transaction.`)) {
+        return;
+    }
+
+    try {
+        // 1. Credit creator balance
+        await updateDoc(doc(db, "users", creatorId), {
+            balance: increment(amount),
+            updatedAt: serverTimestamp()
+        });
+
+        // 2. Add transaction record
+        await addDoc(collection(db, "transactions"), {
+            type: "reward",
+            userId: creatorId,
+            opportunityId: oppId || "",
+            opportunityTitle: oppTitle || "Active Opportunity",
+            amount: amount,
+            amountUSD: amount,
+            status: "completed",
+            description: memo,
+            timestamp: serverTimestamp()
+        });
+
+        closeModal("award-reward-modal");
+        alert(`Successfully awarded $${amount.toFixed(2)} to creator!`);
+    } catch (e) {
+        console.error("Error awarding reward:", e);
+        alert("Failed to award reward. Check console for details.");
+    }
+};
 
 /* ====================
    USERS & SEARCH
@@ -364,7 +875,8 @@ function loadUsers() {
         snap.forEach((docSnap) => {
             allUsers[docSnap.id] = { id: docSnap.id, ...docSnap.data() };
         });
-        filterUsers(); // Render table
+        filterUsers();
+        computeEligibleCreators();
     });
 }
 
@@ -429,6 +941,7 @@ function loadWithdrawals() {
 
         document.getElementById("pending-withdrawals").innerText = `$${pendingTotal.toFixed(2)}`;
         document.getElementById("total-payouts").innerText = `$${payoutTotal.toFixed(2)}`;
+        updateGrossVolume();
     });
 }
 
@@ -475,6 +988,7 @@ function loadDeposits() {
             tbody.appendChild(row);
         });
         document.getElementById("total-deposits").innerText = `$${depositTotal.toFixed(2)}`;
+        updateGrossVolume();
     });
 }
 
@@ -483,11 +997,38 @@ function loadPosts() {
         const tbody = document.querySelector("#posts-table tbody");
         tbody.innerHTML = "";
         let distributedTotal = 0;
+        let totalViews = 0;
+        let totalRealViews = 0;
+        let totalBoostedViews = 0;
+        let totalLikes = 0;
+        let totalRealLikes = 0;
+        let totalBoostedLikes = 0;
+
+        allPosts = [];
 
         snap.forEach(docSnap => {
             const p = docSnap.data();
+            const postItem = { id: docSnap.id, ...p };
+            allPosts.push(postItem);
+
             const earned = p.earning || 0;
             distributedTotal += earned;
+
+            const pLikes = Number(p.likes) || 0;
+            const bLikes = Number(p.boostedLikes) || 0;
+            const rLikes = Math.max(0, pLikes - bLikes);
+
+            const pViews = Number(p.views) || 0;
+            const bViews = Number(p.boostedViews) || 0;
+            const rViews = Math.max(0, pViews - bViews);
+
+            totalLikes += pLikes;
+            totalBoostedLikes += bLikes;
+            totalRealLikes += rLikes;
+
+            totalViews += pViews;
+            totalBoostedViews += bViews;
+            totalRealViews += rViews;
 
             const row = document.createElement("tr");
             row.innerHTML = `
@@ -499,7 +1040,14 @@ function loadPosts() {
             `;
             tbody.appendChild(row);
         });
+
         document.getElementById("total-distributed").innerText = `$${distributedTotal.toFixed(2)}`;
+        document.getElementById("total-views-stat").innerText = totalViews.toLocaleString();
+        document.getElementById("total-views-breakdown").innerHTML = `<span class="real"><i class="fas fa-check"></i> ${totalRealViews.toLocaleString()} Real</span> • <span class="boost"><i class="fas fa-bolt"></i> ${totalBoostedViews.toLocaleString()} Boosted</span>`;
+        document.getElementById("total-likes-stat").innerText = totalLikes.toLocaleString();
+        document.getElementById("total-likes-breakdown").innerHTML = `<span class="real"><i class="fas fa-check"></i> ${totalRealLikes.toLocaleString()} Real</span> • <span class="boost"><i class="fas fa-bolt"></i> ${totalBoostedLikes.toLocaleString()} Boosted</span>`;
+
+        computeEligibleCreators();
     });
 }
 
@@ -513,7 +1061,6 @@ function loadTips() {
         let tipsTotal = 0;
         allTips = {};
 
-        // Sort by timestamp descending
         const sortedDocs = snap.docs.sort((a, b) => {
             const timeA = a.data().timestamp?.seconds || 0;
             const timeB = b.data().timestamp?.seconds || 0;
@@ -526,7 +1073,6 @@ function loadTips() {
             const amt = d.amount || 0;
             tipsTotal += amt;
 
-            // Get sender and receiver names
             const senderName = d.fromUsername || 'Anonymous';
             const receiverId = d.to || 'Unknown';
             const receiverName = allUsers[receiverId]?.username || receiverId.substring(0, 8) + '...';
@@ -556,7 +1102,31 @@ function loadTips() {
         });
 
         document.getElementById("total-tips").innerText = `$${tipsTotal.toFixed(2)}`;
+        updateGrossVolume();
     });
+}
+
+/* ====================
+   BOOSTS REVENUE
+==================== */
+let totalBoostsAmount = 0;
+function loadBoosts() {
+    onSnapshot(collection(db, "boosts"), (snap) => {
+        totalBoostsAmount = 0;
+        snap.forEach(d => {
+            totalBoostsAmount += Number(d.data().cost || 0);
+        });
+        document.getElementById("total-boosts").innerText = `$${totalBoostsAmount.toFixed(2)}`;
+        updateGrossVolume();
+    });
+}
+
+function updateGrossVolume() {
+    let deposits = parseFloat((document.getElementById("total-deposits").innerText || "$0").replace(/[^0-9.]/g, '')) || 0;
+    let payouts = parseFloat((document.getElementById("total-payouts").innerText || "$0").replace(/[^0-9.]/g, '')) || 0;
+    let tips = parseFloat((document.getElementById("total-tips").innerText || "$0").replace(/[^0-9.]/g, '')) || 0;
+    let gross = deposits + payouts + tips + totalBoostsAmount;
+    document.getElementById("total-platform-vol").innerText = `$${gross.toFixed(2)}`;
 }
 
 /* ===========================
@@ -584,12 +1154,9 @@ window.openDetails = (type, id) => {
     } else if (type === 'tip') {
         data = allTips[id];
         title = "Tip Transaction Details";
-        // Resolve user names for the tip
         const senderName = data.fromUsername || 'Anonymous';
         const receiverId = data.to || 'Unknown';
         const receiverName = allUsers[receiverId]?.username || receiverId;
-        
-        // Add resolved names to data for display
         data = { ...data, _resolvedSender: senderName, _resolvedReceiver: receiverName };
     } else {
         data = allDeposits[id];
@@ -606,7 +1173,6 @@ window.openDetails = (type, id) => {
         if(key === 'id') continue;
         let value = data[key];
         
-        // Format Timestamps & Objects
         if(value && typeof value === 'object' && value.seconds) value = formatDate(value);
         else if(typeof value === 'object') value = JSON.stringify(value);
 
@@ -636,7 +1202,6 @@ window.updateBalance = async () => {
         closeModal("balance-modal");
         document.getElementById("amount-adjustment").value = '';
         if(document.getElementById('details-overlay').classList.contains('active')) {
-            // Re-open details to show updated data
             setTimeout(() => openDetails('user', uid), 500); 
         }
     } catch (e) { alert("Failed to update balance."); }
@@ -665,10 +1230,14 @@ window.assignPostEarning = async () => {
 
 window.switchTab = (tab) => {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.table-container, .search-container').forEach(c => c.style.display = 'none');
+    document.querySelectorAll('#view-users, #view-rewards, #view-withdrawals, #view-deposits, #view-posts, #view-tips').forEach(c => {
+        if (c) c.style.display = 'none';
+    });
     
-    document.getElementById(`tab-${tab}`).classList.add('active');
-    document.getElementById(`view-${tab}`).style.display = 'block';
+    const tabEl = document.getElementById(`tab-${tab}`);
+    if (tabEl) tabEl.classList.add('active');
+    const viewEl = document.getElementById(`view-${tab}`);
+    if (viewEl) viewEl.style.display = 'block';
 };
 
 window.closeModal = (id) => document.getElementById(id).classList.remove("active");

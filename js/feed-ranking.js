@@ -32,10 +32,12 @@ export const ALGO = {
         following: 1.35,     // people you follow
         own: 1.45,           // your own posts: seeing them land matters
         affinity: 1.08,      // categories you keep liking
-        smallCreator: 1.12   // creators with few posts in the pool (max posts: 2)
+        smallCreator: 1.12,  // creators with few posts in the pool (max posts: 2)
+        highEngagement: 1.25 // posts with high likes, views or comments pushed more on FYP
     },
     seenPenalty: 0.55,       // already viewed: push down, never drop
     jitter: 0.16,            // +/- 8% stable shuffle per session salt
+    interactedJitter: 0.32,  // enhanced shuffle when user previously interacted
     /** Freshness mix: older posts get a floor and a ceiling in the feed. */
     windowSize: 10,
     maxOldInWindow: 4,
@@ -71,9 +73,18 @@ export function engagementScore(post) {
     const likes = Number(post && post.likes) || 0;
     const comments = Number(post && post.commentCount) || 0;
     const views = Number(post && post.views) || 0;
-    return ALGO.weights.likes * Math.log1p(likes)
+
+    // Base logarithmic curve ensures consistent baseline scaling
+    let score = ALGO.weights.likes * Math.log1p(likes)
         + ALGO.weights.comments * Math.log1p(comments)
         + ALGO.weights.views * Math.log1p(views);
+
+    // High amounts push: amplify posts with high amounts of likes, views, or comments on FYP
+    const highLikesPush = likes >= 100 ? Math.log10(likes) * 1.2 : (likes >= 20 ? (likes / 20) * 0.4 : 0);
+    const highCommentsPush = comments >= 20 ? Math.log10(comments) * 1.5 : (comments >= 5 ? (comments / 5) * 0.5 : 0);
+    const highViewsPush = views >= 500 ? Math.log10(views) * 0.8 : (views >= 100 ? (views / 100) * 0.3 : 0);
+
+    return score + highLikesPush + highCommentsPush + highViewsPush;
 }
 
 /** Gentle power-law decay: 1h ≈ 0.76, 1d ≈ 0.44, 1w ≈ 0.28, 1mo ≈ 0.19. */
@@ -89,7 +100,8 @@ export function scorePost(post, options = {}) {
         affinity = [],
         selfId = "",
         salt = "",
-        jitter = true
+        jitter = true,
+        jitterScale = ALGO.jitter
     } = options;
 
     const kind = post.mediaKind || (post.videoUrl ? "video" : (post.imageUrl || post.imageBase64 || post.image ? "image" : "text"));
@@ -104,9 +116,15 @@ export function scorePost(post, options = {}) {
     if (post.smallCreator) score *= ALGO.boosts.smallCreator;
     if (post.hasViewed) score *= ALGO.seenPenalty;
 
+    // Push posts with high amounts of likes, views or comments on FYP
+    const isHighEngagement = (Number(post.likes) >= 100 || Number(post.views) >= 500 || Number(post.commentCount) >= 20);
+    if (isHighEngagement && ALGO.boosts.highEngagement) {
+        score *= ALGO.boosts.highEngagement;
+    }
+
     if (jitter) {
         const noise = stableNoise(post.id || "", salt);
-        score *= 1 + (noise - 0.5) * ALGO.jitter;
+        score *= 1 + (noise - 0.5) * jitterScale;
     }
     return score;
 }
@@ -127,17 +145,9 @@ export function rankPosts(posts, options = {}) {
 }
 
 /**
- * Keep the ranking honest while it mixes generations of posts:
- *
- *   - at most `maxOldInWindow` older-than-a-week posts per ten placements, so
- *     the top of the feed never turns into an archive,
- *   - at least a `minOldShare` share of older posts overall (one in five), so a
- *     good video from last month gets its airtime instead of sinking forever,
- *   - never the same creator twice in a row; a wider `creatorGap` is preferred
- *     only when the alternative is nearly as good (within `gapPrice`), so
- *     variety never pushes a weak post over a strong one.
+ * Standard feed mixer algorithm.
  */
-export function orderForFeed(posts, options = {}) {
+function orderStandardFeed(posts, options = {}) {
     const ranked = Array.isArray(posts) ? rankScored(posts, options) : [];
     const {
         now = Date.now(),
@@ -178,12 +188,14 @@ export function orderForFeed(posts, options = {}) {
         if (chosen !== -1 && creatorGap > 2) {
             const affordable = pending[chosen].score * gapPrice;
             const recent = placed.slice(-(creatorGap - 1)).map(item => item.userId);
-            const varied = pending.findIndex((entry, index) =>
-                index > chosen &&
-                entry.score >= affordable &&
-                !recent.includes(entry.post.userId) &&
-                hardRules(entry.post, context));
-            if (varied !== -1) chosen = varied;
+            if (recent.length > 0) {
+                const varied = pending.findIndex((entry, index) =>
+                    index > chosen &&
+                    entry.score >= affordable &&
+                    !recent.includes(entry.post.userId) &&
+                    hardRules(entry.post, context));
+                if (varied !== -1) chosen = varied;
+            }
         }
 
         // 3. The freshness floor outranks the creator rules: a single-creator
@@ -214,6 +226,58 @@ export function orderForFeed(posts, options = {}) {
         placed.push(entry.post);
     }
     return placed;
+}
+
+/**
+ * Keep the ranking honest while it mixes generations of posts:
+ *
+ *   - when a user has previously interacted with the page:
+ *     shuffles the feed, and shuffles newest first ONLY if there are videos
+ *     the user has not seen before.
+ *   - at most `maxOldInWindow` older-than-a-week posts per ten placements, so
+ *     the top of the feed never turns into an archive,
+ *   - at least a `minOldShare` share of older posts overall (one in five), so a
+ *     good video from last month gets its airtime instead of sinking forever,
+ *   - never the same creator twice in a row; a wider `creatorGap` is preferred
+ *     only when the alternative is nearly as good (within `gapPrice`), so
+ *     variety never pushes a weak post over a strong one.
+ */
+export function orderForFeed(posts, options = {}) {
+    if (!Array.isArray(posts) || posts.length === 0) return [];
+
+    const {
+        hasInteracted = false,
+        salt = ""
+    } = options;
+
+    if (hasInteracted) {
+        const isUnseenVideo = post => !post.hasViewed && (post.mediaKind === "video" || !!post.videoUrl);
+        const unseenVideos = posts.filter(isUnseenVideo);
+        const hasUnseenVideos = unseenVideos.length > 0;
+
+        if (hasUnseenVideos) {
+            // Shuffle newest only if there are videos the user hasn't seen before:
+            // Sort unseen videos by newest first, take the newest batch, and shuffle them to the front.
+            const sortedUnseen = unseenVideos.slice().sort((a, b) => timeValue(b) - timeValue(a));
+            const shuffledNewest = sortedUnseen.slice().sort((a, b) =>
+                stableNoise(a.id, salt + ":newest_vid") - stableNoise(b.id, salt + ":newest_vid")
+            );
+
+            const chosenIds = new Set(shuffledNewest.map(p => p.id));
+            const remaining = posts.filter(p => !chosenIds.has(p.id));
+
+            const restOrdered = remaining.length > 0
+                ? orderStandardFeed(remaining, { ...options, hasInteracted: false, jitterScale: ALGO.interactedJitter })
+                : [];
+            return [...shuffledNewest, ...restOrdered];
+        }
+
+        // If there are NO videos the user hasn't seen before, do NOT shuffle newest to the front.
+        // Instead, shuffle the feed across candidates with interacted jitter while preserving quality.
+        return orderStandardFeed(posts, { ...options, jitterScale: ALGO.interactedJitter });
+    }
+
+    return orderStandardFeed(posts, options);
 }
 
 /** Categories the user keeps interacting with (for the affinity boost). */
