@@ -162,6 +162,31 @@ exports.sendCommentNotification = functions.firestore
     });
   });
 
+// Notify a user when another account starts following them. This is also
+// server-side so follows from every page/client produce the same phone alert.
+exports.sendFollowerNotification = functions.firestore
+  .document("users/{userId}")
+  .onUpdate(async (change) => {
+    const before = change.before.data() || {};
+    const after = change.after.data() || {};
+    const previousFollowers = new Set(Array.isArray(before.followers) ? before.followers : []);
+    const newFollowers = (Array.isArray(after.followers) ? after.followers : [])
+      .filter((uid) => !previousFollowers.has(uid));
+    if (!newFollowers.length) return null;
+
+    await Promise.all(newFollowers.map(async (followerId) => {
+      const follower = await db.collection("users").doc(followerId).get();
+      const name = follower.exists ? (follower.data().username || "Someone") : "Someone";
+      return createNotification(change.after.id, {
+        type: "follow",
+        title: `${name} started following you`,
+        message: "You have a new follower",
+        fromUserId: followerId
+      });
+    }));
+    return null;
+  });
+
 // ---------------------------------------------------------------------------
 // Watermarked media downloads
 // ---------------------------------------------------------------------------
