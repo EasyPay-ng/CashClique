@@ -1864,14 +1864,6 @@ async function handleLike(btn) {
     }
     try {
         await updateDoc(doc(db, "posts", postId), { likes: increment(1), likedBy: arrayUnion(currentUser.uid) });
-        if (ownerId !== currentUser.uid) {
-            await sendNotification(ownerId, {
-                type: "like",
-                title: `${currentUsername} liked your post`,
-                fromUserId: currentUser.uid,
-                postId: postId
-            });
-        }
     } catch (error) {
         console.error("Like failed:", error);
     }
@@ -1955,15 +1947,6 @@ window.addComment = async function(postId, ownerId) {
         };
     }
     await addDoc(collection(db, "posts", postId, "comments"), commentData);
-    if (ownerId !== currentUser.uid) {
-        await sendNotification(ownerId, {
-            type: "comment",
-            title: `${currentUsername} commented on your post`,
-            message: text,
-            fromUserId: currentUser.uid,
-            postId: postId
-        });
-    }
     input.value = "";
     cancelReply(postId);
 };
