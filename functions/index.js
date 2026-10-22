@@ -6,7 +6,9 @@ const logger = require("firebase-functions/logger");
 const admin = require("firebase-admin");
 const {
   buildContentDisposition,
+  downloadTokensFromMetadata,
   guessContentType,
+  hasDownloadToken,
   parseTokenizedStorageUrl,
   resolveProjectId,
   resolveStorageBucket,
@@ -220,8 +222,17 @@ exports.downloadMedia = onRequest(
       logger.error("downloadMedia: metadata lookup failed", { bucket: parsed.bucket, objectPath: parsed.objectPath, code: code || "", message: (error && error.message) || "" });
       return res.status(502).json({ error: "Could not read the media from storage" });
     }
-    const liveTokens = String(metadata.downloadTokens || "").split(",").map((token) => token.trim()).filter(Boolean);
-    if (!liveTokens.includes(parsed.token)) return res.status(403).json({ error: "This download link is no longer valid" });
+    // getMetadata() is the Cloud Storage JSON API, where the Firebase token
+    // lives in custom metadata (firebaseStorageDownloadTokens), not in a
+    // top-level `downloadTokens` field. Compare against every live token.
+    if (!hasDownloadToken(metadata, parsed.token)) {
+      logger.warn("downloadMedia: download token rejected", {
+        bucket: parsed.bucket,
+        objectPath: parsed.objectPath,
+        liveTokens: downloadTokensFromMetadata(metadata).length
+      });
+      return res.status(403).json({ error: "This download link is no longer valid" });
+    }
     const filename = sanitizeFilename(queryString(req.query.filename), parsed.filename);
     res.set("Content-Type", metadata.contentType || guessContentType(parsed.objectPath));
     res.set("Content-Disposition", buildContentDisposition(filename));

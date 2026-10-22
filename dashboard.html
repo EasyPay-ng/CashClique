@@ -2043,7 +2043,8 @@ async function savePhotoItem(post) {
         const saved = await createWatermarkedJpeg({
             id: post.id,
             src: src,
-            filename: mediaFilename(post.id, 'jpg')
+            filename: mediaFilename(post.id, 'jpg'),
+            isCancelled: () => dlState.cancel
         });
         dlHide();
         downloadBlob(saved.blob, saved.filename);

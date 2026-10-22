@@ -168,7 +168,7 @@ body{background:var(--cc-soft, #f5f5f5);min-height:100vh;padding:20px;}
 <div class="sv-overlay" id="sv-overlay">
     <div class="sv-card">
         <div class="sv-spinner"><i class="fas fa-download"></i></div>
-        <div class="sv-title">Saving video&#8230;</div>
+        <div class="sv-title" id="sv-title">Saving&#8230;</div>
         <div class="sv-sub" id="sv-sub">Preparing&#8230;</div>
         <div class="sv-bar"><div class="sv-bar-fill" id="sv-bar-fill"></div></div>
         <button class="sv-cancel" onclick="cancelSave()"><i class="fas fa-times"></i> Cancel</button>
@@ -561,9 +561,11 @@ async function saveCurrentMedia(){
 
 // ----- Save progress overlay helpers -----
 let dlState = { cancel: false };
-function dlShow(sub){
+function dlShow(sub, title){
   const ov = document.getElementById('sv-overlay');
   if(!ov) return;
+  const titleEl = document.getElementById('sv-title');
+  if(titleEl) titleEl.textContent = title || 'Saving\u2026';
   const subEl = document.getElementById('sv-sub');
   if(subEl) subEl.textContent = sub || '';
   const fill = document.getElementById('sv-bar-fill');
@@ -582,12 +584,12 @@ async function saveVideo(m){
   if(!videoUrl){ showToast("Nothing to save"); return; }
   dlState.cancel = false;
   try {
-    dlShow('Preparing video\u2026');
+    dlShow('Preparing video\u2026', 'Saving video\u2026');
     const saved = await createVideoDownload({
       id: m.id,
       src: videoUrl,
       isCancelled: () => dlState.cancel,
-      onStage: () => dlShow('Downloading video…')
+      onStage: () => dlShow('Downloading video\u2026', 'Saving video\u2026')
     });
     dlHide();
     downloadBlob(saved.blob, saved.filename);
@@ -608,17 +610,22 @@ async function saveVideo(m){
 async function savePhoto(m){
   const src = imageDataSrc(m.imageRaw);
   if(!src){ showToast("Nothing to save"); return; }
+  dlState.cancel = false;
   try {
+    dlShow('Adding the CashClique watermark\u2026', 'Saving photo\u2026');
     const saved = await createWatermarkedJpeg({
       id: m.id,
       src: src,
-      filename: mediaFilename(m.id, 'jpg')
+      filename: mediaFilename(m.id, 'jpg'),
+      isCancelled: () => dlState.cancel
     });
+    dlHide();
     downloadBlob(saved.blob, saved.filename);
     showToast("Photo saved with CashClique watermark");
   } catch(err){
+    dlHide();
     console.error("Photo save failed:", err);
-    if(err && err.kind === 'cancelled'){ showToast("Save cancelled"); return; }
+    if(dlState.cancel || (err && err.kind === 'cancelled')){ showToast("Save cancelled"); return; }
     showToast((err && err.userMessage) || "Could not save photo. Try again.");
   }
 }

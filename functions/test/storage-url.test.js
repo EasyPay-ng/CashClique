@@ -5,7 +5,9 @@ const assert = require("node:assert");
 
 const {
   buildContentDisposition,
+  downloadTokensFromMetadata,
   guessContentType,
+  hasDownloadToken,
   isProjectBucket,
   objectPathIsSafe,
   parseTokenizedStorageUrl,
@@ -98,6 +100,40 @@ test("rejects empty and unparseable input", () => {
   assert.strictEqual(parseTokenizedStorageUrl("", opts).reason, "missing-url");
   assert.strictEqual(parseTokenizedStorageUrl(undefined, opts).reason, "missing-url");
   assert.strictEqual(parseTokenizedStorageUrl("not a url", opts).reason, "not-a-url");
+});
+
+test("reads the token from the Cloud Storage metadata shape (file.getMetadata)", () => {
+  // This is what admin.storage().bucket().file().getMetadata() returns: the
+  // Firebase token lives in custom metadata, there is no `downloadTokens` key.
+  const metadata = { contentType: "video/mp4", metadata: { firebaseStorageDownloadTokens: TOKEN } };
+  assert.deepStrictEqual(downloadTokensFromMetadata(metadata), [TOKEN]);
+  assert.strictEqual(hasDownloadToken(metadata, TOKEN), true);
+  assert.strictEqual(hasDownloadToken(metadata, "0ther-token-value-123456"), false);
+});
+
+test("reads the token from the Firebase metadata shape (downloadTokens)", () => {
+  const metadata = { downloadTokens: TOKEN };
+  assert.deepStrictEqual(downloadTokensFromMetadata(metadata), [TOKEN]);
+  assert.strictEqual(hasDownloadToken(metadata, TOKEN), true);
+});
+
+test("supports several live tokens and trims whitespace", () => {
+  const other = "9a8b7c6d-5e4f-3a2b-1c0d-9e8f7a6b5c4d";
+  const metadata = { metadata: { firebaseStorageDownloadTokens: " " + TOKEN + " , " + other + " " } };
+  assert.deepStrictEqual(downloadTokensFromMetadata(metadata), [TOKEN, other]);
+  assert.strictEqual(hasDownloadToken(metadata, other), true);
+
+  const both = { downloadTokens: TOKEN, metadata: { firebaseStorageDownloadTokens: other } };
+  assert.deepStrictEqual(downloadTokensFromMetadata(both), [TOKEN, other]);
+});
+
+test("no token in metadata means no match", () => {
+  assert.deepStrictEqual(downloadTokensFromMetadata(undefined), []);
+  assert.deepStrictEqual(downloadTokensFromMetadata({}), []);
+  assert.deepStrictEqual(downloadTokensFromMetadata({ metadata: {} }), []);
+  assert.deepStrictEqual(downloadTokensFromMetadata({ metadata: { firebaseStorageDownloadTokens: 42 } }), []);
+  assert.strictEqual(hasDownloadToken({ metadata: {} }, TOKEN), false);
+  assert.strictEqual(hasDownloadToken({ metadata: { firebaseStorageDownloadTokens: TOKEN } }, ""), false);
 });
 
 test("sanitizes download filenames", () => {

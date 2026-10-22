@@ -199,6 +199,44 @@ function parseTokenizedStorageUrl(rawUrl, options) {
   return valid({ bucket: bucket, objectPath: objectPath, token: token, filename: filename });
 }
 
+/**
+ * Download tokens attached to an object, from either metadata shape:
+ *
+ *   - Cloud Storage JSON API (`file.getMetadata()` used by firebase-admin),
+ *     which keeps them as the custom metadata key
+ *     `firebaseStorageDownloadTokens`: { metadata: { firebaseStorageDownloadTokens: "t1,t2" } }
+ *   - the Firebase Storage metadata endpoint that firebase-admin's
+ *     getDownloadURL() calls, which returns a top-level string:
+ *     { downloadTokens: "t1,t2" }
+ *
+ * An object can carry several tokens, so the value is always split on commas.
+ * Nothing else in the metadata is trusted as a token.
+ */
+function downloadTokensFromMetadata(metadata) {
+  const source = metadata && typeof metadata === "object" ? metadata : {};
+  const values = [];
+  if (typeof source.downloadTokens === "string") values.push(source.downloadTokens);
+  const custom = source.metadata;
+  if (custom && typeof custom === "object" && typeof custom.firebaseStorageDownloadTokens === "string") {
+    values.push(custom.firebaseStorageDownloadTokens);
+  }
+  const tokens = [];
+  values.forEach((value) => {
+    String(value).split(",").forEach((token) => {
+      const trimmed = token.trim();
+      if (trimmed && tokens.indexOf(trimmed) === -1) tokens.push(trimmed);
+    });
+  });
+  return tokens;
+}
+
+/** True when `token` is one of the object's live download tokens. */
+function hasDownloadToken(metadata, token) {
+  const wanted = String(token || "").trim();
+  if (!wanted) return false;
+  return downloadTokensFromMetadata(metadata).indexOf(wanted) !== -1;
+}
+
 /** Strip anything that could break a Content-Disposition header. */
 function sanitizeFilename(name, fallback) {
   const cleaned = String(name || "")
@@ -229,7 +267,9 @@ function guessContentType(objectPath) {
 module.exports = {
   CONTENT_TYPES,
   buildContentDisposition,
+  downloadTokensFromMetadata,
   guessContentType,
+  hasDownloadToken,
   isProjectBucket,
   isSupportedHost,
   objectPathIsSafe,

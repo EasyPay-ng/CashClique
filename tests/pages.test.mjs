@@ -115,7 +115,10 @@ test("the downloadMedia proxy is declared in functions/index.js", () => {
     assert.match(source, /region: "us-central1"/);
     assert.match(source, /Access-Control-Allow-Origin/);
     assert.match(source, /req\.method === "OPTIONS"/, "preflight is answered");
-    assert.match(source, /downloadTokens/, "the URL token is verified");
+    // getMetadata() stores the Firebase token in custom metadata, so the check
+    // must go through the helper that reads firebaseStorageDownloadTokens.
+    assert.match(source, /hasDownloadToken\(metadata, parsed\.token\)/, "the URL token is verified");
+    assert.doesNotMatch(source, /metadata\.downloadTokens/, "the GCS metadata shape has no top-level downloadTokens");
     assert.match(source, /createReadStream\(\)/, "the object is streamed, not buffered");
 
     const pkg = JSON.parse(read("functions/package.json"));

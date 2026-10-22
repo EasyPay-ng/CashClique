@@ -7,6 +7,7 @@
     "check": "node tools/check-syntax.mjs",
     "test": "node --test tests/*.test.mjs functions/test/*.test.js",
     "test:web": "node --test tests/*.test.mjs",
-    "test:functions": "node --test functions/test/*.test.js"
+    "test:functions": "node --test functions/test/*.test.js",
+    "storage:cors": "gcloud storage buckets update gs://cashclique-31718.firebasestorage.app --cors-file=storage.cors.json"
   }
 }
