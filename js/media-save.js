@@ -190,7 +190,13 @@ async function fetchOnce(url, options) {
             credentials: "omit",
             redirect: "follow"
         });
-        if (!response.ok) throw new Error("HTTP " + response.status + " " + (response.statusText || ""));
+        if (!response.ok) {
+            // The proxy explains rejections in a small JSON body. Keep it in
+            // the logged reason (never in the toast) so a failing save can be
+            // diagnosed from the console.
+            const reason = await readErrorReason(response);
+            throw new Error("HTTP " + response.status + " " + (response.statusText || "") + (reason ? " - " + reason : ""));
+        }
         const blob = await response.blob();
         if (!blob || !blob.size) throw new Error("empty response body");
         if (isCancelled && isCancelled()) throw new MediaSaveError("cancelled", "Save cancelled");
@@ -204,6 +210,19 @@ async function fetchOnce(url, options) {
     } finally {
         if (timer) clearTimeout(timer);
         if (cancelPoll) clearInterval(cancelPoll);
+    }
+}
+
+/** Best-effort short error string from a failed media/proxy response. */
+async function readErrorReason(response) {
+    try {
+        const type = String(response.headers.get("content-type") || "");
+        if (type.indexOf("json") === -1 || typeof response.json !== "function") return "";
+        const body = await response.json();
+        const reason = body && (body.reason || body.error);
+        return typeof reason === "string" ? reason.slice(0, 120) : "";
+    } catch (error) {
+        return "";
     }
 }
 
