@@ -134,8 +134,9 @@ export function scorePost(post, options = {}) {
  * The mixer needs the scores to trade a little variety against quality.
  */
 export function rankScored(posts, options = {}) {
+    const scorer = typeof options.scoreFn === "function" ? options.scoreFn : scorePost;
     return posts
-        .map(post => ({ post, score: scorePost(post, options) }))
+        .map(post => ({ post, score: scorer(post, options) }))
         .sort((a, b) => (b.score - a.score) || (timeValue(b.post) - timeValue(a.post)));
 }
 
@@ -278,6 +279,146 @@ export function orderForFeed(posts, options = {}) {
     }
 
     return orderStandardFeed(posts, options);
+}
+
+export const DISCOVER_MODES = ["trending", "recommended", "explore", "creators"];
+
+function postKind(post) {
+    return post.mediaKind || (post.videoUrl ? "video" : (post.imageUrl || post.imageBase64 || post.image ? "image" : "text"));
+}
+
+/**
+ * Trending: what is catching on right now.
+ * Engagement is divided by a steep recency curve so a clip that is blowing up
+ * this afternoon beats a month-old evergreen post with a bigger lifetime total.
+ */
+export function trendingScore(post, options = {}) {
+    const { now = Date.now(), salt = "", jitter = true } = options;
+    const ageHours = Math.max(0, (now - timeValue(post)) / 3600000);
+    const velocity = (ALGO.engagementFloor + engagementScore(post)) * Math.pow(ageHours + 1.2, -0.7);
+    let score = velocity;
+    if (postKind(post) === "video") score *= 1.18;
+    else if (postKind(post) === "image") score *= 1.04;
+    if (jitter) score *= 1 + (stableNoise(post.id || "", salt + ":trend") - 0.5) * 0.1;
+    return score;
+}
+
+/**
+ * Recommended: personalised, not chronological.
+ * Categories you like, people you follow and unseen posts are lifted; things
+ * you have already watched are pushed down harder than on For You.
+ */
+export function recommendScore(post, options = {}) {
+    const {
+        now = Date.now(),
+        following = [],
+        affinity = [],
+        selfId = "",
+        salt = "",
+        jitter = true
+    } = options;
+
+    let score = (ALGO.engagementFloor + engagementScore(post)) * freshnessFactor(post, now);
+    const kind = postKind(post);
+    if (kind === "video") score *= ALGO.boosts.video;
+    else if (kind === "image") score *= ALGO.boosts.image;
+    if (following.includes(post.userId)) score *= 1.55;
+    if (affinity.includes(post.category)) score *= 1.35;
+    if (selfId && post.userId === selfId) score *= 0.45;
+    if (post.hasViewed) score *= 0.32;
+    else score *= 1.22;
+    if (post.smallCreator) score *= ALGO.boosts.smallCreator;
+    if (jitter) score *= 1 + (stableNoise(post.id || "", salt + ":rec") - 0.5) * 0.14;
+    return score;
+}
+
+/**
+ * Explore: get off the beaten path.
+ * Creators you do not follow, categories you have not been liking, and posts
+ * you have not seen yet win; your own posts and already-watched ones sink.
+ */
+export function exploreScore(post, options = {}) {
+    const {
+        now = Date.now(),
+        following = [],
+        affinity = [],
+        selfId = "",
+        salt = "",
+        jitter = true
+    } = options;
+
+    let score = (ALGO.engagementFloor + engagementScore(post) * 0.85) * Math.pow(
+        Math.max(0, (now - timeValue(post)) / 3600000) + 3,
+        -0.18
+    );
+    if (following.includes(post.userId)) score *= 0.42;
+    else score *= 1.38;
+    if (affinity.includes(post.category)) score *= 0.72;
+    else if (post.category) score *= 1.28;
+    if (selfId && post.userId === selfId) score *= 0.2;
+    if (post.hasViewed) score *= 0.28;
+    else score *= 1.3;
+    if (post.smallCreator) score *= 1.25;
+    if (postKind(post) === "video") score *= 1.1;
+    if (jitter) score *= 1 + (stableNoise(post.id || "", salt + ":explore") - 0.5) * 0.2;
+    return score;
+}
+
+/**
+ * Discover ranking: four algorithms that are not reverse-chronological feeds.
+ *   trending     — velocity (engagement / recency)
+ *   recommended  — personalised quality mix
+ *   explore      — unseen creators and off-affinity categories
+ *   creators     — the caller renders people, not posts
+ */
+export function orderDiscoverFeed(posts, mode, options = {}) {
+    if (!Array.isArray(posts) || posts.length === 0) return [];
+    const wanted = DISCOVER_MODES.includes(mode) ? mode : "trending";
+    if (wanted === "creators") return [];
+    const scoreFn = wanted === "trending" ? trendingScore
+        : wanted === "explore" ? exploreScore
+            : recommendScore;
+    if (wanted === "trending") {
+        return rankScored(posts, { ...options, scoreFn }).map(entry => entry.post);
+    }
+    return orderStandardFeed(posts, { ...options, scoreFn, hasInteracted: false });
+}
+
+/**
+ * People the viewer does not already follow, ranked by the engagement their
+ * loaded posts have earned. Used by Discover → Creators.
+ */
+export function suggestedCreators(posts, options = {}) {
+    const { following = [], selfId = "", limit = 12 } = options;
+    const followed = new Set(following || []);
+    const byUser = new Map();
+    (posts || []).forEach(post => {
+        const userId = post && post.userId;
+        if (!userId || userId === selfId || followed.has(userId)) return;
+        const entry = byUser.get(userId) || {
+            userId,
+            username: "",
+            avatar: "",
+            isVerified: false,
+            likes: 0,
+            views: 0,
+            posts: 0
+        };
+        entry.likes += Number(post.likes) || 0;
+        entry.views += Number(post.views) || 0;
+        entry.posts += 1;
+        if (post.username) entry.username = post.username;
+        if (post.userAvatar) entry.avatar = post.userAvatar;
+        if (post.isVerified) entry.isVerified = true;
+        byUser.set(userId, entry);
+    });
+    return Array.from(byUser.values())
+        .map(creator => ({
+            ...creator,
+            score: Math.log1p(creator.likes) * 1.5 + Math.log1p(creator.views) * 0.45 + creator.posts
+        }))
+        .sort((a, b) => b.score - a.score || b.posts - a.posts)
+        .slice(0, limit);
 }
 
 /** Categories the user keeps interacting with (for the affinity boost). */

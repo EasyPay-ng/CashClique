@@ -79,11 +79,25 @@ body{background:var(--cc-soft, #f5f6f8);display:flex;min-height:100vh;}
 .category-filter-item.selected{background:linear-gradient(135deg,var(--cc-soft, #fff7ed),var(--cc-soft, #ffedd5));color:#ff6a00;font-weight:600;}
 .category-filter-item i{width:20px;text-align:center;}
 
-.feed-tabs{display:flex;gap:15px;border-bottom:2px solid var(--cc-border, #f1f5f9);width:100%;}
-.feed-tab{flex:1;text-align:center;background:none;border:none;padding:10px 5px;font-size:14.5px;font-weight:600;color:var(--cc-muted, #64748b);cursor:pointer;position:relative;transition:0.3s;font-family:'Poppins',sans-serif;}
+.feed-tabs{display:flex;gap:8px;border-bottom:2px solid var(--cc-border, #f1f5f9);width:100%;overflow-x:auto;scrollbar-width:none;}
+.feed-tabs::-webkit-scrollbar{display:none;}
+.feed-tab{flex:1;text-align:center;background:none;border:none;padding:10px 6px;font-size:13.5px;font-weight:600;color:var(--cc-muted, #64748b);cursor:pointer;position:relative;transition:0.3s;font-family:'Poppins',sans-serif;white-space:nowrap;min-width:72px;}
 .feed-tab:hover{color:#ff6a00;}
 .feed-tab.active{color:#ff6a00;}
 .feed-tab.active::after{content:'';position:absolute;bottom:-2px;left:0;width:100%;height:3px;background:#ff6a00;border-radius:3px 3px 0 0;}
+.discover-pills{display:none;gap:8px;padding-top:12px;overflow-x:auto;scrollbar-width:none;}
+.discover-pills::-webkit-scrollbar{display:none;}
+.discover-pills.show{display:flex;}
+.discover-pill{border:1.5px solid var(--cc-border, #e2e8f0);background:var(--cc-surface, #fff);color:var(--cc-muted, #64748b);border-radius:999px;padding:7px 14px;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:'Poppins',sans-serif;transition:0.2s;}
+.discover-pill:hover{border-color:#ff6a00;color:#ff6a00;}
+.discover-pill.active{background:#ff6a00;border-color:#ff6a00;color:#fff;}
+.discover-note{display:none;margin-top:10px;font-size:12px;color:var(--cc-muted, #64748b);}
+.discover-pills.show + .discover-note{display:block;}
+.creator-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;}
+.creator-card{background:var(--cc-surface, #fff);border:1px solid var(--cc-border, #e2e8f0);border-radius:16px;padding:18px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;box-shadow:0 4px 15px rgba(0,0,0,0.03);}
+.creator-card img{width:64px;height:64px;border-radius:50%;object-fit:cover;cursor:pointer;}
+.creator-card .creator-name{font-weight:600;color:var(--cc-ink, #1e2937);cursor:pointer;}
+.creator-card .creator-stats{font-size:12px;color:var(--cc-muted, #64748b);}
 
 .feed{display:flex;flex-direction:column;gap:20px;}
 .post{background:var(--cc-surface, white);padding:20px;border-radius:16px;box-shadow:0 4px 15px rgba(0,0,0,0.03);position:relative;border:1px solid var(--cc-border, #e2e8f0);}
@@ -158,6 +172,11 @@ body{background:var(--cc-soft, #f5f6f8);display:flex;min-height:100vh;}
 .ad-title{font-weight:600;color:var(--cc-ink, #1e2937);font-size:14px;margin-bottom:4px;}
 .ad-description{color:var(--cc-muted, #64748b);font-size:13px;line-height:1.5;}
 .ad-image{width:100%;max-height:300px;border-radius:8px;object-fit:cover;margin-top:10px;border:1px solid var(--cc-border, #e2e8f0);}
+.ad-container .video-shell,.ad-container .media-frame{margin-top:10px;}
+.ad-container .video-shell.ad-video{cursor:default;padding:0;background:#000;}
+.ad-container .video-shell.ad-video video{width:100%;height:100%;object-fit:contain;background:#000;}
+.ad-cta{display:inline-flex;align-items:center;gap:6px;margin-top:12px;background:#ff6a00;color:#fff;border:none;border-radius:20px;padding:8px 14px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;}
+.ad-cta:hover{background:#e55d00;}
 
 /* ====== DATA SAVER MEDIA (nothing downloads until it is on screen / tapped) ======
    Images only load once they scroll near the viewport, and videos stay a poster
@@ -351,6 +370,7 @@ body{background:var(--cc-soft, #f5f6f8);display:flex;min-height:100vh;}
     <nav class="side-nav">
         <span class="side-label">Browse</span>
         <a href="dashboard.html" class="nav-active" data-feed-mode="all"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="dashboard.html?feed=discover" data-feed-mode="discover"><i class="fas fa-compass"></i> Discover</a>
         <a href="dashboard.html?feed=videos" data-feed-mode="videos"><i class="fas fa-play-circle"></i> Videos <span class="nav-count" id="video-count" style="display:none;">0</span></a>
         <a href="dashboard.html?feed=following" data-feed-mode="following"><i class="fas fa-user-group"></i> Following</a>
         <span class="side-label">Earn</span>
@@ -411,7 +431,15 @@ body{background:var(--cc-soft, #f5f6f8);display:flex;min-height:100vh;}
             <button class="feed-tab active" data-tab="all">For You</button>
             <button class="feed-tab" data-tab="following">Following</button>
             <button class="feed-tab" data-tab="videos"><i class="fas fa-play-circle"></i> Videos</button>
+            <button class="feed-tab" data-tab="discover"><i class="fas fa-compass"></i> Discover</button>
         </div>
+        <div class="discover-pills" id="discover-pills">
+            <button class="discover-pill active" data-discover="trending"><i class="fas fa-fire"></i> Trending</button>
+            <button class="discover-pill" data-discover="recommended"><i class="fas fa-star"></i> Recommended</button>
+            <button class="discover-pill" data-discover="explore"><i class="fas fa-binoculars"></i> Explore</button>
+            <button class="discover-pill" data-discover="creators"><i class="fas fa-user-plus"></i> Creators</button>
+        </div>
+        <p class="discover-note" id="discover-note">Ranked for you — not just the newest posts.</p>
         <div class="data-saver-note">
             <i class="fas fa-bolt"></i>
             <span>Data saver: photos load as you scroll, videos only when you tap play.</span>
@@ -552,13 +580,15 @@ import {
     mediaFilename
 } from "./js/media-save.js";
 import {
+    autoplayVideoHTML,
     lazyImageFrameHTML,
     playVideoInShell,
     postImageSrc,
     postMediaKind,
+    primeAutoplayVideo,
     videoShellHTML
 } from "./js/feed-media.js";
-import { likedCategories, orderForFeed, timeValue } from "./js/feed-ranking.js";
+import { likedCategories, orderDiscoverFeed, orderForFeed, suggestedCreators, timeValue } from "./js/feed-ranking.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBsgofM76EpbQTQBhipIpMNBJZYLwi2Pyg",
@@ -672,6 +702,7 @@ let approvedApplications = [];
 let opportunitiesCache = {};
 let viewedAds = [];
 let currentFeedTab = resolveInitialTab();
+let currentDiscoverMode = resolveInitialDiscoverMode();
 let searchQuery = "";
 let selectedCategory = "";
 let csChatId = null;
@@ -757,7 +788,14 @@ function resolveInitialTab() {
     const fromUrl = new URLSearchParams(window.location.search).get("feed");
     const stored = localStorage.getItem("cashclique_feed_tab");
     const tab = fromUrl || stored || "all";
-    return ["all", "following", "videos"].includes(tab) ? tab : "all";
+    return ["all", "following", "videos", "discover"].includes(tab) ? tab : "all";
+}
+
+function resolveInitialDiscoverMode() {
+    const fromUrl = new URLSearchParams(window.location.search).get("discover");
+    const stored = localStorage.getItem("cashclique_discover_mode");
+    const mode = fromUrl || stored || "trending";
+    return ["trending", "recommended", "explore", "creators"].includes(mode) ? mode : "trending";
 }
 
 // Categories for filter
@@ -1096,14 +1134,78 @@ function mediaHTML(post) {
     return "";
 }
 
+function adCreativeHTML(ad) {
+    if (!ad) return "";
+    const videoUrl = ad.videoUrl && String(ad.videoUrl).trim();
+    const isVideo = ad.mediaType === "video" || !!videoUrl;
+    if (isVideo && videoUrl) {
+        return autoplayVideoHTML({
+            videoUrl,
+            poster: ad.flyer || ""
+        });
+    }
+    return lazyImageFrameHTML(ad.flyer, "16/9");
+}
+
+function postPermalink(postId) {
+    try {
+        return new URL(`post-view.html?postId=${encodeURIComponent(postId)}`, window.location.href).href;
+    } catch (error) {
+        return `post-view.html?postId=${encodeURIComponent(postId)}`;
+    }
+}
+
+async function sharePost(postId) {
+    markUserInteracted();
+    const post = allPostsCache.find(item => item.id === postId);
+    const url = postPermalink(postId);
+    const title = post && post.username ? `${post.username} on CashClique` : "CashClique";
+    const text = post && post.content ? String(post.content).slice(0, 160) : "Check out this post on CashClique";
+    try {
+        if (navigator.share) {
+            await navigator.share({ title, text, url });
+            return;
+        }
+    } catch (error) {
+        if (error && error.name === "AbortError") return;
+    }
+    try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(url);
+            showToast("Link copied", "success");
+            return;
+        }
+    } catch (error) { /* fall through */ }
+    showToast("Could not share this post", "error");
+}
+
 let mediaObserver = null;
 let viewObserver = null;
+let adVideoObserver = null;
 
 function resetObservers() {
     Object.keys(viewTimers).forEach(id => { clearTimeout(viewTimers[id]); delete viewTimers[id]; });
     viewObservers.clear();
     if (mediaObserver) { mediaObserver.disconnect(); mediaObserver = null; }
     if (viewObserver) { viewObserver.disconnect(); viewObserver = null; }
+    if (adVideoObserver) { adVideoObserver.disconnect(); adVideoObserver = null; }
+}
+
+function observeAdVideos() {
+    const videos = document.querySelectorAll("video.ad-autoplay");
+    if (videos.length === 0) return;
+    videos.forEach(video => primeAutoplayVideo(video));
+    if (!("IntersectionObserver" in window)) return;
+    if (!adVideoObserver) {
+        adVideoObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const video = entry.target;
+                if (entry.isIntersecting) primeAutoplayVideo(video);
+                else if (typeof video.pause === "function") video.pause();
+            });
+        }, { threshold: 0.35 });
+    }
+    videos.forEach(video => adVideoObserver.observe(video));
 }
 
 function observeLazyMedia() {
@@ -1423,7 +1525,9 @@ async function loadAds() {
                 status: appData.status,
                 title: oppData.title || appData.opportunityTitle || 'Advertisement',
                 description: oppData.description || '',
-                flyer: oppData.flyer || '',
+                flyer: oppData.flyer || appData.flyer || '',
+                videoUrl: oppData.videoUrl || appData.videoUrl || '',
+                mediaType: oppData.mediaType || appData.mediaType || (oppData.videoUrl || appData.videoUrl ? 'video' : (oppData.flyer ? 'image' : '')),
                 targetUrl: oppData.targetUrl || '',
                 advertiserName: oppData.advertiserName || appData.advertiserName || 'Advertiser'
             });
@@ -1468,6 +1572,10 @@ function filteredPosts() {
     if (currentFeedTab === "following") {
         // Updates from people you follow stay chronological.
         return posts.sort((a, b) => timeValue(b) - timeValue(a));
+    }
+    if (currentFeedTab === "discover") {
+        if (currentDiscoverMode === "creators") return posts;
+        return orderDiscoverFeed(posts, currentDiscoverMode, rankingOptions());
     }
     // For You and Videos are ranked: engagement and relevance decide, so an
     // older video with real engagement can sit above a brand-new empty post.
@@ -1536,8 +1644,18 @@ function renderFeed(options = {}) {
                     ? "You aren't following anyone who has posted yet."
                     : currentFeedTab === "videos"
                         ? "No videos here yet — check back soon."
-                        : "No posts found.";
+                        : currentFeedTab === "discover"
+                            ? discoverEmptyMessage()
+                            : "No posts found.";
         feed.innerHTML = emptyFeedHTML(message);
+        syncFeedChrome();
+        return;
+    }
+
+    if (currentFeedTab === "discover" && currentDiscoverMode === "creators") {
+        const pill = newPostsCount > 0 ? newPostsPillHTML() : "";
+        feed.innerHTML = `${pill}${creatorsHTML(posts)}`;
+        if (options.keepScroll) window.scrollTo(0, scrollY);
         syncFeedChrome();
         return;
     }
@@ -1548,6 +1666,7 @@ function renderFeed(options = {}) {
     feed.innerHTML = `${pill}${html}${feedFootHTML()}`;
     if (options.keepScroll) window.scrollTo(0, scrollY);
     observeLazyMedia();
+    observeAdVideos();
     observePostViews();
     syncFeedChrome();
 }
@@ -1565,20 +1684,83 @@ function syncFeedChrome() {
     document.querySelectorAll("[data-feed-mode]").forEach(link => {
         link.classList.toggle("nav-active", link.dataset.feedMode === currentFeedTab);
     });
+    const pills = document.getElementById("discover-pills");
+    if (pills) pills.classList.toggle("show", currentFeedTab === "discover");
+    document.querySelectorAll(".discover-pill").forEach(pill => {
+        pill.classList.toggle("active", pill.dataset.discover === currentDiscoverMode);
+    });
+    const note = document.getElementById("discover-note");
+    if (note) note.textContent = discoverNoteText();
 }
 
 function setFeedTab(tab) {
-    if (!["all", "following", "videos"].includes(tab)) tab = "all";
+    if (!["all", "following", "videos", "discover"].includes(tab)) tab = "all";
     currentFeedTab = tab;
     try { localStorage.setItem("cashclique_feed_tab", tab); } catch (error) { /* storage can be blocked */ }
-    try {
-        const url = new URL(window.location.href);
-        if (tab === "all") url.searchParams.delete("feed");
-        else url.searchParams.set("feed", tab);
-        window.history.replaceState(null, "", url);
-    } catch (error) { /* file:// or sandboxed contexts */ }
+    syncFeedUrl();
     renderFeed();
     window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function setDiscoverMode(mode) {
+    if (!["trending", "recommended", "explore", "creators"].includes(mode)) mode = "trending";
+    currentDiscoverMode = mode;
+    try { localStorage.setItem("cashclique_discover_mode", mode); } catch (error) { /* storage can be blocked */ }
+    if (currentFeedTab !== "discover") currentFeedTab = "discover";
+    syncFeedUrl();
+    renderFeed();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function syncFeedUrl() {
+    try {
+        const url = new URL(window.location.href);
+        if (currentFeedTab === "all") url.searchParams.delete("feed");
+        else url.searchParams.set("feed", currentFeedTab);
+        if (currentFeedTab === "discover" && currentDiscoverMode !== "trending") {
+            url.searchParams.set("discover", currentDiscoverMode);
+        } else {
+            url.searchParams.delete("discover");
+        }
+        window.history.replaceState(null, "", url);
+    } catch (error) { /* file:// or sandboxed contexts */ }
+}
+
+function discoverEmptyMessage() {
+    if (currentDiscoverMode === "creators") return "No new creators to suggest yet — check back after more people post.";
+    if (currentDiscoverMode === "explore") return "Nothing fresh to explore yet.";
+    if (currentDiscoverMode === "recommended") return "Not enough activity to recommend posts yet.";
+    return "Nothing is trending yet.";
+}
+
+function discoverNoteText() {
+    if (currentDiscoverMode === "trending") return "Hottest posts right now, ranked by how fast they are catching on.";
+    if (currentDiscoverMode === "recommended") return "Picked for you from creators and topics you actually engage with.";
+    if (currentDiscoverMode === "explore") return "Unseen posts from people you do not follow yet.";
+    return "Creators you might like, based on the posts in your feed.";
+}
+
+function creatorsHTML(posts) {
+    const people = suggestedCreators(posts, rankingOptions());
+    if (!people.length) return emptyFeedHTML(discoverEmptyMessage());
+    const cards = people.map(creator => {
+        const profileHref = `profile.html?uid=${encodeURIComponent(creator.userId)}`;
+        const isFollowing = followingList.includes(creator.userId);
+        const verified = creator.isVerified ? `<span class="verified-badge-post" title="Verified Account"><i class="fas fa-check"></i></span>` : "";
+        return `
+            <div class="creator-card" data-creator-id="${escapeAttr(creator.userId)}">
+                <img src="${escapeAttr(creator.avatar || "")}" alt="" loading="lazy" decoding="async"
+                     onclick="window.location.href='${profileHref}'">
+                <div class="creator-name" onclick="window.location.href='${profileHref}'">
+                    ${escapeHtml(creator.username || "Creator")}${verified}
+                </div>
+                <div class="creator-stats">${creator.posts} post${creator.posts === 1 ? "" : "s"} · ${(creator.likes || 0).toLocaleString()} likes</div>
+                <button class="follow-btn ${isFollowing ? "following" : ""}" data-follow="${escapeAttr(creator.userId)}">
+                    <i class="fas fa-${isFollowing ? "check" : "plus"}"></i> ${isFollowing ? "Following" : "Follow"}
+                </button>
+            </div>`;
+    }).join("");
+    return `<div class="creator-grid">${cards}</div>`;
 }
 
 function postHTML(post, attachedAd = null) {
@@ -1604,13 +1786,15 @@ function postHTML(post, attachedAd = null) {
     let adHTML = '';
     if (attachedAd) {
         const hasViewed = viewedAds.includes(attachedAd.id);
+        const visitLabel = attachedAd.targetUrl ? 'Visit' : '';
         adHTML = `
             <div class="ad-container" data-ad-id="${escapeAttr(attachedAd.id)}"
                  data-target-url="${escapeAttr(attachedAd.targetUrl || '')}" data-viewed="${hasViewed}">
                 <span class="ad-tag">SPONSORED</span>
                 <div class="ad-title">${escapeHtml(attachedAd.title || 'Advertisement')}</div>
                 <div class="ad-description">${escapeHtml(attachedAd.description || '')}</div>
-                ${lazyImageFrameHTML(attachedAd.flyer, "16/9")}
+                ${adCreativeHTML(attachedAd)}
+                ${attachedAd.targetUrl ? `<button type="button" class="ad-cta" data-ad-visit="1"><i class="fas fa-external-link-alt"></i> ${visitLabel}</button>` : ''}
             </div>`;
     }
 
@@ -1643,6 +1827,9 @@ function postHTML(post, attachedAd = null) {
                 </span>
                 <span class="action-item tip-jar" data-id="${postId}" data-owner="${escapeAttr(post.userId)}" data-username="${escapeAttr(post.username || '')}">
                     <i class="fas fa-hand-holding-dollar"></i> Tip
+                </span>
+                <span class="action-item share-post" data-id="${postId}" title="Share">
+                    <i class="fas fa-share-alt"></i> Share
                 </span>
                 ${post.mediaKind !== "text" ? `
                 <span class="action-item save-media" data-id="${postId}">
@@ -1775,6 +1962,9 @@ function setupFeedInteractions() {
     document.querySelectorAll(".feed-tab").forEach(tab => {
         tab.addEventListener("click", () => setFeedTab(tab.dataset.tab));
     });
+    document.querySelectorAll(".discover-pill").forEach(pill => {
+        pill.addEventListener("click", () => setDiscoverMode(pill.dataset.discover));
+    });
 
     // Sidebar feed shortcuts switch the cached feed instead of reloading the app.
     document.querySelectorAll("[data-feed-mode]").forEach(link => {
@@ -1799,7 +1989,7 @@ function setupFeedInteractions() {
     feed.addEventListener("keydown", (event) => {
         if (event.key !== "Enter" && event.key !== " ") return;
         const shell = event.target.closest(".video-shell");
-        if (!shell) return;
+        if (!shell || (shell.dataset && shell.dataset.adVideo)) return;
         event.preventDefault();
         playVideoInShell(shell);
     });
@@ -1814,7 +2004,11 @@ async function onFeedClick(event) {
     const target = event.target;
 
     const shell = target.closest(".video-shell");
-    if (shell) { playVideoInShell(shell); return; }
+    if (shell) {
+        if (shell.dataset && shell.dataset.adVideo) return;
+        playVideoInShell(shell);
+        return;
+    }
 
     if (target.closest("#new-posts")) { refreshNewPosts(); return; }
     if (target.closest("#load-more")) { loadMorePosts(); return; }
@@ -1828,6 +2022,9 @@ async function onFeedClick(event) {
 
     const saveBtn = target.closest(".save-media");
     if (saveBtn) { downloadPostItem(saveBtn.dataset.id); return; }
+
+    const shareBtn = target.closest(".share-post");
+    if (shareBtn) { sharePost(shareBtn.dataset.id); return; }
 
     const commentBtn = target.closest(".comment-toggle");
     if (commentBtn) { toggleComments(commentBtn.dataset.postId); return; }

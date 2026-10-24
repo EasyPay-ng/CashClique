@@ -74,6 +74,43 @@ export function lazyImageFrameHTML(src, ratio) {
 }
 
 /**
+ * Markup for a sponsored video ad. Unlike a feed post, the clip is meant to
+ * play on its own (muted, looping, playsinline) so the viewer does not have
+ * to tap. Browsers only honour autoplay when the video is muted.
+ */
+export function autoplayVideoHTML(options = {}) {
+    const { videoUrl = "", poster = "" } = options;
+    if (!videoUrl) return "";
+    const posterAttr = poster ? ` poster="${escapeAttribute(poster)}"` : "";
+    return `
+            <div class="video-shell playing ad-video" data-ad-video="1">
+                <video class="post-video ad-autoplay"${posterAttr}
+                    autoplay muted loop playsinline webkit-playsinline controls
+                    src="${escapeAttribute(videoUrl)}"></video>
+            </div>`;
+}
+
+/** Make sure a dynamically inserted ad clip is muted and actually starts. */
+export function primeAutoplayVideo(video) {
+    if (!video) return null;
+    video.muted = true;
+    video.defaultMuted = true;
+    video.loop = true;
+    video.playsInline = true;
+    video.autoplay = true;
+    if (typeof video.setAttribute === "function") {
+        video.setAttribute("muted", "");
+        video.setAttribute("playsinline", "");
+        video.setAttribute("webkit-playsinline", "");
+        video.setAttribute("autoplay", "");
+        video.setAttribute("loop", "");
+    }
+    const started = typeof video.play === "function" ? video.play() : null;
+    if (started && typeof started.catch === "function") started.catch(() => {});
+    return video;
+}
+
+/**
  * Swap a shell for a real, playing <video>. Only ever called from a click,
  * keypress or another explicit user action.
  */

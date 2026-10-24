@@ -12,11 +12,13 @@ import test from "node:test";
 import assert from "node:assert";
 
 import {
+    autoplayVideoHTML,
     escapeAttribute,
     lazyImageFrameHTML,
     playVideoInShell,
     postImageSrc,
     postMediaKind,
+    primeAutoplayVideo,
     videoShellHTML
 } from "../js/feed-media.js";
 
@@ -62,6 +64,27 @@ function fakeDocument() {
         }
     };
 }
+
+test("feed media: a video ad autoplays muted without a tap", () => {
+    const markup = autoplayVideoHTML({ videoUrl: VIDEO_URL, poster: PHOTO_URL });
+    assert.match(markup, /<video/i);
+    assert.match(markup, /autoplay/);
+    assert.match(markup, /muted/);
+    assert.match(markup, /loop/);
+    assert.match(markup, /playsinline/);
+    assert.match(markup, /ad-autoplay/);
+    assert.ok(markup.includes(`src="${escapeAttribute(VIDEO_URL)}"`));
+    assert.ok(markup.includes(`poster="${escapeAttribute(PHOTO_URL)}"`));
+    assert.equal(autoplayVideoHTML({ videoUrl: "" }), "");
+
+    const documentRef = fakeDocument();
+    const video = documentRef.createElement("video");
+    primeAutoplayVideo(video);
+    assert.equal(video.muted, true);
+    assert.equal(video.loop, true);
+    assert.equal(video.playsInline, true);
+    assert.equal(video.playCalls, 1);
+});
 
 test("feed media: a video renders as a poster shell, never as a request", () => {
     const shell = videoShellHTML({ videoUrl: VIDEO_URL, poster: PHOTO_URL });
