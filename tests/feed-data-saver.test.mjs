@@ -37,6 +37,7 @@ test("dashboard: no video is downloaded before the viewer taps play", () => {
     assert.doesNotMatch(source, /videos\.html/, "the link to the missing videos.html page is gone");
     assert.match(source, /playVideoInShell\(/, "playback goes through the shared helper");
     assert.match(source, /videoShellHTML\(/, "video posts use the poster shell");
+    assert.match(source, /autoplayVideoHTML\(/, "sponsored video ads autoplay");
     assert.match(source, /lazyImageFrameHTML\(/, "photos use the lazy frame");
 });
 

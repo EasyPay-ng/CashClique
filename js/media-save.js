@@ -76,25 +76,101 @@ export function toMediaSaveError(error) {
     });
 }
 
-/** Trigger a browser download for a Blob. Never used with a media URL. */
+function guessMimeFromName(filename) {
+    const ext = String(filename || "").split(".").pop().toLowerCase();
+    if (ext === "jpg" || ext === "jpeg") return "image/jpeg";
+    if (ext === "png") return "image/png";
+    if (ext === "webp") return "image/webp";
+    if (ext === "gif") return "image/gif";
+    if (ext === "mp4" || ext === "m4v") return "video/mp4";
+    if (ext === "webm") return "video/webm";
+    if (ext === "mov") return "video/quicktime";
+    if (ext === "mkv") return "video/x-matroska";
+    return "";
+}
+
+function typedBlob(blob, filename) {
+    if (!blob) return blob;
+    if (blob.type) return blob;
+    const type = guessMimeFromName(filename);
+    return type ? new Blob([blob], { type }) : blob;
+}
+
+function asNamedFile(blob, filename) {
+    const typed = typedBlob(blob, filename);
+    if (typeof File !== "function") return typed;
+    try {
+        return new File([typed], filename, {
+            type: typed.type || guessMimeFromName(filename) || "application/octet-stream"
+        });
+    } catch (error) {
+        return typed;
+    }
+}
+
+function canShareFile(file) {
+    try {
+        return typeof navigator !== "undefined"
+            && typeof navigator.share === "function"
+            && typeof navigator.canShare === "function"
+            && navigator.canShare({ files: [file] });
+    } catch (error) {
+        return false;
+    }
+}
+
+function triggerAnchorDownload(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url; // blob: URL only - never the Firebase Storage URL
+    anchor.download = filename;
+    anchor.rel = "noopener";
+    anchor.style.display = "none";
+    if (typeof anchor.setAttribute === "function") {
+        anchor.setAttribute("download", filename);
+    }
+    document.body.appendChild(anchor);
+    if (typeof anchor.click === "function") anchor.click();
+    else if (typeof document.createEvent === "function") {
+        const event = document.createEvent("MouseEvents");
+        event.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+        anchor.dispatchEvent(event);
+    }
+    setTimeout(() => {
+        URL.revokeObjectURL(url);
+        if (typeof anchor.remove === "function") anchor.remove();
+    }, 60000);
+    return filename;
+}
+
+/**
+ * Trigger a browser download for a Blob. Never used with a media URL.
+ *
+ * On phones the <a download> attribute is often ignored after an async fetch,
+ * so this tries (in order) the Web Share sheet with the file, then a named
+ * blob: download. Desktop Chrome still gets the classic Save dialog.
+ */
 export function downloadBlob(blob, filename) {
     if (!blob || !blob.size) {
         throw new MediaSaveError("empty", "There is nothing to download");
     }
     const safeName = sanitizeFilename(filename) || "cashclique-media";
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    anchor.href = url; // blob: URL only - never the Firebase Storage URL
-    anchor.download = safeName;
-    anchor.rel = "noopener";
-    anchor.style.display = "none";
-    document.body.appendChild(anchor);
-    anchor.click();
-    setTimeout(() => {
-        URL.revokeObjectURL(url);
-        anchor.remove();
-    }, 4000);
-    return safeName;
+    const file = asNamedFile(blob, safeName);
+    if (typeof navigator !== "undefined" && typeof navigator.msSaveOrOpenBlob === "function") {
+        navigator.msSaveOrOpenBlob(file, safeName);
+        return safeName;
+    }
+    if (canShareFile(file)) {
+        const shared = navigator.share({ files: [file], title: APP_NAME, text: safeName });
+        if (shared && typeof shared.catch === "function") {
+            shared.catch((error) => {
+                if (error && (error.name === "AbortError" || error.name === "NotAllowedError")) return;
+                triggerAnchorDownload(file, safeName);
+            });
+            return safeName;
+        }
+    }
+    return triggerAnchorDownload(file, safeName);
 }
 
 export function sanitizeFilename(filename) {

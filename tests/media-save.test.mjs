@@ -293,6 +293,14 @@ test("downloadBlob: only ever uses a blob: URL and a safe filename", withDom({},
     assert.strictEqual(dom.calls.downloads.length, 1, "an empty Blob downloads nothing");
 }));
 
+test("downloadBlob: untyped blobs still download under a named file", withDom({}, async (t, dom) => {
+    const blob = new Blob([VIDEO_BYTES]);
+    downloadBlob(blob, "cashclique_clip.mp4");
+    assert.strictEqual(dom.calls.downloads.length, 1);
+    assert.ok(dom.calls.downloads[0].href.indexOf("blob:") === 0);
+    assert.strictEqual(dom.calls.downloads[0].download, "cashclique_clip.mp4");
+}));
+
 test("helpers: filenames and extensions", () => {
     assert.strictEqual(mediaFilename("abc123", "jpg"), "cashclique_abc123.jpg");
     assert.strictEqual(mediaFilename("../../x", "webm"), "cashclique_x.webm");

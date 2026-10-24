@@ -10,13 +10,15 @@ import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
 import {
+    autoplayVideoHTML,
     lazyImageFrameHTML,
     playVideoInShell,
     postImageSrc,
     postMediaKind,
+    primeAutoplayVideo,
     videoShellHTML
 } from "../js/feed-media.js";
-import { likedCategories, orderForFeed, timeValue } from "../js/feed-ranking.js";
+import { likedCategories, orderDiscoverFeed, orderForFeed, suggestedCreators, timeValue } from "../js/feed-ranking.js";
 
 export const VIDEO_URL =
     "https://firebasestorage.googleapis.com/v0/b/cashclique-31718.firebasestorage.app" +
@@ -177,8 +179,8 @@ export function runDashboard(posts, overrides = {}) {
     const context = {
         ...firebase,
         // Real data-saver helpers, so the markup under test is the shipped one.
-        lazyImageFrameHTML, postImageSrc, postMediaKind, videoShellHTML, playVideoInShell,
-        likedCategories, orderForFeed, timeValue,
+        autoplayVideoHTML, lazyImageFrameHTML, postImageSrc, postMediaKind, videoShellHTML, playVideoInShell, primeAutoplayVideo,
+        likedCategories, orderDiscoverFeed, orderForFeed, suggestedCreators, timeValue,
         createWatermarkedJpeg: async () => ({ blob: null, filename: "x.jpg" }),
         createVideoDownload: async () => ({ blob: null, filename: "x.mp4" }),
         downloadBlob: () => {},

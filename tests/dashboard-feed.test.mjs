@@ -194,3 +194,65 @@ test("dashboard feed: ranking, not the clock, orders the For You feed", async ()
     assert.match(dom.getElementById("feed").innerHTML, /post-age-tag[^>]*>throwback/,
         "older posts in the mix are labelled");
 });
+
+test("dashboard feed: every post has a share button", async () => {
+    const { dom } = runDashboard(POSTS);
+    await flushTimes();
+    const markup = dom.getElementById("feed").innerHTML;
+    assert.match(markup, /class="action-item share-post"/);
+    assert.equal((markup.match(/share-post/g) || []).length, POSTS.length);
+});
+
+test("dashboard feed: a video ad autoplays instead of waiting for a tap", async () => {
+    const { context } = runDashboard(POSTS);
+    await flushTimes();
+    const markup = context.postHTML({
+        id: "video1",
+        userId: "u1",
+        username: "ada",
+        content: "clip",
+        mediaKind: "video",
+        videoUrl: VIDEO_URL,
+        likedBy: [],
+        likes: 0,
+        commentCount: 0,
+        views: 0,
+        hasViewed: true,
+        userAvatar: "",
+        timestamp: { toDate: () => new Date("2026-09-18T09:00:00Z") }
+    }, {
+        id: "ad1",
+        title: "JOIN GRIPPDACASH",
+        description: "Earn by playing games, task, etc",
+        mediaType: "video",
+        videoUrl: VIDEO_URL,
+        flyer: "",
+        targetUrl: "https://grippdacash.example"
+    });
+    assert.match(markup, /SPONSORED/);
+    assert.match(markup, /JOIN GRIPPDACASH/);
+    assert.match(markup, /<video/i);
+    assert.match(markup, /autoplay/);
+    assert.match(markup, /muted/);
+    assert.match(markup, /ad-autoplay/);
+    assert.doesNotMatch(markup, /Tap to play video ad/);
+    assert.match(markup, /class="ad-cta"/);
+});
+
+test("dashboard feed: Discover has trending, recommended, explore and creators", async () => {
+    const { dom, context } = runDashboard(POSTS);
+    await flushTimes();
+
+    context.setFeedTab("discover");
+    await flushTimes();
+    assert.ok(dom.getElementById("discover-pills").classList.contains("show"));
+    let markup = dom.getElementById("feed").innerHTML;
+    assert.match(markup, /data-post-id="video1"/);
+
+    context.setDiscoverMode("creators");
+    await flushTimes();
+    markup = dom.getElementById("feed").innerHTML;
+    assert.match(markup, /class="creator-grid"/);
+    assert.match(markup, /data-creator-id="u1"/);
+    assert.doesNotMatch(markup, /data-post-id=/, "creators mode shows people, not the post feed");
+});

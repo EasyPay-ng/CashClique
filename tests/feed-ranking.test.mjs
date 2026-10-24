@@ -18,7 +18,10 @@ try {
 } catch (error) {
     ranking = null;
 }
-const { ALGO, orderForFeed, rankPosts, scorePost, stableNoise, timeValue } = ranking || {};
+const {
+    ALGO, orderDiscoverFeed, orderForFeed, rankPosts, recommendScore, scorePost,
+    stableNoise, suggestedCreators, timeValue, trendingScore, exploreScore
+} = ranking || {};
 
 const describe = (title, fn) => test(title, { skip: !ranking ? "feed-ranking.js not present" : false }, fn);
 
@@ -221,4 +224,67 @@ describe("ranking: feed shuffles when user has previously interacted and shuffle
     // It should NOT prioritize the 5m ago post over the high-engagement post
     // because no unseen videos exist, so it does not shuffle newest to the top.
     assert.equal(orderedAllSeen[0].id, "sv2", "without unseen videos, newest is not pushed over high engagement");
+});
+
+describe("discover: trending ranks velocity, not lifetime totals", () => {
+    const exploding = post("hot", {
+        mediaKind: "video", likes: 80, views: 400, commentCount: 12, at: NOW - 2 * HOUR
+    });
+    const evergreen = post("old", {
+        mediaKind: "video", likes: 400, views: 8000, commentCount: 40, at: NOW - 40 * DAY
+    });
+    assert.ok(
+        trendingScore(exploding, { now: NOW, jitter: false }) >
+        trendingScore(evergreen, { now: NOW, jitter: false }),
+        "a post blowing up today outranks a bigger but cold archive clip"
+    );
+    const ordered = orderDiscoverFeed([evergreen, exploding], "trending", { now: NOW, jitter: false });
+    assert.equal(ordered[0].id, "hot");
+});
+
+describe("discover: recommended prefers affinity, following and unseen posts", () => {
+    const followedUnseen = post("f1", {
+        userId: "friend", category: "Comedy", mediaKind: "video",
+        likes: 20, at: NOW - 3 * HOUR, hasViewed: false
+    });
+    const seenSame = post("seen", {
+        userId: "friend", category: "Comedy", mediaKind: "video",
+        likes: 20, at: NOW - 3 * HOUR, hasViewed: true
+    });
+    const offTopic = post("off", {
+        userId: "stranger", category: "Cars", mediaKind: "video",
+        likes: 20, at: NOW - 3 * HOUR, hasViewed: false
+    });
+    const options = { now: NOW, following: ["friend"], affinity: ["Comedy"], jitter: false };
+    assert.ok(recommendScore(followedUnseen, options) > recommendScore(seenSame, options));
+    assert.ok(recommendScore(followedUnseen, options) > recommendScore(offTopic, options));
+    const ordered = orderDiscoverFeed([offTopic, seenSame, followedUnseen], "recommended", options);
+    assert.equal(ordered[0].id, "f1");
+});
+
+describe("discover: explore surfaces unseen creators you do not follow", () => {
+    const followed = post("fol", {
+        userId: "friend", category: "Comedy", likes: 80, at: NOW - 4 * HOUR, hasViewed: false
+    });
+    const newCreator = post("new", {
+        userId: "stranger", category: "Cars", likes: 20, at: NOW - 4 * HOUR, hasViewed: false, smallCreator: true
+    });
+    const options = { now: NOW, following: ["friend"], affinity: ["Comedy"], jitter: false };
+    assert.ok(exploreScore(newCreator, options) > exploreScore(followed, options));
+    const ordered = orderDiscoverFeed([followed, newCreator], "explore", options);
+    assert.equal(ordered[0].id, "new");
+});
+
+describe("discover: creators lists people you do not already follow", () => {
+    const posts = [
+        post("a1", { userId: "me", username: "me", likes: 900 }),
+        post("a2", { userId: "friend", username: "ada", likes: 400 }),
+        post("b1", { userId: "star", username: "bola", likes: 200, views: 800 }),
+        post("b2", { userId: "star", username: "bola", likes: 50, views: 100 }),
+        post("c1", { userId: "quiet", username: "chi", likes: 5 })
+    ];
+    const people = suggestedCreators(posts, { following: ["friend"], selfId: "me", limit: 10 });
+    assert.deepEqual(people.map(item => item.userId), ["star", "quiet"]);
+    assert.equal(people[0].posts, 2);
+    assert.equal(orderDiscoverFeed(posts, "creators").length, 0, "creators mode does not return posts");
 });
