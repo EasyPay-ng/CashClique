@@ -1,0 +1,39 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - name: Stage the static site
+        run: |
+          mkdir -p _site
+          # The app is plain HTML/JS at the repo root. Skip source that is not
+          # meant to be served (tests, Cloud Functions, git metadata).
+          find . -maxdepth 1 -type f \( \
+            -name '*.html' -o -name 'firebase-messaging-sw.js' -o -name 'manifest.json' \
+          \) -exec cp {} _site/ \;
+          cp -R js assets _site/
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4
