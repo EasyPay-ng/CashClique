@@ -2602,7 +2602,7 @@ async function savePhotoItem(post) {
             isCancelled: () => dlState.cancel
         });
         dlHide();
-        downloadBlob(saved.blob, saved.filename);
+        await downloadBlob(saved.blob, saved.filename);
         showToast("Photo saved with CashClique watermark", "success");
     } catch (err) {
         dlHide();
@@ -2657,7 +2657,7 @@ async function saveVideoItem(post) {
             }
         });
         dlHide();
-        downloadBlob(saved.blob, saved.filename);
+        await downloadBlob(saved.blob, saved.filename);
         showToast("Video saved", "success");
     } catch (err) {
         dlHide();

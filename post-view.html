@@ -799,7 +799,7 @@ async function saveVideo(m){
       onStage: () => dlShow('Downloading video\u2026', 'Saving video\u2026')
     });
     dlHide();
-    downloadBlob(saved.blob, saved.filename);
+    await downloadBlob(saved.blob, saved.filename);
     showToast("Video saved");
   }catch(err){
     dlHide();
@@ -827,7 +827,7 @@ async function savePhoto(m){
       isCancelled: () => dlState.cancel
     });
     dlHide();
-    downloadBlob(saved.blob, saved.filename);
+    await downloadBlob(saved.blob, saved.filename);
     showToast("Photo saved with CashClique watermark");
   } catch(err){
     dlHide();

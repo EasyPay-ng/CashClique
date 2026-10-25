@@ -324,7 +324,7 @@ withButton("save-photo", async () => {
     watermark: markForSaves()
   });
   const ms = Math.round(performance.now() - started);
-  downloadBlob(saved.blob, saved.filename);
+  await downloadBlob(saved.blob, saved.filename);
   preview("image", saved.blob, "photo-preview");
   log("Photo saved: " + saved.filename + " (" + saved.blob.type + ", " + saved.blob.size +
       " bytes, mark: " + saved.watermarkSource + ", " + ms + "ms)", "ok");
@@ -352,7 +352,7 @@ withButton("save-video", async () => {
     }
   });
   const ms = Math.round(performance.now() - started);
-  downloadBlob(saved.blob, saved.filename);
+  await downloadBlob(saved.blob, saved.filename);
   preview("video", saved.blob, "video-preview");
   log("Original video saved: " + saved.filename + " (" + saved.blob.size + " bytes, " + ms + "ms)", "ok");
   status.textContent = saved.filename + " downloaded";
@@ -371,7 +371,7 @@ withButton("save-as-photo", async () => {
   const url = document.getElementById("media-url").value.trim();
   if (!url) throw new Error("Paste a Storage download URL first");
   const saved = await createWatermarkedJpeg({ id: "remote", src: url, watermark: markForSaves() });
-  downloadBlob(saved.blob, saved.filename);
+  await downloadBlob(saved.blob, saved.filename);
   preview("image", saved.blob, "remote-photo-preview");
   log("Remote photo saved: " + saved.filename + " (" + saved.blob.size + " bytes, mark: " +
       saved.watermarkSource + ")", "ok");
@@ -385,7 +385,7 @@ withButton("save-as-video", async () => {
     src: url,
     onStage: (stage) => log("  stage: " + stage)
   });
-  downloadBlob(saved.blob, saved.filename);
+  await downloadBlob(saved.blob, saved.filename);
   preview("video", saved.blob, "remote-video-preview");
   log("Remote video saved: " + saved.filename + " (" + saved.blob.size + " bytes, via proxy: " +
       saved.viaProxy + ", original bytes preserved)", "ok");

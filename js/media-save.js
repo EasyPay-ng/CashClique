@@ -144,11 +144,16 @@ function triggerAnchorDownload(blob, filename) {
 }
 
 /**
- * Trigger a browser download for a Blob. Never used with a media URL.
+ * Save a Blob. Never used with a media URL.
  *
- * On phones the <a download> attribute is often ignored after an async fetch,
- * so this tries (in order) the Web Share sheet with the file, then a named
- * blob: download. Desktop Chrome still gets the classic Save dialog.
+ * Phones often prefer the native file-share sheet. If the browser rejects that
+ * request (for example because async fetching used up the original tap's user
+ * activation), fall back to a named blob: download. An explicit AbortError is
+ * treated as the person's cancellation, not as a request to start another save.
+ * Desktop browsers use the classic blob: anchor download.
+ *
+ * @returns {string|Promise<string>} The filename, waiting for native sharing
+ *          when the browser supports that API.
  */
 export function downloadBlob(blob, filename) {
     if (!blob || !blob.size) {
@@ -161,14 +166,30 @@ export function downloadBlob(blob, filename) {
         return safeName;
     }
     if (canShareFile(file)) {
-        const shared = navigator.share({ files: [file], title: APP_NAME, text: safeName });
-        if (shared && typeof shared.catch === "function") {
-            shared.catch((error) => {
-                if (error && (error.name === "AbortError" || error.name === "NotAllowedError")) return;
-                triggerAnchorDownload(file, safeName);
-            });
-            return safeName;
+        const useDownloadFallback = (error) => {
+            // AbortError means the person explicitly dismissed the share sheet;
+            // do not unexpectedly start a second save action. NotAllowedError
+            // is different: browsers commonly raise it after the file has
+            // finished fetching and the original tap's activation has expired.
+            if (error && error.name === "AbortError") {
+                throw new MediaSaveError("cancelled", "Share cancelled", { cause: error });
+            }
+            console.warn("[CashClique] file share failed; falling back to a blob download:", error);
+            return triggerAnchorDownload(file, safeName);
+        };
+
+        let shared;
+        try {
+            shared = navigator.share({ files: [file], title: APP_NAME, text: safeName });
+        } catch (error) {
+            return useDownloadFallback(error);
         }
+        if (shared && typeof shared.then === "function") {
+            return Promise.resolve(shared)
+                .then(() => safeName)
+                .catch(useDownloadFallback);
+        }
+        return safeName;
     }
     return triggerAnchorDownload(file, safeName);
 }
