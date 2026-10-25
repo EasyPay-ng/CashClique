@@ -649,7 +649,9 @@ async function loadTotalLikes() {
         const postsQuery = query(collection(db, "posts"), where("userId", "==", profileUid));
         const postsSnapshot = await getDocs(postsQuery);
         postsSnapshot.forEach(doc => {
-            totalLikes += doc.data().likes || 0;
+            const post = doc.data();
+            if (post.postType === "repost" || post.moderationStatus === "removed") return;
+            totalLikes += post.likes || 0;
         });
     } catch (error) {
         console.error("Error loading total likes:", error);
@@ -746,6 +748,7 @@ function loadUserPosts() {
     postsUnsubscribe = onSnapshot(q, (snapshot) => {
         profilePostsCache = snapshot.docs
             .map(d => ({ id: d.id, data: d.data(), ts: d.data().timestamp?.seconds || 0 }))
+            .filter(post => post.data.postType !== "repost" && post.data.moderationStatus !== "removed")
             .sort((a, b) => b.ts - a.ts);
 
         animateNumber(document.getElementById("posts-count"), parseInt(document.getElementById("posts-count").innerText), profilePostsCache.length);

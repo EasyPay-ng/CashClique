@@ -49,13 +49,15 @@ export function videoShellHTML(options = {}) {
     const {
         videoUrl = "",
         poster = "",
+        postId = "",
         label = "Tap to play video",
         hint = "Loads only when you tap"
     } = options;
     if (!videoUrl) return "";
     const posterAttr = poster ? ` data-poster="${escapeAttribute(poster)}"` : "";
+    const postIdAttr = postId ? ` data-video-post-id="${escapeAttribute(postId)}"` : "";
     return `
-            <div class="video-shell" data-video-src="${escapeAttribute(videoUrl)}"${posterAttr}
+            <div class="video-shell" data-video-src="${escapeAttribute(videoUrl)}"${posterAttr}${postIdAttr}
                  role="button" tabindex="0" aria-label="Play video">
                 <span class="vs-play"><i class="fas fa-play"></i></span>
                 <span class="vs-label">${escapeAttribute(label)}</span>

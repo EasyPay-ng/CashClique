@@ -203,6 +203,78 @@ test("dashboard feed: every post has a share button", async () => {
     assert.equal((markup.match(/share-post/g) || []).length, POSTS.length);
 });
 
+test("dashboard feed: video posts can be reposted and undone without duplicating the media", async () => {
+    const { dom, context, firebase } = runDashboard(POSTS);
+    await flushTimes();
+
+    let markup = dom.getElementById("feed").innerHTML;
+    assert.match(markup, /class="action-item repost-post"/);
+    assert.match(markup, /class="action-item report-post"/);
+
+    await context.toggleRepost("video1");
+    await flushTimes(12);
+    assert.ok(firebase.stores.userReposts.has("video1"), "the account stores one repost relationship per source post");
+    assert.ok(firebase.stores.postData.has("repost_me_video1"), "the feed stores a lightweight repost entry");
+    const repost = firebase.stores.postData.get("repost_me_video1");
+    assert.equal(repost.postType, "repost");
+    assert.equal(repost.originalPostId, "video1");
+    assert.equal(repost.videoUrl, undefined, "the large video URL is not copied into the repost document");
+    markup = dom.getElementById("feed").innerHTML;
+    assert.match(markup, /You<\/div>|You reposted/, "the repost is attributed to the member");
+
+    await context.toggleRepost("video1");
+    await flushTimes();
+    assert.equal(firebase.stores.userReposts.has("video1"), false, "the repost can be undone");
+    assert.equal(firebase.stores.postData.has("repost_me_video1"), false, "undo removes the lightweight feed entry");
+});
+
+test("dashboard feed: playing a video saves it to the signed-in member's watch history", async () => {
+    const { dom, context, firebase } = runDashboard(POSTS);
+    await flushTimes();
+    assert.equal(firebase.calls.setDoc.length, 0, "idle feed videos are not recorded");
+
+    const shell = {
+        dataset: { videoSrc: VIDEO_URL, videoPostId: "video1", poster: "" },
+        innerHTML: "<span>shell</span>",
+        classList: { values: new Set(), add(name) { this.values.add(name); }, contains(name) { return this.values.has(name); } },
+        removeAttribute() {},
+        children: [],
+        appendChild(child) { this.children.push(child); }
+    };
+    context.playFeedVideo(shell);
+    await flushTimes();
+
+    const historyWrite = firebase.calls.setDoc.find(call => call.path === "users/me/watchHistory/video1");
+    assert.ok(historyWrite, "the play records history under the current user's account");
+    assert.equal(historyWrite.value.postId, "video1");
+    assert.ok(historyWrite.value.watchedAt, "the last-played time is saved");
+
+    context.setFeedTab("history");
+    await flushTimes(12);
+    const markup = dom.getElementById("feed").innerHTML;
+    assert.match(markup, /Watch history/);
+    assert.match(markup, /Watched /, "history cards show when the viewer last played the clip");
+    assert.match(markup, /data-post-id="video1"/);
+    assert.doesNotMatch(markup, /data-post-id="photo1"/, "only watched videos appear");
+});
+
+test("dashboard feed: a member can report a post with a moderation reason", async () => {
+    const { dom, context, firebase } = runDashboard(POSTS);
+    await flushTimes();
+    context.openReportModal("video1");
+    dom.getElementById("report-reason").value = "sexual_content";
+    dom.getElementById("report-details").value = "Explicit material in this clip";
+    await context.submitPostReport();
+    await flushTimes();
+
+    const reportWrite = firebase.calls.setDoc.find(call => call.path === "postReports/video1_me");
+    assert.ok(reportWrite, "the report is stored in the moderation queue");
+    assert.equal(reportWrite.value.reason, "sexual_content");
+    assert.equal(reportWrite.value.contentType, "video");
+    assert.equal(reportWrite.value.status, "pending");
+    assert.equal(reportWrite.value.details, "Explicit material in this clip");
+});
+
 test("dashboard feed: a video ad autoplays instead of waiting for a tap", async () => {
     const { context } = runDashboard(POSTS);
     await flushTimes();

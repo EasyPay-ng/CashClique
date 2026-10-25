@@ -1077,7 +1077,7 @@ function loadRevenue() {
     const q = query(collection(db, "posts"), where("userId", "==", currentUser.uid));
     onSnapshot(q, (snapshot) => {
         const content = document.getElementById('revenue-content');
-        const docs = sortDocs(snapshot.docs.filter(d => (d.data().earning || 0) > 0));
+        const docs = sortDocs(snapshot.docs.filter(d => d.data().postType !== "repost" && (d.data().earning || 0) > 0));
         let tRev = 0;
 
         if (docs.length === 0) {

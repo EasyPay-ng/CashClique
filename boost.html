@@ -301,15 +301,16 @@ async function loadUserPosts() {
     
     postSelect.innerHTML = '<option value="">-- Select a post to boost --</option>';
     userPostsCache = {};
+    const authoredPostDocs = querySnapshot.docs.filter(docSnap => docSnap.data().postType !== "repost" && docSnap.data().moderationStatus !== "removed");
     
-    if(querySnapshot.empty) {
+    if(!authoredPostDocs.length) {
         postSelect.innerHTML = '<option value="">No posts found. Create a post first.</option>';
         return;
     }
 
     const preselectPostId = new URLSearchParams(window.location.search).get("post");
 
-    querySnapshot.forEach((docSnap) => {
+    authoredPostDocs.forEach((docSnap) => {
         const postData = docSnap.data();
         userPostsCache[docSnap.id] = postData;
         const allowAds = !!postData.allowAds;

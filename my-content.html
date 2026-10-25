@@ -400,6 +400,7 @@ function loadUserPosts() {
 
         snapshot.forEach((postDoc) => {
             const post = postDoc.data();
+            if (post.postType === "repost" || post.moderationStatus === "removed") return; // Reposts are feed shares, not creator content or earnings posts.
             userPosts.push({ id: postDoc.id, ...post });
         });
 

@@ -109,6 +109,41 @@ test("watermark assets and endpoints are the documented ones", () => {
     assert.match(svg, /CashClique/, "the fallback asset is branded");
 });
 
+test("dashboard and post view provide watch history, reposting and harmful-content reports", () => {
+    const dashboard = read("dashboard.html");
+    const postView = read("post-view.html");
+
+    assert.match(dashboard, /data-tab="history"/, "watch history is available as a feed tab");
+    assert.match(dashboard, /users", currentUser\.uid, "watchHistory"/, "history is stored per signed-in user");
+    assert.match(dashboard, /class="action-item repost-post"/, "feed posts can be reposted");
+    assert.match(dashboard, /scam_fraud/, "scam reports have a dedicated reason");
+    assert.match(dashboard, /sexual_content/, "sexual-content reports have a dedicated reason");
+
+    assert.match(postView, /id="repost-action"/, "the post detail view supports reposts");
+    assert.match(postView, /id="report-action"/, "the post detail view supports reports");
+    assert.match(postView, /addEventListener\('play', \(\) => recordWatchHistory\(postId\)\)/,
+        "detail-page video plays are recorded");
+});
+
+test("repost wrappers stay out of creator metrics, boosts and account-deletion leftovers", () => {
+    const myContent = read("my-content.html");
+    const profile = read("profile.html");
+    const admin = read("admin.html");
+    const opportunities = read("find-opportunities.html");
+    const earnings = read("earnings.html");
+    const boost = read("boost.html");
+    const settings = read("settings.html");
+
+    assert.match(myContent, /post\.postType === "repost"/, "creator content skips repost wrappers");
+    assert.match(profile, /post\.data\.postType !== "repost"/, "profile grids skip repost wrappers");
+    assert.match(admin, /p\.postType === "repost"/, "admin earnings metrics skip repost wrappers");
+    assert.match(opportunities, /doc\.data\(\)\.postType !== "repost"/, "opportunity stats count authored posts only");
+    assert.match(earnings, /d\.data\(\)\.postType !== "repost"/, "repost wrappers do not appear as creator revenue");
+    assert.match(boost, /docSnap\.data\(\)\.postType !== "repost"/, "repost wrappers cannot be boosted");
+    assert.match(settings, /collection\(db, "users", currentUser\.uid, "watchHistory"\)/, "account deletion clears watch history");
+    assert.match(settings, /collection\(db, "users", currentUser\.uid, "reposts"\)/, "account deletion clears repost relationships");
+});
+
 test("the downloadMedia proxy is declared in functions/index.js", () => {
     const source = read("functions/index.js");
     assert.match(source, /exports\.downloadMedia = onRequest\(/);

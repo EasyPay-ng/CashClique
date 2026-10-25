@@ -368,12 +368,13 @@ async function loadUserStats() {
         // 2. Fetch all real post stats
         const postsQuery = query(collection(db, "posts"), where("userId", "==", currentUser.uid));
         const postsSnapshot = await getDocs(postsQuery);
+        const authoredPosts = postsSnapshot.docs.filter(doc => doc.data().postType !== "repost" && doc.data().moderationStatus !== "removed");
         
-        userStats.posts = postsSnapshot.size;
+        userStats.posts = authoredPosts.length;
         let calculatedLikes = 0;
         let calculatedViews = 0;
         
-        postsSnapshot.forEach(doc => {
+        authoredPosts.forEach(doc => {
             const post = doc.data();
             calculatedLikes += post.likes || 0;
             calculatedViews += post.views || 0;
