@@ -95,7 +95,7 @@ export function makeDom() {
 
 // ------------------------------------------------------- firebase stub
 export function makeFirestore(posts) {
-    const calls = { getDocs: [], listeners: [] };
+    const calls = { getDocs: [], listeners: [], setDoc: [], batchCommits: [] };
     const snapshotOf = (docs) => ({
         docs,
         size: docs.length,
@@ -103,12 +103,53 @@ export function makeFirestore(posts) {
         forEach(fn) { docs.forEach(fn); }
     });
     const users = {
+        me: { username: "member", avatar: "", isVerified: false },
         u1: { username: "ada", avatar: "", isVerified: true },
         u2: { username: "bola", avatar: "https://cashclique.test/avatars/bola.png", isVerified: false }
+    };
+    let postRows = posts.slice();
+    const postData = new Map(postRows.map(row => [row.id, row.data()]));
+    const watchHistory = new Map();
+    const userReposts = new Map();
+    const postReports = new Map();
+
+    const dataSnapshot = (id, data) => ({
+        id,
+        exists: () => data !== undefined,
+        data: () => data === undefined ? undefined : Object.assign({}, data)
+    });
+    const pathOf = reference => String(reference && reference.__doc || "");
+    const storeForPath = path => {
+        if (path.endsWith("/watchHistory") || path.includes("/watchHistory/")) return watchHistory;
+        if (path.endsWith("/reposts") || path.includes("/reposts/")) return userReposts;
+        if (path.startsWith("postReports/")) return postReports;
+        return null;
+    };
+    const write = (operation, reference, value) => {
+        const path = pathOf(reference);
+        const id = path.split("/").pop();
+        const parts = path.split("/");
+        if (parts[0] === "posts") {
+            if (operation === "delete") {
+                postData.delete(id);
+                postRows = postRows.filter(row => row.id !== id);
+            } else {
+                postData.set(id, Object.assign({}, postData.get(id) || {}, value || {}));
+                const row = postDoc(id, postData.get(id));
+                const index = postRows.findIndex(item => item.id === id);
+                if (index >= 0) postRows[index] = row; else postRows.push(row);
+            }
+            return;
+        }
+        const store = storeForPath(path);
+        if (!store) return;
+        if (operation === "delete") store.delete(id);
+        else store.set(id, Object.assign({}, store.get(id) || {}, value || {}));
     };
 
     const firebase = {
         calls,
+        stores: { watchHistory, userReposts, postReports, postData },
         initializeApp: () => ({}),
         getAuth: () => ({ currentUser: { uid: "me" } }),
         getFirestore: () => ({}),
@@ -119,10 +160,26 @@ export function makeFirestore(posts) {
         arrayUnion: (value) => ({ __op: "arrayUnion", value }),
         arrayRemove: (value) => ({ __op: "arrayRemove", value }),
         increment: (value) => ({ __op: "increment", value }),
-        serverTimestamp: () => ({ __op: "timestamp" }),
+        serverTimestamp: () => ({ __op: "timestamp", toDate: () => new Date() }),
         addDoc: async () => ({ id: "new" }),
-        updateDoc: async () => {},
-        writeBatch: () => ({ update() {}, commit: async () => {} }),
+        updateDoc: async (reference, value) => write("set", reference, value),
+        setDoc: async (reference, value, options = {}) => {
+            const path = pathOf(reference);
+            calls.setDoc.push({ path, value, options });
+            write("set", reference, value);
+        },
+        writeBatch: () => {
+            const operations = [];
+            return {
+                set(reference, value) { operations.push(["set", reference, value]); },
+                delete(reference) { operations.push(["delete", reference]); },
+                update(reference, value) { operations.push(["set", reference, value]); },
+                commit: async () => {
+                    calls.batchCommits.push(operations.slice());
+                    operations.forEach(([operation, reference, value]) => write(operation, reference, value));
+                }
+            };
+        },
         runTransaction: async () => {},
         onSnapshot: (query, _next) => { calls.listeners.push(query); return () => {}; },
         query: (target, ...rest) => ({ target, clauses: rest }),
@@ -137,13 +194,29 @@ export function makeFirestore(posts) {
         getDocs: async (query) => {
             calls.getDocs.push(query);
             const clauses = (query && query.clauses) || [];
-            let rows = posts.slice();
+            const collectionPath = query && query.target && query.target.__collection || "";
+            let rows = [];
+            if (collectionPath === "posts") {
+                rows = postRows.slice();
+            } else if (collectionPath.endsWith("/watchHistory")) {
+                rows = Array.from(watchHistory.entries()).map(([id, data]) => postDoc(id, data));
+            } else if (collectionPath.endsWith("/reposts")) {
+                rows = Array.from(userReposts.entries()).map(([id, data]) => postDoc(id, data));
+            }
             const filter = clauses.find(clause => clause && clause.__where);
             if (filter && filter.__where[1] === "<") {
                 rows = rows.filter(post => timeValue(post.data()) < filter.__where[2].getTime());
             }
-            const ordered = clauses.some(clause => clause && clause.__orderBy);
-            if (ordered) rows.sort((a, b) => timeValue(b.data()) - timeValue(a.data()));
+            const order = clauses.find(clause => clause && clause.__orderBy);
+            if (order) {
+                const field = order.__orderBy[0];
+                const stampValue = row => {
+                    const data = row.data() || {};
+                    const stamp = data[field] || data.timestamp;
+                    return timeValue({ timestamp: stamp });
+                };
+                rows.sort((a, b) => stampValue(b) - stampValue(a));
+            }
             const limited = clauses.find(clause => clause && clause.__limit);
             const after = clauses.find(clause => clause && clause.__startAfter);
             let startIndex = 0;
@@ -155,9 +228,14 @@ export function makeFirestore(posts) {
             return snapshotOf(rows.slice(startIndex, startIndex + wanted));
         },
         getDoc: async (reference) => {
-            const id = (reference && reference.__doc || "").split("/").pop();
-            const data = users[id];
-            return { exists: () => !!data, data: () => Object.assign({}, data) };
+            const path = pathOf(reference);
+            const parts = path.split("/");
+            const id = parts[parts.length - 1];
+            if (parts[0] === "users" && parts.length === 2) return dataSnapshot(id, users[id]);
+            if (parts[0] === "posts") return dataSnapshot(id, postData.get(id));
+            const store = storeForPath(path);
+            if (store) return dataSnapshot(id, store.get(id));
+            return dataSnapshot(id, undefined);
         },
         onAuthStateChanged: (_auth, callback) => { onAuth = callback; }
     };

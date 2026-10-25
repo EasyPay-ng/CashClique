@@ -87,7 +87,7 @@ test("feed media: a video ad autoplays muted without a tap", () => {
 });
 
 test("feed media: a video renders as a poster shell, never as a request", () => {
-    const shell = videoShellHTML({ videoUrl: VIDEO_URL, poster: PHOTO_URL });
+    const shell = videoShellHTML({ videoUrl: VIDEO_URL, poster: PHOTO_URL, postId: "post-1" });
 
     assert.doesNotMatch(shell, /<video/i, "no <video> element is rendered up front");
     assert.doesNotMatch(shell, /\ssrc="/i, "no src attribute is rendered up front");
@@ -97,6 +97,7 @@ test("feed media: a video renders as a poster shell, never as a request", () => 
         "the file URL waits in a data attribute");
     assert.ok(shell.includes(`data-poster="${escapeAttribute(PHOTO_URL)}"`),
         "an optional poster also waits in a data attribute");
+    assert.match(shell, /data-video-post-id="post-1"/, "the played video can be added to watch history");
 });
 
 test("feed media: only a tap downloads and plays the video", () => {

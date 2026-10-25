@@ -60,6 +60,15 @@ test('admin.html: contains "Users Eligible for Reward" section and real vs boost
     assert.ok(adminHtml.includes('admin-transactions.html'), 'admin.html sidebar must link to admin-transactions.html');
 });
 
+test('admin.html: exposes a community post-report queue with dismiss and remove moderation actions', () => {
+    const adminHtml = read('admin.html');
+    assert.ok(adminHtml.includes('tab-reports'), 'admin has a reports tab');
+    assert.ok(adminHtml.includes('view-reports'), 'admin has a reports queue view');
+    assert.ok(adminHtml.includes('loadPostReports'), 'reports are loaded for review');
+    assert.ok(adminHtml.includes('moderationStatus: "removed"'), 'admins can remove a reported post from feeds');
+    assert.ok(adminHtml.includes('resolvePostReport'), 'admins can dismiss or remove a report');
+});
+
 test('admin sidebars: all admin pages link to admin-transactions.html', () => {
     const adminPages = [
         'admin.html',

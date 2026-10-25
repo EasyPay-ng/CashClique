@@ -555,17 +555,23 @@ window.deleteAccount = async function() {
     try {
         // Delete user posts
         const postsQuery = query(collection(db, "posts"), where("userId", "==", currentUser.uid));
-        const postsSnap = await getDocs(postsQuery);
-        const batch = writeBatch(db);
-        
-        postsSnap.forEach(postDoc => {
-            batch.delete(postDoc.ref);
-        });
-        
-        // Delete user document
-        batch.delete(doc(db, "users", currentUser.uid));
-        
-        await batch.commit();
+        const [postsSnap, historySnap, repostsSnap] = await Promise.all([
+            getDocs(postsQuery),
+            getDocs(collection(db, "users", currentUser.uid, "watchHistory")),
+            getDocs(collection(db, "users", currentUser.uid, "reposts"))
+        ]);
+        const ownedDocs = [...postsSnap.docs, ...historySnap.docs, ...repostsSnap.docs];
+        // Keep each Firestore batch below its 500-write limit.
+        for (let i = 0; i < ownedDocs.length; i += 400) {
+            const batch = writeBatch(db);
+            ownedDocs.slice(i, i + 400).forEach(item => batch.delete(item.ref));
+            await batch.commit();
+        }
+
+        // Delete the user document after its watch history and repost records.
+        const userBatch = writeBatch(db);
+        userBatch.delete(doc(db, "users", currentUser.uid));
+        await userBatch.commit();
         
         // Delete auth account
         await deleteUser(auth.currentUser);

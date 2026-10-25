@@ -107,7 +107,30 @@ body{background:var(--cc-soft, #f5f6f8);display:flex;min-height:100vh;}
 .post-author-name{display:flex;align-items:center;font-weight:600;color:var(--cc-ink, #1e2937);font-size:15px;cursor:pointer;}
 .post-author-name:hover{text-decoration:underline;}
 .post-time{font-size:12px;color:var(--cc-muted, #64748b);margin-top:2px;}
+.post-repost-by{display:flex;align-items:center;gap:7px;margin-bottom:10px;color:var(--cc-muted, #64748b);font-size:12px;font-weight:600;}
+.post-repost-by i{color:#ff6a00;}
+.post-repost-by a{color:var(--cc-ink, #334155);text-decoration:none;}
+.post-repost-by a:hover{color:#ff6a00;text-decoration:underline;}
 .post p{color:var(--cc-ink, #334155);line-height:1.6;font-size:14.5px;}
+.history-toolbar{background:var(--cc-surface, #fff);border:1px solid var(--cc-border, #e2e8f0);border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:10px;margin-bottom:2px;}
+.history-toolbar i{color:#ff6a00;font-size:18px;}
+.history-toolbar strong{color:var(--cc-ink, #1e2937);font-size:14px;}
+.history-toolbar span{display:block;color:var(--cc-muted, #64748b);font-size:12px;margin-top:2px;}
+.report-modal{position:fixed;inset:0;background:rgba(15,23,42,0.7);display:none;align-items:center;justify-content:center;z-index:4000;backdrop-filter:blur(4px);padding:18px;}
+.report-modal.active{display:flex;}
+.report-card{width:min(440px,100%);background:var(--cc-surface, #fff);border:1px solid var(--cc-border, #e2e8f0);border-radius:18px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,0.24);}
+.report-card h3{display:flex;align-items:center;gap:9px;color:var(--cc-ink, #1e2937);font-size:18px;margin-bottom:6px;}
+.report-card h3 i{color:#ef4444;}
+.report-card p{font-size:12px;color:var(--cc-muted, #64748b);line-height:1.5;margin-bottom:17px;}
+.report-card label{display:block;font-size:13px;font-weight:600;color:var(--cc-ink, #334155);margin:12px 0 6px;}
+.report-card select,.report-card textarea{width:100%;border:1.5px solid var(--cc-border, #cbd5e1);border-radius:10px;padding:11px 12px;font:inherit;font-size:13px;color:var(--cc-ink, #1e2937);background:var(--cc-surface, #fff);outline:none;}
+.report-card select:focus,.report-card textarea:focus{border-color:#ff6a00;box-shadow:0 0 0 3px rgba(255,106,0,0.1);}
+.report-card textarea{min-height:88px;resize:vertical;}
+.report-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;}
+.report-actions button{border:none;border-radius:9px;padding:10px 14px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;}
+.report-cancel{background:var(--cc-soft, #f1f5f9);color:var(--cc-ink, #334155);}
+.report-submit{background:#ef4444;color:#fff;}
+.report-submit:disabled{opacity:.6;cursor:wait;}
 
 /* Category Badge Style */
 .post-category{display:inline-block;background:linear-gradient(135deg,#ff6a00,#e55d00);color:white;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;margin-bottom:10px;}
@@ -373,6 +396,7 @@ body{background:var(--cc-soft, #f5f6f8);display:flex;min-height:100vh;}
         <a href="dashboard.html?feed=discover" data-feed-mode="discover"><i class="fas fa-compass"></i> Discover</a>
         <a href="dashboard.html?feed=videos" data-feed-mode="videos"><i class="fas fa-play-circle"></i> Videos <span class="nav-count" id="video-count" style="display:none;">0</span></a>
         <a href="dashboard.html?feed=following" data-feed-mode="following"><i class="fas fa-user-group"></i> Following</a>
+        <a href="dashboard.html?feed=history" data-feed-mode="history"><i class="fas fa-clock-rotate-left"></i> Watch History</a>
         <span class="side-label">Earn</span>
         <a href="my-content.html"><i class="fas fa-file-alt"></i> My Content</a>
         <a href="earnings.html"><i class="fas fa-wallet"></i> Wallet</a>
@@ -431,6 +455,7 @@ body{background:var(--cc-soft, #f5f6f8);display:flex;min-height:100vh;}
             <button class="feed-tab active" data-tab="all">For You</button>
             <button class="feed-tab" data-tab="following">Following</button>
             <button class="feed-tab" data-tab="videos"><i class="fas fa-play-circle"></i> Videos</button>
+            <button class="feed-tab" data-tab="history"><i class="fas fa-clock-rotate-left"></i> History</button>
             <button class="feed-tab" data-tab="discover"><i class="fas fa-compass"></i> Discover</button>
         </div>
         <div class="discover-pills" id="discover-pills">
@@ -559,6 +584,29 @@ body{background:var(--cc-soft, #f5f6f8);display:flex;min-height:100vh;}
     </div>
 </div>
 
+<div class="report-modal" id="report-modal" role="dialog" aria-modal="true" aria-labelledby="report-title" onclick="if(event.target===this) closeReportModal()">
+    <div class="report-card">
+        <h3 id="report-title"><i class="fas fa-flag"></i> Report this post</h3>
+        <p>Tell us what is wrong. Reports are reviewed by the CashClique team; reporting does not automatically remove a post.</p>
+        <label for="report-reason">Reason</label>
+        <select id="report-reason">
+            <option value="" selected disabled>Select a reason</option>
+            <option value="scam_fraud">Scam, fraud or misleading content</option>
+            <option value="sexual_content">Sexual content, nudity or pornography</option>
+            <option value="spam">Spam</option>
+            <option value="harassment_hate">Harassment or hate</option>
+            <option value="violence">Violence or dangerous content</option>
+            <option value="other">Other</option>
+        </select>
+        <label for="report-details">Details (optional)</label>
+        <textarea id="report-details" maxlength="500" placeholder="Add helpful context (up to 500 characters)"></textarea>
+        <div class="report-actions">
+            <button type="button" class="report-cancel" onclick="closeReportModal()">Cancel</button>
+            <button type="button" class="report-submit" id="submit-report"><i class="fas fa-paper-plane"></i> Send report</button>
+        </div>
+    </div>
+</div>
+
 <div class="notification-overlay" id="notification-overlay" onclick="closeNotifications()">
     <div class="notification-panel-wrap" onclick="event.stopPropagation()">
         <div class="notification-header">
@@ -571,7 +619,7 @@ body{background:var(--cc-soft, #f5f6f8);display:flex;min-height:100vh;}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, updateDoc, collection, query, where, getDocs, onSnapshot, arrayUnion, arrayRemove, orderBy, addDoc, increment, serverTimestamp, writeBatch, runTransaction, limit, startAfter } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, updateDoc, collection, query, where, getDocs, onSnapshot, arrayUnion, arrayRemove, orderBy, addDoc, setDoc, increment, serverTimestamp, writeBatch, runTransaction, limit, startAfter } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
 import {
     createWatermarkedJpeg,
@@ -687,6 +735,8 @@ const THROWBACK_SIZE = 6;         // older posts pulled in for the ranking
 const THROWBACK_MORE_SIZE = 4;    // extra older posts per "Load more" tap
 const THROWBACK_AFTER_DAYS = 3;   // "older" starts here
 const COMMENTS_PAGE_SIZE = 30;    // comments fetched when a thread is opened
+const WATCH_HISTORY_LIMIT = 100;  // latest videos a member played
+const REPOSTS_CACHE_LIMIT = 200;  // recent reposts used to show button state
 const NOTIFICATIONS_LIMIT = 40;
 const SUPPORT_MESSAGES_LIMIT = 50; // newest support messages kept on screen
 const MEDIA_ROOT_MARGIN = "300px";// start loading a photo just before it shows
@@ -704,6 +754,13 @@ let viewedAds = [];
 let currentFeedTab = resolveInitialTab();
 let currentDiscoverMode = resolveInitialDiscoverMode();
 let searchQuery = "";
+let watchHistoryPostIds = [];
+const watchHistoryTimes = new Map();
+let watchHistoryLoaded = false;
+let watchHistoryLoading = false;
+let watchHistoryError = false;
+let pendingReportPostId = null;
+const repostedPostIds = new Set();
 let selectedCategory = "";
 let csChatId = null;
 let csUnsubscribe = null;
@@ -788,7 +845,7 @@ function resolveInitialTab() {
     const fromUrl = new URLSearchParams(window.location.search).get("feed");
     const stored = localStorage.getItem("cashclique_feed_tab");
     const tab = fromUrl || stored || "all";
-    return ["all", "following", "videos", "discover"].includes(tab) ? tab : "all";
+    return ["all", "following", "videos", "discover", "history"].includes(tab) ? tab : "all";
 }
 
 function resolveInitialDiscoverMode() {
@@ -815,6 +872,7 @@ const CATEGORIES = [
 onAuthStateChanged(auth, async (user) => {
     if (!user) { window.location.href = "login.html"; return; }
     currentUser = user;
+    currentUsername = user.displayName || user.email?.split('@')[0] || "User";
 
     const userRef = doc(db, "users", user.uid);
     let knownFollowing = null;
@@ -844,7 +902,9 @@ onAuthStateChanged(auth, async (user) => {
 
     populateCategoryFilter();
     setupFeedInteractions();
+    if (currentFeedTab === "history") loadWatchHistory();
     await loadFeed();
+    loadRepostedPostIds();
     // Everything below is secondary: it starts after the first page is painted.
     loadAds();
     loadThrowbacks();
@@ -1124,9 +1184,20 @@ window.toggleFollow = async (userId, button) => {
 // Photos keep their URL in data-src until they scroll close to the viewport,
 // and a video is only a poster shell until the user taps play. Nothing here
 // touches the network until the viewer actually asks for it.
+function playFeedVideo(shell) {
+    const player = playVideoInShell(shell, { document });
+    const postId = shell && shell.dataset && shell.dataset.videoPostId;
+    if (player && postId) recordWatchHistory(postId);
+    return player;
+}
+
 function mediaHTML(post) {
     if (post.mediaKind === "video") {
-        return videoShellHTML({ videoUrl: post.videoUrl, poster: post.imageSrc });
+        return videoShellHTML({
+            videoUrl: post.videoUrl,
+            poster: post.imageSrc,
+            postId: post.originalPostId || post.id
+        });
     }
     if (post.mediaKind === "image") {
         return lazyImageFrameHTML(post.imageSrc);
@@ -1157,9 +1228,9 @@ function postPermalink(postId) {
 
 async function sharePost(postId) {
     markUserInteracted();
-    const post = allPostsCache.find(item => item.id === postId);
+    const post = allPostsCache.find(item => item.id === postId || item.originalPostId === postId);
     const url = postPermalink(postId);
-    const title = post && post.username ? `${post.username} on CashClique` : "CashClique";
+    const title = post && (post.displayUsername || post.username) ? `${post.displayUsername || post.username} on CashClique` : "CashClique";
     const text = post && post.content ? String(post.content).slice(0, 160) : "Check out this post on CashClique";
     try {
         if (navigator.share) {
@@ -1178,6 +1249,140 @@ async function sharePost(postId) {
     } catch (error) { /* fall through */ }
     showToast("Could not share this post", "error");
 }
+
+async function toggleRepost(postId, button = null) {
+    if (!currentUser || !postId || (button && button.dataset.busy === "true")) return;
+    if (button) {
+        button.dataset.busy = "true";
+        button.style.opacity = "0.6";
+    }
+    const relationRef = doc(db, "users", currentUser.uid, "reposts", postId);
+    const fallbackRepostId = `repost_${currentUser.uid}_${postId}`;
+    try {
+        const relationSnap = await getDoc(relationRef);
+        const batch = writeBatch(db);
+        if (relationSnap.exists()) {
+            const relation = relationSnap.data() || {};
+            const repostId = relation.repostPostId || fallbackRepostId;
+            batch.delete(relationRef);
+            batch.delete(doc(db, "posts", repostId));
+            await batch.commit();
+            repostedPostIds.delete(postId);
+            allPostsCache = allPostsCache.filter(item => item.id !== repostId);
+            seenPostIds.delete(repostId);
+            showToast("Repost removed", "info");
+        } else {
+            const sourceSnap = await getDoc(doc(db, "posts", postId));
+            if (!sourceSnap.exists()) {
+                showToast("This post is no longer available", "error");
+                return;
+            }
+            const source = sourceSnap.data() || {};
+            if (source.moderationStatus === "removed") {
+                showToast("This post is no longer available", "error");
+                return;
+            }
+            if (source.userId === currentUser.uid) {
+                showToast("You can only repost another creator's post", "error");
+                return;
+            }
+            const repostId = fallbackRepostId;
+            batch.set(doc(db, "posts", repostId), {
+                postType: "repost",
+                originalPostId: postId,
+                originalUserId: source.userId || "",
+                originalUsername: source.username || "",
+                userId: currentUser.uid,
+                username: currentUsername,
+                timestamp: serverTimestamp(),
+                likes: 0,
+                likedBy: [],
+                commentCount: 0,
+                views: 0,
+                viewedBy: [],
+                allowAds: false
+            });
+            batch.set(relationRef, {
+                postId,
+                repostPostId: repostId,
+                timestamp: serverTimestamp()
+            });
+            await batch.commit();
+            repostedPostIds.add(postId);
+            const repostSnap = await getDoc(doc(db, "posts", repostId));
+            if (repostSnap.exists()) await ingestPostDocs([repostSnap]);
+            showToast("Reposted to your feed");
+        }
+        renderFeed({ keepScroll: true });
+    } catch (error) {
+        console.error("Repost failed:", error);
+        showToast("Could not update repost", "error");
+    } finally {
+        if (button) {
+            button.dataset.busy = "false";
+            button.style.opacity = "";
+        }
+    }
+}
+
+function openReportModal(postId) {
+    pendingReportPostId = postId;
+    document.getElementById("report-reason").value = "";
+    document.getElementById("report-details").value = "";
+    document.getElementById("report-modal").classList.add("active");
+}
+
+window.closeReportModal = () => {
+    document.getElementById("report-modal").classList.remove("active");
+    pendingReportPostId = null;
+};
+
+async function submitPostReport() {
+    if (!currentUser || !pendingReportPostId) return;
+    const postId = pendingReportPostId;
+    const reason = document.getElementById("report-reason").value;
+    if (!reason) {
+        showToast("Choose a reason for the report", "error");
+        return;
+    }
+    const button = document.getElementById("submit-report");
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+    try {
+        const postSnap = await getDoc(doc(db, "posts", postId));
+        const post = postSnap.exists() ? (postSnap.data() || {}) : {};
+        const reportId = `${postId}_${currentUser.uid}`;
+        const reportRef = doc(db, "postReports", reportId);
+        const priorReport = await getDoc(reportRef);
+        if (priorReport.exists()) {
+            window.closeReportModal();
+            showToast("You have already reported this post", "info");
+            return;
+        }
+        await setDoc(reportRef, {
+            postId,
+            postOwnerId: post.userId || "",
+            postOwnerName: post.username || "",
+            reportedBy: currentUser.uid,
+            reporterName: currentUsername,
+            reason,
+            details: document.getElementById("report-details").value.trim().slice(0, 500),
+            contentType: post.videoUrl ? "video" : (post.imageUrl || post.imageBase64 ? "image" : "text"),
+            status: "pending",
+            createdAt: serverTimestamp()
+        });
+        window.closeReportModal();
+        showToast("Thanks — your report was sent for review");
+    } catch (error) {
+        console.error("Report submission failed:", error);
+        showToast("Could not send report. Please try again.", "error");
+    } finally {
+        button.disabled = false;
+        button.innerHTML = '<i class="fas fa-paper-plane"></i> Send report';
+    }
+}
+
+document.getElementById("submit-report").addEventListener("click", submitPostReport);
 
 let mediaObserver = null;
 let viewObserver = null;
@@ -1311,35 +1516,65 @@ async function registerView(el) {
 }
 
 // ==================== FEED LOADING (paged) ====================
-function ingestPostDocs(docs) {
+async function ingestPostDocs(docs) {
     const fresh = [];
-    const userIds = new Set();
     docs.forEach(postDoc => {
         if (seenPostIds.has(postDoc.id)) return;
         seenPostIds.add(postDoc.id);
         const data = postDoc.data() || {};
+        if (data.moderationStatus === "removed") return;
         fresh.push({ ...data, id: postDoc.id });
-        if (data.userId) userIds.add(data.userId);
     });
 
-    return Promise.all(Array.from(userIds, ensureUserProfile)).then(() => {
-        fresh.forEach(post => {
-            const profile = userProfileCache[post.userId] || {};
-            allPostsCache.push({
+    const hydrated = await Promise.all(fresh.map(async post => {
+        if (post.postType !== "repost" || !post.originalPostId) return post;
+        try {
+            const originalSnap = await getDoc(doc(db, "posts", post.originalPostId));
+            if (!originalSnap.exists()) return null;
+            const original = originalSnap.data() || {};
+            if (original.moderationStatus === "removed") return null;
+            return {
+                ...original,
                 ...post,
-                type: "post",
-                username: post.username || profile.username || "Anonymous",
-                userAvatar: profile.avatar || initialAvatar(post.username || "U"),
-                isVerified: !!profile.verified,
-                category: post.category || "General",
-                mediaKind: postMediaKind(post),
-                imageSrc: postImageSrc(post),
-                isFromFollowed: followingList.includes(post.userId),
-                hasViewed: Array.isArray(post.viewedBy) && post.viewedBy.includes(currentUser.uid)
-            });
-        });
-        return fresh.length;
+                originalPostId: post.originalPostId,
+                originalUserId: original.userId || post.originalUserId || "",
+                originalUsername: original.username || post.originalUsername || ""
+            };
+        } catch (error) {
+            console.warn("Could not load the original repost:", error);
+            return null;
+        }
+    }));
+    const usable = hydrated.filter(Boolean);
+    const userIds = new Set();
+    usable.forEach(post => {
+        if (post.userId) userIds.add(post.userId);
+        if (post.originalUserId) userIds.add(post.originalUserId);
     });
+    await Promise.all(Array.from(userIds, ensureUserProfile));
+
+    usable.forEach(post => {
+        const authorId = post.postType === "repost" ? post.originalUserId : post.userId;
+        const authorProfile = userProfileCache[authorId] || {};
+        const reposterProfile = userProfileCache[post.userId] || {};
+        const displayUsername = post.postType === "repost"
+            ? (post.originalUsername || authorProfile.username || "Creator")
+            : (post.username || authorProfile.username || "Anonymous");
+        allPostsCache.push({
+            ...post,
+            type: "post",
+            username: post.username || reposterProfile.username || "Anonymous",
+            displayUsername,
+            userAvatar: authorProfile.avatar || initialAvatar(displayUsername),
+            isVerified: !!authorProfile.verified,
+            category: post.category || "General",
+            mediaKind: postMediaKind(post),
+            imageSrc: postImageSrc(post),
+            isFromFollowed: followingList.includes(authorId),
+            hasViewed: Array.isArray(post.viewedBy) && post.viewedBy.includes(currentUser.uid)
+        });
+    });
+    return usable.length;
 }
 
 function skeletonHTML() {
@@ -1559,16 +1794,24 @@ function distributeAdsForCreator(posts, ads) {
 
 function filteredPosts() {
     let posts = allPostsCache.slice();
-    if (currentFeedTab === "following") posts = posts.filter(item => item.isFromFollowed);
-    if (currentFeedTab === "videos") posts = posts.filter(item => item.mediaKind === "video");
+    if (currentFeedTab === "history") {
+        const byId = new Map(posts.map(item => [item.id, item]));
+        posts = watchHistoryPostIds.map(id => byId.get(id)).filter(Boolean);
+    } else if (currentFeedTab === "following") {
+        posts = posts.filter(item => item.isFromFollowed);
+    } else if (currentFeedTab === "videos") {
+        posts = posts.filter(item => item.mediaKind === "video");
+    }
     if (selectedCategory) posts = posts.filter(item => item.category === selectedCategory);
     const needle = searchQuery.trim().toLowerCase();
     if (needle) {
         posts = posts.filter(item =>
             (item.content && String(item.content).toLowerCase().includes(needle)) ||
+            (item.displayUsername && String(item.displayUsername).toLowerCase().includes(needle)) ||
             (item.username && String(item.username).toLowerCase().includes(needle))
         );
     }
+    if (currentFeedTab === "history") return posts;
     if (currentFeedTab === "following") {
         // Updates from people you follow stay chronological.
         return posts.sort((a, b) => timeValue(b) - timeValue(a));
@@ -1591,7 +1834,7 @@ function adForPostMap(posts) {
     });
     const postsByUser = {};
     posts.forEach(post => {
-        if (post.allowAds === false) return; // Creator disabled ads on this post
+        if (post.postType === "repost" || post.allowAds === false) return; // No ads on a repost or an opted-out post
         if (!postsByUser[post.userId]) postsByUser[post.userId] = [];
         postsByUser[post.userId].push(post);
     });
@@ -1616,8 +1859,15 @@ function emptyFeedHTML(message) {
         </div>`;
 }
 
+function historyToolbarHTML() {
+    return `<div class="history-toolbar"><i class="fas fa-clock-rotate-left"></i><div><strong>Watch history</strong><span>Videos you have played from this account, newest first.</span></div></div>`;
+}
+
 function feedFootHTML() {
     if (allPostsCache.length === 0) return "";
+    if (currentFeedTab === "history") {
+        return `<div class="feed-foot"><small>Showing up to your latest ${WATCH_HISTORY_LIMIT} watched videos.</small></div>`;
+    }
     if (feedExhausted && throwbacksExhausted) {
         return `<div class="feed-foot"><small>You're all caught up.</small></div>`;
     }
@@ -1634,6 +1884,17 @@ function renderFeed(options = {}) {
     rewindComments();
     resetObservers();
 
+    if (currentFeedTab === "history" && watchHistoryLoading) {
+        feed.innerHTML = `<div class="post" style="text-align:center;padding:40px 20px;"><i class="fas fa-spinner fa-spin" style="font-size:28px;color:#ff6a00;margin-bottom:12px;"></i><p>Loading your watch history...</p></div>`;
+        syncFeedChrome();
+        return;
+    }
+    if (currentFeedTab === "history" && watchHistoryError) {
+        feed.innerHTML = `<div class="post" style="text-align:center;padding:40px 20px;"><i class="fas fa-triangle-exclamation" style="font-size:34px;color:#f59e0b;margin-bottom:12px;"></i><p style="margin-bottom:14px;">Could not load watch history.</p><button class="load-more-btn" id="watch-history-retry"><i class="fas fa-rotate-right"></i> Try again</button></div>`;
+        syncFeedChrome();
+        return;
+    }
+
     const posts = filteredPosts();
     if (posts.length === 0) {
         const message = searchQuery !== ""
@@ -1644,7 +1905,9 @@ function renderFeed(options = {}) {
                     ? "You aren't following anyone who has posted yet."
                     : currentFeedTab === "videos"
                         ? "No videos here yet — check back soon."
-                        : currentFeedTab === "discover"
+                        : currentFeedTab === "history"
+                            ? "You have not watched any videos yet. Play a video and it will appear here."
+                            : currentFeedTab === "discover"
                             ? discoverEmptyMessage()
                             : "No posts found.";
         feed.innerHTML = emptyFeedHTML(message);
@@ -1660,10 +1923,11 @@ function renderFeed(options = {}) {
         return;
     }
 
-    const adToPostMap = adForPostMap(posts);
+    const adToPostMap = currentFeedTab === "history" ? new Map() : adForPostMap(posts);
     const html = posts.map(post => postHTML(post, adToPostMap.get(post.id))).join("");
     const pill = newPostsCount > 0 ? newPostsPillHTML() : "";
-    feed.innerHTML = `${pill}${html}${feedFootHTML()}`;
+    const historyToolbar = currentFeedTab === "history" ? historyToolbarHTML() : "";
+    feed.innerHTML = `${pill}${historyToolbar}${html}${feedFootHTML()}`;
     if (options.keepScroll) window.scrollTo(0, scrollY);
     observeLazyMedia();
     observeAdVideos();
@@ -1694,12 +1958,81 @@ function syncFeedChrome() {
 }
 
 function setFeedTab(tab) {
-    if (!["all", "following", "videos", "discover"].includes(tab)) tab = "all";
+    if (!["all", "following", "videos", "discover", "history"].includes(tab)) tab = "all";
     currentFeedTab = tab;
+    if (tab === "history") loadWatchHistory();
     try { localStorage.setItem("cashclique_feed_tab", tab); } catch (error) { /* storage can be blocked */ }
     syncFeedUrl();
     renderFeed();
     window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+async function loadWatchHistory() {
+    if (!currentUser || watchHistoryLoading || watchHistoryLoaded) return;
+    watchHistoryLoading = true;
+    watchHistoryError = false;
+    renderFeed();
+    try {
+        const historySnapshot = await getDocs(query(
+            collection(db, "users", currentUser.uid, "watchHistory"),
+            orderBy("watchedAt", "desc"),
+            limit(WATCH_HISTORY_LIMIT)
+        ));
+        watchHistoryPostIds = historySnapshot.docs.map(item => item.data().postId || item.id);
+        historySnapshot.docs.forEach(item => watchHistoryTimes.set(item.data().postId || item.id, item.data().watchedAt || null));
+        const postSnapshots = await Promise.all(watchHistoryPostIds.map(id => getDoc(doc(db, "posts", id))));
+        await ingestPostDocs(postSnapshots.filter(snap => snap.exists() && snap.data().moderationStatus !== "removed"));
+        watchHistoryLoaded = true;
+    } catch (error) {
+        console.warn("Watch history unavailable:", error);
+        watchHistoryError = true;
+    } finally {
+        watchHistoryLoading = false;
+        renderFeed();
+    }
+}
+
+async function loadRepostedPostIds() {
+    if (!currentUser) return;
+    try {
+        const snapshot = await getDocs(query(
+            collection(db, "users", currentUser.uid, "reposts"),
+            orderBy("timestamp", "desc"),
+            limit(REPOSTS_CACHE_LIMIT)
+        ));
+        snapshot.forEach(item => repostedPostIds.add(item.id));
+        if (feedLoaded && repostedPostIds.size) renderFeed({ keepScroll: true });
+    } catch (error) {
+        console.warn("Repost state unavailable:", error);
+    }
+}
+
+async function recordWatchHistory(postId) {
+    if (!currentUser || !postId) return;
+    try {
+        await setDoc(doc(db, "users", currentUser.uid, "watchHistory", postId), {
+            postId,
+            watchedAt: serverTimestamp()
+        }, { merge: true });
+        if (!allPostsCache.some(post => post.id === postId)) {
+            try {
+                const postSnap = await getDoc(doc(db, "posts", postId));
+                if (postSnap.exists()) await ingestPostDocs([postSnap]);
+            } catch (error) {
+                console.warn("Could not load watched post details:", error);
+            }
+        }
+        watchHistoryPostIds = [postId, ...watchHistoryPostIds.filter(id => id !== postId)].slice(0, WATCH_HISTORY_LIMIT);
+        watchHistoryTimes.set(postId, new Date());
+        if (currentFeedTab === "history") {
+            const card = Array.from(feed.querySelectorAll(".post[data-post-id]"))
+                .find(item => item.dataset.postId === postId);
+            const timeLabel = card && card.querySelector(".post-time");
+            if (timeLabel) timeLabel.textContent = `Watched ${formatTime(new Date())}`;
+        }
+    } catch (error) {
+        console.warn("Could not save watch history:", error);
+    }
 }
 
 function setDiscoverMode(mode) {
@@ -1765,26 +2098,39 @@ function creatorsHTML(posts) {
 
 function postHTML(post, attachedAd = null) {
     const postId = post.id;
+    const sourcePostId = post.originalPostId || post.id;
+    const isRepost = post.postType === "repost";
+    const contentOwnerId = isRepost ? (post.originalUserId || post.userId) : post.userId;
+    const contentOwnerName = isRepost ? (post.originalUsername || post.displayUsername || "Creator") : (post.username || "Anonymous");
     const isLiked = Array.isArray(post.likedBy) && post.likedBy.includes(currentUser.uid);
-    const timestamp = post.timestamp ? formatTime(post.timestamp.toDate()) : "Just now";
+    const timestamp = post.timestamp && typeof post.timestamp.toDate === "function" ? formatTime(post.timestamp.toDate()) : "Just now";
+    const watchedAt = watchHistoryTimes.get(sourcePostId);
+    const watchedDate = watchedAt && typeof watchedAt.toDate === "function" ? watchedAt.toDate() : (watchedAt ? new Date(watchedAt) : null);
+    const displayTimestamp = currentFeedTab === "history" && watchedDate ? `Watched ${formatTime(watchedDate)}` : timestamp;
     const verifiedBadge = post.isVerified ? `<span class="verified-badge-post" title="Verified Account"><i class="fas fa-check"></i></span>` : '';
-    const isFollowing = followingList.includes(post.userId);
-    const followBtnHTML = post.userId !== currentUser.uid ? `
-        <button class="follow-btn ${isFollowing ? 'following' : ''}" data-follow="${escapeAttr(post.userId)}">
+    const isFollowing = followingList.includes(contentOwnerId);
+    const followBtnHTML = contentOwnerId !== currentUser.uid ? `
+        <button class="follow-btn ${isFollowing ? 'following' : ''}" data-follow="${escapeAttr(contentOwnerId)}">
             <i class="fas fa-${isFollowing ? 'check' : 'plus'}"></i> ${isFollowing ? 'Following' : 'Follow'}
         </button>` : '';
     const priorityBadge = post.isFromFollowed && !post.hasViewed ? `<div class="priority-badge"><i class="fas fa-star"></i> Following Update</div>` : '';
-    // The ranker keeps good older posts in play; label them so the feed does
-    // not look like it is showing stale content by accident.
     const ageDays = (Date.now() - timeValue(post)) / 86400000;
     const throwbackTag = ageDays >= THROWBACK_AFTER_DAYS
         ? '<span class="post-age-tag" title="An older post that is still worth watching">throwback</span>'
         : '';
     const categoryBadge = post.category ? `<span class="post-category">${escapeHtml(post.category)}</span>` : '';
-    const profileHref = `profile.html?uid=${encodeURIComponent(post.userId)}`;
+    const profileHref = `profile.html?uid=${encodeURIComponent(contentOwnerId)}`;
+    const repostedBy = isRepost
+        ? `<div class="post-repost-by"><i class="fas fa-retweet"></i> ${post.userId === currentUser.uid ? "You" : `<a href="profile.html?uid=${encodeURIComponent(post.userId)}">${escapeHtml(post.username || "Someone")}</a>`} reposted</div>`
+        : '';
+    const isReposted = repostedPostIds.has(sourcePostId);
+    const repostButton = contentOwnerId !== currentUser.uid ? `
+        <span class="action-item repost-post" data-id="${escapeAttr(sourcePostId)}" data-reposted="${isReposted}">
+            <i class="fas fa-retweet"></i> ${isReposted ? "Reposted" : "Repost"}
+        </span>` : '';
 
     let adHTML = '';
-    if (attachedAd) {
+    if (attachedAd && !isRepost) {
         const hasViewed = viewedAds.includes(attachedAd.id);
         const visitLabel = attachedAd.targetUrl ? 'Visit' : '';
         adHTML = `
@@ -1799,62 +2145,67 @@ function postHTML(post, attachedAd = null) {
     }
 
     return `
-        <div class="post" data-post-id="${postId}" data-viewed="${post.hasViewed ? 'true' : 'false'}">
+        <div class="post" data-post-id="${escapeAttr(postId)}" data-viewed="${post.hasViewed ? 'true' : 'false'}">
+            ${repostedBy}
             ${priorityBadge}
             <div class="post-header">
-                <img src="${escapeAttr(post.userAvatar)}" class="profile-pic" data-uid="${escapeAttr(post.userId)}" onclick="window.location.href='${profileHref}'" loading="lazy" decoding="async" alt="">
+                <img src="${escapeAttr(post.userAvatar)}" class="profile-pic" data-uid="${escapeAttr(contentOwnerId)}" onclick="window.location.href='${profileHref}'" loading="lazy" decoding="async" alt="">
                 <div class="post-author">
                     <div class="post-author-name" onclick="window.location.href='${profileHref}'">
-                        <span>${escapeHtml(post.username || "Anonymous")}</span>${verifiedBadge}
+                        <span>${escapeHtml(contentOwnerName)}</span>${verifiedBadge}
                     </div>
-                    <div class="post-time">${timestamp}${throwbackTag}</div>
+                    <div class="post-time">${displayTimestamp}${currentFeedTab === "history" ? "" : throwbackTag}</div>
                 </div>
                 ${followBtnHTML}
-                <i class="fas fa-ellipsis-v three-dot" onclick="window.location.href='post-view.html?postId=${postId}'"></i>
+                <i class="fas fa-ellipsis-v three-dot" onclick="window.location.href='post-view.html?postId=${encodeURIComponent(sourcePostId)}'"></i>
             </div>
             ${categoryBadge}
             <p>${escapeHtml(post.content || "")}</p>
             ${mediaHTML(post)}
             <div class="post-actions">
-                <span class="action-item like-btn ${isLiked ? 'liked' : ''}" data-id="${postId}" data-owner="${escapeAttr(post.userId)}" data-liked="${isLiked}">
-                    <i class="${isLiked ? 'fas' : 'far'} fa-heart"></i> <span data-like-count="${postId}">${post.likes || 0}</span>
+                <span class="action-item like-btn ${isLiked ? 'liked' : ''}" data-id="${escapeAttr(postId)}" data-owner="${escapeAttr(post.userId)}" data-liked="${isLiked}">
+                    <i class="${isLiked ? 'fas' : 'far'} fa-heart"></i> <span data-like-count="${escapeAttr(postId)}">${post.likes || 0}</span>
                 </span>
-                <span class="action-item comment-toggle" data-post-id="${postId}">
-                    <i class="far fa-comment"></i> <span data-comment-count="${postId}">${post.commentCount || 0}</span>
+                <span class="action-item comment-toggle" data-post-id="${escapeAttr(postId)}">
+                    <i class="far fa-comment"></i> <span data-comment-count="${escapeAttr(postId)}">${post.commentCount || 0}</span>
                 </span>
                 <span class="action-item">
-                    <i class="far fa-eye"></i> <span data-view-count="${postId}">${post.views || 0}</span>
+                    <i class="far fa-eye"></i> <span data-view-count="${escapeAttr(postId)}">${post.views || 0}</span>
                 </span>
-                <span class="action-item tip-jar" data-id="${postId}" data-owner="${escapeAttr(post.userId)}" data-username="${escapeAttr(post.username || '')}">
+                <span class="action-item tip-jar" data-id="${escapeAttr(postId)}" data-owner="${escapeAttr(contentOwnerId)}" data-username="${escapeAttr(contentOwnerName)}">
                     <i class="fas fa-hand-holding-dollar"></i> Tip
                 </span>
-                <span class="action-item share-post" data-id="${postId}" title="Share">
+                <span class="action-item share-post" data-id="${escapeAttr(sourcePostId)}" title="Share">
                     <i class="fas fa-share-alt"></i> Share
                 </span>
+                ${repostButton}
+                <span class="action-item report-post" data-id="${escapeAttr(sourcePostId)}" title="Report">
+                    <i class="fas fa-flag"></i> Report
+                </span>
                 ${post.mediaKind !== "text" ? `
-                <span class="action-item save-media" data-id="${postId}">
+                <span class="action-item save-media" data-id="${escapeAttr(postId)}">
                     <i class="fas fa-download"></i> Save
                 </span>` : ''}
             </div>
-            <div class="comments-section" id="comments-${postId}">
+            <div class="comments-section" id="comments-${escapeAttr(postId)}">
                 <div class="comments-header">
                     <span class="comments-title">Comments (${post.commentCount || 0})</span>
-                    <button class="close-comments" onclick="toggleComments('${postId}')">
+                    <button class="close-comments" onclick="toggleComments('${escapeAttr(postId)}')">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
-                <div class="comment-list" id="comment-list-${postId}"></div>
+                <div class="comment-list" id="comment-list-${escapeAttr(postId)}"></div>
                 <div class="comment-input-area">
-                    <div class="reply-indicator" id="reply-indicator-${postId}">
+                    <div class="reply-indicator" id="reply-indicator-${escapeAttr(postId)}">
                         <i class="fas fa-reply"></i>
-                        <span>Replying to <strong id="reply-to-name-${postId}"></strong></span>
-                        <button class="cancel-reply" onclick="cancelReply('${postId}')">
+                        <span>Replying to <strong id="reply-to-name-${escapeAttr(postId)}"></strong></span>
+                        <button class="cancel-reply" onclick="cancelReply('${escapeAttr(postId)}')">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
                     <div class="comment-input-wrapper">
-                        <textarea class="comment-input" id="comment-input-${postId}" placeholder="Write a comment..." rows="1"></textarea>
-                        <button class="comment-submit" onclick="addComment('${postId}', '${escapeAttr(post.userId)}')">
+                        <textarea class="comment-input" id="comment-input-${escapeAttr(postId)}" placeholder="Write a comment..." rows="1"></textarea>
+                        <button class="comment-submit" onclick="addComment('${escapeAttr(postId)}', '${escapeAttr(post.userId)}')">
                             <i class="fas fa-paper-plane"></i>
                         </button>
                     </div>
@@ -1991,7 +2342,7 @@ function setupFeedInteractions() {
         const shell = event.target.closest(".video-shell");
         if (!shell || (shell.dataset && shell.dataset.adVideo)) return;
         event.preventDefault();
-        playVideoInShell(shell);
+        playFeedVideo(shell);
     });
 }
 
@@ -2006,16 +2357,23 @@ async function onFeedClick(event) {
     const shell = target.closest(".video-shell");
     if (shell) {
         if (shell.dataset && shell.dataset.adVideo) return;
-        playVideoInShell(shell);
+        playFeedVideo(shell);
         return;
     }
 
     if (target.closest("#new-posts")) { refreshNewPosts(); return; }
     if (target.closest("#load-more")) { loadMorePosts(); return; }
     if (target.closest("#feed-retry")) { loadFeed(); return; }
+    if (target.closest("#watch-history-retry")) { loadWatchHistory(); return; }
 
     const ad = target.closest(".ad-container");
     if (ad) { window.handleAdClick(ad.dataset.adId, ad.dataset.targetUrl); return; }
+
+    const repostBtn = target.closest(".repost-post");
+    if (repostBtn) { toggleRepost(repostBtn.dataset.id, repostBtn); return; }
+
+    const reportBtn = target.closest(".report-post");
+    if (reportBtn) { openReportModal(reportBtn.dataset.id); return; }
 
     const likeBtn = target.closest(".like-btn");
     if (likeBtn) { handleLike(likeBtn); return; }
