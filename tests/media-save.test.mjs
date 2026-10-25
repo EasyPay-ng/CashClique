@@ -282,7 +282,7 @@ test("fetchMediaBlob: cancelling mid-download aborts the request", withDom({}, a
 
 test("downloadBlob: only ever uses a blob: URL and a safe filename", withDom({}, async (t, dom) => {
     const blob = new Blob([PHOTO_BYTES], { type: "image/jpeg" });
-    downloadBlob(blob, 'cashclique_1"weird".jpg');
+    await downloadBlob(blob, 'cashclique_1"weird".jpg');
 
     assert.strictEqual(dom.calls.downloads.length, 1);
     assert.ok(dom.calls.downloads[0].href.indexOf("blob:") === 0, "anchor points at a blob: URL");
@@ -295,10 +295,69 @@ test("downloadBlob: only ever uses a blob: URL and a safe filename", withDom({},
 
 test("downloadBlob: untyped blobs still download under a named file", withDom({}, async (t, dom) => {
     const blob = new Blob([VIDEO_BYTES]);
-    downloadBlob(blob, "cashclique_clip.mp4");
+    await downloadBlob(blob, "cashclique_clip.mp4");
     assert.strictEqual(dom.calls.downloads.length, 1);
     assert.ok(dom.calls.downloads[0].href.indexOf("blob:") === 0);
     assert.strictEqual(dom.calls.downloads[0].download, "cashclique_clip.mp4");
+}));
+
+test("downloadBlob: a denied mobile share falls back to a blob download", withDom({}, async (t, dom) => {
+    const previous = Object.getOwnPropertyDescriptor(globalThis, "navigator");
+    const denied = new Error("Share needs a fresh user gesture");
+    denied.name = "NotAllowedError";
+    Object.defineProperty(globalThis, "navigator", {
+        configurable: true,
+        value: {
+            canShare: () => true,
+            share: () => Promise.reject(denied)
+        }
+    });
+    t.after(() => Object.defineProperty(globalThis, "navigator", previous));
+
+    const filename = await downloadBlob(new Blob([PHOTO_BYTES], { type: "image/jpeg" }), "mobile-photo.jpg");
+
+    assert.equal(filename, "mobile-photo.jpg");
+    assert.equal(dom.calls.downloads.length, 1, "a rejected share does not silently stop the save");
+    assert.ok(dom.calls.downloads[0].href.startsWith("blob:"));
+}));
+
+test("downloadBlob: cancelling the share sheet does not trigger a second download", withDom({}, async (t, dom) => {
+    const previous = Object.getOwnPropertyDescriptor(globalThis, "navigator");
+    const cancelled = new Error("Share dismissed");
+    cancelled.name = "AbortError";
+    Object.defineProperty(globalThis, "navigator", {
+        configurable: true,
+        value: {
+            canShare: () => true,
+            share: () => Promise.reject(cancelled)
+        }
+    });
+    t.after(() => Object.defineProperty(globalThis, "navigator", previous));
+
+    await assert.rejects(
+        downloadBlob(new Blob([PHOTO_BYTES], { type: "image/jpeg" }), "cancelled.jpg"),
+        error => error.kind === "cancelled"
+    );
+    assert.equal(dom.calls.downloads.length, 0);
+}));
+
+test("downloadBlob: waits for a successful file share", withDom({}, async (t, dom) => {
+    const previous = Object.getOwnPropertyDescriptor(globalThis, "navigator");
+    let sharedFile = null;
+    Object.defineProperty(globalThis, "navigator", {
+        configurable: true,
+        value: {
+            canShare: () => true,
+            share: async payload => { sharedFile = payload.files[0]; }
+        }
+    });
+    t.after(() => Object.defineProperty(globalThis, "navigator", previous));
+
+    const filename = await downloadBlob(new Blob([VIDEO_BYTES], { type: "video/mp4" }), "mobile-video.mp4");
+
+    assert.equal(filename, "mobile-video.mp4");
+    assert.equal(sharedFile.name, "mobile-video.mp4");
+    assert.equal(dom.calls.downloads.length, 0, "a successful share does not also trigger an anchor download");
 }));
 
 test("helpers: filenames and extensions", () => {
@@ -352,7 +411,7 @@ test("video: proxy fallback also preserves original bytes", withDom({}, async (t
     assert.strictEqual(result.viaProxy, true);
     assert.strictEqual(dom.calls.fetch.length, 2);
     assert.deepStrictEqual(new Uint8Array(await result.blob.arrayBuffer()), VIDEO_BYTES);
-    downloadBlob(result.blob, result.filename);
+    await downloadBlob(result.blob, result.filename);
     assert.strictEqual(dom.calls.downloads.length, 1);
     assert.ok(dom.calls.downloads[0].href.startsWith("blob:"));
 }));

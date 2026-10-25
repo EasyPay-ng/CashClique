@@ -2328,7 +2328,7 @@ async function savePhotoItem(post) {
             src: src,
             filename: mediaFilename(post.id, 'jpg')
         });
-        downloadBlob(saved.blob, saved.filename);
+        await downloadBlob(saved.blob, saved.filename);
         showToast("Photo saved with CashClique watermark", "success");
     } catch (err) {
         // No silent fallback: an unwatermarked copy is never saved, and the
@@ -2371,7 +2371,7 @@ async function saveVideoItem(post) {
             onStage: () => dlShow('Downloading video…')
         });
         dlHide();
-        downloadBlob(saved.blob, saved.filename);
+        await downloadBlob(saved.blob, saved.filename);
         showToast("Video saved", "success");
     } catch (err) {
         dlHide();
